@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Reveal } from '@/components/ui/motion';
 import { MenuCard } from '@/components/MenuCard';
 import { ImpressionTracker } from '@/components/ImpressionTracker';
 import { SettingsToolbar } from '@/components/SettingsToolbar';
@@ -253,16 +254,16 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mb-8 flex flex-col items-center gap-7">
+        <Reveal className="mb-8 flex flex-col items-center gap-7">
           <TimeOfDayHint lang={lang} />
           {filter === 'all' && query.trim().length === 0 && mood === null && <TopPicks lang={lang} />}
-        </div>
+        </Reveal>
 
-        <div className="mb-10 w-full max-w-3xl">
+        <Reveal delay={0.08} className="mb-10 w-full max-w-3xl">
           <MoodFilter lang={lang} active={mood} onChange={setMood} />
-        </div>
+        </Reveal>
 
-        <div className="mb-20 w-full max-w-3xl">
+        <Reveal delay={0.16} className="mb-20 w-full max-w-3xl">
           <MenuFilters
             lang={lang}
             active={filter}
@@ -272,7 +273,7 @@ export default function Home() {
             query={query}
             onQueryChange={setQuery}
           />
-        </div>
+        </Reveal>
 
         {filtered.length === 0 ? (
           <p

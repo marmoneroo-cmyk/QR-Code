@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Reveal } from '@/components/ui/motion';
 import { MENU, type CocktailConfig } from '@/data/cocktail';
 
 const CocktailScene = dynamic(
@@ -110,28 +111,32 @@ export default function KioskPage() {
         />
       </div>
 
-      <div
+      <Reveal
+        delay={0.3}
         className="absolute bottom-6 right-6 z-50 text-amber-200/50 text-[10px] tracking-[0.4em] uppercase select-none"
-        style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
       >
-        {String(index + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
-        {scheduleEnabled && items.length !== MENU.length && (
-          <span className="ml-3 text-amber-100">· {MENU.length - items.length} hidden</span>
-        )}
-        {paused && <span className="ml-3 text-amber-100">· paused</span>}
-      </div>
+        <span style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+          {String(index + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
+          {scheduleEnabled && items.length !== MENU.length && (
+            <span className="ml-3 text-amber-100">· {MENU.length - items.length} hidden</span>
+          )}
+          {paused && <span className="ml-3 text-amber-100">· paused</span>}
+        </span>
+      </Reveal>
 
-      <div
+      <Reveal
+        delay={0.4}
         className="absolute bottom-6 left-6 z-50 text-amber-200/40 text-[9px] tracking-[0.35em] uppercase select-none"
-        style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
       >
-        ESC to exit · ← → to switch · space to pause · S to {scheduleEnabled ? 'show all' : 'apply schedule'}
-        {now && scheduleEnabled && (
-          <span className="ml-3 text-amber-200/60">
-            · {now.getHours().toString().padStart(2, '0')}:{now.getMinutes().toString().padStart(2, '0')}
-          </span>
-        )}
-      </div>
+        <span style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+          ESC to exit · ← → to switch · space to pause · S to {scheduleEnabled ? 'show all' : 'apply schedule'}
+          {now && scheduleEnabled && (
+            <span className="ml-3 text-amber-200/60">
+              · {now.getHours().toString().padStart(2, '0')}:{now.getMinutes().toString().padStart(2, '0')}
+            </span>
+          )}
+        </span>
+      </Reveal>
 
       <Link
         href="/"
