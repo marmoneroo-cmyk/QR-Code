@@ -6,11 +6,11 @@ import { motion } from 'framer-motion';
 import { GripVertical } from 'lucide-react';
 import { CATEGORY_LABEL, MENU, getAccent } from '@/data/cocktail';
 import { useDrafts } from '@/lib/useDrafts';
+import { useMenuOrder } from '@/lib/useMenuOrder';
 import { useLang } from '@/lib/useLang';
 import { BulkBreakdownButton } from '@/components/admin/BulkBreakdownButton';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage } from '@/components/ui/dataviz';
-import { Stagger, staggerItem } from '@/components/ui/motion';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -105,6 +105,7 @@ function DraftCard({
 
 export default function AdminPage() {
   const { drafts, hydrated, remove, reorderDrafts } = useDrafts();
+  const { order, setOrder, apply: applyMenuOrder } = useMenuOrder();
   const { lang } = useLang();
   const isHebrew = lang === 'he';
   const titleFont = isHebrew ? heSerif : serif;
@@ -115,6 +116,8 @@ export default function AdminPage() {
   // overIndex = card currently hovered as the drop target (for the indicator).
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [pubDragIndex, setPubDragIndex] = useState<number | null>(null);
+  const [pubOverIndex, setPubOverIndex] = useState<number | null>(null);
 
   const endDrag = () => {
     setDragIndex(null);
@@ -124,6 +127,22 @@ export default function AdminPage() {
   const handleDrop = (toIndex: number) => {
     if (dragIndex !== null && dragIndex !== toIndex) reorderDrafts(dragIndex, toIndex);
     endDrag();
+  };
+
+  // Published-menu reorder — persisted via useMenuOrder and reflected on the guest menu.
+  const publishedList = applyMenuOrder(MENU);
+  const endPubDrag = () => {
+    setPubDragIndex(null);
+    setPubOverIndex(null);
+  };
+  const handlePubDrop = (toIndex: number) => {
+    if (pubDragIndex !== null && pubDragIndex !== toIndex) {
+      const next = [...publishedList];
+      const [moved] = next.splice(pubDragIndex, 1);
+      next.splice(toIndex, 0, moved);
+      setOrder(next.map((c) => c.slug));
+    }
+    endPubDrag();
   };
 
   const t = (en: string, he: string) => (isHebrew ? he : en);
@@ -269,10 +288,44 @@ export default function AdminPage() {
         </div>
       )}
 
-      <SectionLabel>{t('Published', 'פורסמו')} ({MENU.length})</SectionLabel>
-      <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {MENU.map((cocktail) => (
-          <motion.div key={cocktail.slug} variants={staggerItem} className="group rounded-2xl border border-white/[0.07] bg-zinc-900/40 p-6 transition-colors hover:border-amber-200/25">
+      <div className="flex items-center gap-4 mb-3">
+        <h2 className="text-amber-200/85 text-[11px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+          {t('Published', 'פורסמו')} ({MENU.length})
+        </h2>
+        {order.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setOrder([])}
+            className="text-white/45 hover:text-amber-100 transition-colors text-[9px] tracking-[0.25em] uppercase"
+            style={{ fontFamily: sans }}
+          >
+            {t('Custom order · Reset', 'סדר מותאם · אפס')}
+          </button>
+        )}
+        <span className="flex-1 h-px bg-amber-200/12" />
+      </div>
+      <p className="text-white/35 text-[11px] mb-6" style={{ fontFamily: sans }}>
+        {t(
+          'Drag the handle to set how items appear on the guest menu (saved on this device).',
+          'גררו מהידית כדי לקבוע את סדר הופעת הפריטים בתפריט הסועד (נשמר במכשיר זה).'
+        )}
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {publishedList.map((cocktail, i) => (
+          <DraftCard
+            key={cocktail.slug}
+            index={i}
+            isDragging={pubDragIndex === i}
+            isDropTarget={pubOverIndex === i && pubDragIndex !== null && pubDragIndex !== i}
+            onDragStart={() => {
+              setPubDragIndex(i);
+              setPubOverIndex(i);
+            }}
+            onDragOver={() => setPubOverIndex(i)}
+            onDrop={() => handlePubDrop(i)}
+            onDragEnd={endPubDrag}
+            dragLabel={t(`Reorder ${cocktail.title.en}`, `שינוי סדר ${cocktail.title.he}`)}
+          >
             {cocktail.heroImage && (
               <GlassImage
                 src={cocktail.heroImage}
@@ -291,10 +344,10 @@ export default function AdminPage() {
                 {cocktail.tagline[lang]}
               </p>
             )}
-            <p className="text-white/30 text-[10px] tracking-wider uppercase mt-4">{t('Hardcoded · published', 'מובנה · פורסם')}</p>
-          </motion.div>
+            <p className="text-white/30 text-[10px] tracking-wider uppercase mt-4">{t('Published', 'פורסם')}</p>
+          </DraftCard>
         ))}
-      </Stagger>
+      </div>
     </AdminShell>
   );
 }

@@ -14,6 +14,7 @@ import { TopPicks } from '@/components/TopPicks';
 import { matchesMood, type Mood } from '@/lib/mood';
 import { useFavorites } from '@/lib/useFavorites';
 import { useDrafts } from '@/lib/useDrafts';
+import { useMenuOrder } from '@/lib/useMenuOrder';
 import { useCurrency } from '@/lib/useCurrency';
 import { useRestaurant } from '@/lib/useRestaurant';
 import { useViewHistory } from '@/lib/useViewHistory';
@@ -30,6 +31,7 @@ export default function Home() {
   const [mood, setMood] = useState<Mood | null>(null);
   const { favorites, toggle, isFavorite } = useFavorites();
   const { drafts } = useDrafts();
+  const { apply: applyMenuOrder } = useMenuOrder();
   const { currency, setCurrency } = useCurrency();
   const { name: restaurantName, setName: setRestaurantName, logo: restaurantLogo } = useRestaurant();
   const { history: viewHistory } = useViewHistory();
@@ -50,6 +52,8 @@ export default function Home() {
     () => [...MENU, ...drafts.filter((d) => !MENU.some((m) => m.slug === d.slug))],
     [drafts]
   );
+  // Apply the manager's custom menu order (identity no-op when none is set).
+  const orderedCocktails = useMemo(() => applyMenuOrder(allCocktails), [allCocktails, applyMenuOrder]);
   const draftSlugs = useMemo(() => new Set(drafts.map((d) => d.slug)), [drafts]);
 
   const categories = useMemo(() => {
@@ -60,7 +64,7 @@ export default function Home() {
 
   const filtered = useMemo(() => {
     const trimmed = query.trim().toLowerCase();
-    return allCocktails.filter((cocktail) => {
+    return orderedCocktails.filter((cocktail) => {
       if (filter === 'favorites' && !favorites.has(cocktail.slug)) return false;
       if (mood && !matchesMood(cocktail.flavor, mood)) return false;
       if (filter !== 'all' && filter !== 'favorites' && cocktail.category !== filter) {
@@ -80,7 +84,7 @@ export default function Home() {
       }
       return true;
     });
-  }, [filter, query, favorites, allCocktails, mood]);
+  }, [filter, query, favorites, orderedCocktails, mood]);
 
   // Always render one flat grid (4 per row) regardless of category — the
   // category chips still filter, but the menu is no longer split into sections.
@@ -316,7 +320,7 @@ export default function Home() {
                           cocktail={cocktail}
                           lang={lang}
                           currency={currency}
-                          index={allCocktails.indexOf(cocktail)}
+                          index={orderedCocktails.indexOf(cocktail)}
                           isFavorite={isFavorite(cocktail.slug)}
                           isDraft={draftSlugs.has(cocktail.slug)}
                           onToggleFavorite={handleToggleFavorite}

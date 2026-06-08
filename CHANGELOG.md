@@ -7,6 +7,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-06-08
 
+### Added — Backlog completion (editor polish · CMS reorder · public motion · tests)
+
+- **Cocktail editor** restyled to the luxury language (CocktailForm + new/edit); the edit route now falls back to the published MENU cocktail (prefill) instead of dead-ending on "not found".
+- **Composer reorder:** drafts drag-to-reorder (localStorage); **published-menu drag-to-reorder** via a new `useMenuOrder` hook (persisted, per-device) — reflected on the guest menu with a safe identity fallback (no custom order ⇒ unchanged), plus a "Custom order · Reset" control.
+- **Import** progress stepper; **QR/Print** brand-accent theming (print fidelity preserved).
+- **Public screens:** additive entrance motion (menu filter blocks, kiosk hints) — no double-animation (MenuCard already self-animates by index).
+- **Tests:** vitest unit tests for `eventTypeLabel`/`deviceLabel`, `deltaPct`, and `applyOrder` — 76 tests across 10 files, all green.
+
 ### Added — Visual upgrade sprints (motion · real charts · action features · bespoke viz)
 
 Four sprints raising the whole admin surface to "highest quality", each verified (`tsc` +
