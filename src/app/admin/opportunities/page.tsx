@@ -9,6 +9,9 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, SectionLabel, Skeleton } from '@/components/ui/dataviz';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
+import { PotentialValue, BeforeAfterBar } from '@/components/ui/value';
+import { estimatePotential, buildMenuBenchmark, type MenuBenchmark } from '@/lib/value/potential';
+import type { MenuEngineeringItem } from '@/lib/analytics/types';
 import type { Opportunity, OpportunityType, Confidence, LayoutInsight } from '@/lib/opportunities/types';
 
 const sans = 'var(--font-inter, sans-serif)';
@@ -154,6 +157,9 @@ export default function OpportunitiesPage() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const [data, setData] = useState<BoardData | null>(null);
+  // Menu-engineering items power the honest revenue-potential estimates. They're
+  // additive: if this fetch fails, opportunities still render (just without ₪ upside).
+  const [items, setItems] = useState<MenuEngineeringItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -161,10 +167,22 @@ export default function OpportunitiesPage() {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch('/api/analytics/opportunities', { cache: 'no-store' });
-      const json: { success: boolean; data?: BoardData } = await res.json();
-      if (json.success && json.data) setData(json.data);
+      const [oppsRes, engRes] = await Promise.all([
+        fetch('/api/analytics/opportunities', { cache: 'no-store' }),
+        fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
+      ]);
+
+      const oppsJson: { success: boolean; data?: BoardData } = await oppsRes.json();
+      if (oppsJson.success && oppsJson.data) setData(oppsJson.data);
       else setError(true);
+
+      // Menu-engineering is best-effort — a failure here must not block the board.
+      try {
+        const engJson: { success: boolean; data?: { items: MenuEngineeringItem[] } } = await engRes.json();
+        setItems(engJson.success && engJson.data ? engJson.data.items : []);
+      } catch {
+        setItems([]);
+      }
     } catch {
       setError(true);
     } finally {
@@ -175,6 +193,11 @@ export default function OpportunitiesPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Achievable target derived from the menu's OWN medians (never fabricated), plus a
+  // slug→item lookup so each card can estimate its real upside.
+  const bench = useMemo<MenuBenchmark>(() => buildMenuBenchmark(items), [items]);
+  const itemBySlug = useMemo(() => new Map(items.map((it) => [it.slug, it])), [items]);
 
   const titleBySlug = useMemo(() => new Map(MENU.map((c) => [c.slug, c.title])), []);
   const headFont = isHe ? serifHe : serif;
@@ -203,8 +226,8 @@ export default function OpportunitiesPage() {
       eyebrow="What should I do today?"
       eyebrowHe="מה כדאי לעשות היום?"
       active="/admin/opportunities"
-      subtitle="Your morning action list — each opportunity carries its type, confidence, evidence, and a suggested action. No fabricated revenue: direction only unless the data supports more."
-      subtitleHe="רשימת הפעולות של הבוקר — לכל הזדמנות סוג, רמת ביטחון, ראיות, ופעולה מומלצת. בלי הערכות הכנסה מומצאות: כיוון בלבד עד שיש מספיק נתונים."
+      subtitle="Your morning action list — each opportunity leads with its honest ₪ revenue upside, then its type, confidence, evidence, and a suggested action. Every estimate is tied to the menu's own medians; thin-data items show a target instead of a fabricated number."
+      subtitleHe="רשימת הפעולות של הבוקר — כל הזדמנות פותחת בצפי ההכנסה הנוספת ב-₪ (הערכה כנה), ואז סוג, רמת ביטחון, ראיות ופעולה מומלצת. כל הערכה נשענת על חציוני התפריט עצמו; פריטים עם מעט נתונים מציגים יעד במקום מספר מומצא."
     >
       {loading && (
         <div className="flex flex-col gap-12" dir={isHe ? 'rtl' : 'ltr'}>
@@ -259,6 +282,8 @@ export default function OpportunitiesPage() {
                   <motion.div key={`${oppId(o)}:${i}`} variants={staggerItem}>
                     <OpportunityCard
                       o={o}
+                      item={itemBySlug.get(o.slug)}
+                      bench={bench}
                       lang={lang}
                       isHe={isHe}
                       headFont={headFont}
@@ -336,6 +361,9 @@ export default function OpportunitiesPage() {
 
 interface OpportunityCardProps {
   o: Opportunity;
+  /** Real per-item analytics for this slug; absent when menu-engineering had no row. */
+  item: MenuEngineeringItem | undefined;
+  bench: MenuBenchmark;
   lang: 'en' | 'he';
   isHe: boolean;
   headFont: string;
@@ -344,12 +372,16 @@ interface OpportunityCardProps {
   onSnooze: () => void;
 }
 
-function OpportunityCard({ o, lang, isHe, headFont, onDone, onDismiss, onSnooze }: OpportunityCardProps) {
+function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismiss, onSnooze }: OpportunityCardProps) {
   const cocktail = findCocktailBySlug(o.slug);
   const accent = getAccent(o.slug);
   const title = cocktail?.title[lang] ?? o.slug;
   const meta = TYPE_META[o.type];
   const Icon = meta.icon;
+
+  // Honest upside: only what real data supports. Null → PotentialValue shows the
+  // "collect more traffic" note and we skip the before/after bar.
+  const potential = item ? estimatePotential(item, bench) : null;
 
   return (
     <article
@@ -385,7 +417,25 @@ function OpportunityCard({ o, lang, isHe, headFont, onDone, onDismiss, onSnooze 
         {title}
       </h3>
 
-      <p className="text-white text-[15px] leading-snug" style={{ fontFamily: sans, fontWeight: 500 }}>
+      {/* Headline value: the honest ₪ upside now carries the card's message. */}
+      <PotentialValue potential={potential} lang={lang} accent={meta.color} size="md" />
+
+      {potential && item && (
+        <div>
+          <p className="text-white/40 text-[9px] uppercase tracking-[0.22em] mb-1.5" style={{ fontFamily: sans }}>
+            {isHe ? 'הזמנות · לפני → אחרי' : 'Orders · before → after'}
+          </p>
+          <BeforeAfterBar
+            before={item.orders}
+            after={item.orders + potential.extraOrders}
+            lang={lang}
+            accent={meta.color}
+          />
+        </div>
+      )}
+
+      {/* Suggested action — secondary now; the ₪ value above leads. */}
+      <p className="text-white/70 text-[13px] leading-snug" style={{ fontFamily: sans }}>
         {o.action[lang]}
       </p>
 

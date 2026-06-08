@@ -9,6 +9,7 @@ import { Skeleton, SkeletonGrid, LiveDot, AreaChart } from '@/components/ui/data
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { getAccent, findCocktailBySlug } from '@/data/cocktail';
+import { totalPotential } from '@/lib/value/potential';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
 const serif = 'var(--font-playfair, serif)';
@@ -134,6 +135,9 @@ export default function ExecutiveSummaryPage() {
 
   const hasData = items.length > 0 && (ov?.totalViews ?? 0) > 0;
 
+  // Honest money hero: sums ONLY quantified upsides from real per-item analytics.
+  const potential = useMemo(() => totalPotential(me?.items ?? []), [me]);
+
   const ranked = useMemo(() => {
     const score = (i: Enriched) => (i.highInterestLowConversion ? 1000 : 0) + (i.klass === 'puzzle' ? 500 : 0) + i.attentionScore;
     return [...items].sort((a, b) => score(b) - score(a));
@@ -235,6 +239,9 @@ export default function ExecutiveSummaryPage() {
 
       {hasData && hero && (
         <div className="flex flex-col gap-12" dir={isHe ? 'rtl' : 'ltr'}>
+          {/* MONEY HERO — open opportunity value + actions today (honest: quantified upside only) */}
+          <MoneyHero potential={potential} t={t} isHe={isHe} />
+
           {/* HERO */}
           {(() => {
             const p = project(hero);
@@ -406,6 +413,59 @@ export default function ExecutiveSummaryPage() {
         </div>
       )}
     </AdminShell>
+  );
+}
+
+/** Prominent, honest money strip: open potential (₪) + recommended actions today. */
+function MoneyHero({ potential, t, isHe }: { potential: { revenueILS: number; count: number }; t: (en: string, he: string) => string; isHe: boolean }) {
+  const hasUpside = potential.count > 0;
+  return (
+    <Link
+      href="/admin/opportunities"
+      className="group relative block overflow-hidden rounded-[1.75rem] p-[1px] transition-transform hover:scale-[1.005]"
+      style={{ background: 'linear-gradient(120deg, rgba(52,211,153,0.55), rgba(16,185,129,0.18) 60%, rgba(52,211,153,0.4))' }}
+    >
+      <div className="rounded-[calc(1.75rem-1px)] bg-zinc-950/85 backdrop-blur-xl p-6 md:p-8">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <p className="inline-flex items-center gap-2 text-emerald-300/80 text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+              <Sparkles size={12} strokeWidth={2} /> {t('Open opportunity', 'הזדמנות פתוחה')}
+            </p>
+            {hasUpside ? (
+              <p className="mt-2 leading-[1] text-emerald-300" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,4rem)' }}>
+                {ils(potential.revenueILS)}
+              </p>
+            ) : (
+              <p className="mt-2 leading-tight text-white/85" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.5rem,3.5vw,2.2rem)' }}>
+                {t('Collect more traffic', 'אסוף עוד תנועה')}
+              </p>
+            )}
+            <p className="mt-2 text-white/55 text-[13px] md:text-[14px] break-words" style={{ fontFamily: sans }}>
+              {hasUpside
+                ? t('Open potential — what to do now.', 'פוטנציאל פתוח — מה לעשות עכשיו.')
+                : t('Not enough real traffic to estimate upside yet.', 'אין עדיין מספיק תנועה אמיתית כדי להעריך פוטנציאל.')}
+            </p>
+          </div>
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="text-end">
+              <p className="text-emerald-300 leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.6rem,3vw,2.2rem)' }}>
+                {hasUpside ? potential.count : '—'}
+              </p>
+              <p className="mt-1 text-white/50 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
+                {t('actions today', 'פעולות מומלצות היום')}
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/40 bg-emerald-300/10 px-4 py-2 text-[11px] tracking-[0.2em] uppercase text-emerald-200 transition-colors group-hover:border-emerald-300/70" style={{ fontFamily: sans, fontWeight: 600 }}>
+              {t('Act now', 'פעלו עכשיו')}
+              <ArrowRight size={13} strokeWidth={2.2} className={isHe ? 'rotate-180' : ''} />
+            </span>
+          </div>
+        </div>
+        <p className="mt-4 text-white/30 text-[10px] tracking-wide" style={{ fontFamily: sans }}>
+          {t('Estimate · based on real data', 'צפי · מבוסס נתונים אמיתיים')}
+        </p>
+      </div>
+    </Link>
   );
 }
 

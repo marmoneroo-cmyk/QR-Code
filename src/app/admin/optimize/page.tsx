@@ -10,8 +10,10 @@ import { GlassImage, ConfidenceBadge, Pill, Skeleton } from '@/components/ui/dat
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
-import type { MenuEngineering } from '@/lib/analytics/types';
+import type { MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 import { buildRecommendations, type Recommendation, type Confidence, type RecAction } from '@/lib/optimization';
+import { estimatePotential, buildMenuBenchmark } from '@/lib/value/potential';
+import { PotentialValue, BeforeAfterBar } from '@/components/ui/value';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -137,6 +139,19 @@ export function OptimizePanel() {
     [data],
   );
 
+  // Achievable benchmark (menu's own medians) — basis for every upside estimate.
+  const bench = useMemo(
+    () => buildMenuBenchmark(data?.items ?? []),
+    [data],
+  );
+
+  // slug → analytics item, so each card can estimate its own honest upside.
+  const itemBySlug = useMemo(() => {
+    const map = new Map<string, MenuEngineeringItem>();
+    for (const it of data?.items ?? []) map.set(it.slug, it);
+    return map;
+  }, [data]);
+
   return (
     <>
       {loading && (
@@ -169,6 +184,9 @@ export function OptimizePanel() {
             const accent = getAccent(r.slug);
             const title = cocktail?.title[lang] ?? r.slug;
             const sale = sales[r.slug];
+            const item = itemBySlug.get(r.slug);
+            // Honest, thin-data-safe upside (null when there's no real basis).
+            const potential = item ? estimatePotential(item, bench) : null;
             return (
               <motion.article
                 key={`${r.slug}:${r.action}`}
@@ -214,17 +232,25 @@ export function OptimizePanel() {
                   </p>
 
                   <div className="mt-auto flex flex-col gap-2.5 pt-1">
-                    {r.estimatedImpact ? (
-                      <div
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-[13px]"
-                        style={{ color: accent, background: `${accent}14`, border: `1px solid ${accent}40`, fontFamily: sans, fontWeight: 600 }}
-                      >
-                        <TrendingUp size={14} strokeWidth={2} className="shrink-0" />
+                    {/* Primary: honest revenue upside (renders a "collect more data" note when null). */}
+                    <PotentialValue potential={potential} lang={lang} accent={accent} size="md" />
+
+                    {/* Before → After orders, only when there's a quantified upside. */}
+                    {potential && item && (
+                      <BeforeAfterBar
+                        before={item.orders}
+                        after={item.orders + potential.extraOrders}
+                        lang={lang}
+                        accent={accent}
+                        unit={isHebrew ? ' הז׳' : ' ord'}
+                      />
+                    )}
+
+                    {/* Secondary: the qualitative impact note, kept when present. */}
+                    {r.estimatedImpact && (
+                      <p className="inline-flex items-center gap-1.5 text-white/45 text-[11px] leading-snug" style={{ fontFamily: sans }}>
+                        <TrendingUp size={12} strokeWidth={2} className="shrink-0" style={{ color: accent }} />
                         <span>{r.estimatedImpact[lang]}</span>
-                      </div>
-                    ) : (
-                      <p className="text-white/30 text-[11px] italic" style={{ fontFamily: sans }}>
-                        {isHebrew ? 'דרושה בדיקת A/B להערכה' : 'Needs an A/B test to estimate'}
                       </p>
                     )}
 
