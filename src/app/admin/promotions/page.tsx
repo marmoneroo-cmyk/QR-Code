@@ -98,8 +98,9 @@ function scheduleSummary(s: Schedule | undefined, isHe: boolean): string {
     const days = w.days.map((d) => WEEKDAYS[d][isHe ? 'he' : 'en']).join(', ');
     return `${days} ${w.start}–${w.end}`;
   }
-  if (w.kind === 'range') return `${w.startDate} → ${w.endDate}`;
-  return `${w.startMonthDay} → ${w.endMonthDay}`;
+  const arrow = isHe ? '←' : '→';
+  if (w.kind === 'range') return `${w.startDate} ${arrow} ${w.endDate}`;
+  return `${w.startMonthDay} ${arrow} ${w.endMonthDay}`;
 }
 
 type PromoStatus = 'off' | 'active' | 'scheduled' | 'ended';
@@ -556,7 +557,7 @@ function PromotionsPageInner() {
             {form.mode === 'seasonal' && (
               <div className="flex gap-2.5 items-center">
                 <input className={`${inputCls} w-28`} placeholder="MM-DD" value={form.startMonthDay} onChange={(e) => set('startMonthDay', e.target.value)} />
-                <span className="text-white/40">→</span>
+                <span className="text-white/40">{isHe ? '←' : '→'}</span>
                 <input className={`${inputCls} w-28`} placeholder="MM-DD" value={form.endMonthDay} onChange={(e) => set('endMonthDay', e.target.value)} />
               </div>
             )}

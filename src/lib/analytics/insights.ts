@@ -48,10 +48,10 @@ const FUNNEL_STAGES: ReadonlyArray<{
   en: string;
   he: string;
 }> = [
-  { from: 'seen', to: 'opened', en: 'seen → opened', he: 'נראה → נפתח' },
-  { from: 'opened', to: 'ingredients', en: 'opened → ingredients', he: 'נפתח → מרכיבים' },
-  { from: 'opened', to: 'called', en: 'opened → called waiter', he: 'נפתח → קריאת מלצר' },
-  { from: 'opened', to: 'ordered', en: 'opened → ordered', he: 'נפתח → הזמנה' },
+  { from: 'seen', to: 'opened', en: 'seen → opened', he: 'נראה ← נפתח' },
+  { from: 'opened', to: 'ingredients', en: 'opened → ingredients', he: 'נפתח ← מרכיבים' },
+  { from: 'opened', to: 'called', en: 'opened → called waiter', he: 'נפתח ← קריאת מלצר' },
+  { from: 'opened', to: 'ordered', en: 'opened → ordered', he: 'נפתח ← הזמנה' },
 ];
 
 /**

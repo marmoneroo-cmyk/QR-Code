@@ -511,7 +511,7 @@ export default function TablesPage() {
       eyebrowHe="ייחוס לפי שולחן"
       active="/admin/tables"
       subtitle="Generate a unique QR per table, then see scans → views → orders → revenue for each one. The strongest signal a venue owner can act on."
-      subtitleHe="ייצר QR ייחודי לכל שולחן, ואז ראה סריקות → צפיות → הזמנות → הכנסה לכל שולחן. האות החזק ביותר שבעל מקום יכול לפעול לפיו."
+      subtitleHe="ייצר QR ייחודי לכל שולחן, ואז ראה סריקות ← צפיות ← הזמנות ← הכנסה לכל שולחן. האות החזק ביותר שבעל מקום יכול לפעול לפיו."
     >
       <TablesPanel />
     </AdminShell>

@@ -18,14 +18,19 @@ export function buildPollinationsUrl(
   const height = options.height ?? 1280;
   const seed = options.seed ?? Math.floor(Math.random() * 100000);
   const encoded = encodeURIComponent(prompt);
+  // pollinations.ai now gates anonymous generation behind a Cloudflare Turnstile
+  // check ({"error":"Missing Turnstile token"} → 403). Register a (free) app token at
+  // https://auth.pollinations.ai and set NEXT_PUBLIC_POLLINATIONS_TOKEN to bypass it;
+  // without a token, generation is unavailable and the UI falls back to manual upload.
   const params = new URLSearchParams({
     width: String(width),
     height: String(height),
     seed: String(seed),
     model: 'flux',
-    nologo: 'true',
-    enhance: 'true',
+    referrer: 'cocktail-demo',
   });
+  const token = process.env.NEXT_PUBLIC_POLLINATIONS_TOKEN;
+  if (token) params.set('token', token);
   return `https://image.pollinations.ai/prompt/${encoded}?${params.toString()}`;
 }
 

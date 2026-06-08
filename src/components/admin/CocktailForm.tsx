@@ -112,7 +112,21 @@ export function CocktailForm({
     try {
       const url = buildPollinationsUrl(heroPrompt);
       const res = await fetch(url);
-      if (!res.ok) throw new Error(t(`Generation failed (${res.status})`, `יצירת התמונה נכשלה (${res.status})`));
+      if (!res.ok) {
+        const friendly =
+          res.status === 403
+            ? t(
+                'AI image generation is unavailable right now — please upload an image instead.',
+                'יצירת תמונה ב-AI אינה זמינה כרגע — אנא העלו תמונה ידנית במקום.',
+              )
+            : res.status === 429
+              ? t(
+                  'AI image service is rate-limited — wait a moment and try again, or upload an image.',
+                  'שירות יצירת התמונה מוגבל כרגע — המתינו רגע ונסו שוב, או העלו תמונה.',
+                )
+              : t(`Generation failed (${res.status})`, `יצירת התמונה נכשלה (${res.status})`);
+        throw new Error(friendly);
+      }
       setHeroUrl(url);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : t('Unknown error', 'שגיאה לא ידועה');

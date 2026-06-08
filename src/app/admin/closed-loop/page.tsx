@@ -128,7 +128,7 @@ export default function ClosedLoopPage() {
       eyebrowHe="האם השינויים עבדו?"
       active="/admin/closed-loop"
       subtitle="Recommendation → Action → Measured Result. Every result shows its confidence and observation window — so you don't overreact to small samples. No fabricated numbers."
-      subtitleHe="המלצה → פעולה → תוצאה נמדדת. לכל תוצאה רמת ביטחון וחלון תצפית — כדי לא להגיב יתר על המידה למדגם קטן. בלי מספרים מומצאים."
+      subtitleHe="המלצה ← פעולה ← תוצאה נמדדת. לכל תוצאה רמת ביטחון וחלון תצפית — כדי לא להגיב יתר על המידה למדגם קטן. בלי מספרים מומצאים."
     >
       <div className="flex flex-col gap-12" dir={isHe ? 'rtl' : 'ltr'}>
         {loading && (

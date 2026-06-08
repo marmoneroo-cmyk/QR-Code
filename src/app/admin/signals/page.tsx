@@ -640,7 +640,7 @@ export default function SignalsPage() {
                       <span className="text-white/75 text-sm" style={{ fontFamily: sans }}>{localizeDriftMetric(dr.signal, isHebrew)}</span>
                     </span>
                     <span className="flex items-center gap-3">
-                      <span className="text-white/35 text-xs tabular-nums" style={{ fontFamily: sans }}>{dr.baseline} → {dr.recent}</span>
+                      <span className="text-white/35 text-xs tabular-nums" style={{ fontFamily: sans }}>{dr.baseline} {isHebrew ? '←' : '→'} {dr.recent}</span>
                       <span className="inline-flex items-center gap-1 text-sm tabular-nums" style={{ color: cfg.color, fontFamily: sans }}>
                         {dr.deltaPct >= 0 ? <TrendingUp size={14} strokeWidth={2.2} /> : <TrendingDown size={14} strokeWidth={2.2} />}
                         {dr.deltaPct >= 0 ? '+' : ''}{dr.deltaPct}%
@@ -670,7 +670,7 @@ export default function SignalsPage() {
           {d && !d.hasVisitorColumn && (
             <p className="mt-4 inline-flex items-start gap-2 rounded-xl border border-amber-300/20 bg-amber-950/10 px-4 py-3 text-amber-200/70 text-xs" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
               <AlertTriangle size={14} strokeWidth={2} className="mt-0.5 shrink-0" />
-              {t('visitor_id column not present yet — reading from metadata (Phase A). Run migration 0006 → Phase B.', 'עמודת visitor_id עדיין לא קיימת — נקרא מ-metadata (Phase A). הרץ migration 0006 → Phase B.')}
+              {t('visitor_id column not present yet — reading from metadata (Phase A). Run migration 0006 → Phase B.', 'עמודת visitor_id עדיין לא קיימת — נקרא מ-metadata (Phase A). הרץ migration 0006 ← Phase B.')}
             </p>
           )}
         </section>
