@@ -1,0 +1,75 @@
+{
+  "source": "https://www.dinerrest.co.il/menus",
+  "platform": "getmood.io",
+  "restaurant_slug": "diner",
+  "restaurant_name": "Diner",
+  "scraped_at": "2026-05-27",
+  "language": "he",
+  "has_product_photos": false,
+  "notes": "Diner uses getmood.io restaurant SaaS. Pages are statically rendered (no JS needed). The site has zero per-dish photography — only category icons and gallery shots of the venue. All menu items are name + optional price + optional description. For 3D breakdown generation, hero images must be GENERATED from the text descriptions (not extracted from the page).",
+  "categories": {
+    "appetizers": { "name_he": "ראשונות", "count": 14 },
+    "salads": { "name_he": "סלטים", "count": 3 },
+    "steaks": { "name_he": "סטייקים", "count": 3 },
+    "burgers": { "name_he": "המבורגרים", "count": 6 },
+    "mains": { "name_he": "עיקריות", "count": 7 },
+    "pasta": { "name_he": "פסטה", "count": 2 },
+    "sides": { "name_he": "תוספות", "count": 8 },
+    "beers": { "name_he": "בירות", "count": 6 },
+    "cocktails": { "name_he": "קוקטיילים", "count": 6 },
+    "kids": { "name_he": "מנות ילדים", "count": 2 },
+    "cold_drinks": { "name_he": "משקאות קרים", "count": 5 },
+    "desserts": { "name_he": "קינוחים", "count": 9 },
+    "hot_drinks": { "name_he": "משקאות חמים", "count": 4 }
+  },
+  "cocktails": [
+    {
+      "name_he": "אפרול שפריץ",
+      "name_en": "Aperol Spritz",
+      "category": "citrus",
+      "tagline_en": "Aperol · Prosecco · Soda · Orange peel",
+      "tagline_he": "אפרול · פרוסקו · סודה · קליפת תפוז",
+      "flavor": { "sweet": 3, "bitter": 3, "citrus": 4, "smoky": 0, "herbal": 2 }
+    },
+    {
+      "name_he": "נגרוני",
+      "name_en": "Negroni",
+      "category": "bitter",
+      "tagline_en": "Gin · Campari · Sweet vermouth · Orange peel",
+      "tagline_he": "ג׳ין · קמפרי · ורמוט מתוק · קליפת תפוז",
+      "flavor": { "sweet": 2, "bitter": 5, "citrus": 2, "smoky": 0, "herbal": 4 }
+    },
+    {
+      "name_he": "פינקי",
+      "name_en": "Pinky",
+      "category": "sweet",
+      "tagline_en": "Pink gin · Raspberry · Lime · Tonic",
+      "tagline_he": "ג׳ין ורוד · פטל · ליים · טוניק",
+      "flavor": { "sweet": 4, "bitter": 1, "citrus": 3, "smoky": 0, "herbal": 1 }
+    },
+    {
+      "name_he": "מרגריטה",
+      "name_en": "Margarita",
+      "category": "citrus",
+      "tagline_en": "Tequila · Triple sec · Fresh lime · Salt rim",
+      "tagline_he": "טקילה · טריפל סק · ליים טרי · מלח",
+      "flavor": { "sweet": 2, "bitter": 1, "citrus": 5, "smoky": 1, "herbal": 1 }
+    },
+    {
+      "name_he": "גרין גארדן",
+      "name_en": "Green Garden",
+      "category": "mocktail",
+      "tagline_en": "Cucumber · Basil · Elderflower · Lime",
+      "tagline_he": "מלפפון · בזיליקום · סמבוק · ליים",
+      "flavor": { "sweet": 1, "bitter": 1, "citrus": 3, "smoky": 0, "herbal": 5 }
+    },
+    {
+      "name_he": "וויסקי סאוור",
+      "name_en": "Whiskey Sour",
+      "category": "smoky",
+      "tagline_en": "Bourbon · Fresh lemon · Sugar · Egg white",
+      "tagline_he": "בורבון · לימון טרי · סוכר · חלבון ביצה",
+      "flavor": { "sweet": 3, "bitter": 2, "citrus": 4, "smoky": 3, "herbal": 1 }
+    }
+  ]
+}

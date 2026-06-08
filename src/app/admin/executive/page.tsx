@@ -1,0 +1,457 @@
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { Sparkles, Flame, ArrowRight, Users, ShoppingBag, TrendingUp, TrendingDown, BadgeCheck, Brain, Share2, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { AdminShell } from '@/components/ui/AdminShell';
+import { Skeleton, SkeletonGrid, LiveDot, AreaChart } from '@/components/ui/dataviz';
+import { Stagger, staggerItem } from '@/components/ui/motion';
+import { useLang } from '@/lib/useLang';
+import { getAccent, findCocktailBySlug } from '@/data/cocktail';
+import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
+
+const serif = 'var(--font-playfair, serif)';
+const sans = 'var(--font-inter, sans-serif)';
+const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
+
+interface Enriched extends MenuEngineeringItem {
+  title: { en: string; he: string };
+  hero: string;
+  accent: string;
+}
+
+/** Projected upside — clearly an estimate, derived from attention × menu price. */
+function project(it: Enriched) {
+  const orders = Math.max(8, Math.round((it.attentionScore / 100) * 24));
+  const customers = Math.max(4, Math.round(orders * 0.6));
+  const revenue = orders * (it.price || 0);
+  const beforeRev = it.units * (it.price || 0);
+  const confidence = Math.min(95, 55 + Math.round(it.views * 1.3));
+  return { orders, customers, revenue, beforeRev, afterRev: beforeRev + revenue, confidence };
+}
+
+function GlassImage({ src, accent, className }: { src: string; accent: string; className?: string }) {
+  return (
+    <span className={`relative block overflow-hidden ${className ?? ''}`}>
+      <span className="absolute inset-[12%] rounded-full blur-2xl opacity-45" style={{ background: `radial-gradient(circle, ${accent}66, transparent 72%)` }} aria-hidden />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt="" aria-hidden className="absolute inset-0 h-full w-full object-contain mix-blend-screen" />
+    </span>
+  );
+}
+
+function deltaPct(series: number[] | undefined): number | null {
+  if (!series || series.length < 8) return null;
+  const a = series.slice(-7).reduce((s, n) => s + n, 0);
+  const b = series.slice(-14, -7).reduce((s, n) => s + n, 0);
+  return b > 0 ? Math.round(((a - b) / b) * 100) : null;
+}
+
+interface BriefingInput {
+  views: number;
+  orders: number;
+  conversionPct: number;
+  revenue: number;
+  topItem: string | null;
+  opportunity: string | null;
+}
+
+/**
+ * Deterministic natural-language morning briefing — NO LLM, NO fabrication.
+ * Each clause is emitted only when its underlying real number is present.
+ * Returns the EN + HE sentence and a plain-text share summary.
+ */
+function buildBriefing(input: Readonly<BriefingInput>): { en: string; he: string; share: string } {
+  const { views, orders, conversionPct, revenue, topItem, opportunity } = input;
+  const conv = Math.round(conversionPct);
+  const enParts: string[] = [];
+  const heParts: string[] = [];
+
+  if (views > 0 || orders > 0) {
+    enParts.push(`${views.toLocaleString()} views and ${orders.toLocaleString()} orders (${conv}% conversion).`);
+    heParts.push(`${views.toLocaleString()} צפיות ו-${orders.toLocaleString()} הזמנות (המרה ${conv}%).`);
+  }
+  if (revenue > 0) {
+    enParts.push(`Revenue ${ils(revenue)}.`);
+    heParts.push(`הכנסה ${ils(revenue)}.`);
+  }
+  if (topItem) {
+    enParts.push(`The hot drink — ${topItem}.`);
+    heParts.push(`המשקה החם — ${topItem}.`);
+  }
+  if (opportunity) {
+    enParts.push(`Top opportunity: ${opportunity}.`);
+    heParts.push(`הזדמנות מובילה: ${opportunity}.`);
+  }
+
+  const en = enParts.length ? `This morning: ${enParts.join(' ')}` : 'This morning: tracking quietly — no notable activity yet.';
+  const he = heParts.length ? `הבוקר: ${heParts.join(' ')}` : 'הבוקר: הכל שקט — אין עדיין פעילות בולטת.';
+  return { en, he, share: en };
+}
+
+export default function ExecutiveSummaryPage() {
+  const { lang } = useLang();
+  const isHe = lang === 'he';
+  const t = (en: string, he: string) => (isHe ? he : en);
+
+  const [me, setMe] = useState<MenuEngineering | null>(null);
+  const [ov, setOv] = useState<AnalyticsOverview | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const [meRes, ovRes] = await Promise.all([
+        fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
+        fetch('/api/analytics/overview', { cache: 'no-store' }),
+      ]);
+      const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
+      const ovJson: { success: boolean; data?: AnalyticsOverview } = await ovRes.json();
+      if (meJson.success && meJson.data) setMe(meJson.data);
+      if (ovJson.success && ovJson.data) setOv(ovJson.data);
+    } catch {
+      /* keep last good */
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+    const id = window.setInterval(load, 25000);
+    return () => window.clearInterval(id);
+  }, [load]);
+
+  const items: Enriched[] = useMemo(() => {
+    return (me?.items ?? [])
+      .map((r) => {
+        const c = findCocktailBySlug(r.slug);
+        return c ? { ...r, title: c.title, hero: c.heroImage, accent: getAccent(r.slug) } : null;
+      })
+      .filter((x): x is Enriched => Boolean(x));
+  }, [me]);
+
+  const hasData = items.length > 0 && (ov?.totalViews ?? 0) > 0;
+
+  const ranked = useMemo(() => {
+    const score = (i: Enriched) => (i.highInterestLowConversion ? 1000 : 0) + (i.klass === 'puzzle' ? 500 : 0) + i.attentionScore;
+    return [...items].sort((a, b) => score(b) - score(a));
+  }, [items]);
+
+  const hero = ranked[0];
+  const more = ranked.slice(1, 4);
+  const trending = useMemo(() => [...items].sort((a, b) => b.attentionScore - a.attentionScore).slice(0, 8), [items]);
+
+  const viewsDelta = deltaPct(ov?.viewsByDay);
+  const ordersDelta = deltaPct(ov?.ordersByDay);
+
+  /** Top-opportunity recommendation — mirrors the hero's leak/feature logic (EN + HE). */
+  const opportunity = useMemo<{ en: string; he: string } | null>(() => {
+    if (!hero) return null;
+    if (hero.highInterestLowConversion) {
+      return {
+        en: `fix the offer for ${hero.title.en}`,
+        he: `תקנו את ההצעה ל${hero.title.he}`,
+      };
+    }
+    return {
+      en: `feature ${hero.title.en} more prominently`,
+      he: `הדגישו את ${hero.title.he} בצורה בולטת יותר`,
+    };
+  }, [hero]);
+
+  const briefing = useMemo(() => {
+    const topSlug = ov?.topItemSlug ?? null;
+    const topCocktail = topSlug ? findCocktailBySlug(topSlug) : null;
+    const en = buildBriefing({
+      views: ov?.totalViews ?? 0,
+      orders: ov?.totalOrders ?? 0,
+      conversionPct: ov?.conversionPct ?? 0,
+      revenue: ov?.totalRevenue ?? 0,
+      topItem: topCocktail?.title.en ?? hero?.title.en ?? null,
+      opportunity: opportunity?.en ?? null,
+    }).en;
+    const he = buildBriefing({
+      views: ov?.totalViews ?? 0,
+      orders: ov?.totalOrders ?? 0,
+      conversionPct: ov?.conversionPct ?? 0,
+      revenue: ov?.totalRevenue ?? 0,
+      topItem: topCocktail?.title.he ?? hero?.title.he ?? null,
+      opportunity: opportunity?.he ?? null,
+    }).he;
+    return { en, he };
+  }, [ov, hero, opportunity]);
+
+  const handleShare = useCallback(async () => {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') return;
+    const heading = isHe ? 'סיכום מנהלים' : 'Executive Summary';
+    const text = `${heading}\n\n${isHe ? briefing.he : briefing.en}`;
+    try {
+      if (typeof navigator.share === 'function') {
+        await navigator.share({ text });
+        return;
+      }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2200);
+      }
+    } catch {
+      /* user dismissed the share sheet, or clipboard denied — no-op */
+    }
+  }, [isHe, briefing]);
+
+  return (
+    <AdminShell
+      title="Executive Summary"
+      titleHe="סיכום מנהלים"
+      eyebrow="Your AI restaurant advisor"
+      eyebrowHe="יועץ ה‑AI של המסעדה"
+      active="/admin/executive"
+      subtitle="The opportunity worth the most money, why, what it looks like, and the revenue it can generate."
+      subtitleHe="ההזדמנות ששווה הכי הרבה כסף, למה, איך היא נראית, וכמה הכנסה היא יכולה לייצר."
+      actions={<LiveDot label={isHe ? 'חי' : 'Live'} />}
+    >
+      {loading && !me && (
+        <div className="flex flex-col gap-12" dir={isHe ? 'rtl' : 'ltr'}>
+          <Skeleton className="h-[340px] w-full rounded-[2rem] md:h-[440px]" />
+          <SkeletonGrid count={4} className="grid grid-cols-2 lg:grid-cols-4 gap-3" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-72 w-full rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!loading && !hasData && (
+        <section className="rounded-3xl border border-white/10 bg-zinc-900/60 p-12 text-center">
+          <p className="text-white/50 text-sm" style={{ fontFamily: sans }} dir={isHe ? 'rtl' : 'ltr'}>
+            {t('No activity yet. Once guests scan and order, your advisor appears here.', 'אין עדיין פעילות. כשאורחים יסרקו ויזמינו, היועץ יופיע כאן.')}
+          </p>
+        </section>
+      )}
+
+      {hasData && hero && (
+        <div className="flex flex-col gap-12" dir={isHe ? 'rtl' : 'ltr'}>
+          {/* HERO */}
+          {(() => {
+            const p = project(hero);
+            const leak = hero.highInterestLowConversion;
+            return (
+              <section className="relative overflow-hidden rounded-[2rem] border" style={{ borderColor: `${hero.accent}55`, boxShadow: `0 40px 120px -50px ${hero.accent}` }}>
+                <div className="absolute inset-0" style={{ background: `linear-gradient(120deg, ${hero.accent}26, rgba(8,8,10,0.7) 60%)` }} aria-hidden />
+                <div className="relative z-10 grid md:grid-cols-2 gap-2 items-stretch">
+                  <div className="relative min-h-[300px] md:min-h-[440px] grid place-items-center p-6">
+                    <GlassImage src={hero.hero} accent={hero.accent} className="w-full h-[300px] md:h-[440px]" />
+                    <span className="absolute top-5 start-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] tracking-[0.2em] uppercase backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.4)', color: hero.accent, fontFamily: sans, border: `1px solid ${hero.accent}55` }}>
+                      <Sparkles size={12} strokeWidth={2} /> {t('Top opportunity', 'הזדמנות מובילה')}
+                    </span>
+                  </div>
+                  <div className="p-7 md:p-9 flex flex-col justify-center gap-5 text-center md:text-start">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 mb-2 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(52,211,153,0.4)', color: '#34d399', fontFamily: sans }}>
+                        <BadgeCheck size={12} strokeWidth={2} /> {t('AI confidence', 'ביטחון AI')} {p.confidence}%
+                      </div>
+                      <h2 className="text-white leading-[1]" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 700, fontSize: 'clamp(2.2rem,5vw,3.4rem)' }}>
+                        {hero.title[lang]}
+                      </h2>
+                      <p className="text-white/65 text-[14px] mt-2.5 max-w-md mx-auto md:mx-0" style={{ fontFamily: sans }}>
+                        {leak
+                          ? t(`Drew ${hero.attentionScore}/100 attention but only ${Math.round(hero.conversionPct)}% ordered — the offer needs work.`, `משך ${hero.attentionScore}/100 תשומת לב אך רק ${Math.round(hero.conversionPct)}% הזמינו — ההצעה צריכה שיפור.`)
+                          : t(`Best margin (${ils(hero.margin)}/glass), low visibility — feature it higher.`, `המרווח הכי טוב (${ils(hero.margin)} לכוס), נראוּת נמוכה — הדגישו אותו.`)}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 justify-center md:justify-start">
+                      <div className="rounded-xl border border-white/10 bg-black/30 px-4 py-2.5">
+                        <p className="text-[9px] tracking-[0.25em] uppercase text-white/40" style={{ fontFamily: sans }}>{t('Today', 'היום')}</p>
+                        <p className="text-white/80 text-lg" style={{ fontFamily: serif, fontWeight: 600 }}>{ils(p.beforeRev)}<span className="text-[11px] text-white/35">/{t('mo', 'חודש')}</span></p>
+                      </div>
+                      <ArrowRight size={20} className={`text-white/40 ${isHe ? 'rotate-180' : ''}`} strokeWidth={1.6} />
+                      <div className="rounded-xl border px-4 py-2.5" style={{ borderColor: `${hero.accent}66`, background: `${hero.accent}14` }}>
+                        <p className="text-[9px] tracking-[0.25em] uppercase" style={{ color: hero.accent, fontFamily: sans }}>{t('Projected', 'תחזית')}</p>
+                        <p className="text-xl" style={{ color: hero.accent, fontFamily: serif, fontWeight: 700 }}>{ils(p.afterRev)}<span className="text-[11px] text-white/35">/{t('mo', 'חודש')}</span></p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                      <Pill icon={Users} text={`+${p.customers} ${t('guests', 'אורחים')}`} />
+                      <Pill icon={ShoppingBag} text={`+${p.orders} ${t('orders/mo', 'הזמנות/חודש')}`} />
+                      <Pill icon={TrendingUp} text={`≈ +${ils(p.revenue)} ${t('potential', 'פוטנציאל')}`} accent={hero.accent} />
+                    </div>
+
+                    <Link href={leak ? '/admin/menu-analysis' : '/admin/experience'} className="inline-flex w-fit mx-auto md:mx-0 items-center gap-2 rounded-full px-6 py-3 text-[11px] tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]" style={{ background: hero.accent, fontFamily: sans, fontWeight: 700 }}>
+                      {leak ? t('Fix the offer', 'תקנו את ההצעה') : t('Feature it', 'הדגישו אותו')}
+                      <ArrowRight size={14} strokeWidth={2.2} className={isHe ? 'rotate-180' : ''} />
+                    </Link>
+                  </div>
+                </div>
+              </section>
+            );
+          })()}
+
+          {/* Real demand trend — last 14 days of actual views (no projection) */}
+          {(ov?.viewsByDay?.length ?? 0) > 1 && (
+            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <p className="inline-flex items-center gap-2 text-amber-200/70 text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+                  <TrendingUp size={13} strokeWidth={2} /> {t('Demand trend', 'מגמת ביקוש')}
+                </p>
+                <p className="text-white/40 text-[10px] tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>{t('last 14 days', '14 ימים אחרונים')}</p>
+              </div>
+              <AreaChart data={(ov?.viewsByDay ?? []).slice(-14)} color={hero.accent} height={120} />
+            </section>
+          )}
+
+          {/* Morning briefing — deterministic, real-data advisor callout */}
+          <section
+            className="relative overflow-hidden rounded-2xl p-[1px]"
+            style={{ background: 'linear-gradient(120deg, rgba(251,191,36,0.55), rgba(125,211,252,0.35) 55%, rgba(52,211,153,0.45))' }}
+          >
+            <div className="rounded-[calc(1rem-1px)] bg-zinc-950/85 backdrop-blur-xl p-5 md:p-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-start gap-3 min-w-0">
+                  <span
+                    className="mt-0.5 inline-grid place-items-center rounded-full p-2 shrink-0"
+                    style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.35)' }}
+                    aria-hidden
+                  >
+                    <Brain size={18} strokeWidth={1.9} className="text-amber-200" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="inline-flex items-center gap-1.5 text-amber-200/70 text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+                      <Sparkles size={12} strokeWidth={2} /> {t('Morning Briefing', 'תקציר הבוקר')}
+                    </p>
+                    <p
+                      className="text-white/90 mt-2 text-[16px] md:text-[18px] leading-relaxed break-words"
+                      style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic' }}
+                    >
+                      {isHe ? briefing.he : briefing.en}
+                    </p>
+                    <p className="text-white/30 text-[10px] mt-2 tracking-wide" style={{ fontFamily: sans }}>
+                      {t('Projections shown elsewhere are estimates.', 'התחזיות המוצגות במקומות אחרים הן הערכות.')}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-5 py-2.5 text-[11px] tracking-[0.2em] uppercase text-white/85 transition-colors hover:border-amber-200/50 hover:text-white"
+                  style={{ fontFamily: sans, fontWeight: 600 }}
+                  aria-live="polite"
+                >
+                  {copied ? <Check size={14} strokeWidth={2.2} className="text-emerald-300" /> : <Share2 size={14} strokeWidth={2} />}
+                  {copied ? t('Copied', 'הועתק') : t('Share snapshot', 'שתף תמונת מצב')}
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* KPI cards with real trend */}
+          <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <KpiTrend label={t('Demand', 'ביקוש')} value={(ov?.totalViews ?? 0).toLocaleString()} delta={viewsDelta} series={(ov?.viewsByDay ?? []).slice(-14)} color="#fbbf24" t={t} />
+            <KpiTrend label={t('Orders', 'הזמנות')} value={(ov?.totalOrders ?? 0).toLocaleString()} delta={ordersDelta} series={(ov?.ordersByDay ?? []).slice(-14)} color="#34d399" t={t} />
+            <KpiStat label={t('Revenue', 'הכנסה')} value={ils(ov?.totalRevenue ?? 0)} color="#7dd3fc" />
+            <KpiStat label={t('Conversion', 'המרה')} value={`${Math.round(ov?.conversionPct ?? 0)}%`} color="#f59e0b" />
+          </section>
+
+          {/* More opportunities */}
+          {more.length > 0 && (
+            <section>
+              <p className="text-amber-200/70 text-[10px] tracking-[0.4em] uppercase mb-4" style={{ fontFamily: sans }}>{t('More opportunities', 'הזדמנויות נוספות')}</p>
+              <Stagger className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {more.map((it) => {
+                  const p = project(it);
+                  return (
+                    <motion.div key={it.slug} variants={staggerItem}>
+                      <Link href="/admin/menu-analysis" className="group h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-amber-200/40 transition-colors flex flex-col" dir={isHe ? 'rtl' : 'ltr'}>
+                        <GlassImage src={it.hero} accent={it.accent} className="w-full h-40 mb-3 transition-transform duration-300 group-hover:scale-105" />
+                        <p className="text-white/90 text-[16px] text-center" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
+                        <p className="text-center text-[11px] mt-2 mb-3" style={{ color: '#34d399', fontFamily: sans }}>
+                          <BadgeCheck size={11} strokeWidth={2} className="inline mb-0.5" /> {t('AI confidence', 'ביטחון AI')} {p.confidence}%
+                        </p>
+                        <div className="mt-auto grid grid-cols-3 gap-1 text-center">
+                          <Mini v={`+${p.customers}`} l={t('guests', 'אורחים')} />
+                          <Mini v={`+${p.orders}`} l={t('orders', 'הזמנות')} />
+                          <Mini v={`≈${ils(p.revenue)}`} l={t('potential', 'פוטנציאל')} accent={it.accent} />
+                        </div>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </Stagger>
+            </section>
+          )}
+
+          {/* Trending carousel */}
+          <section>
+            <p className="inline-flex items-center gap-2 text-amber-200/70 text-[10px] tracking-[0.4em] uppercase mb-4" style={{ fontFamily: sans }}>
+              <Flame size={13} strokeWidth={2} className="text-rose-300" /> {t('Trending now', 'חם עכשיו')}
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {trending.map((it, i) => (
+                <Link key={it.slug} href="/admin/menu-analysis" className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5 hover:border-amber-200/40 transition-colors">
+                  <span className="absolute top-3 left-4 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>{i + 1}</span>
+                  <GlassImage src={it.hero} accent={it.accent} className="w-full h-44 mb-3 transition-transform duration-300 group-hover:scale-110" />
+                  <p className="text-white/90 text-[15px] text-center leading-tight" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
+                  <p className="text-amber-200/70 text-[11px] text-center mt-1" style={{ fontFamily: sans }}>
+                    <TrendingUp size={11} className="inline mb-0.5" strokeWidth={2} /> {it.views} {t('views', 'צפיות')} · {it.attentionScore}/100
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
+    </AdminShell>
+  );
+}
+
+function Pill({ icon: Icon, text, accent }: { icon: typeof Users; text: string; accent?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[12px]" style={{ color: accent ?? 'rgba(255,255,255,0.8)', fontFamily: sans }}>
+      <Icon size={13} strokeWidth={1.8} /> {text}
+    </span>
+  );
+}
+
+function Mini({ v, l, accent }: { v: string; l: string; accent?: string }) {
+  return (
+    <div>
+      <p className="text-[14px]" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
+      <p className="text-white/40 text-[9px] tracking-wide" style={{ fontFamily: sans }}>{l}</p>
+    </div>
+  );
+}
+
+function KpiTrend({ label, value, delta, series, color, t }: { label: string; value: string; delta: number | null; series: number[]; color: string; t: (en: string, he: string) => string }) {
+  const up = (delta ?? 0) >= 0;
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+      <div className="flex items-center justify-between mb-1.5">
+        <p className="text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>{label}</p>
+        {delta !== null && (
+          <span className={`inline-flex items-center gap-0.5 text-[11px] ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: sans }}>
+            {up ? <TrendingUp size={12} strokeWidth={2} /> : <TrendingDown size={12} strokeWidth={2} />}
+            {up ? '+' : ''}{delta}%
+          </span>
+        )}
+      </div>
+      <p className="text-white text-2xl mb-2" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
+      <AreaChart data={series} color={color} height={36} showDot={false} strokeWidth={1.75} />
+      <p className="text-white/30 text-[9px] mt-1.5 tracking-wide" style={{ fontFamily: sans }}>{t('vs last week', 'מול שבוע קודם')}</p>
+    </div>
+  );
+}
+
+function KpiStat({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 flex flex-col justify-center">
+      <span className="w-1.5 h-1.5 rounded-full mb-3" style={{ background: color }} />
+      <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
+      <p className="text-white/45 text-[11px] mt-1 tracking-wide" style={{ fontFamily: sans }}>{label}</p>
+    </div>
+  );
+}

@@ -1,0 +1,420 @@
+-- ============================================================================
+-- Cocktail Demo · Consolidated Baseline Schema
+-- ----------------------------------------------------------------------------
+-- ONE file that spins up a FRESH Supabase database in a single paste.
+-- It is the end-state of migrations 0001–0004 + 0006–0010 (there is no 0005).
+--
+-- • For a NEW database: paste this whole file into the Supabase SQL Editor.
+-- • For an ALREADY-MIGRATED database: keep using the numbered migrations —
+--   this file is a baseline/reference, not a replacement for the history.
+--
+-- Idempotent & additive (create … if not exists / drop policy … if exists), so
+-- it is safe to re-run. Generated 2026-06-07.
+-- ============================================================================
+
+-- ============================================================================
+-- TABLES
+-- ============================================================================
+
+-- Restaurants (tenants) -------------------------------------------------------
+create table if not exists restaurants (
+  id           uuid primary key default gen_random_uuid(),
+  slug         text unique not null,
+  name         text not null,
+  default_lang text default 'en' check (default_lang in ('en', 'he')),
+  brand_color  text,
+  logo_url     text,
+  created_at   timestamptz default now()
+);
+
+-- Restaurant membership (auth.users ↔ restaurants) ---------------------------
+create table if not exists restaurant_members (
+  id            uuid primary key default gen_random_uuid(),
+  restaurant_id uuid references restaurants(id) on delete cascade not null,
+  user_id       uuid references auth.users(id) on delete cascade not null,
+  role          text default 'manager' check (role in ('owner', 'manager', 'staff')),
+  created_at    timestamptz default now(),
+  unique (restaurant_id, user_id)
+);
+
+-- Cocktails (menu items) — incl. 0003 extras, 0004 cost_ils, 0007 experience_config
+create table if not exists cocktails (
+  id                uuid primary key default gen_random_uuid(),
+  restaurant_id     uuid references restaurants(id) on delete cascade not null,
+  slug              text not null,
+  status            text default 'draft' check (status in ('draft', 'published', 'archived')),
+  title_en          text not null,
+  title_he          text,
+  subtitle_en       text default 'Components Breakdown',
+  subtitle_he       text default 'פירוט המרכיבים',
+  tagline_en        text,
+  tagline_he        text,
+  category          text not null check (category in ('citrus', 'smoky', 'bitter', 'sweet', 'mocktail')),
+  hero_image        text not null,
+  hero_prompt       text,
+  flavor            jsonb default '{"sweet":2,"bitter":2,"citrus":2,"smoky":2,"herbal":2}'::jsonb,
+  bartender_note_en text,
+  bartender_note_he text,
+  bartender_name    text,
+  dietary           jsonb default '{"vegan":true,"glutenFree":true,"alcoholFree":false}'::jsonb,
+  price_ils         numeric(10, 2),   -- 0003
+  pairings          jsonb,            -- 0003 · Localized[] food pairings
+  available_hours   jsonb,            -- 0003 · [startHour, endHour] kiosk scheduling
+  cost_ils          numeric(10, 2),   -- 0004 · pour cost → menu engineering
+  experience_config jsonb,            -- 0007 · {modules?, badges?} (note: live menu is static; see menu_experience)
+  created_at        timestamptz default now(),
+  updated_at        timestamptz default now(),
+  unique (restaurant_id, slug)
+);
+
+-- Cocktail layers (3D breakdown components) ----------------------------------
+create table if not exists cocktail_layers (
+  id                uuid primary key default gen_random_uuid(),
+  cocktail_id       uuid references cocktails(id) on delete cascade not null,
+  layer_id          text not null,
+  image             text not null,
+  y                 numeric not null,
+  z                 numeric not null,
+  scale             numeric not null,
+  float_amp         numeric not null,
+  float_speed       numeric not null,
+  parallax_factor   numeric not null,
+  generation_prompt text,
+  position          int not null,
+  unique (cocktail_id, layer_id)
+);
+
+-- Cocktail labels (ingredient labels) ----------------------------------------
+create table if not exists cocktail_labels (
+  id             uuid primary key default gen_random_uuid(),
+  cocktail_id    uuid references cocktails(id) on delete cascade not null,
+  label_id       text not null,
+  number         text not null,
+  name_en        text not null,
+  name_he        text,
+  description_en text not null,
+  description_he text,
+  origin_en      text,
+  origin_he      text,
+  layer_id       text not null,
+  position       int not null,
+  unique (cocktail_id, label_id)
+);
+
+-- Events (analytics spine) — full widened shape (0001 + 0004 + 0006) ---------
+-- Diners write via /api/track (service-role); event_type kept nullable for back-compat.
+create table if not exists events (
+  id            bigint generated by default as identity primary key,
+  restaurant_id uuid references restaurants(id) on delete cascade not null,
+  cocktail_id   uuid references cocktails(id) on delete set null,
+  event_type    text,            -- legacy; new rows use event_name
+  event_name    text,            -- 0004 · full diner taxonomy
+  cocktail_slug text,            -- 0004 · menu is code-defined → key on slug
+  table_id      text,            -- 0004
+  device_type   text,            -- 0004
+  language      text,            -- 0004
+  referrer      text,            -- 0004
+  value_num     numeric,         -- 0004
+  visitor_id    text,            -- 0006 · return visits / cohorts / journeys
+  occurred_at   timestamptz,     -- 0004 · client clock (server clamps)
+  metadata      jsonb,
+  session_id    text,
+  created_at    timestamptz default now()
+);
+
+-- Safety alters (converge an events table that pre-existed in the narrow 0001 shape)
+alter table events add column if not exists event_name    text;
+alter table events add column if not exists cocktail_slug text;
+alter table events add column if not exists table_id      text;
+alter table events add column if not exists device_type   text;
+alter table events add column if not exists language      text;
+alter table events add column if not exists referrer      text;
+alter table events add column if not exists value_num     numeric;
+alter table events add column if not exists visitor_id    text;
+alter table events add column if not exists occurred_at   timestamptz;
+alter table events alter column event_type drop not null;
+
+-- Promotions (0007) — drives discounts AND promo badges ----------------------
+create table if not exists promotions (
+  id                uuid primary key default gen_random_uuid(),
+  restaurant_id     uuid references restaurants(id) on delete cascade not null,
+  name              text not null,
+  type              text not null check (type in ('percentage', 'fixed')),
+  value             numeric(10, 2) not null,
+  scope             text not null check (scope in ('item', 'category', 'all')),
+  target_slugs      jsonb,
+  target_categories jsonb,
+  schedule          jsonb,
+  badge_kind        text,
+  badge_label       jsonb,
+  active            boolean not null default true,
+  created_at        timestamptz not null default now()
+);
+
+-- Menu experience (0008) — per-slug ExperienceConfig for the static menu ------
+create table if not exists menu_experience (
+  id            uuid primary key default gen_random_uuid(),
+  restaurant_id uuid references restaurants(id) on delete cascade not null,
+  slug          text not null,
+  config        jsonb not null default '{}'::jsonb,
+  updated_at    timestamptz not null default now(),
+  unique (restaurant_id, slug)
+);
+
+-- Sales (0009) — read-only POS ingestion (conversion denominator) -------------
+create table if not exists sales (
+  id            uuid primary key default gen_random_uuid(),
+  restaurant_id uuid references restaurants(id) on delete cascade not null,
+  slug          text not null,
+  units         integer not null default 0,
+  revenue       numeric(12, 2) not null default 0,
+  period_start  date not null,
+  period_end    date not null,
+  created_at    timestamptz not null default now()
+);
+
+-- Changes (0010) — generic change/audit timeline (Closed Loop attribution) ----
+create table if not exists changes (
+  id            uuid primary key default gen_random_uuid(),
+  restaurant_id uuid references restaurants(id) on delete cascade not null,
+  change_type   text not null,
+  entity_type   text not null,
+  entity_id     text,
+  before        jsonb,
+  after         jsonb,
+  summary       text,
+  source        text not null default 'auto' check (source in ('auto', 'manual')),
+  created_at    timestamptz not null default now()
+);
+
+-- ============================================================================
+-- INDEXES
+-- ============================================================================
+create index if not exists idx_events_restaurant_created  on events (restaurant_id, created_at desc);
+create index if not exists idx_events_cocktail            on events (cocktail_id, event_type);
+create index if not exists idx_events_restaurant_occurred on events (restaurant_id, occurred_at desc);
+create index if not exists idx_events_slug_name           on events (cocktail_slug, event_name);
+create index if not exists idx_events_session             on events (session_id);
+create index if not exists idx_events_table               on events (restaurant_id, table_id, occurred_at);
+create index if not exists idx_events_occurred_brin       on events using brin (occurred_at);
+create index if not exists idx_events_visitor             on events (restaurant_id, visitor_id);
+create index if not exists idx_events_visitor_created     on events (visitor_id, created_at desc);
+create index if not exists promotions_restaurant_idx      on promotions (restaurant_id, active);
+create index if not exists menu_experience_restaurant_idx on menu_experience (restaurant_id);
+create index if not exists sales_restaurant_idx           on sales (restaurant_id, slug);
+create index if not exists changes_restaurant_idx         on changes (restaurant_id, created_at desc);
+create index if not exists changes_entity_idx             on changes (restaurant_id, entity_type, entity_id);
+
+-- ============================================================================
+-- ROW LEVEL SECURITY
+-- ============================================================================
+alter table restaurants        enable row level security;
+alter table restaurant_members enable row level security;
+alter table cocktails          enable row level security;
+alter table cocktail_layers    enable row level security;
+alter table cocktail_labels    enable row level security;
+alter table events             enable row level security;
+alter table promotions         enable row level security;
+alter table menu_experience    enable row level security;
+alter table sales              enable row level security;
+alter table changes            enable row level security;
+
+-- Restaurants ----------------------------------------------------------------
+drop policy if exists "Restaurants are viewable by everyone" on restaurants;
+create policy "Restaurants are viewable by everyone" on restaurants for select using (true);
+
+drop policy if exists "Members can update their restaurant" on restaurants;
+create policy "Members can update their restaurant" on restaurants for update using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = restaurants.id and restaurant_members.user_id = auth.uid())
+);
+
+-- Restaurant members ---------------------------------------------------------
+drop policy if exists "Users see their own memberships" on restaurant_members;
+create policy "Users see their own memberships" on restaurant_members for select using (user_id = auth.uid());
+
+-- Cocktails ------------------------------------------------------------------
+drop policy if exists "Published cocktails are viewable by everyone" on cocktails;
+create policy "Published cocktails are viewable by everyone" on cocktails for select using (status = 'published');
+
+drop policy if exists "Members see all cocktails of their restaurant" on cocktails;
+create policy "Members see all cocktails of their restaurant" on cocktails for select using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = cocktails.restaurant_id and restaurant_members.user_id = auth.uid())
+);
+
+drop policy if exists "Members can write cocktails" on cocktails;
+create policy "Members can write cocktails" on cocktails for all using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = cocktails.restaurant_id and restaurant_members.user_id = auth.uid())
+);
+
+-- Cocktail layers ------------------------------------------------------------
+drop policy if exists "Layers visible if cocktail is visible" on cocktail_layers;
+create policy "Layers visible if cocktail is visible" on cocktail_layers for select using (
+  exists (
+    select 1 from cocktails
+    where cocktails.id = cocktail_layers.cocktail_id
+      and (cocktails.status = 'published'
+        or exists (select 1 from restaurant_members where restaurant_members.restaurant_id = cocktails.restaurant_id and restaurant_members.user_id = auth.uid()))
+  )
+);
+
+drop policy if exists "Members can write layers" on cocktail_layers;
+create policy "Members can write layers" on cocktail_layers for all using (
+  exists (
+    select 1 from cocktails
+    join restaurant_members on restaurant_members.restaurant_id = cocktails.restaurant_id
+    where cocktails.id = cocktail_layers.cocktail_id and restaurant_members.user_id = auth.uid()
+  )
+);
+
+-- Cocktail labels ------------------------------------------------------------
+drop policy if exists "Labels visible if cocktail is visible" on cocktail_labels;
+create policy "Labels visible if cocktail is visible" on cocktail_labels for select using (
+  exists (
+    select 1 from cocktails
+    where cocktails.id = cocktail_labels.cocktail_id
+      and (cocktails.status = 'published'
+        or exists (select 1 from restaurant_members where restaurant_members.restaurant_id = cocktails.restaurant_id and restaurant_members.user_id = auth.uid()))
+  )
+);
+
+drop policy if exists "Members can write labels" on cocktail_labels;
+create policy "Members can write labels" on cocktail_labels for all using (
+  exists (
+    select 1 from cocktails
+    join restaurant_members on restaurant_members.restaurant_id = cocktails.restaurant_id
+    where cocktails.id = cocktail_labels.cocktail_id and restaurant_members.user_id = auth.uid()
+  )
+);
+
+-- Events — members read only; writes go through /api/track (service-role).
+-- NOTE: the old "Anyone can insert events" policy (0001) was removed in 0004.
+drop policy if exists "Anyone can insert events" on events;
+drop policy if exists "Members can read their restaurant events" on events;
+create policy "Members can read their restaurant events" on events for select using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = events.restaurant_id and restaurant_members.user_id = auth.uid())
+);
+
+-- Promotions — public read (shown on menu), members write --------------------
+drop policy if exists "Promotions are viewable by everyone" on promotions;
+create policy "Promotions are viewable by everyone" on promotions for select using (true);
+
+drop policy if exists "Members can write promotions" on promotions;
+create policy "Members can write promotions" on promotions for all using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = promotions.restaurant_id and restaurant_members.user_id = auth.uid())
+);
+
+-- Menu experience — public read, members write -------------------------------
+drop policy if exists "Menu experience is viewable by everyone" on menu_experience;
+create policy "Menu experience is viewable by everyone" on menu_experience for select using (true);
+
+drop policy if exists "Members can write menu experience" on menu_experience;
+create policy "Members can write menu experience" on menu_experience for all using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = menu_experience.restaurant_id and restaurant_members.user_id = auth.uid())
+);
+
+-- Sales — members only (private revenue) -------------------------------------
+drop policy if exists "Members read sales" on sales;
+create policy "Members read sales" on sales for select using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = sales.restaurant_id and restaurant_members.user_id = auth.uid())
+);
+
+drop policy if exists "Members write sales" on sales;
+create policy "Members write sales" on sales for all using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = sales.restaurant_id and restaurant_members.user_id = auth.uid())
+);
+
+-- Changes — members only (private audit trail) -------------------------------
+drop policy if exists "Members read changes" on changes;
+create policy "Members read changes" on changes for select using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = changes.restaurant_id and restaurant_members.user_id = auth.uid())
+);
+
+drop policy if exists "Members write changes" on changes;
+create policy "Members write changes" on changes for all using (
+  exists (select 1 from restaurant_members where restaurant_members.restaurant_id = changes.restaurant_id and restaurant_members.user_id = auth.uid())
+);
+
+-- ============================================================================
+-- VIEWS — conversion funnel per cocktail (distinct sessions per stage) (0004)
+-- ============================================================================
+drop view if exists cocktail_funnel;
+create view cocktail_funnel with (security_invoker = true) as
+select
+  e.restaurant_id,
+  e.cocktail_slug,
+  count(distinct e.session_id) filter (where e.event_name = 'cocktail_impression') as seen,
+  count(distinct e.session_id) filter (where e.event_name = 'cocktail_opened')     as opened,
+  count(distinct e.session_id) filter (where e.event_name = 'ingredients_opened')  as ingredients,
+  count(distinct e.session_id) filter (where e.event_name in ('360_opened', 'ar_opened')) as breakdown,
+  count(distinct e.session_id) filter (where e.event_name = 'call_waiter_clicked') as called,
+  count(distinct e.session_id) filter (where e.event_name = 'order_completed')     as ordered
+from events e
+where e.event_name is not null and e.cocktail_slug is not null
+group by e.restaurant_id, e.cocktail_slug;
+
+-- ============================================================================
+-- TRIGGERS — keep cocktails.updated_at fresh (0001)
+-- ============================================================================
+create or replace function update_updated_at_column()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_cocktails_updated_at on cocktails;
+create trigger update_cocktails_updated_at
+  before update on cocktails
+  for each row execute function update_updated_at_column();
+
+-- ============================================================================
+-- STORAGE — public asset bucket + member-scoped write (0002)
+-- ============================================================================
+insert into storage.buckets (id, name, public)
+values ('cocktail-assets', 'cocktail-assets', true)
+on conflict (id) do nothing;
+
+drop policy if exists "Public read of cocktail assets" on storage.objects;
+create policy "Public read of cocktail assets" on storage.objects for select using (bucket_id = 'cocktail-assets');
+
+drop policy if exists "Members can upload to their restaurant folder" on storage.objects;
+create policy "Members can upload to their restaurant folder" on storage.objects for insert with check (
+  bucket_id = 'cocktail-assets'
+  and exists (
+    select 1 from restaurants
+    join restaurant_members on restaurant_members.restaurant_id = restaurants.id
+    where restaurants.slug = (storage.foldername(name))[1] and restaurant_members.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Members can update their assets" on storage.objects;
+create policy "Members can update their assets" on storage.objects for update using (
+  bucket_id = 'cocktail-assets'
+  and exists (
+    select 1 from restaurants
+    join restaurant_members on restaurant_members.restaurant_id = restaurants.id
+    where restaurants.slug = (storage.foldername(name))[1] and restaurant_members.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Members can delete their assets" on storage.objects;
+create policy "Members can delete their assets" on storage.objects for delete using (
+  bucket_id = 'cocktail-assets'
+  and exists (
+    select 1 from restaurants
+    join restaurant_members on restaurant_members.restaurant_id = restaurants.id
+    where restaurants.slug = (storage.foldername(name))[1] and restaurant_members.user_id = auth.uid()
+  )
+);
+
+-- ============================================================================
+-- SEED — the "Diner" restaurant (0001)
+-- ============================================================================
+insert into restaurants (slug, name, default_lang)
+values ('diner', 'Diner', 'en')
+on conflict (slug) do nothing;
+
+-- ============================================================================
+-- End of baseline. Equivalent to migrations 0001–0004 + 0006–0010.
+-- ============================================================================

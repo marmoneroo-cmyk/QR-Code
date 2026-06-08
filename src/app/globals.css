@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * NOTE: Do NOT add an unlayered "* { margin:0; padding:0 }" reset here.
+ * Tailwind v4 ships Preflight inside "@layer base", which already resets
+ * margin, padding and box-sizing. An unlayered reset outranks every
+ * "@layer utilities" rule and silently kills all spacing utilities
+ * (padding, margin, gap, mx-auto) site-wide. That made the UI look cramped.
+ */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  overflow-x: clip;
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+canvas {
+  touch-action: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Skeleton shimmer sweep (used by <Skeleton/> in dataviz). */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Respect users who prefer reduced motion: neutralize entrance/shimmer/ping. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,0 +1,404 @@
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Eye, ShoppingBag, TrendingUp, TrendingDown, Coins, Percent } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
+import { AdminShell } from '@/components/ui/AdminShell';
+import { LiveFunnel } from '@/components/admin/LiveFunnel';
+import { AreaChart, GlassImage, KpiCard, deltaPct, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
+import { Stagger, staggerItem } from '@/components/ui/motion';
+import { useLang } from '@/lib/useLang';
+import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
+
+const sans = 'var(--font-inter, sans-serif)';
+const serif = 'var(--font-playfair, serif)';
+const ils = (n: number): string => `₪${Math.round(n).toLocaleString()}`;
+
+interface PerformerCard extends MenuEngineeringItem {
+  title: { en: string; he: string };
+  hero: string;
+  accent: string;
+}
+
+/** Trend window options for the period selector (client-side slicing only). */
+const TREND_PERIODS = [
+  { key: '7d', n: 7, en: '7 days', he: '7 ימים' },
+  { key: '14d', n: 14, en: '14 days', he: '14 ימים' },
+  { key: 'all', n: Infinity, en: 'All', he: 'הכל' },
+] as const;
+
+type TrendPeriodKey = (typeof TREND_PERIODS)[number]['key'];
+
+/** Take the last n points of a series; if shorter than n, return all of it. */
+function sliceTail(series: number[] | undefined, n: number): number[] {
+  const arr = series ?? [];
+  if (!Number.isFinite(n) || arr.length <= n) return arr;
+  return arr.slice(-n);
+}
+
+const sum = (arr: number[]): number => arr.reduce((s, v) => s + v, 0);
+
+interface TrendPanelProps {
+  title: string;
+  total: number;
+  data: number[];
+  color: string;
+  delta: number | null;
+  icon: LucideIcon;
+  windowLabel: string;
+  peakLabel: string;
+  lastLabel: string;
+  vsLabel: string;
+}
+
+/** A single day-trend panel: title + window total + WoW delta + real AreaChart + peak/last annotation. */
+function TrendPanel({ title, total, data, color, delta, icon: Icon, windowLabel, peakLabel, lastLabel, vsLabel }: TrendPanelProps) {
+  const hasData = data.length > 0;
+  const peak = hasData ? Math.max(...data) : 0;
+  const last = hasData ? data[data.length - 1] : 0;
+  const up = (delta ?? 0) >= 0;
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="grid place-items-center w-8 h-8 rounded-lg shrink-0" style={{ color, background: `${color}1a` }}>
+            <Icon size={15} strokeWidth={1.8} />
+          </span>
+          <div className="min-w-0">
+            <p className="text-white/45 text-[11px] tracking-wide truncate" style={{ fontFamily: sans }}>{title}</p>
+            <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}>
+              {total.toLocaleString()}
+            </p>
+          </div>
+        </div>
+        {delta !== null && (
+          <span className={`inline-flex items-center gap-0.5 text-[11px] shrink-0 ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: sans }}>
+            {up ? <TrendingUp size={12} strokeWidth={2} /> : <TrendingDown size={12} strokeWidth={2} />}
+            {up ? '+' : ''}
+            {delta}%
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4">
+        {hasData ? (
+          <AreaChart data={data} color={color} height={160} />
+        ) : (
+          <div className="h-[160px] grid place-items-center text-white/25 text-xs" style={{ fontFamily: sans }}>—</div>
+        )}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-white/40 tracking-wide" style={{ fontFamily: sans }}>
+        <span>{windowLabel}</span>
+        <span>{peakLabel} {peak.toLocaleString()}</span>
+        <span>{lastLabel} {last.toLocaleString()}</span>
+        {delta !== null && <span className="text-white/30">{vsLabel}</span>}
+      </div>
+    </div>
+  );
+}
+
+export default function AnalyticsPage() {
+  const { lang } = useLang();
+  const isHebrew = lang === 'he';
+  const t = (en: string, he: string): string => (isHebrew ? he : en);
+
+  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
+  const [me, setMe] = useState<MenuEngineering | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const titleBySlug = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const c of MENU) map.set(c.slug, c.title[lang]);
+    return map;
+  }, [lang]);
+
+  const load = useCallback(async () => {
+    try {
+      const [ovRes, meRes] = await Promise.all([
+        fetch('/api/analytics/overview', { cache: 'no-store' }),
+        fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
+      ]);
+      const ovJson: { success: boolean; data?: AnalyticsOverview } = await ovRes.json();
+      const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
+      if (ovJson.success && ovJson.data) setOverview(ovJson.data);
+      if (meJson.success && meJson.data) setMe(meJson.data);
+    } catch {
+      /* keep last good data */
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+    const id = window.setInterval(load, 15000);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') load();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [load]);
+
+  const viewsDelta = deltaPct(overview?.viewsByDay);
+  const ordersDelta = deltaPct(overview?.ordersByDay);
+
+  // Period selector controls ONLY the trend charts + their window-sums (client-side slicing).
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriodKey>('14d');
+  const activePeriod = TREND_PERIODS.find((p) => p.key === trendPeriod) ?? TREND_PERIODS[1];
+  const viewsSlice = useMemo(() => sliceTail(overview?.viewsByDay, activePeriod.n), [overview?.viewsByDay, activePeriod.n]);
+  const ordersSlice = useMemo(() => sliceTail(overview?.ordersByDay, activePeriod.n), [overview?.ordersByDay, activePeriod.n]);
+
+  /** Top performers by views, enriched with cocktail imagery (missing ones guarded out). */
+  const performers: PerformerCard[] = useMemo(() => {
+    return (me?.items ?? [])
+      .map((r): PerformerCard | null => {
+        const c = findCocktailBySlug(r.slug);
+        return c ? { ...r, title: c.title, hero: c.heroImage, accent: getAccent(r.slug) } : null;
+      })
+      .filter((x): x is PerformerCard => Boolean(x))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 4);
+  }, [me]);
+
+  return (
+    <AdminShell
+      title="Performance"
+      titleHe="ביצועים"
+      eyebrow="Restaurant Analytics"
+      eyebrowHe="אנליטיקת מסעדה"
+      active="/admin/analytics"
+      subtitle="What your diners actually scan, view, and order — computed live from anonymized QR + in-app events."
+      subtitleHe="מה שהאורחים שלך באמת סורקים, צופים ומזמינים — מחושב חי מאירועי QR ואפליקציה אנונימיים."
+      actions={
+        <span className="inline-flex items-center gap-2 text-emerald-300/80 text-[10px] tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+          <LiveDot label={isHebrew ? 'חי' : 'Live'} />
+          {t('auto-refresh', 'רענון אוטומטי')}
+        </span>
+      }
+    >
+      <div dir={isHebrew ? 'rtl' : 'ltr'} className="flex flex-col gap-12">
+        <LiveFunnel lang={lang} />
+
+        {/* Premium KPI row */}
+        <motion.section
+          className="grid grid-cols-2 lg:grid-cols-5 gap-3"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <KpiCard
+            label={t('Revenue', 'הכנסה')}
+            value={ils(overview?.totalRevenue ?? 0)}
+            accent="#7dd3fc"
+            icon={Coins}
+            hint={t('total in window', 'סה״כ בחלון')}
+          />
+          <KpiCard
+            label={t('Demand · views', 'ביקוש · צפיות')}
+            value={(overview?.totalViews ?? 0).toLocaleString()}
+            accent="#fbbf24"
+            icon={Eye}
+            delta={viewsDelta}
+            series={(overview?.viewsByDay ?? []).slice(-14)}
+            hint={t('vs last week', 'מול שבוע קודם')}
+          />
+          <KpiCard
+            label={t('Orders', 'הזמנות')}
+            value={(overview?.totalOrders ?? 0).toLocaleString()}
+            accent="#34d399"
+            icon={ShoppingBag}
+            delta={ordersDelta}
+            series={(overview?.ordersByDay ?? []).slice(-14)}
+            hint={t('vs last week', 'מול שבוע קודם')}
+          />
+          <KpiCard
+            label={t('Conversion', 'המרה')}
+            value={`${Math.round(overview?.conversionPct ?? 0)}%`}
+            accent="#f59e0b"
+            icon={Percent}
+            hint={t('ordered / viewed', 'הזמינו / צפו')}
+          />
+          <KpiCard
+            label={t('Profit', 'רווח')}
+            value={ils(overview?.totalProfit ?? 0)}
+            accent="#a78bfa"
+            icon={TrendingUp}
+            hint={t('revenue − pour cost', 'הכנסה − עלות מזיגה')}
+          />
+        </motion.section>
+
+        {!loading && overview && !overview.hasData && (
+          <p className="text-center text-white/40 text-sm italic" style={{ fontFamily: sans }}>
+            {t(
+              'No views or orders captured yet — interact with the menu to populate these.',
+              'עדיין אין צפיות או הזמנות — פעל בתפריט כדי למלא את הנתונים.',
+            )}
+          </p>
+        )}
+
+        {/* Top performers with imagery */}
+        {performers.length > 0 && (
+          <section>
+            <SectionLabel icon={TrendingUp}>{t('Top performers', 'הפריטים המובילים')}</SectionLabel>
+            <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {performers.map((it, i) => (
+                <motion.div
+                  key={it.slug}
+                  variants={staggerItem}
+                  className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5"
+                >
+                  <span className="absolute top-3 start-4 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>
+                    {i + 1}
+                  </span>
+                  <GlassImage src={it.hero} accent={it.accent} className="w-full h-40 mb-3 transition-transform duration-300 group-hover:scale-105" />
+                  <p className="text-white/90 text-[15px] text-center leading-tight" style={{ fontFamily: isHebrew ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 600 }}>
+                    {it.title[lang]}
+                  </p>
+                  <div className="mt-3 flex items-center justify-center gap-4 text-[11px]" style={{ fontFamily: sans }}>
+                    <span className="inline-flex items-center gap-1 text-amber-200/80">
+                      <Eye size={12} strokeWidth={2} /> {it.views.toLocaleString()}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-emerald-300/80">
+                      <ShoppingBag size={12} strokeWidth={2} /> {it.orders.toLocaleString()}
+                    </span>
+                  </div>
+                </motion.div>
+              ))}
+            </Stagger>
+          </section>
+        )}
+
+        {/* Day-trend panels with a client-side period selector */}
+        <section className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <SectionLabel icon={TrendingUp}>{t('Daily trend', 'מגמה יומית')}</SectionLabel>
+            <div
+              className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1"
+              role="group"
+              aria-label={t('Trend period', 'טווח זמן')}
+            >
+              {TREND_PERIODS.map((p) => {
+                const isActive = p.key === trendPeriod;
+                return (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => setTrendPeriod(p.key)}
+                    aria-pressed={isActive}
+                    className={`rounded-full px-3 py-1 text-[11px] tracking-wide transition-colors duration-200 ${
+                      isActive ? 'bg-amber-400/90 text-black' : 'text-white/55 hover:text-white/85'
+                    }`}
+                    style={{ fontFamily: sans }}
+                  >
+                    {t(p.en, p.he)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <TrendPanel
+              title={t('Drink views', 'צפיות בקוקטיילים')}
+              total={sum(viewsSlice)}
+              data={viewsSlice}
+              color="#fbbf24"
+              delta={viewsDelta}
+              icon={Eye}
+              windowLabel={t(activePeriod.en, activePeriod.he)}
+              peakLabel={t('peak', 'שיא')}
+              lastLabel={t('today', 'היום')}
+              vsLabel={t('vs last week', 'מול שבוע קודם')}
+            />
+            <TrendPanel
+              title={t('Orders', 'הזמנות')}
+              total={sum(ordersSlice)}
+              data={ordersSlice}
+              color="#34d399"
+              delta={ordersDelta}
+              icon={ShoppingBag}
+              windowLabel={t(activePeriod.en, activePeriod.he)}
+              peakLabel={t('peak', 'שיא')}
+              lastLabel={t('today', 'היום')}
+              vsLabel={t('vs last week', 'מול שבוע קודם')}
+            />
+          </div>
+        </section>
+
+        {/* Top items table */}
+        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <SectionLabel>{t('Top items', 'פריטים מובילים')}</SectionLabel>
+          {overview && overview.topItems.length > 0 ? (
+            <div className="overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-white/40 text-[10px] tracking-[0.3em] uppercase">
+                    <th className="text-start pb-3 font-normal">{t('Cocktail', 'קוקטייל')}</th>
+                    <th className="text-end pb-3 font-normal">{t('Views', 'צפיות')}</th>
+                    <th className="text-end pb-3 font-normal">{t('Orders', 'הזמנות')}</th>
+                    <th className="text-end pb-3 font-normal hidden sm:table-cell">{t('Units', 'יח׳')}</th>
+                    <th className="text-end pb-3 font-normal">{t('Revenue', 'הכנסה')}</th>
+                    <th className="text-end pb-3 font-normal">{t('Conv.', 'המרה')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overview.topItems.map((row) => (
+                    <tr key={row.slug} className="border-t border-white/[0.08]">
+                      <td className="py-3 text-white/90">
+                        <span style={{ fontFamily: serif, fontStyle: isHebrew ? 'normal' : 'italic' }}>
+                          {titleBySlug.get(row.slug) ?? row.slug}
+                        </span>
+                      </td>
+                      <td className="py-3 text-end text-white/70 font-mono">{row.views.toLocaleString()}</td>
+                      <td className="py-3 text-end text-white/70 font-mono">{row.orders.toLocaleString()}</td>
+                      <td className="py-3 text-end text-white/70 font-mono hidden sm:table-cell">{row.units.toLocaleString()}</td>
+                      <td className="py-3 text-end text-emerald-200/90 font-mono">{ils(row.revenue)}</td>
+                      <td className="py-3 text-end text-amber-100 font-mono">{Math.round(row.conversionPct)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : loading ? (
+            <div className="flex flex-col gap-2.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-7 w-full rounded-md" />
+              ))}
+            </div>
+          ) : (
+            <p className="text-white/40 text-sm" style={{ fontFamily: sans }}>
+              {t('No items yet.', 'עדיין אין פריטים.')}
+            </p>
+          )}
+        </section>
+
+        {/* Engagement by hour */}
+        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+          <SectionLabel>{t('Engagement by hour (UTC)', 'מעורבות לפי שעה (UTC)')}</SectionLabel>
+          <div className="flex items-end gap-1.5 h-32" dir="ltr">
+            {(overview?.hourHeatmap ?? new Array(24).fill(0)).map((v, h) => (
+              <div key={h} className="flex-1 flex flex-col items-center gap-1" title={`${h}:00 — ${(v * 100).toFixed(0)}%`}>
+                <div className="w-full rounded-sm" style={{ height: `${Math.max(2, v * 100)}%`, background: `rgba(252, 211, 77, ${0.25 + v * 0.65})` }} />
+                {(h === 0 || h === 6 || h === 12 || h === 18 || h === 23) && (
+                  <span className="text-white/40 text-[9px] font-mono" style={{ fontFamily: sans }}>
+                    {h.toString().padStart(2, '0')}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
+          {t('Live data from anonymized events · refreshes automatically', 'נתונים חיים מאירועים אנונימיים · מתעדכן אוטומטית')}
+        </p>
+      </div>
+    </AdminShell>
+  );
+}

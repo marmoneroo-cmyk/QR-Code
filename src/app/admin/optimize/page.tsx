@@ -1,0 +1,266 @@
+'use client';
+
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import type { LucideIcon } from 'lucide-react';
+import { Wrench, ArrowUpCircle, BadgePercent, Scissors, Sparkles, ShieldCheck, Trash2, TrendingUp, ShoppingBag, ArrowRight, ArrowLeft, Wand2 } from 'lucide-react';
+import { AdminShell } from '@/components/ui/AdminShell';
+import { GlassImage, ConfidenceBadge, Pill, Skeleton } from '@/components/ui/dataviz';
+import { Stagger, staggerItem } from '@/components/ui/motion';
+import { useLang } from '@/lib/useLang';
+import { findCocktailBySlug, getAccent } from '@/data/cocktail';
+import type { MenuEngineering } from '@/lib/analytics/types';
+import { buildRecommendations, type Recommendation, type Confidence, type RecAction } from '@/lib/optimization';
+
+const sans = 'var(--font-inter, sans-serif)';
+const serif = 'var(--font-playfair, serif)';
+const serifHe = 'var(--font-frank-ruhl, serif)';
+
+/** Map qualitative confidence to a presentational % for the AI badge. */
+const CONFIDENCE_PCT: Record<Confidence, number> = { low: 60, medium: 78, high: 92 };
+
+const CONFIDENCE_LABEL: Record<Confidence, { en: string; he: string }> = {
+  high: { en: 'AI confidence', he: 'ביטחון AI' },
+  medium: { en: 'AI confidence', he: 'ביטחון AI' },
+  low: { en: 'AI · low data', he: 'AI · מעט נתונים' },
+};
+
+/** Each action carries an icon + accent colour for instant visual scanning. */
+const ACTION: Record<RecAction, { en: string; he: string; icon: LucideIcon; color: string }> = {
+  fix_offer: { en: 'Fix offer', he: 'תקנו הצעה', icon: Wrench, color: '#f59e0b' },
+  promote_position: { en: 'Promote', he: 'קדמו', icon: ArrowUpCircle, color: '#7dd3fc' },
+  raise_price: { en: 'Raise price', he: 'העלו מחיר', icon: BadgePercent, color: '#34d399' },
+  reduce_cost: { en: 'Reduce cost', he: 'הפחיתו עלות', icon: Scissors, color: '#a78bfa' },
+  feature: { en: 'Feature it', he: 'הדגישו', icon: Sparkles, color: '#fbbf24' },
+  keep_position: { en: 'Keep', he: 'שמרו', icon: ShieldCheck, color: '#34d399' },
+  review_or_remove: { en: 'Review', he: 'בדקו', icon: Trash2, color: '#fb7185' },
+};
+
+function ActionBadge({ action, lang }: { action: RecAction; lang: 'en' | 'he' }) {
+  const a = ACTION[action];
+  const Icon = a.icon;
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] tracking-[0.18em] uppercase"
+      style={{ color: a.color, background: `${a.color}1a`, border: `1px solid ${a.color}55`, fontFamily: sans, fontWeight: 600 }}
+    >
+      <Icon size={12} strokeWidth={2} /> {a[lang]}
+    </span>
+  );
+}
+
+/** Actions that send the manager to the promotions composer, prefilled with the drink. */
+const PROMOTION_ACTIONS: ReadonlySet<RecAction> = new Set<RecAction>(['promote_position', 'feature']);
+/** Actions that open the cocktail editor for that drink. */
+const EDITOR_ACTIONS: ReadonlySet<RecAction> = new Set<RecAction>(['fix_offer', 'raise_price', 'reduce_cost', 'review_or_remove']);
+
+/** Resolve the "Apply" destination for a recommendation, or null when there's nothing to apply. */
+function applyHref(action: RecAction, slug: string): string | null {
+  if (PROMOTION_ACTIONS.has(action)) return `/admin/promotions?cocktail=${encodeURIComponent(slug)}`;
+  if (EDITOR_ACTIONS.has(action)) return `/admin/${encodeURIComponent(slug)}/edit`;
+  return null; // keep_position → no Apply
+}
+
+/** Amber luxury pill that routes to the editor/promotions screen for this recommendation. */
+function ApplyAction({ action, slug, lang }: { action: RecAction; slug: string; lang: 'en' | 'he' }) {
+  const href = applyHref(action, slug);
+  // Arrow points toward reading flow: left in RTL (Hebrew), right in LTR.
+  const Arrow = lang === 'he' ? ArrowLeft : ArrowRight;
+
+  if (!href) {
+    // keep_position — nothing to change; show a calm disabled "Keep" chip.
+    return (
+      <span
+        className="inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] tracking-[0.12em] uppercase select-none"
+        style={{ color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: sans, fontWeight: 600 }}
+        aria-disabled
+      >
+        <ShieldCheck size={13} strokeWidth={2} className="shrink-0" />
+        {lang === 'he' ? 'שמרו כפי שהוא' : 'Keep as is'}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className="group/apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] tracking-[0.12em] uppercase transition-colors hover:bg-amber-300/20"
+      style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.45)', fontFamily: sans, fontWeight: 600 }}
+    >
+      <Wand2 size={13} strokeWidth={2} className="shrink-0" />
+      {lang === 'he' ? 'החל' : 'Apply'}
+      <Arrow size={13} strokeWidth={2} className="shrink-0 transition-transform group-hover/apply:translate-x-0.5" />
+    </Link>
+  );
+}
+
+export function OptimizePanel() {
+  const { lang } = useLang();
+  const isHebrew = lang === 'he';
+  const [data, setData] = useState<MenuEngineering | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [sales, setSales] = useState<Record<string, { units: number; revenue: number }>>({});
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const [meRes, salesRes] = await Promise.all([
+        fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
+        fetch('/api/sales?restaurant=diner', { cache: 'no-store' }),
+      ]);
+      const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
+      if (meJson.success && meJson.data) setData(meJson.data);
+      else setError(true);
+      // Sales are optional (table may not exist yet) — degrade gracefully.
+      const salesJson: { success: boolean; data?: { slug: string; units: number; revenue: number }[] } = await salesRes.json();
+      if (salesJson.success && salesJson.data) {
+        const map: Record<string, { units: number; revenue: number }> = {};
+        for (const s of salesJson.data) map[s.slug] = { units: s.units, revenue: s.revenue };
+        setSales(map);
+      }
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const recommendations = useMemo<Recommendation[]>(
+    () => (data ? buildRecommendations(data.items) : []),
+    [data],
+  );
+
+  return (
+    <>
+      {loading && (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" dir={isHebrew ? 'rtl' : 'ltr'}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-80 w-full rounded-3xl" />
+          ))}
+        </div>
+      )}
+
+      {!loading && error && (
+        <p className="text-rose-300/80 text-sm" style={{ fontFamily: sans }}>
+          {isHebrew ? 'טעינת הנתונים נכשלה.' : 'Failed to load data.'}
+        </p>
+      )}
+
+      {!loading && !error && recommendations.length === 0 && (
+        <p className="text-white/40 text-sm italic" style={{ fontFamily: sans }}>
+          {isHebrew
+            ? 'אין עדיין מספיק נתונים להמלצות. אספו תנועה אמיתית וחזרו.'
+            : 'Not enough data for recommendations yet. Collect real traffic and come back.'}
+        </p>
+      )}
+
+      {!loading && !error && recommendations.length > 0 && (
+        <div dir={isHebrew ? 'rtl' : 'ltr'}>
+        <Stagger className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {recommendations.map((r) => {
+            const cocktail = findCocktailBySlug(r.slug);
+            const accent = getAccent(r.slug);
+            const title = cocktail?.title[lang] ?? r.slug;
+            const sale = sales[r.slug];
+            return (
+              <motion.article
+                key={`${r.slug}:${r.action}`}
+                variants={staggerItem}
+                className="group relative flex flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.05] to-transparent transition-colors"
+                style={{ borderColor: `${accent}33` }}
+              >
+                {/* Visual: contained cocktail glass with accent glow (never crops). */}
+                <div className="relative grid place-items-center px-5 pt-5">
+                  {cocktail ? (
+                    <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-36 transition-transform duration-300 group-hover:scale-105" />
+                  ) : (
+                    <div className="w-full h-36 rounded-2xl border border-white/10 bg-white/[0.02]" aria-hidden />
+                  )}
+                  <span className="absolute top-4 start-4">
+                    <ActionBadge action={r.action} lang={lang} />
+                  </span>
+                </div>
+
+                <div className="flex flex-1 flex-col gap-2.5 p-5">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3
+                      className="text-white/95 text-[17px] leading-tight"
+                      style={{
+                        fontFamily: isHebrew ? serifHe : serif,
+                        fontStyle: isHebrew ? 'normal' : 'italic',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {title}
+                    </h3>
+                    <span className="shrink-0">
+                      <ConfidenceBadge pct={CONFIDENCE_PCT[r.confidence]} label={CONFIDENCE_LABEL[r.confidence][lang]} />
+                    </span>
+                  </div>
+
+                  <p className="text-white text-[14px] leading-snug" style={{ fontFamily: sans, fontWeight: 500 }}>
+                    {r.headline[lang]}
+                  </p>
+
+                  <p className="text-white/50 text-[12px] leading-relaxed line-clamp-2" style={{ fontFamily: sans }}>
+                    {r.rationale[lang]}
+                  </p>
+
+                  <div className="mt-auto flex flex-col gap-2.5 pt-1">
+                    {r.estimatedImpact ? (
+                      <div
+                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-[13px]"
+                        style={{ color: accent, background: `${accent}14`, border: `1px solid ${accent}40`, fontFamily: sans, fontWeight: 600 }}
+                      >
+                        <TrendingUp size={14} strokeWidth={2} className="shrink-0" />
+                        <span>{r.estimatedImpact[lang]}</span>
+                      </div>
+                    ) : (
+                      <p className="text-white/30 text-[11px] italic" style={{ fontFamily: sans }}>
+                        {isHebrew ? 'דרושה בדיקת A/B להערכה' : 'Needs an A/B test to estimate'}
+                      </p>
+                    )}
+
+                    {sale && (
+                      <Pill
+                        icon={ShoppingBag}
+                        accent="#7dd3fc"
+                        text={`${sale.units} ${isHebrew ? 'יח׳' : 'units'} · ₪${Math.round(sale.revenue).toLocaleString()}`}
+                      />
+                    )}
+
+                    <ApplyAction action={r.action} slug={r.slug} lang={lang} />
+                  </div>
+                </div>
+              </motion.article>
+            );
+          })}
+        </Stagger>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default function OptimizePage() {
+  return (
+    <AdminShell
+      title="Menu Optimization"
+      titleHe="אופטימיזציית תפריט"
+      eyebrow="Action, not metrics"
+      eyebrowHe="פעולה, לא מספרים"
+      active="/admin/optimize"
+      subtitle="What to do next for each cocktail — derived from real behaviour. Numeric estimates appear only when the data supports them."
+      subtitleHe="מה לעשות הלאה לכל קוקטייל — נגזר מהתנהגות אמיתית. הערכות מספריות מופיעות רק כשהנתונים תומכים."
+    >
+      <OptimizePanel />
+    </AdminShell>
+  );
+}

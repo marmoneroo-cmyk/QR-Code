@@ -1,0 +1,171 @@
+'use client';
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+interface ScanResult {
+  data: string;
+}
+
+export default function ScanPage() {
+  const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const scannerRef = useRef<{ stop(): void; destroy(): void } | null>(null);
+  // Use a ref (not state) for the navigating guard so handleScan stays stable —
+  // otherwise it changes identity on every status change, and the camera effect
+  // tears down + recreates the scanner the instant it starts (camera "exits").
+  const navigatingRef = useRef(false);
+  const [status, setStatus] = useState<'starting' | 'scanning' | 'denied' | 'unsupported' | 'navigating'>('starting');
+  const [lastResult, setLastResult] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleScan = useCallback(
+    (raw: string) => {
+      if (navigatingRef.current) return;
+      setLastResult(raw);
+      try {
+        const url = new URL(raw, window.location.origin);
+        const path = `${url.pathname}${url.search}`;
+        // Accept either same-origin URLs or app-relative paths
+        const isSameOrigin = url.origin === window.location.origin || raw.startsWith('/');
+        if (isSameOrigin && (path.startsWith('/cocktails/') || path.startsWith('/drafts/') || path.startsWith('/ar/'))) {
+          navigatingRef.current = true;
+          setStatus('navigating');
+          scannerRef.current?.stop();
+          router.push(path);
+        }
+      } catch {
+        // Not a URL — ignore and keep scanning
+      }
+    },
+    [router]
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setStatus('unsupported');
+        setError('Camera is not supported in this browser.');
+        return;
+      }
+
+      try {
+        const mod = await import('qr-scanner');
+        const QrScanner = (mod.default ?? (mod as unknown as typeof mod.default)) as typeof import('qr-scanner').default;
+
+        if (cancelled || !videoRef.current) return;
+
+        const scanner = new QrScanner(
+          videoRef.current,
+          (result: ScanResult) => handleScan(result.data),
+          {
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+            preferredCamera: 'environment',
+          }
+        );
+
+        await scanner.start();
+        scannerRef.current = scanner;
+        setStatus('scanning');
+      } catch (err: unknown) {
+        if (cancelled) return;
+        const name = err instanceof Error ? err.name : '';
+        if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+          setStatus('denied');
+          setError('Camera permission was denied. Allow camera access and reload.');
+        } else {
+          setStatus('unsupported');
+          setError(err instanceof Error ? err.message : 'Camera failed to start.');
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      scannerRef.current?.destroy();
+      scannerRef.current = null;
+    };
+  }, [handleScan]);
+
+  return (
+    <div className="fixed inset-0 bg-black text-white overflow-hidden">
+      <video
+        ref={videoRef}
+        playsInline
+        muted
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70" />
+
+      <Link
+        href="/"
+        className="absolute top-5 right-5 z-30 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-amber-200/40 text-amber-100 hover:text-white flex items-center justify-center text-lg"
+        aria-label="Cancel scan"
+      >
+        ×
+      </Link>
+
+      <div className="absolute top-6 left-6 z-30">
+        <p
+          className="text-amber-200/85 text-[10px] tracking-[0.45em] uppercase mb-1"
+          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+        >
+          Scan
+        </p>
+        <h1
+          className="text-white text-2xl"
+          style={{
+            fontFamily: 'var(--font-playfair, serif)',
+            fontStyle: 'italic',
+          }}
+        >
+          Point at a QR
+        </h1>
+      </div>
+
+      <div className="absolute bottom-10 left-0 right-0 z-30 text-center px-6">
+        {status === 'starting' && (
+          <p className="text-amber-200/70 text-sm">Starting camera…</p>
+        )}
+        {status === 'scanning' && (
+          <p
+            className="text-white/70 text-[11px] tracking-[0.3em] uppercase"
+            style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          >
+            Looking for a code…
+          </p>
+        )}
+        {status === 'navigating' && (
+          <p className="text-emerald-300/90 text-sm italic">✓ Found — opening…</p>
+        )}
+        {status === 'denied' && (
+          <div className="space-y-2">
+            <p className="text-rose-300/90 text-sm">{error}</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="text-amber-200/80 text-[11px] tracking-[0.3em] uppercase underline"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        {status === 'unsupported' && (
+          <p className="text-rose-300/90 text-sm">{error ?? 'Camera unavailable.'}</p>
+        )}
+        {lastResult && status === 'scanning' && (
+          <p className="mt-3 text-white/40 text-xs italic break-all">
+            Last seen: {lastResult.slice(0, 80)}
+            {lastResult.length > 80 ? '…' : ''}
+            {' '}— not a menu link
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
