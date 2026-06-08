@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Tag, Sparkles, CalendarClock, Power, Percent, Plus, X, Eye } from 'lucide-react';
+import { Tag, Sparkles, CalendarClock, Power, Percent, Plus, X, Eye, Check, Pencil } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, Pill, SectionLabel, Skeleton } from '@/components/ui/dataviz';
 import { Stagger, staggerItem } from '@/components/ui/motion';
@@ -134,6 +134,35 @@ const inputCls =
 const formDiscountLabel = (f: Pick<FormState, 'type' | 'value'>): string =>
   `−${Number.isFinite(f.value) ? f.value : 0}${f.type === 'percentage' ? '%' : '₪'}`;
 
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+const MINUTES = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
+
+/** 24-hour time picker (two selects) — no AM/PM, always readable, supports e.g. 14:20. */
+function Time24({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
+  const [rawH, rawM] = (value || '17:00').split(':');
+  const h = (rawH || '17').padStart(2, '0');
+  const m = rawM && MINUTES.includes(rawM) ? rawM : '00';
+  const selCls = 'bg-transparent text-white text-sm outline-none cursor-pointer';
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-white/40 text-[10px] tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>{label}</span>
+      <span className="inline-flex items-center gap-0.5 rounded-xl border border-white/12 bg-black/40 px-2.5 py-2">
+        <select aria-label={`${label} HH`} className={selCls} value={h} onChange={(e) => onChange(`${e.target.value}:${m}`)}>
+          {HOURS.map((hh) => (
+            <option key={hh} value={hh} className="bg-zinc-900 text-white">{hh}</option>
+          ))}
+        </select>
+        <span className="text-white/40">:</span>
+        <select aria-label={`${label} MM`} className={selCls} value={m} onChange={(e) => onChange(`${h}:${e.target.value}`)}>
+          {MINUTES.map((mm) => (
+            <option key={mm} value={mm} className="bg-zinc-900 text-white">{mm}</option>
+          ))}
+        </select>
+      </span>
+    </label>
+  );
+}
+
 /**
  * Compact, guest-facing preview of how a promotion will read on the menu —
  * a single menu-card mockup with the cocktail hero (when exactly one item is
@@ -142,15 +171,18 @@ const formDiscountLabel = (f: Pick<FormState, 'type' | 'value'>): string =>
  */
 function LivePreview({ form, lang, isHe }: { form: FormState; lang: Lang; isHe: boolean }) {
   const t = (en: string, he: string) => (isHe ? he : en);
-  const selected =
-    form.scope === 'item' && form.targetSlugs.length === 1 ? findCocktailBySlug(form.targetSlugs[0]) : undefined;
-  const accent = selected ? getAccent(selected.slug) : '#fbbf24';
+  const picked =
+    form.scope === 'item'
+      ? form.targetSlugs.map((s) => findCocktailBySlug(s)).filter((c): c is NonNullable<typeof c> => Boolean(c))
+      : [];
+  const single = picked.length === 1 ? picked[0] : undefined;
+  const accent = picked[0] ? getAccent(picked[0].slug) : '#fbbf24';
   const badge = badgeKindLabel(form.badgeKind, isHe);
   const discount = formDiscountLabel(form);
   const cardName =
-    selected?.title[lang] ??
+    single?.title[lang] ??
     (form.scope === 'item'
-      ? t(`${form.targetSlugs.length} items`, `${form.targetSlugs.length} פריטים`)
+      ? t(`${picked.length} items`, `${picked.length} פריטים`)
       : t('Full menu', 'כל התפריט'));
 
   return (
@@ -186,8 +218,19 @@ function LivePreview({ form, lang, isHe }: { form: FormState; lang: Lang; isHe: 
           </span>
         </div>
 
-        {selected ? (
-          <GlassImage src={selected.heroImage} accent={accent} className="w-full h-28 mb-3" />
+        {picked.length > 1 ? (
+          <div className="mb-3 flex gap-1.5">
+            {picked.slice(0, 4).map((c) => (
+              <GlassImage key={c.slug} src={c.heroImage} accent={getAccent(c.slug)} className="h-20 flex-1 min-w-0" />
+            ))}
+            {picked.length > 4 && (
+              <span className="grid h-20 w-9 shrink-0 place-items-center rounded-xl border border-white/10 text-white/55 text-[11px]" style={{ fontFamily: sans }}>
+                +{picked.length - 4}
+              </span>
+            )}
+          </div>
+        ) : single ? (
+          <GlassImage src={single.heroImage} accent={accent} className="w-full h-28 mb-3" />
         ) : (
           <div
             className="relative grid place-items-center w-full h-28 mb-3 rounded-2xl"
@@ -222,6 +265,8 @@ function PromotionsPageInner() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingActive, setEditingActive] = useState(true);
   const formRef = useRef<HTMLElement | null>(null);
 
   const load = useCallback(async () => {
@@ -276,6 +321,10 @@ function PromotionsPageInner() {
     setSaving(true);
     setMsg(null);
     try {
+      // Editing an existing promo = replace it (delete old, create updated).
+      if (editingId) {
+        await fetch(`/api/promotions?id=${editingId}`, { method: 'DELETE' });
+      }
       const body = {
         restaurant: 'diner',
         name: form.name.trim(),
@@ -285,7 +334,7 @@ function PromotionsPageInner() {
         targetSlugs: form.scope === 'item' ? form.targetSlugs : undefined,
         schedule: buildSchedule(form),
         badgeKind: form.badgeKind,
-        active: true,
+        active: editingId ? editingActive : true,
       };
       const res = await fetch('/api/promotions', {
         method: 'POST',
@@ -294,8 +343,10 @@ function PromotionsPageInner() {
       });
       const json: { success: boolean; error?: string } = await res.json();
       if (json.success) {
+        const wasEditing = editingId !== null;
         setForm(EMPTY);
-        setMsg(isHe ? 'נשמר ✓' : 'Saved ✓');
+        setEditingId(null);
+        setMsg(wasEditing ? (isHe ? 'עודכן ✓' : 'Updated ✓') : isHe ? 'נשמר ✓' : 'Saved ✓');
         await load();
       } else {
         setMsg(json.error ?? 'Error');
@@ -314,9 +365,42 @@ function PromotionsPageInner() {
     await fetch('/api/promotions', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: p.id, active: !(p as { active?: boolean }).active }),
+      body: JSON.stringify({ id: p.id, active: p.active === false }),
     });
     await load();
+  };
+
+  /** Load an existing promotion into the form so its schedule / active state can be changed. */
+  const startEdit = (p: Promotion & { active?: boolean }) => {
+    const w = p.schedule?.windows?.[0];
+    const mode: ScheduleMode =
+      w?.kind === 'recurring' ? 'weekly' : w?.kind === 'range' ? 'range' : w?.kind === 'seasonal' ? 'seasonal' : 'always';
+    setForm({
+      name: p.name,
+      type: p.type,
+      value: p.value,
+      scope: p.scope,
+      targetSlugs: p.scope === 'item' ? p.targetSlugs ?? [] : [],
+      badgeKind: p.badgeKind ?? 'happy_hour',
+      mode,
+      days: w?.kind === 'recurring' ? [...w.days] : [...EMPTY.days],
+      start: w?.kind === 'recurring' ? w.start : EMPTY.start,
+      end: w?.kind === 'recurring' ? w.end : EMPTY.end,
+      startDate: w?.kind === 'range' ? w.startDate : '',
+      endDate: w?.kind === 'range' ? w.endDate : '',
+      startMonthDay: w?.kind === 'seasonal' ? w.startMonthDay : EMPTY.startMonthDay,
+      endMonthDay: w?.kind === 'seasonal' ? w.endMonthDay : EMPTY.endMonthDay,
+    });
+    setEditingId(p.id);
+    setEditingActive(p.active !== false);
+    setMsg(null);
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm(EMPTY);
+    setMsg(null);
   };
 
   const counts = useMemo(() => {
@@ -356,7 +440,9 @@ function PromotionsPageInner() {
               prefilled ? 'border-amber-300/60 shadow-[0_0_0_1px_rgba(252,211,77,0.35),0_0_40px_-8px_rgba(252,211,77,0.45)]' : 'border-white/10'
             }`}
           >
-            <SectionLabel icon={Plus}>{t('New promotion', 'מבצע חדש')}</SectionLabel>
+            <SectionLabel icon={editingId ? Pencil : Plus}>
+              {editingId ? t('Edit promotion', 'עריכת מבצע') : t('New promotion', 'מבצע חדש')}
+            </SectionLabel>
 
             {/* Live guest-facing preview — updates as the form changes */}
             <LivePreview form={form} lang={lang} isHe={isHe} />
@@ -387,23 +473,45 @@ function PromotionsPageInner() {
             </div>
 
             {form.scope === 'item' && (
-              <div className="flex flex-wrap gap-2">
-                {MENU.map((c) => {
-                  const on = form.targetSlugs.includes(c.slug);
-                  return (
-                    <button
-                      key={c.slug}
-                      type="button"
-                      onClick={() => toggleSlug(c.slug)}
-                      className={`px-3 py-1.5 rounded-full border text-[11px] transition-colors ${
-                        on ? 'border-amber-300/60 text-amber-200 bg-amber-300/10' : 'border-white/12 text-white/50 hover:border-white/25'
-                      }`}
-                      style={{ fontFamily: sans }}
-                    >
-                      {c.title[lang]}
-                    </button>
-                  );
-                })}
+              <div className="flex flex-col gap-2">
+                <p className="text-white/40 text-[10px] tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>
+                  {t(`Pick items · ${form.targetSlugs.length} selected`, `בחרו פריטים · ${form.targetSlugs.length} נבחרו`)}
+                </p>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {MENU.map((c) => {
+                    const on = form.targetSlugs.includes(c.slug);
+                    return (
+                      <button
+                        key={c.slug}
+                        type="button"
+                        onClick={() => toggleSlug(c.slug)}
+                        aria-pressed={on}
+                        className={`group relative flex flex-col items-center gap-1 rounded-2xl border p-2 transition-all ${
+                          on ? 'border-amber-300/70 bg-amber-300/10' : 'border-white/10 hover:border-white/25'
+                        }`}
+                      >
+                        <span className="relative block w-full">
+                          <GlassImage
+                            src={c.heroImage}
+                            accent={getAccent(c.slug)}
+                            className={`w-full h-16 transition-opacity ${on ? '' : 'opacity-80 group-hover:opacity-100'}`}
+                          />
+                          {on && (
+                            <span className="absolute top-1 end-1 grid h-5 w-5 place-items-center rounded-full bg-amber-300 text-black">
+                              <Check size={12} strokeWidth={3} />
+                            </span>
+                          )}
+                        </span>
+                        <span
+                          className={`text-[10px] leading-tight text-center line-clamp-2 ${on ? 'text-amber-100' : 'text-white/55'}`}
+                          style={{ fontFamily: sans }}
+                        >
+                          {c.title[lang]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
@@ -431,9 +539,9 @@ function PromotionsPageInner() {
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-2.5">
-                  <input className={`${inputCls} w-28`} type="time" value={form.start} onChange={(e) => set('start', e.target.value)} />
-                  <input className={`${inputCls} w-28`} type="time" value={form.end} onChange={(e) => set('end', e.target.value)} />
+                <div className="flex gap-4">
+                  <Time24 value={form.start} onChange={(v) => set('start', v)} label={t('Start', 'התחלה')} />
+                  <Time24 value={form.end} onChange={(v) => set('end', v)} label={t('End', 'סיום')} />
                 </div>
               </div>
             )}
@@ -461,16 +569,28 @@ function PromotionsPageInner() {
               ))}
             </select>
 
-            <button
-              type="button"
-              onClick={submit}
-              disabled={saving}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-amber-300 text-black text-[11px] tracking-[0.25em] uppercase transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
-              style={{ fontFamily: sans, fontWeight: 700 }}
-            >
-              <Plus size={14} strokeWidth={2.4} />
-              {saving ? t('Saving…', 'שומר…') : t('Add promotion', 'הוסף מבצע')}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={submit}
+                disabled={saving}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-amber-300 text-black text-[11px] tracking-[0.25em] uppercase transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
+                style={{ fontFamily: sans, fontWeight: 700 }}
+              >
+                {editingId ? <Check size={14} strokeWidth={2.4} /> : <Plus size={14} strokeWidth={2.4} />}
+                {saving ? t('Saving…', 'שומר…') : editingId ? t('Save changes', 'שמור שינויים') : t('Add promotion', 'הוסף מבצע')}
+              </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="px-5 py-3 rounded-full border border-white/15 text-white/60 hover:text-white hover:border-white/30 text-[11px] tracking-[0.2em] uppercase transition-colors"
+                  style={{ fontFamily: sans }}
+                >
+                  {t('Cancel', 'ביטול')}
+                </button>
+              )}
+            </div>
             {msg && <p className="text-amber-200/80 text-xs" style={{ fontFamily: sans }}>{msg}</p>}
           </section>
 
@@ -539,14 +659,26 @@ function PromotionsPageInner() {
                       <h4 className="text-white text-[17px] leading-tight min-w-0" style={{ fontFamily: serif, fontWeight: 600 }}>
                         {p.name}
                       </h4>
-                      <button
-                        type="button"
-                        onClick={() => remove(p.id)}
-                        className="shrink-0 text-rose-300/60 hover:text-rose-300 transition-colors"
-                        aria-label="delete"
-                      >
-                        <X size={16} strokeWidth={2.2} />
-                      </button>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => startEdit(p as Promotion & { active?: boolean })}
+                          className="text-white/45 hover:text-amber-200 transition-colors"
+                          aria-label={t('edit', 'עריכה')}
+                          title={t('Edit', 'עריכה')}
+                        >
+                          <Pencil size={15} strokeWidth={2} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => remove(p.id)}
+                          className="text-rose-300/60 hover:text-rose-300 transition-colors"
+                          aria-label={t('delete', 'מחיקה')}
+                          title={t('Delete', 'מחיקה')}
+                        >
+                          <X size={16} strokeWidth={2.2} />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="mt-2 flex flex-wrap items-center gap-2">
