@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { CocktailLayers } from './CocktailLayers';
@@ -28,6 +28,8 @@ import { useEngagement } from '@/lib/tracking/useEngagement';
 import { useGyroscope } from '@/lib/useGyroscope';
 import { useViewHistory } from '@/lib/useViewHistory';
 import { useIsMobile } from '@/lib/useMediaQuery';
+import { useMenuConfig } from '@/lib/useMenuConfig';
+import { resolveModules, type ActiveModules } from '@/lib/experience/resolve';
 import { getAccent, isEffervescent, getEconomics, getFeatureVideo } from '@/data/cocktail';
 import type { CocktailConfig, Lang } from '@/data/cocktail';
 
@@ -44,6 +46,11 @@ export function CocktailScene({ config }: CocktailSceneProps) {
   const { tiltRef, enable: enableTilt, permissionRequired: tiltPermissionRequired, enabled: tiltEnabled } = useGyroscope();
   const { record: recordView } = useViewHistory();
   const isMobile = useIsMobile();
+  const { experience } = useMenuConfig('diner');
+  const modules = useMemo<ActiveModules>(
+    () => resolveModules(experience[config.slug], new Date(), Intl.DateTimeFormat().resolvedOptions().timeZone),
+    [experience, config.slug],
+  );
 
   useEffect(() => {
     recordView(config.slug);
@@ -121,6 +128,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
         activeLayerId={activeLayerId}
         onActiveLayer={setActiveLayerId}
         accent={accent}
+        modules={modules}
       />
     );
   }
@@ -190,7 +198,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
         >
           {isHebrew ? 'AR' : 'View in AR'}
         </Link>
-        {featureVideo && (
+        {featureVideo && modules.hero_video && (
           <button
             type="button"
             onClick={() => {
@@ -224,7 +232,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
       <div className="absolute inset-0 z-10 flex">
         {/* LEFT — description + metrics, 48px from screen edge */}
         <motion.aside
-          className={`hidden xl:flex flex-col justify-center gap-8 w-[260px] shrink-0 pl-12 pr-4 pt-44 pb-12 text-start ${
+          className={`hidden xl:flex flex-col justify-start gap-7 w-[260px] shrink-0 pl-12 pr-4 pt-48 pb-12 text-start overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
             isHebrew ? 'items-end' : 'items-start'
           }`}
           dir={isHebrew ? 'rtl' : 'ltr'}
@@ -233,19 +241,21 @@ export function CocktailScene({ config }: CocktailSceneProps) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.0, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="text-start">
-            <p
-              className="text-amber-200/70 text-[11px] tracking-[0.45em] uppercase mb-4"
-              style={{ fontFamily: subtitleFont }}
-            >
-              {isHebrew ? 'פרופיל טעמים' : 'Flavor Profile'}
-            </p>
-            <FlavorRadar flavor={config.flavor} lang={lang} size={200} />
-          </div>
+          {modules.taste_profile && (
+            <div className="text-start">
+              <p
+                className="text-amber-200/70 text-[11px] tracking-[0.45em] uppercase mb-4"
+                style={{ fontFamily: subtitleFont }}
+              >
+                {isHebrew ? 'פרופיל טעמים' : 'Flavor Profile'}
+              </p>
+              <FlavorRadar flavor={config.flavor} lang={lang} size={200} />
+            </div>
+          )}
           <BartenderNote cocktail={config} lang={lang} />
-          <Pairings cocktail={config} lang={lang} />
-          <CocktailStory slug={config.slug} lang={lang} />
-          <AlsoViewed slug={config.slug} lang={lang} />
+          {modules.perfect_pairings && <Pairings cocktail={config} lang={lang} />}
+          {modules.story && <CocktailStory slug={config.slug} lang={lang} />}
+          {modules.related_items && <AlsoViewed slug={config.slug} lang={lang} />}
         </motion.aside>
 
         {/* CENTER — breakdown layers + ingredient labels (always present).
@@ -286,12 +296,14 @@ export function CocktailScene({ config }: CocktailSceneProps) {
             </Canvas>
           </ErrorBoundary>
 
-          <IngredientLabels
-            config={spacedConfig}
-            activeLayerId={activeLayerId}
-            onHoverLabel={setActiveLayerId}
-            lang={lang}
-          />
+          {modules.ingredient_breakdown && (
+            <IngredientLabels
+              config={spacedConfig}
+              activeLayerId={activeLayerId}
+              onHoverLabel={setActiveLayerId}
+              lang={lang}
+            />
+          )}
         </div>
 
         {/* RIGHT — full drink photo; narrower at xl to keep labels clear, wider at 2xl */}
@@ -324,19 +336,21 @@ export function CocktailScene({ config }: CocktailSceneProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.0, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="text-start">
-          <p
-            className="text-amber-200/70 text-[11px] tracking-[0.45em] uppercase mb-3"
-            style={{ fontFamily: subtitleFont }}
-          >
-            {isHebrew ? 'פרופיל טעמים' : 'Flavor Profile'}
-          </p>
-          <FlavorRadar flavor={config.flavor} lang={lang} size={180} />
-        </div>
+        {modules.taste_profile && (
+          <div className="text-start">
+            <p
+              className="text-amber-200/70 text-[11px] tracking-[0.45em] uppercase mb-3"
+              style={{ fontFamily: subtitleFont }}
+            >
+              {isHebrew ? 'פרופיל טעמים' : 'Flavor Profile'}
+            </p>
+            <FlavorRadar flavor={config.flavor} lang={lang} size={180} />
+          </div>
+        )}
         <BartenderNote cocktail={config} lang={lang} />
-        <Pairings cocktail={config} lang={lang} />
-        <CocktailStory slug={config.slug} lang={lang} />
-        <AlsoViewed slug={config.slug} lang={lang} />
+        {modules.perfect_pairings && <Pairings cocktail={config} lang={lang} />}
+        {modules.story && <CocktailStory slug={config.slug} lang={lang} />}
+        {modules.related_items && <AlsoViewed slug={config.slug} lang={lang} />}
       </motion.div>
 
       <MobileLabelSheet
@@ -369,7 +383,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
       />
 
       {/* Feature video player (Aperol Spritz) — opened by the ▶ Video button */}
-      {featureVideo && videoOpen && (
+      {featureVideo && modules.hero_video && videoOpen && (
         <motion.div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 md:p-10"
           initial={{ opacity: 0 }}

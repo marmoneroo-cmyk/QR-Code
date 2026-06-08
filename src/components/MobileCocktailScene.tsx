@@ -13,6 +13,7 @@ import { LanguageToggle } from './LanguageToggle';
 import { OrderBar } from './OrderBar';
 import { track } from '@/lib/tracking/track';
 import { getFeatureVideo, getEconomics, type CocktailConfig, type Lang, type LayerConfig } from '@/data/cocktail';
+import type { ActiveModules } from '@/lib/experience/resolve';
 
 interface MobileCocktailSceneProps {
   config: CocktailConfig;
@@ -22,6 +23,7 @@ interface MobileCocktailSceneProps {
   activeLayerId: string | null;
   onActiveLayer: (id: string | null) => void;
   accent: string;
+  modules: ActiveModules;
 }
 
 /**
@@ -38,6 +40,7 @@ export function MobileCocktailScene({
   activeLayerId,
   onActiveLayer,
   accent,
+  modules,
 }: MobileCocktailSceneProps) {
   const isHebrew = lang === 'he';
   const [videoOpen, setVideoOpen] = useState(false);
@@ -74,7 +77,7 @@ export function MobileCocktailScene({
           {isHebrew ? 'תפריט ↩' : '← Menu'}
         </Link>
         <div className="flex items-center gap-2">
-          {featureVideo && (
+          {featureVideo && modules.hero_video && (
             <button
               type="button"
               onClick={() => {
@@ -100,7 +103,7 @@ export function MobileCocktailScene({
         </div>
       </header>
 
-      {featureVideo && videoOpen && (
+      {featureVideo && modules.hero_video && videoOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-sm p-4"
           onClick={() => setVideoOpen(false)}
@@ -162,6 +165,7 @@ export function MobileCocktailScene({
         )}
 
         {/* Breakdown — each floating part shown WITH its description beside it */}
+        {modules.ingredient_breakdown && (
         <SectionAttention section="ingredients" slug={config.slug}>
         <section className="px-4 pt-6">
           <p
@@ -217,8 +221,10 @@ export function MobileCocktailScene({
           </ul>
         </section>
         </SectionAttention>
+        )}
 
         {/* Flavor profile */}
+        {modules.taste_profile && (
         <SectionAttention section="flavor" slug={config.slug}>
         <section className="px-5 pt-9 mt-2 flex flex-col items-center">
           <p
@@ -230,20 +236,23 @@ export function MobileCocktailScene({
           <FlavorRadar flavor={config.flavor} lang={lang} size={250} />
         </section>
         </SectionAttention>
+        )}
 
         {/* Bartender note + pairings */}
         <section className="px-5 pt-9 mt-2 flex flex-col items-center gap-6 text-center">
           <BartenderNote cocktail={config} lang={lang} />
-          <Pairings cocktail={config} lang={lang} />
+          {modules.perfect_pairings && <Pairings cocktail={config} lang={lang} />}
         </section>
 
         {/* Story (emotion) */}
-        <SectionAttention section="story" slug={config.slug}>
-          <CocktailStory slug={config.slug} lang={lang} />
-        </SectionAttention>
+        {modules.story && (
+          <SectionAttention section="story" slug={config.slug}>
+            <CocktailStory slug={config.slug} lang={lang} />
+          </SectionAttention>
+        )}
 
         {/* Data-driven cross-sell */}
-        <AlsoViewed slug={config.slug} lang={lang} />
+        {modules.related_items && <AlsoViewed slug={config.slug} lang={lang} />}
       </main>
 
       {/* In-app conversion (order / call waiter) — diners are on mobile */}

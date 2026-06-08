@@ -24,6 +24,34 @@ export function isModuleActive(
   return isScheduleActive(toggle.schedule, now, tz);
 }
 
+/** Every content module's active state, resolved together. */
+export interface ActiveModules {
+  taste_profile: boolean;
+  story: boolean;
+  perfect_pairings: boolean;
+  related_items: boolean;
+  ingredient_breakdown: boolean;
+  hero_video: boolean;
+  mood_tags: boolean;
+}
+
+/** Resolve all content modules at once for a cocktail (defaults ON). */
+export function resolveModules(
+  config: ExperienceConfig | null | undefined,
+  now: Date,
+  tz: string,
+): ActiveModules {
+  return {
+    taste_profile: isModuleActive(config, 'taste_profile', now, tz),
+    story: isModuleActive(config, 'story', now, tz),
+    perfect_pairings: isModuleActive(config, 'perfect_pairings', now, tz),
+    related_items: isModuleActive(config, 'related_items', now, tz),
+    ingredient_breakdown: isModuleActive(config, 'ingredient_breakdown', now, tz),
+    hero_video: isModuleActive(config, 'hero_video', now, tz),
+    mood_tags: isModuleActive(config, 'mood_tags', now, tz),
+  };
+}
+
 function autoActive(kind: BadgeKind, ctx: BadgeAutoContext): boolean {
   switch (kind) {
     case 'guest_favorite':
