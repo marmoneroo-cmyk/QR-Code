@@ -8,6 +8,7 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { PotentialValue, ConfidenceMeter } from '@/components/ui/value';
 import { buildActions, type CoachAction } from '@/lib/value/actions';
+import { splitFocusActions, type OppStatusMap } from '@/lib/value/focus';
 import { buildMenuBenchmark } from '@/lib/value/potential';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { HoverLift, AccentWash, Tilt } from '@/components/ui/visual';
@@ -47,16 +48,6 @@ function celebrationMessage(valueILS: number | null, lang: 'en' | 'he'): string 
 
 const OPPS_STORAGE_KEY = 'cocktail-demo:opps';
 
-type OppStatusKind = 'done' | 'dismissed' | 'snoozed';
-
-interface OppStatusEntry {
-  status: OppStatusKind;
-  /** Epoch ms; only meaningful for `snoozed` (kept so we don't clobber the board). */
-  until?: number;
-}
-
-type OppStatusMap = Record<string, OppStatusEntry>;
-
 /** SSR-safe read. Never touches `window` on the server; tolerates corrupt JSON. */
 function readOppStatuses(): OppStatusMap {
   if (typeof window === 'undefined') return {};
@@ -78,12 +69,6 @@ function writeOppStatuses(map: OppStatusMap): void {
   } catch {
     /* quota / privacy mode — keep working from in-memory state */
   }
-}
-
-/** A snooze counts as "active" only while its `until` is still in the future. */
-function isStatusActive(entry: OppStatusEntry, now: number): boolean {
-  if (entry.status === 'snoozed') return typeof entry.until === 'number' && entry.until > now;
-  return true;
 }
 
 /**
@@ -202,21 +187,17 @@ export default function ActionCenterPage() {
     return () => window.clearTimeout(t);
   }, [celebratingId]);
 
-  // The focus is the TOP 3 actions; within those, split open vs. already done today.
-  const { focusOpen, focusDone } = useMemo(() => {
-    const top = actions.slice(0, FOCUS_COUNT);
-    const open: CoachAction[] = [];
-    const done: CoachAction[] = [];
-    for (const a of top) {
-      const entry = statuses[a.id];
-      if (entry && isStatusActive(entry, now)) done.push(a);
-      else open.push(a);
-    }
-    return { focusOpen: open, focusDone: done };
-  }, [actions, statuses, now]);
+  // Always surface the top OPEN actions (up to FOCUS_COUNT), so finishing one promotes
+  // the next into focus instead of leaving fewer and fewer. "Done today" tracks EVERY
+  // completed action across the full ranked list — never a fragile top-N slice — so a
+  // finished action can't vanish on a re-rank and can always be undone.
+  const { focusOpen, focusDone } = useMemo(
+    () => splitFocusActions(actions, statuses, now, FOCUS_COUNT),
+    [actions, statuses, now],
+  );
 
   const hasAnyFocus = focusOpen.length > 0 || focusDone.length > 0;
-  const allDone = hasAnyFocus && focusOpen.length === 0;
+  const allDone = focusOpen.length === 0 && focusDone.length > 0;
 
   return (
     <AdminShell
