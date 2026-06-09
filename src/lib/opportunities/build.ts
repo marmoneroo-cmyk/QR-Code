@@ -92,8 +92,8 @@ export function buildOpportunities(signals: MenuSignals, opts: OpportunityOption
           ev('Intent', 'כוונה', `${it.favorites} ♥ · ${it.salesUnits} sold`),
         ],
         {
-          en: 'Guests are interested but not committing — review the image, description, or price.',
-          he: 'האורחים מתעניינים אך לא ממירים — בדקו תמונה, תיאור או מחיר.',
+          en: 'Guests are interested but not ordering — review the image, description, or price.',
+          he: 'האורחים מתעניינים אך לא מזמינים — בדקו תמונה, תיאור או מחיר.',
         },
         it.opens,
       );

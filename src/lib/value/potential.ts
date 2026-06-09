@@ -84,8 +84,8 @@ export function estimatePotential(item: PotentialInput, bench: MenuBenchmark): R
     extraOrders = item.views * convGap;
     lever = 'conversion';
     const pct = Math.round(bench.medianConversionPct);
-    basisEn = `if conversion reaches the menu median (${pct}%)`;
-    basisHe = `אם ההמרה תגיע לחציון התפריט (${pct}%)`;
+    basisEn = `if its order rate reaches the menu median (${pct}%)`;
+    basisHe = `אם שיעור ההזמנות יגיע לחציון התפריט (${pct}%)`;
   } else {
     const extraViews = Math.max(0, bench.medianViews - item.views);
     extraOrders = extraViews * convFrac;

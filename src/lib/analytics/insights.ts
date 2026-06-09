@@ -147,16 +147,16 @@ export async function getExecutiveSummary(): Promise<ExecutiveSummary> {
   for (const i of underperformers) {
     const conv = Math.round(i.conversionPct);
     summary.underperforming.push(
-      `${titleEn(i.slug)}: attention ${i.attentionScore}/100 but only ${conv}% convert — revisit price/photo/description.`,
+      `${titleEn(i.slug)}: attention ${i.attentionScore}/100 but only ${conv}% order it — revisit price/photo/description.`,
     );
     summary.underperformingHe.push(
-      `${titleHe(i.slug)}: תשומת לב ${i.attentionScore}/100 אך רק ${conv}% ממירים — בדוק מחיר/תמונה/תיאור.`,
+      `${titleHe(i.slug)}: תשומת לב ${i.attentionScore}/100 אך רק ${conv}% מזמינים — בדוק מחיר/תמונה/תיאור.`,
     );
     insights.push({
       tone: 'warning',
       slug: i.slug,
-      text: `${titleEn(i.slug)} draws attention (${i.attentionScore}/100) but only ${conv}% convert.`,
-      textHe: `${titleHe(i.slug)} מושך תשומת לב (${i.attentionScore}/100) אך רק ${conv}% ממירים.`,
+      text: `${titleEn(i.slug)} draws attention (${i.attentionScore}/100) but only ${conv}% order it.`,
+      textHe: `${titleHe(i.slug)} מושך תשומת לב (${i.attentionScore}/100) אך רק ${conv}% מזמינים אותו.`,
     });
   }
 

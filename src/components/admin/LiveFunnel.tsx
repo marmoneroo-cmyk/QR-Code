@@ -169,7 +169,7 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
                     )}
                     {row.flag === 'high_converter' && (
                       <span className="shrink-0 text-emerald-200 text-[9px] tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border border-emerald-300/40" style={{ fontFamily: sans }}>
-                        ★ {t('high converter', 'ממיר גבוה')}
+                        ★ {t('high converter', 'שיעור הזמנות גבוה')}
                       </span>
                     )}
                   </span>

@@ -64,8 +64,8 @@ export function buildRecommendations(
         make(
           'fix_offer',
           {
-            en: 'Guests are interested but not committing — test the image, description, or price.',
-            he: 'האורחים מתעניינים אך לא ממירים — בדקו תמונה, תיאור או מחיר.',
+            en: 'Guests are interested but not ordering — test the image, description, or price.',
+            he: 'האורחים מתעניינים אך לא מזמינים — בדקו תמונה, תיאור או מחיר.',
           },
           {
             en: `High attention (${it.attentionScore}/100) but only ${it.conversionPct}% intent.`,

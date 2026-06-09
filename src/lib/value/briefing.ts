@@ -20,12 +20,12 @@ export function buildBriefing(type: OpportunityType, drink: Bilingual): Bilingua
       };
     case 'fix_offer':
       return {
-        en: `${en} is catching eyes but not orders. Guests look, linger, and then hesitate — usually it's the photo, the description, or the price holding them back. Tighten the offer and that interest can finally convert.`,
-        he: `${he} מושך עיניים אבל לא הזמנות. אורחים מסתכלים, מתעכבים, ואז מהססים — בדרך כלל זו התמונה, התיאור או המחיר שעוצרים אותם. חדדו את ההצעה, והעניין הזה סוף סוף יכול להפוך להזמנה.`,
+        en: `Guests stop on ${en}, but most move on to another drink. The photo, the description, or the price may not be convincing enough to order. Tighten the offer and that interest can finally turn into orders.`,
+        he: `האורחים עוצרים על ${he}, אך רובם ממשיכים למשקה אחר. ייתכן שהתמונה, התיאור או המחיר אינם משכנעים מספיק להזמנה. חדדו את ההצעה, והעניין הזה סוף סוף יכול להפוך להזמנות.`,
       };
     case 'promote_marketing':
       return {
-        en: `Guests are sharing ${en} with their friends, yet it hasn't turned into sales. The buzz is already there — a little push behind it can convert that word-of-mouth into orders on the floor.`,
+        en: `Guests are sharing ${en} with their friends, yet it hasn't turned into sales. The buzz is already there — a little push behind it can turn that word-of-mouth into orders on the floor.`,
         he: `אורחים משתפים את ${he} עם החברים שלהם, אבל זה עוד לא הפך למכירות. הבאזז כבר קיים — דחיפה קטנה מאחוריו יכולה להפוך את הפֶּה-לאוזן להזמנות באולם.`,
       };
     case 'promotion_candidate':

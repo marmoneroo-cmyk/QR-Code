@@ -322,7 +322,7 @@ export default function CrmPage() {
             title={t('Browsing guests', 'אורחים מתעניינים')}
             count={browsing}
             total={sessions}
-            meaning={t('Explored the menu but did not order — the audience worth converting next.', 'עיינו בתפריט אך לא הזמינו — הקהל ששווה להמיר בהמשך.')}
+            meaning={t('Explored the menu but did not order — the guests worth winning over next.', 'עיינו בתפריט אך לא הזמינו — האורחים ששווה לשכנע להזמין בהמשך.')}
           />
           <SegmentCard
             icon={Flame}
