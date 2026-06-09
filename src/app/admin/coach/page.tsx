@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight, Clock, Sunrise, Check } from 'lucide-react';
+import { ArrowRight, Clock, Sunrise, Check } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { PotentialValue, ConfidenceMeter } from '@/components/ui/value';
@@ -318,7 +318,7 @@ function EmptyHero({
           className="grid h-16 w-16 place-items-center rounded-full border"
           style={{ borderColor: `${accent}55`, color: accent, background: `${accent}12` }}
         >
-          {noData ? <Sparkles size={26} strokeWidth={1.6} /> : <Check size={28} strokeWidth={2} />}
+          {noData ? <Sunrise size={26} strokeWidth={1.6} /> : <Check size={28} strokeWidth={2} />}
         </span>
         <h2
           className="mt-6 text-white"

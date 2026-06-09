@@ -11,7 +11,7 @@ import {
   Quote,
   ImageIcon,
   Layers,
-  Sparkles,
+  Lightbulb,
   Upload,
   Check,
 } from 'lucide-react';
@@ -413,7 +413,7 @@ export function CocktailForm({
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/60 text-amber-100 hover:bg-amber-200/10 transition-colors text-[11px] tracking-[0.3em] uppercase disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
-            <Sparkles size={13} strokeWidth={2} />
+            <Lightbulb size={13} strokeWidth={2} />
             {generating
               ? t('Generating…', 'מייצר…')
               : heroUrl

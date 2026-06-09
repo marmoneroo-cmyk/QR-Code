@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
-import { Wrench, ArrowUpCircle, BadgePercent, Scissors, Sparkles, ShieldCheck, Trash2, ShoppingBag, ArrowRight, ArrowLeft, Wand2 } from 'lucide-react';
+import { Wrench, ArrowUpCircle, BadgePercent, Scissors, Star, ShieldCheck, Trash2, ShoppingBag, ArrowRight, ArrowLeft, Lightbulb } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Pill, Skeleton } from '@/components/ui/dataviz';
 import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual';
@@ -35,7 +35,7 @@ const ACTION: Record<RecAction, { en: string; he: string; icon: LucideIcon; colo
   promote_position: { en: 'Promote', he: 'קדמו', icon: ArrowUpCircle, color: '#7dd3fc' },
   raise_price: { en: 'Raise price', he: 'העלו מחיר', icon: BadgePercent, color: '#34d399' },
   reduce_cost: { en: 'Reduce cost', he: 'הפחיתו עלות', icon: Scissors, color: '#a78bfa' },
-  feature: { en: 'Feature it', he: 'הדגישו', icon: Sparkles, color: '#fbbf24' },
+  feature: { en: 'Feature it', he: 'הדגישו', icon: Star, color: '#fbbf24' },
   keep_position: { en: 'Keep', he: 'שמרו', icon: ShieldCheck, color: '#34d399' },
   review_or_remove: { en: 'Review', he: 'בדקו', icon: Trash2, color: '#fb7185' },
 };
@@ -107,7 +107,7 @@ function ApplyAction({ action, slug, lang }: { action: RecAction; slug: string; 
       className="group/apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] tracking-[0.12em] uppercase transition-colors hover:bg-amber-300/20"
       style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.45)', fontFamily: sans, fontWeight: 600 }}
     >
-      <Wand2 size={13} strokeWidth={2} className="shrink-0" />
+      <Lightbulb size={13} strokeWidth={2} className="shrink-0" />
       {lang === 'he' ? 'החל' : 'Apply'}
       <Arrow size={13} strokeWidth={2} className="shrink-0 transition-transform group-hover/apply:translate-x-0.5" />
     </Link>

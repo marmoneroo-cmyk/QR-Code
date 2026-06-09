@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
-import { Printer, Sparkles, QrCode } from 'lucide-react';
+import { Printer, Package, QrCode } from 'lucide-react';
 import {
   CATEGORY_LABEL,
   CURRENCY_SYMBOL,
@@ -150,7 +150,7 @@ export default function PrintPage() {
       {/* Kit preview — screen only, never prints */}
       {cards.length > 0 && (
         <section className="no-print mb-10" dir={isHebrew ? 'rtl' : 'ltr'}>
-          <SectionLabel icon={Sparkles}>{t('In this kit', 'בערכה')}</SectionLabel>
+          <SectionLabel icon={Package}>{t('In this kit', 'בערכה')}</SectionLabel>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
             {cards.map((card) => (
               <div
@@ -215,7 +215,7 @@ export default function PrintPage() {
 
       {busy && (
         <p className="no-print inline-flex items-center gap-2 text-amber-200/70 text-sm italic mb-6" style={{ fontFamily: body }}>
-          <Sparkles size={14} strokeWidth={1.8} className="animate-pulse" />
+          <Package size={14} strokeWidth={1.8} className="animate-pulse" />
           {t('Generating QR codes…', 'מייצר קודי QR…')}
         </p>
       )}

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { Sparkles, Grid2x2, Flame } from 'lucide-react';
+import { Target, Grid2x2, Flame } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { useLang } from '@/lib/useLang';
 import { OptimizePanel } from '@/app/admin/optimize/page';
@@ -12,7 +12,7 @@ import { HeatmapPanel } from '@/app/admin/heatmap/page';
 type Tab = 'optimize' | 'menu' | 'heatmap';
 
 const TABS: ReadonlyArray<{ id: Tab; en: string; he: string; icon: LucideIcon }> = [
-  { id: 'optimize', en: 'Optimize', he: 'אופטימיזציה', icon: Sparkles },
+  { id: 'optimize', en: 'Optimize', he: 'אופטימיזציה', icon: Target },
   { id: 'menu', en: 'Menu Engineering', he: 'הנדסת תפריט', icon: Grid2x2 },
   { id: 'heatmap', en: 'Heatmap', he: 'מפת חום', icon: Flame },
 ];

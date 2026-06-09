@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   Banknote,
   Zap,
-  Sparkles,
+  ClipboardList,
   Trophy,
   Lightbulb,
   Repeat,
@@ -48,7 +48,7 @@ export const ADMIN_GROUPS: AdminNavGroup[] = [
     items: [
       { href: '/admin/revenue', en: 'House Performance', he: 'ביצועי הבית', descEn: 'How the house is doing', descHe: 'איך הבית מתפקד', Icon: Banknote },
       { href: '/admin/actions', en: 'Action Center', he: 'מרכז פעולות', descEn: '3 things to do today', descHe: '3 דברים לעשות היום', Icon: Zap },
-      { href: '/admin/coach', en: 'Shift Briefing', he: 'תדריך המשמרת', descEn: "Tonight's one move", descHe: 'המהלך של הערב', Icon: Sparkles },
+      { href: '/admin/coach', en: 'Shift Briefing', he: 'תדריך המשמרת', descEn: "Tonight's one move", descHe: 'המהלך של הערב', Icon: ClipboardList },
       { href: '/admin/wins', en: 'Hall of Wins', he: 'אולם ההצלחות', descEn: 'Wins the platform created', descHe: 'הצלחות שהמערכת יצרה', Icon: Trophy },
       { href: '/admin/opportunities', en: 'Opportunities', he: 'הזדמנויות', descEn: 'What to do today', descHe: 'מה לעשות היום', Icon: Lightbulb },
       { href: '/admin/closed-loop', en: 'Closed Loop', he: 'לולאה סגורה', descEn: 'Did changes work?', descHe: 'האם השינויים עבדו?', Icon: Repeat },

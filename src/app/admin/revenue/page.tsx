@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, ShieldCheck, Target, Eye, Receipt } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Target, Eye, Receipt } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel, CountUpText, LiveDot, Skeleton } from '@/components/ui/dataviz';
@@ -355,7 +355,6 @@ export default function RevenueCenterPage() {
               className="group inline-flex items-center gap-2 rounded-full bg-amber-300 px-10 py-4 text-[12px] tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]"
               style={{ fontFamily: sans, fontWeight: 700 }}
             >
-              <Sparkles size={15} strokeWidth={2.2} />
               {t('Act now', 'בצע עכשיו')}
               <ArrowRight size={15} strokeWidth={2.4} className={isHe ? 'rotate-180' : ''} />
             </Link>

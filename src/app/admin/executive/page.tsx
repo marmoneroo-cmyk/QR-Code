@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, Flame, ArrowRight, Users, ShoppingBag, TrendingUp, TrendingDown, BadgeCheck, Brain, Share2, Check } from 'lucide-react';
+import { Sunrise, Flame, ArrowRight, Users, ShoppingBag, TrendingUp, TrendingDown, BadgeCheck, Share2, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { Skeleton, SkeletonGrid, LiveDot, AreaChart } from '@/components/ui/dataviz';
@@ -258,7 +258,7 @@ export default function ExecutiveSummaryPage() {
                       <GlassImage src={hero.hero} accent={hero.accent} className="w-full h-[420px] md:h-[600px]" />
                     </Tilt>
                     <span className="absolute top-5 start-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] tracking-[0.2em] uppercase backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.4)', color: hero.accent, fontFamily: sans, border: `1px solid ${hero.accent}55` }}>
-                      <Sparkles size={12} strokeWidth={2} /> {t('Top opportunity', 'הזדמנות מובילה')}
+                      <Flame size={12} strokeWidth={2} /> {t('Top opportunity', 'הזדמנות מובילה')}
                     </span>
                   </div>
                   <div className="p-7 md:p-9 flex flex-col justify-center gap-5 text-center md:text-start">
@@ -331,11 +331,11 @@ export default function ExecutiveSummaryPage() {
                     style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.35)' }}
                     aria-hidden
                   >
-                    <Brain size={18} strokeWidth={1.9} className="text-amber-200" />
+                    <Sunrise size={18} strokeWidth={1.9} className="text-amber-200" />
                   </span>
                   <div className="min-w-0">
                     <p className="inline-flex items-center gap-1.5 text-amber-200/70 text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
-                      <Sparkles size={12} strokeWidth={2} /> {t('Morning Briefing', 'תקציר הבוקר')}
+                      <Sunrise size={12} strokeWidth={2} /> {t('Morning Briefing', 'תקציר הבוקר')}
                     </p>
                     <p
                       className="text-white/90 mt-2 text-[16px] md:text-[18px] leading-relaxed break-words"
@@ -441,7 +441,7 @@ function MoneyHero({ potential, t, isHe }: { potential: { revenueILS: number; co
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
             <p className="inline-flex items-center gap-2 text-emerald-300/80 text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
-              <Sparkles size={12} strokeWidth={2} /> {t('Open opportunity', 'הזדמנות פתוחה')}
+              <Flame size={12} strokeWidth={2} /> {t('Open opportunity', 'הזדמנות פתוחה')}
             </p>
             {hasUpside ? (
               <p className="mt-2 leading-[1] text-emerald-300" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,4rem)' }}>

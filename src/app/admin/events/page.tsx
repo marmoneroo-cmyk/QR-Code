@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { Eye, Heart, Share2, ShoppingBag, MousePointerClick, Sparkles, ShieldCheck, ShieldAlert, Activity, Fingerprint, Hash, Pause, Play, ListFilter } from 'lucide-react';
+import { Eye, Heart, Share2, ShoppingBag, MousePointerClick, Target, ShieldCheck, ShieldAlert, Activity, Fingerprint, Hash, Pause, Play, ListFilter } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { KpiCard, SectionLabel, GlassImage, Skeleton, LiveDot } from '@/components/ui/dataviz';
 import { useLang } from '@/lib/useLang';
@@ -33,7 +33,7 @@ const TYPE_STYLES: Record<string, TypeStyle> = {
   view: { icon: Eye, color: '#7dd3fc', en: 'View', he: 'צפייה' },
   open: { icon: MousePointerClick, color: '#a78bfa', en: 'Open', he: 'פתיחה' },
   favorite: { icon: Heart, color: '#fb7185', en: 'Favorite', he: 'מועדף' },
-  intent: { icon: Sparkles, color: '#fbbf24', en: 'Intent', he: 'כוונה' },
+  intent: { icon: Target, color: '#fbbf24', en: 'Intent', he: 'כוונה' },
   share: { icon: Share2, color: '#34d399', en: 'Share', he: 'שיתוף' },
   order: { icon: ShoppingBag, color: '#f59e0b', en: 'Order', he: 'הזמנה' },
 };

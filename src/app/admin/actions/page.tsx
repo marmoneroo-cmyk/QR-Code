@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Sparkles, Clock, Check, ChevronDown, RotateCcw, CheckCircle2, ArrowRight, ArrowLeft, PartyPopper } from 'lucide-react';
+import { Target, Martini, Clock, Check, ChevronDown, RotateCcw, CheckCircle2, ArrowRight, ArrowLeft, PartyPopper } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { PotentialValue, ConfidenceMeter } from '@/components/ui/value';
@@ -211,7 +211,7 @@ export default function ActionCenterPage() {
     >
       <div className="flex flex-col gap-8" dir={isHe ? 'rtl' : 'ltr'}>
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <SectionLabel icon={Sparkles}>{isHe ? 'הפוקוס של היום' : "Today's focus"}</SectionLabel>
+          <SectionLabel icon={Target}>{isHe ? 'הפוקוס של היום' : "Today's focus"}</SectionLabel>
           <LiveDot label={isHe ? 'מתעדכן' : 'Live'} />
         </div>
 
@@ -327,7 +327,7 @@ function ActionRow({ action, rank, lang, isHe, headFont, celebrating, onDone }: 
               </Tilt>
             ) : (
               <div className="grid h-64 w-64 place-items-center rounded-3xl border border-white/10 bg-white/[0.02] md:h-72 md:w-72">
-                <Sparkles size={40} className="text-white/20" strokeWidth={1.5} />
+                <Martini size={40} className="text-white/20" strokeWidth={1.5} />
               </div>
             )}
           </div>
@@ -433,7 +433,7 @@ function DoneTodaySection({ actions, lang, isHe, headFont, celebratingId, onUndo
             style={{ fontFamily: sans }}
             role="status"
           >
-            <Sparkles size={14} strokeWidth={1.9} className="text-emerald-300/80" />
+            <PartyPopper size={14} strokeWidth={1.9} className="text-emerald-300/80" />
             {celebrationMessage(justDone.valueILS, lang)}
           </p>
         </div>

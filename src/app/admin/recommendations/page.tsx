@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Link2, Wand2, ArrowRight, ArrowLeft, Crown } from 'lucide-react';
+import { Link2, Lightbulb, ArrowRight, ArrowLeft, Crown } from 'lucide-react';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Skeleton, LiveDot } from '@/components/ui/dataviz';
@@ -248,7 +248,7 @@ export default function RecommendationsPage() {
                       className="group/apply inline-flex w-full items-center justify-center gap-1.5 rounded-full px-3.5 py-2.5 text-[12px] tracking-[0.12em] uppercase transition-colors hover:bg-amber-300/20"
                       style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.45)', fontFamily: sans, fontWeight: 600 }}
                     >
-                      <Wand2 size={13} strokeWidth={2} className="shrink-0" />
+                      <Lightbulb size={13} strokeWidth={2} className="shrink-0" />
                       {t('Create promotion', 'צור מבצע')}
                       <ApplyArrow size={13} strokeWidth={2} className="shrink-0 transition-transform group-hover/apply:translate-x-0.5" />
                     </Link>

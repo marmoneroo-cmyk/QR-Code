@@ -8,8 +8,8 @@ import {
   Store,
   ImageIcon,
   ListChecks,
-  Sparkles,
-  Wand2,
+  ImagePlus,
+  Download,
   Check,
   X,
   Loader2,
@@ -63,7 +63,7 @@ const IMPORT_STEPS: readonly StepDef[] = [
   { id: 'source', icon: Link2, label: 'Source', labelHe: 'מקור' },
   { id: 'scan', icon: Search, label: 'Scan', labelHe: 'סריקה' },
   { id: 'select', icon: ListChecks, label: 'Select items', labelHe: 'בחירת פריטים' },
-  { id: 'generate', icon: Sparkles, label: 'AI images', labelHe: 'יצירת תמונות AI' },
+  { id: 'generate', icon: ImagePlus, label: 'AI images', labelHe: 'יצירת תמונות AI' },
   { id: 'done', icon: PartyPopper, label: 'Done', labelHe: 'סיום' },
 ];
 
@@ -463,7 +463,7 @@ export default function ImportRestaurantPage() {
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-200 text-black hover:bg-amber-100 transition-colors text-[11px] tracking-[0.3em] uppercase disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ fontFamily: sans, fontWeight: 600 }}
             >
-              {scanning ? <Loader2 size={14} strokeWidth={2.2} className="animate-spin" /> : <Sparkles size={14} strokeWidth={2.2} />}
+              {scanning ? <Loader2 size={14} strokeWidth={2.2} className="animate-spin" /> : <Search size={14} strokeWidth={2.2} />}
               {scanning ? t('Scanning…', 'סורק…') : menu ? t('Re-scan', 'סריקה מחדש') : t('Scan menu', 'סריקת תפריט')}
             </motion.button>
             <span className="text-white/35 text-xs italic" style={{ fontFamily: serif }}>
@@ -488,7 +488,7 @@ export default function ImportRestaurantPage() {
               </span>
               {!menu.hasProductPhotos && (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/30 bg-amber-200/10 px-3 py-1 text-amber-200/85">
-                  <Wand2 size={12} strokeWidth={2} /> {t('AI will generate the photos', 'ה-AI ייצר את התמונות')}
+                  <ImagePlus size={12} strokeWidth={2} /> {t('AI will generate the photos', 'ה-AI ייצר את התמונות')}
                 </span>
               )}
             </div>
@@ -597,7 +597,7 @@ export default function ImportRestaurantPage() {
               className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-amber-200 text-black text-[12px] tracking-[0.3em] uppercase hover:bg-amber-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ fontFamily: sans, fontWeight: 600 }}
             >
-              {importing ? <Loader2 size={14} strokeWidth={2.4} className="animate-spin" /> : <Wand2 size={14} strokeWidth={2.4} />}
+              {importing ? <Loader2 size={14} strokeWidth={2.4} className="animate-spin" /> : <Download size={14} strokeWidth={2.4} />}
               {importing
                 ? t(`Generating ${progress.done}/${progress.total}…`, `מייצר ${progress.done}/${progress.total}…`)
                 : t(

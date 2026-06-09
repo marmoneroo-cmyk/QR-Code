@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Tag, Sparkles, CalendarClock, Power, Percent, Plus, X, Eye, Check, Pencil } from 'lucide-react';
+import { Tag, CalendarClock, Power, Percent, Plus, X, Eye, Check, Pencil } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, Pill, SectionLabel, Skeleton } from '@/components/ui/dataviz';
 import { Stagger, staggerItem } from '@/components/ui/motion';
@@ -426,7 +426,7 @@ function PromotionsPageInner() {
         {/* KPI strip */}
         {items.length > 0 && (
           <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <KpiCard label={t('Live now', 'פעיל עכשיו')} value={String(counts.active)} icon={Sparkles} accent="#34d399" />
+            <KpiCard label={t('Live now', 'פעיל עכשיו')} value={String(counts.active)} icon={Power} accent="#34d399" />
             <KpiCard label={t('Scheduled', 'מתוזמן')} value={String(counts.scheduled)} icon={CalendarClock} accent="#7dd3fc" />
             <KpiCard label={t('Paused', 'מושהה')} value={String(counts.off)} icon={Power} accent="#f59e0b" />
             <KpiCard label={t('Total', 'סך הכל')} value={String(items.length)} icon={Tag} accent="#fbbf24" />

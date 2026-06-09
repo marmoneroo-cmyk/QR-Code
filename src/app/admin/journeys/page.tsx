@@ -16,7 +16,7 @@ import {
   ShoppingBag,
   Languages,
   DoorOpen,
-  Sparkles,
+  BookOpen,
   PhoneCall,
   Footprints,
   ChevronRight,
@@ -70,7 +70,7 @@ function stepIcon(event: string): LucideIcon {
   if (event === 'ingredients_opened') return FlaskConical;
   if (event === 'language_changed') return Languages;
   if (event === 'menu_closed') return DoorOpen;
-  if (event === 'menu_opened') return Sparkles;
+  if (event === 'menu_opened') return BookOpen;
   if (event.includes('shared')) return Share2;
   if (event.includes('order') || event === 'add_to_order_clicked') return ShoppingBag;
   if (event === 'call_waiter_clicked' || event === 'phone_clicked' || event === 'whatsapp_clicked') return PhoneCall;
@@ -139,7 +139,7 @@ const FUNNEL_STAGES: readonly FunnelStage[] = [
     key: 'opened',
     en: 'Menu opened',
     he: 'תפריט נפתח',
-    icon: Sparkles,
+    icon: BookOpen,
     accent: '#fbbf24',
     events: ['menu_opened'],
   },

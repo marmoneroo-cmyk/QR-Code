@@ -12,7 +12,7 @@ import {
   ArrowDownRight,
   PlusCircle,
   Wrench,
-  Sparkles,
+  Zap,
   type LucideIcon,
 } from 'lucide-react';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
@@ -148,7 +148,7 @@ export default function ClosedLoopPage() {
         {/* Measured results */}
         {!loading && (
           <section>
-            <SectionLabel icon={Sparkles}>{t('Measured results', 'תוצאות נמדדות')}</SectionLabel>
+            <SectionLabel icon={CheckCircle2}>{t('Measured results', 'תוצאות נמדדות')}</SectionLabel>
 
             {(!data || data.measured.length === 0) && (
               <p className="text-white/40 text-sm italic" style={{ fontFamily: sans }}>
@@ -237,7 +237,7 @@ export default function ClosedLoopPage() {
                         background: manual ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)',
                       }}
                     >
-                      {manual ? <Wrench size={11} strokeWidth={2} /> : <Sparkles size={11} strokeWidth={2} />}
+                      {manual ? <Wrench size={11} strokeWidth={2} /> : <Zap size={11} strokeWidth={2} />}
                     </span>
                     <span className="min-w-0 flex-1 truncate text-white/75">{c.summary ?? c.changeType}</span>
                     <span className="shrink-0 text-white/35">

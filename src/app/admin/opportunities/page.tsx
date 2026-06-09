@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
-import { AlertTriangle, ArrowUp, Megaphone, Tag, Repeat, Layers, Sparkles, EyeOff, Check, X, Clock, ChevronDown, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, ArrowUp, Megaphone, Tag, Repeat, Layers, Lightbulb, EyeOff, Check, X, Clock, ChevronDown, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, SectionLabel, Skeleton } from '@/components/ui/dataviz';
@@ -264,7 +264,7 @@ export default function OpportunitiesPage() {
           {/* Opportunities */}
           <section>
             <div className="flex items-baseline justify-between gap-3 flex-wrap mb-1">
-              <SectionLabel icon={Sparkles}>{isHe ? 'הזדמנויות היום' : "Today's opportunities"}</SectionLabel>
+              <SectionLabel icon={Lightbulb}>{isHe ? 'הזדמנויות היום' : "Today's opportunities"}</SectionLabel>
             </div>
             {data.opportunities.length > 0 && (
               <p className="text-white/40 text-[12px] mb-4" style={{ fontFamily: sans }}>
@@ -407,7 +407,7 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
           <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-64 transition-transform duration-300 group-hover:scale-105" />
         ) : (
           <div className="w-full h-64 rounded-2xl border border-white/10 bg-white/[0.02] grid place-items-center">
-            <Sparkles size={26} className="text-white/20" strokeWidth={1.5} />
+            <Lightbulb size={26} className="text-white/20" strokeWidth={1.5} />
           </div>
         )}
       </div>

@@ -6,7 +6,7 @@ import {
   PartyPopper,
   Trophy,
   ArrowUpRight,
-  Sparkles,
+  ShieldCheck,
   Rocket,
   Eye,
   DoorOpen,
@@ -417,7 +417,7 @@ function WinCard({ item, lang, isHe, t, featured, isBest, activeTab }: WinCardPr
               className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.18em]"
               style={{ borderColor: `${confColor}55`, color: confColor, fontFamily: sans, fontWeight: 600 }}
             >
-              <Sparkles size={11} strokeWidth={2} /> {CONF_LABEL[item.confidence][lang]}
+              <ShieldCheck size={11} strokeWidth={2} /> {CONF_LABEL[item.confidence][lang]}
             </span>
           </div>
         </div>

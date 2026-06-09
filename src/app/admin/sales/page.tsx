@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
-import { Coins, Boxes, Sparkles, UploadCloud, AlertTriangle, LayoutGrid } from 'lucide-react';
+import { Coins, Boxes, UploadCloud, AlertTriangle, LayoutGrid } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
 import { useLang } from '@/lib/useLang';
@@ -259,7 +259,7 @@ export default function SalesPage() {
           <section className="grid grid-cols-3 gap-3">
             <KpiCard label={t('Revenue', 'הכנסה')} value={ils(totals.revenue)} accent="#fbbf24" icon={Coins} />
             <KpiCard label={t('Units sold', 'יחידות שנמכרו')} value={totals.units.toLocaleString()} accent="#34d399" icon={Boxes} />
-            <KpiCard label={t('Items', 'פריטים')} value={sales.length.toLocaleString()} accent="#7dd3fc" icon={Sparkles} />
+            <KpiCard label={t('Items', 'פריטים')} value={sales.length.toLocaleString()} accent="#7dd3fc" icon={Boxes} />
           </section>
         ) : loading ? (
           <SkeletonGrid count={3} className="grid grid-cols-3 gap-3" />

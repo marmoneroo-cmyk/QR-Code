@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
 import { motion } from 'framer-motion';
-import { QrCode, Eye, ShoppingBag, Target, Crown, Share2, Sparkles, LayoutGrid } from 'lucide-react';
+import { QrCode, Eye, ShoppingBag, Target, Crown, Share2, LayoutGrid } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, LiveDot, Pill, SectionLabel, Skeleton } from '@/components/ui/dataviz';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
@@ -198,7 +198,7 @@ export function TablesPanel() {
         <section className="mb-12 no-print" dir={isHebrew ? 'rtl' : 'ltr'}>
           <SectionLabel icon={Share2}>{t('Shared / viral · uncredited', 'שיתופי / ויראלי · לא מיוחס')}</SectionLabel>
           <div className="flex flex-wrap gap-2">
-            <Pill icon={Sparkles} text={`${viral.sessions.toLocaleString()} ${t('sessions', 'ביקורים')}`} accent="#7dd3fc" />
+            <Pill icon={Share2} text={`${viral.sessions.toLocaleString()} ${t('sessions', 'ביקורים')}`} accent="#7dd3fc" />
             <Pill icon={ShoppingBag} text={`${viral.orders.toLocaleString()} ${t('orders', 'הזמנות')}`} accent="#7dd3fc" />
             <Pill icon={Share2} text={`${ils(viral.revenue)} ${t('re-shared', 'משיתוף')}`} accent="#7dd3fc" />
           </div>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Tags,
-  Sparkles,
+  Zap,
   LayoutGrid,
   Eye,
   Check,
@@ -273,7 +273,7 @@ export default function ExperienceBuilderPage() {
                                   className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[8px] uppercase tracking-[0.1em] backdrop-blur-sm"
                                   style={{ background: `${accent}26`, color: accent, border: `1px solid ${accent}66`, fontFamily: sans }}
                                 >
-                                  {auto && <Sparkles size={7} strokeWidth={2.4} className="opacity-90" />}
+                                  {auto && <Zap size={7} strokeWidth={2.4} className="opacity-90" />}
                                   {BADGE_LABEL[kind][lang]}
                                 </span>
                               ))}
@@ -373,7 +373,7 @@ export default function ExperienceBuilderPage() {
                               : { borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.45)', fontFamily: sans }
                           }
                         >
-                          {auto && <Sparkles size={10} strokeWidth={2} className="opacity-80" />}
+                          {auto && <Zap size={10} strokeWidth={2} className="opacity-80" />}
                           {BADGE_LABEL[k][lang]}
                         </button>
                       );
