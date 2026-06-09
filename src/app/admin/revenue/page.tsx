@@ -213,7 +213,7 @@ export default function RevenueCenterPage() {
               </p>
 
               <Link
-                href="/admin/opportunities"
+                href="/admin/actions"
                 className="group mt-2 inline-flex items-center gap-2 rounded-full bg-amber-300 px-8 py-3.5 text-[12px] tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]"
                 style={{ fontFamily: sans, fontWeight: 700 }}
               >
@@ -315,7 +315,7 @@ export default function RevenueCenterPage() {
           {/* 5 — CTA */}
           <section className="flex flex-col items-center gap-4 text-center">
             <Link
-              href="/admin/opportunities"
+              href="/admin/actions"
               className="group inline-flex items-center gap-2 rounded-full bg-amber-300 px-10 py-4 text-[12px] tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]"
               style={{ fontFamily: sans, fontWeight: 700 }}
             >

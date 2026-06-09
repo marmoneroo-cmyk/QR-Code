@@ -316,7 +316,7 @@ function MoneyHero({ potential, isHe }: { potential: { revenueILS: number; count
 
           {/* Act now CTA — big amber pill */}
           <Link
-            href="/admin/opportunities"
+            href="/admin/actions"
             className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-300 to-amber-400 px-7 py-3.5 text-[13px] tracking-[0.16em] uppercase text-black shadow-[0_10px_30px_rgba(252,211,77,0.28)] transition-all hover:from-amber-200 hover:to-amber-300 hover:shadow-[0_12px_38px_rgba(252,211,77,0.4)]"
             style={{ fontFamily: sans, fontWeight: 700 }}
           >

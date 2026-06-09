@@ -98,3 +98,36 @@ export function BeforeAfterBar({
     </div>
   );
 }
+
+/** Segmented "AI confidence" meter (████░ 91%) — gives a sense of machine intelligence. */
+export function ConfidenceMeter({
+  pct,
+  lang,
+  label,
+  segments = 10,
+}: {
+  pct: number;
+  lang: 'en' | 'he';
+  label?: string;
+  segments?: number;
+}) {
+  const isHe = lang === 'he';
+  const clamped = Math.max(0, Math.min(100, Math.round(pct)));
+  const filled = Math.round((clamped / 100) * segments);
+  const color = clamped >= 80 ? '#34d399' : clamped >= 60 ? '#fbbf24' : '#9ca3af';
+  return (
+    <div className="inline-flex items-center gap-2">
+      <span className="text-[9px] uppercase tracking-[0.2em] text-white/45" style={{ fontFamily: sans }}>
+        {label ?? (isHe ? 'ביטחון AI' : 'AI confidence')}
+      </span>
+      <span className="inline-flex gap-[2px]" aria-hidden>
+        {Array.from({ length: segments }).map((_, i) => (
+          <span key={i} className="h-3 w-1.5 rounded-sm transition-colors" style={{ background: i < filled ? color : 'rgba(255,255,255,0.12)' }} />
+        ))}
+      </span>
+      <span className="text-[12px] tabular-nums" style={{ color, fontFamily: sans, fontWeight: 700 }}>
+        {clamped}%
+      </span>
+    </div>
+  );
+}
