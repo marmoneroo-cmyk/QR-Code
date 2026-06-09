@@ -16,6 +16,9 @@ import { track } from '@/lib/tracking/track';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
 import { MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
 
+/** Where the guest was in the menu — restored when they come back from a drink. */
+const MENU_SCROLL_KEY = 'cocktail-demo:menu-scroll';
+
 export default function Home() {
   const [lang, setLang] = useState<Lang>('en');
   const [query, setQuery] = useState('');
@@ -59,6 +62,32 @@ export default function Home() {
   useEffect(() => {
     setRestaurantSlug('diner');
     track({ event: 'menu_opened' });
+  }, []);
+
+  // Scroll memory: coming back from a drink returns the guest to WHERE THEY WERE
+  // in the menu, not to the top. Saved on scroll AND synchronously when a card is
+  // clicked (capture) — the click save is the one that matters, and it works even
+  // where scroll events are throttled. Restored once on mount.
+  const saveMenuScroll = () => {
+    try {
+      sessionStorage.setItem(MENU_SCROLL_KEY, String(window.scrollY));
+    } catch {
+      /* quota / private mode — scroll memory just won't persist */
+    }
+  };
+  useEffect(() => {
+    try {
+      const saved = Number(sessionStorage.getItem(MENU_SCROLL_KEY));
+      if (saved > 0) window.scrollTo(0, saved);
+    } catch {
+      /* private mode — skip restore */
+    }
+    window.addEventListener('scroll', saveMenuScroll, { passive: true });
+    window.addEventListener('pagehide', saveMenuScroll);
+    return () => {
+      window.removeEventListener('scroll', saveMenuScroll);
+      window.removeEventListener('pagehide', saveMenuScroll);
+    };
   }, []);
 
   const handleToggleFavorite = (slug: string) => {
@@ -157,7 +186,7 @@ export default function Home() {
             {isHebrew ? 'לא נמצא משקה תואם.' : 'No matching drink.'}
           </p>
         ) : (
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-center" onClickCapture={saveMenuScroll}>
             <div className="flex flex-wrap justify-center gap-7 md:gap-8" style={{ width: 'min(100%, 1480px)' }}>
               {filtered.map((cocktail) => (
                 <ImpressionTracker key={cocktail.slug} slug={cocktail.slug} className="w-full max-w-[360px] sm:w-[330px] min-w-0">

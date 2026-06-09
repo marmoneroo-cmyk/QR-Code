@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { Layers, Play } from 'lucide-react';
 import { getAccent, getFeatureVideo, formatPrice, type CocktailConfig, type Lang } from '@/data/cocktail';
-import { FlavorTags } from './FlavorTags';
+import { FlavorRadar } from './FlavorRadar';
 import { track } from '@/lib/tracking/track';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
 import { useEngagement } from '@/lib/tracking/useEngagement';
@@ -89,15 +89,27 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
         }}
       />
 
-      {/* Top bar — back · language. Nothing else. */}
+      {/* Top bar — back · language. Nothing else. Back is contextual: inside
+          ingredients/video it returns to the DRINK; only the hero leaves to the menu. */}
       <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 pt-5">
-        <Link
-          href="/"
-          aria-label={isHe ? 'חזרה לתפריט' : 'Back to menu'}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 backdrop-blur-md transition-colors hover:text-white"
-        >
-          <span aria-hidden className="text-lg leading-none">{isHe ? '→' : '←'}</span>
-        </Link>
+        {mode === 'hero' ? (
+          <Link
+            href="/"
+            aria-label={isHe ? 'חזרה לתפריט' : 'Back to menu'}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 backdrop-blur-md transition-colors hover:text-white"
+          >
+            <span aria-hidden className="text-lg leading-none">{isHe ? '→' : '←'}</span>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setMode('hero')}
+            aria-label={isHe ? 'חזרה למשקה' : 'Back to the drink'}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 backdrop-blur-md transition-colors hover:text-white"
+          >
+            <span aria-hidden className="text-lg leading-none">{isHe ? '→' : '←'}</span>
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setLang(isHe ? 'en' : 'he')}
@@ -139,7 +151,6 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
             serif={serif}
             sans={sans}
             reduce={!!reduce}
-            onClose={() => setMode('hero')}
           />
         )}
 
@@ -147,7 +158,6 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
           <VideoStage
             key="video"
             src={featureVideo}
-            poster={config.heroImage}
             lang={lang}
             sans={sans}
             onEnd={() => setMode('hero')}
@@ -328,11 +338,10 @@ interface ExplodedViewProps {
   serif: string;
   sans: string;
   reduce: boolean;
-  onClose: () => void;
 }
 
 function ExplodedView({
-  ingredients, glassLabel, glassImage, imageForLayer, flavor, note, noteName, lang, accent, serif, sans, reduce, onClose,
+  ingredients, glassLabel, glassImage, imageForLayer, flavor, note, noteName, lang, accent, serif, sans, reduce,
 }: ExplodedViewProps) {
   const isHe = lang === 'he';
   // Natural label order = physical explosion order: 01 garnish floats highest,
@@ -438,22 +447,13 @@ function ExplodedView({
         <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/45" style={{ fontFamily: sans }}>
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
-        <FlavorTags flavor={flavor} lang={lang} accent={accent} />
+        <FlavorRadar flavor={flavor} lang={lang} size={230} />
         {note && (
           <p className="mt-8 max-w-xs text-center text-[13px] italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
             ”{note}“{noteName ? ` — ${noteName}` : ''}
           </p>
         )}
       </motion.div>
-
-      <button
-        type="button"
-        onClick={onClose}
-        className="mt-12 rounded-full border border-white/20 px-8 py-3 text-[11px] tracking-[0.3em] uppercase text-white/75 transition-colors hover:border-white/45 hover:text-white"
-        style={{ fontFamily: sans }}
-      >
-        {isHe ? 'חזרה למשקה' : 'Back to the drink'}
-      </button>
     </motion.section>
   );
 }
@@ -462,13 +462,12 @@ function ExplodedView({
 
 interface VideoStageProps {
   src: string;
-  poster: string;
   lang: Lang;
   sans: string;
   onEnd: () => void;
 }
 
-function VideoStage({ src, poster, lang, sans, onEnd }: VideoStageProps) {
+function VideoStage({ src, lang, sans, onEnd }: VideoStageProps) {
   const isHe = lang === 'he';
   return (
     <motion.section
@@ -478,10 +477,10 @@ function VideoStage({ src, poster, lang, sans, onEnd }: VideoStageProps) {
       exit={{ opacity: 0, transition: { duration: 0.4 } }}
       aria-label={isHe ? 'וידאו הכנה' : 'Preparation video'}
     >
+      {/* No poster — the footage itself appears immediately, not a still of the drink. */}
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video
         src={src}
-        poster={poster}
         autoPlay
         muted
         playsInline
