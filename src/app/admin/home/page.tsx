@@ -179,7 +179,7 @@ export default function HomeDashboardPage() {
             {!overview ? <Empty isHe={isHe} /> : (
               <div className="grid grid-cols-2 gap-3">
                 <Kpi label={isHe ? 'צפיות' : 'Views'} value={String(overview.totalViews)} />
-                <Kpi label={isHe ? 'המרה' : 'Conversion'} value={`${Math.round(overview.conversionPct)}%`} />
+                <Kpi label={isHe ? 'אחוז הזמנה' : 'Order rate'} value={`${Math.round(overview.conversionPct)}%`} />
                 <Kpi label={isHe ? 'הכנסה' : 'Revenue'} value={`₪${Math.round(overview.totalRevenue).toLocaleString()}`} />
                 <Kpi label={isHe ? 'רווח' : 'Profit'} value={`₪${Math.round(overview.totalProfit).toLocaleString()}`} />
               </div>
@@ -295,7 +295,7 @@ function MoneyHero({ potential, isHe }: { potential: { revenueILS: number; count
                 />
               ) : (
                 <p className="text-white/85 leading-tight" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.3rem,3vw,1.8rem)' }}>
-                  {t('collect more traffic', 'אסוף עוד תנועה')}
+                  {t('collect more guest visits', 'אספו עוד ביקורי אורחים')}
                 </p>
               )}
               <p className="mt-1.5 text-white/50 text-[11px] tracking-wide" style={{ fontFamily: sans }}>

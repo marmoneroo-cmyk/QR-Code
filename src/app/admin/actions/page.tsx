@@ -502,7 +502,7 @@ function EmptyState({ isHe }: { isHe: boolean }) {
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center">
       <p className="text-sm italic text-white/45" style={{ fontFamily: sans }}>
-        {isHe ? 'אין פעולות פתוחות — אספו עוד תנועה.' : 'Nothing to do — collect more traffic.'}
+        {isHe ? 'אין פעולות פתוחות — אספו עוד ביקורי אורחים.' : 'Nothing to do — collect more guest visits.'}
       </p>
     </section>
   );

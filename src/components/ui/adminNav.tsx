@@ -61,7 +61,7 @@ export const ADMIN_GROUPS: AdminNavGroup[] = [
     en: 'Understand',
     he: 'הבנה',
     items: [
-      { href: '/admin/analytics', en: 'Analytics', he: 'אנליטיקה', descEn: 'Views · conversion · revenue', descHe: 'צפיות · המרה · הכנסה', Icon: BarChart3 },
+      { href: '/admin/analytics', en: 'Analytics', he: 'אנליטיקה', descEn: 'Views · orders · revenue', descHe: 'צפיות · הזמנות · הכנסה', Icon: BarChart3 },
       { href: '/admin/menu-analysis', en: 'Menu Analysis', he: 'ניתוח תפריט', descEn: 'Why a drink behaves so', descHe: 'למה משקה מתנהג כך', Icon: FlaskConical },
       { href: '/admin/guests', en: 'Guests', he: 'אורחים', descEn: 'Tables & journeys', descHe: 'שולחנות ומסעות', Icon: Users },
       { href: '/admin/recommendations', en: 'Pairings', he: 'המלצות', descEn: 'Guests also viewed', descHe: 'אורחים צפו גם ב', Icon: Link2 },

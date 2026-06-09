@@ -20,8 +20,8 @@ export function buildBriefing(type: OpportunityType, drink: Bilingual): Bilingua
       };
     case 'fix_offer':
       return {
-        en: `Guests stop on ${en}, but most move on to another drink. The photo, the description, or the price may not be convincing enough to order. Tighten the offer and that interest can finally turn into orders.`,
-        he: `האורחים עוצרים על ${he}, אך רובם ממשיכים למשקה אחר. ייתכן שהתמונה, התיאור או המחיר אינם משכנעים מספיק להזמנה. חדדו את ההצעה, והעניין הזה סוף סוף יכול להפוך להזמנות.`,
+        en: `Guests stop on ${en}, but most move on to another drink. The interest is clearly there — something on the way to ordering is holding them back. The photo, the description, or the price are the first places worth checking.`,
+        he: `האורחים עוצרים על ${he}, אך רובם ממשיכים למשקה אחר. נראה שהעניין קיים, אבל משהו בדרך להזמנה עוצר אותם — התמונה, התיאור או המחיר הם המקומות הראשונים שכדאי לבדוק.`,
       };
     case 'promote_marketing':
       return {

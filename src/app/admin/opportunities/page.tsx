@@ -276,7 +276,7 @@ export default function OpportunitiesPage() {
             {data.opportunities.length === 0 ? (
               <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center">
                 <p className="text-white/45 text-sm italic" style={{ fontFamily: sans }}>
-                  {isHe ? 'אין הזדמנויות כרגע — אספו עוד תנועה ובדקו שוב בבוקר.' : 'No opportunities right now — collect more traffic and check back in the morning.'}
+                  {isHe ? 'אין הזדמנויות כרגע — אספו עוד ביקורי אורחים ובדקו שוב בבוקר.' : 'No opportunities right now — collect more guest visits and check back in the morning.'}
                 </p>
               </section>
             ) : active.length === 0 ? (

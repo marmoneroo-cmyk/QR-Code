@@ -247,11 +247,11 @@ export default function SalesPage() {
     <AdminShell
       title="Sales Ingestion"
       titleHe="קליטת מכירות"
-      eyebrow="Read-only · the conversion denominator"
-      eyebrowHe="קריאה בלבד · מכנה ההמרה"
+      eyebrow="Read-only · what actually sold"
+      eyebrowHe="קריאה בלבד · נתוני המכירות"
       active="/admin/sales"
-      subtitle="Import what actually sold (from your POS). We only read sales — we never place orders. This turns engagement into proven conversion."
-      subtitleHe="ייבאו מה שבאמת נמכר (מה-POS). אנחנו רק קוראים מכירות — לא מבצעים הזמנות. זה הופך מעורבות להמרה מוכחת."
+      subtitle="Import what actually sold (from your POS). We only read sales — we never place orders. This turns interest into proven sales."
+      subtitleHe="ייבאו מה שבאמת נמכר (מה-POS). אנחנו רק קוראים מכירות — לא מבצעים הזמנות. זה הופך עניין למכירות מוכחות."
     >
       <div className="flex flex-col gap-10" dir={isHe ? 'rtl' : 'ltr'}>
         {/* KPI strip */}

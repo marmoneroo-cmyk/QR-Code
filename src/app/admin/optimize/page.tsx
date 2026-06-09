@@ -188,8 +188,8 @@ export function OptimizePanel() {
       {!loading && !error && recommendations.length === 0 && (
         <p className="text-white/40 text-sm italic" style={{ fontFamily: sans }}>
           {isHebrew
-            ? 'אין עדיין מספיק נתונים להמלצות. אספו תנועה אמיתית וחזרו.'
-            : 'Not enough data for recommendations yet. Collect real traffic and come back.'}
+            ? 'אין עדיין מספיק נתונים להמלצות. אספו עוד ביקורי אורחים וחזרו.'
+            : 'Not enough data for recommendations yet. Collect more guest visits and come back.'}
         </p>
       )}
 

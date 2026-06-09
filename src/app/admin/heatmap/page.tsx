@@ -115,7 +115,7 @@ export function HeatmapPanel() {
     return (
       <section className="rounded-3xl border border-white/10 bg-zinc-900/50 p-12 text-center" dir={isHe ? 'rtl' : 'ltr'}>
         <p className="text-white/45 text-sm italic" style={{ fontFamily: sans }}>
-          {t('No attention data yet. Collect real traffic.', 'אין עדיין נתוני תשומת לב. אספו תנועה אמיתית.')}
+          {t('No attention data yet. Collect real guest visits.', 'אין עדיין נתוני תשומת לב. אספו עוד ביקורי אורחים.')}
         </p>
       </section>
     );

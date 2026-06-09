@@ -288,8 +288,8 @@ function EmptyHero({
   const accent = '#34d399';
   const heading = noData
     ? isHe
-      ? 'אסוף עוד תנועה'
-      : 'Collect more traffic'
+      ? 'אספו עוד ביקורי אורחים'
+      : 'Collect more guest visits'
     : isHe
       ? 'שקט באולם'
       : 'All quiet on the floor';

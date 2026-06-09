@@ -28,7 +28,7 @@ export function PotentialValue({
   if (!potential) {
     return (
       <p className="text-white/35 text-[11px] italic" style={{ fontFamily: sans }}>
-        {isHe ? 'אסוף עוד תנועה להערכת פוטנציאל' : 'Collect more traffic to estimate upside'}
+        {isHe ? 'אספו עוד ביקורי אורחים להערכת פוטנציאל' : 'Collect more guest visits to estimate upside'}
       </p>
     );
   }

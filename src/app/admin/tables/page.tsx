@@ -182,7 +182,7 @@ export function TablesPanel() {
         <section className="mb-12 grid grid-cols-2 lg:grid-cols-4 gap-3 no-print" dir={isHebrew ? 'rtl' : 'ltr'}>
           <KpiCard label={t('Active tables', 'שולחנות פעילים')} value={tables.length.toLocaleString()} icon={Target} accent="#fbbf24" />
           <KpiCard label={t('Attributed revenue', 'הכנסה מיוחסת')} value={ils(totalRevenue)} icon={ShoppingBag} accent="#34d399" />
-          <KpiCard label={t('Avg conversion', 'המרה ממוצעת')} value={`${avgConversion.toFixed(1)}%`} icon={Eye} accent="#7dd3fc" />
+          <KpiCard label={t('Avg order rate', 'אחוז הזמנה ממוצע')} value={`${avgConversion.toFixed(1)}%`} icon={Eye} accent="#7dd3fc" />
           <KpiCard
             label={t('Best table', 'השולחן המוביל')}
             value={bestTable ? `${t('T', 'ש')}${bestTable.tableId}` : '—'}
@@ -220,7 +220,7 @@ export function TablesPanel() {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-3 w-12 rounded-full" style={{ background: 'linear-gradient(90deg, rgba(251,191,36,0.12), #fbbf24)' }} aria-hidden />
-                {t('Conversion', 'המרה')}
+                {t('Order rate', 'אחוז הזמנה')}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Crown size={11} strokeWidth={2} className="text-amber-300" />
@@ -279,7 +279,7 @@ export function TablesPanel() {
                           <MiniStat v={row.views.toLocaleString()} l={t('Views', 'צפיות')} />
                           <MiniStat v={row.orders.toLocaleString()} l={t('Orders', 'הזמנות')} />
                           <MiniStat v={ils(row.revenue)} l={t('Revenue', 'הכנסה')} accent="#34d399" />
-                          <MiniStat v={`${row.conversionPct.toFixed(1)}%`} l={t('Conversion', 'המרה')} accent={accent} />
+                          <MiniStat v={`${row.conversionPct.toFixed(1)}%`} l={t('Order rate', 'אחוז הזמנה')} accent={accent} />
                         </div>
                       </div>
                     </article>
@@ -399,8 +399,8 @@ function FloorPlan({
             </p>
             <p className="mt-2 text-[12px] leading-relaxed text-white/40" style={{ fontFamily: sans }}>
               {t(
-                'Place a QR on each table. As guests scan, tables light up by revenue and conversion.',
-                'הנח QR על כל שולחן. ככל שאורחים סורקים, השולחנות נדלקים לפי הכנסה והמרה.',
+                'Place a QR on each table. As guests scan, tables light up by revenue and orders.',
+                'הנח QR על כל שולחן. ככל שאורחים סורקים, השולחנות נדלקים לפי הכנסה והזמנות.',
               )}
             </p>
           </div>
@@ -457,7 +457,7 @@ function FloorNode({
           border: `1px solid ${isBest ? '#fbbf24aa' : `rgba(251,191,36,${0.25 + heat * 0.4})`}`,
           boxShadow: `0 0 ${10 + heat * 34}px -6px rgba(251,191,36,${heat}), inset 0 1px 0 rgba(255,255,255,0.06)`,
         }}
-        aria-label={`${t('Table', 'שולחן')} ${row.tableId}: ${row.views} ${t('views', 'צפיות')}, ${row.orders} ${t('orders', 'הזמנות')}, ${ils(row.revenue)}, ${row.conversionPct.toFixed(1)}% ${t('conversion', 'המרה')}`}
+        aria-label={`${t('Table', 'שולחן')} ${row.tableId}: ${row.views} ${t('views', 'צפיות')}, ${row.orders} ${t('orders', 'הזמנות')}, ${ils(row.revenue)}, ${row.conversionPct.toFixed(1)}% ${t('order rate', 'אחוז הזמנה')}`}
       >
         {/* hover/focus ring */}
         <span

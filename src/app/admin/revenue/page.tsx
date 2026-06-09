@@ -210,7 +210,7 @@ export default function RevenueCenterPage() {
                     className="max-w-md leading-tight text-white/85"
                     style={{ fontFamily: titleFont, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600, fontSize: 'clamp(1.6rem, 4vw, 2.6rem)' }}
                   >
-                    {t('Collect more traffic to quantify opportunity', 'אסוף עוד תנועה כדי לכמת הזדמנות')}
+                    {t('Collect more guest visits to quantify opportunity', 'אספו עוד ביקורי אורחים כדי לכמת הזדמנות')}
                   </h2>
                 )}
 
@@ -332,7 +332,7 @@ export default function RevenueCenterPage() {
               <div className="grid gap-3 md:grid-cols-2">
                 <LeverBar
                   icon={Target}
-                  label={t('conversion', 'תיקון המרה')}
+                  label={t('ordering', 'שכנוע להזמין')}
                   value={levers.conversion}
                   max={Math.max(levers.conversion, levers.visibility, 1)}
                   accent="#34d399"
