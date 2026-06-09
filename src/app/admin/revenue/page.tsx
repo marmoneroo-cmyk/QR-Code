@@ -14,7 +14,7 @@ import {
 } from '@/lib/value/potential';
 import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
-import { HoverLift, Tilt, AccentWash, StoryBlock } from '@/components/ui/visual';
+import { HoverLift, Tilt, AccentWash, FrameBreakImage, GlassSheen } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import type { AnalyticsOverview, MenuEngineeringItem } from '@/lib/analytics/types';
 
@@ -22,6 +22,10 @@ const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 const heSerif = 'var(--font-frank-ruhl, serif)';
 const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
+
+/** Presentation-only: a drink's bar width as its share of the hero total (min 6% so it reads). */
+const shareOfTotal = (value: number, total: number): number =>
+  total > 0 ? Math.max(6, Math.min(100, Math.round((value / total) * 100))) : 6;
 
 /** Closed-loop measured item — only the status field is used here (trust = real wins). */
 type ImpactStatus = 'success' | 'declined' | 'no_effect' | 'too_early' | 'insufficient_data';
@@ -153,28 +157,34 @@ export default function RevenueCenterPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-14" dir={isHe ? 'rtl' : 'ltr'}>
-          {/* 1 — GIANT HERO: 50/50 — money headline beside a big tilted drink (ESTIMATE) */}
+          {/* 1 — GIANT HERO: the available-now ₪ as a portfolio headline; the lead drink
+                 BREAKS THE FRAME beside it. Panel is overflow-visible with top padding. */}
           <section
-            className="relative overflow-hidden rounded-[2rem] border px-6 py-12 md:px-12 md:py-16"
-            style={{ borderColor: `${heroAccent}44`, boxShadow: `0 50px 140px -60px ${heroAccent}` }}
+            className="relative rounded-[2rem] border px-6 pb-12 pt-24 md:px-12 md:pb-16 md:pt-28"
+            style={{ borderColor: `${heroAccent}44`, boxShadow: `0 50px 140px -60px ${heroAccent}`, overflow: 'visible' }}
           >
-            <AccentWash accent={heroAccent} opacity={0.18} />
-            {/* radial glow behind the number */}
-            <span
-              className="pointer-events-none absolute left-1/2 top-1/2 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-3xl"
-              style={{ background: `radial-gradient(circle, ${heroAccent}22, transparent 62%)` }}
-              aria-hidden
-            />
+            <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden>
+              <AccentWash accent={heroAccent} opacity={0.18} />
+              <span
+                className="absolute left-1/2 top-1/2 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-3xl"
+                style={{ background: `radial-gradient(circle, ${heroAccent}22, transparent 62%)` }}
+              />
+              <GlassSheen />
+            </span>
+
             <div className="relative z-10 grid items-center gap-8 md:grid-cols-2 md:gap-12">
-              {/* big tilted hero drink — ~50% of the hero */}
+              {/* lead drink — overflows its slot upward (premium hero treatment) */}
               {heroCocktail ? (
-                <Tilt className="mx-auto w-full max-w-[420px]">
-                  <GlassImage
-                    src={heroCocktail.heroImage}
-                    accent={heroAccent}
-                    className="h-64 w-full md:h-[26rem]"
-                  />
-                </Tilt>
+                <div className="relative" style={{ overflow: 'visible' }}>
+                  <Tilt className="mx-auto w-full max-w-[420px]">
+                    <FrameBreakImage
+                      src={heroCocktail.heroImage}
+                      accent={heroAccent}
+                      overflow="165%"
+                      className="h-56 w-full md:h-72"
+                    />
+                  </Tilt>
+                </div>
               ) : (
                 <span aria-hidden />
               )}
@@ -207,8 +217,8 @@ export default function RevenueCenterPage() {
                 {hasUpside && (
                   <p className="text-white/55 text-[13px] md:text-[14px]" style={{ fontFamily: sans }}>
                     {t(
-                      `${potential.count} actions · ~${ils(potential.profitILS)} added profit`,
-                      `${potential.count} פעולות · רווח נוסף ~${ils(potential.profitILS)}`,
+                      `${potential.count} actions · ~${ils(potential.profitILS)} profit`,
+                      `${potential.count} פעולות · רווח ~${ils(potential.profitILS)}`,
                     )}
                   </p>
                 )}
@@ -225,31 +235,12 @@ export default function RevenueCenterPage() {
             </div>
           </section>
 
-          {/* 1b — STORY: today's available money → tomorrow's lead-drink potential (visual) */}
-          {hasUpside && heroCocktail && (
-            <StoryBlock
-              src={heroCocktail.heroImage}
-              accent={heroAccent}
-              lang={lang}
-              eyebrow={t('Today → tomorrow', 'היום → מחר')}
-              title={t(`${ils(potential.revenueILS)} on the table`, `${ils(potential.revenueILS)} על השולחן`)}
-              imageHeight="h-52 md:h-72"
-            >
-              <p className="text-white/55 text-[13px] md:text-[14px] leading-relaxed" style={{ fontFamily: sans }}>
-                {t(
-                  `Lead with ${heroCocktail.title.en} tomorrow and unlock ~${ils(potential.profitILS)} added profit.`,
-                  `הובילו עם ${heroCocktail.title.he} מחר ופתחו רווח נוסף של ~${ils(potential.profitILS)}.`,
-                )}
-              </p>
-            </StoryBlock>
-          )}
-
-          {/* 2 — PROVEN counter row (TRUST: real, measured closed-loop results) */}
+          {/* 2 — PROVEN counter (TRUST: real, measured closed-loop results — secondary) */}
           <section>
-            <SectionLabel icon={ShieldCheck}>{t('Proven · measured results', 'מוכח · תוצאות שנמדדו')}</SectionLabel>
+            <SectionLabel icon={ShieldCheck}>{t('Proven · measured', 'מוכח · נמדד')}</SectionLabel>
             {proven.total === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-8 text-center">
-                <p className="text-white/55 text-[14px]" style={{ fontFamily: sans }}>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-7 text-center">
+                <p className="text-white/45 text-[13px]" style={{ fontFamily: sans }}>
                   {t('0 — act to generate measurable wins', '0 — בצעו פעולות כדי לייצר תוצאות מדידות')}
                 </p>
               </div>
@@ -262,9 +253,9 @@ export default function RevenueCenterPage() {
             )}
           </section>
 
-          {/* 3 — ACTUAL sales this period (REAL measured revenue — NOT attributed to the platform) */}
+          {/* 3 — ACTUAL sales (REAL measured revenue — NOT attributed to the platform — secondary) */}
           <section>
-            <SectionLabel icon={Receipt}>{t('Actual sales this period', 'מכירות בפועל בתקופה')}</SectionLabel>
+            <SectionLabel icon={Receipt}>{t('Actual sales', 'מכירות בפועל')}</SectionLabel>
             {hasActualSales ? (
               <div className="grid grid-cols-3 gap-3">
                 <ActualStat value={ils(overview?.totalRevenue ?? 0)} label={t('revenue', 'הכנסה')} accent="#7dd3fc" />
@@ -272,22 +263,72 @@ export default function RevenueCenterPage() {
                 <ActualStat value={(overview?.totalOrders ?? 0).toLocaleString()} label={t('orders', 'הזמנות')} accent="#fbbf24" />
               </div>
             ) : (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-8 text-center">
-                <p className="text-white/55 text-[14px]" style={{ fontFamily: sans }}>
-                  {t('No measured sales yet this period.', 'אין עדיין מכירות שנמדדו בתקופה זו.')}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-7 text-center">
+                <p className="text-white/45 text-[13px]" style={{ fontFamily: sans }}>
+                  {t('No measured sales yet.', 'אין עדיין מכירות שנמדדו.')}
                 </p>
               </div>
             )}
-            <p className="mt-3 text-white/30 text-[10px] tracking-wide" style={{ fontFamily: sans }}>
+            <p className="mt-2.5 text-white/30 text-[10px] tracking-wide" style={{ fontFamily: sans }}>
               {t('Real measured revenue. Not attributed to the platform.', 'הכנסה אמיתית שנמדדה. לא מיוחסת לפלטפורמה.')}
             </p>
           </section>
 
-          {/* 4 — WHERE THE MONEY IS: split estimated upside by lever + top 3 items */}
+          {/* 4 — WHERE TOMORROW'S MONEY IS: a trading-style contribution list.
+                 Each drink contributes a labeled +₪ estimate; bars show share of the
+                 hero total. Reads like a portfolio summing toward the available-now ₪. */}
+          {hasUpside && topUpside.length > 0 && (
+            <section>
+              <SectionLabel icon={Target}>{t("Where tomorrow's money is", 'איפה הכסף של מחר')}</SectionLabel>
+
+              <Stagger className="flex flex-col gap-2.5">
+                {topUpside.map((it) => (
+                  <motion.div key={it.slug} variants={staggerItem}>
+                    <HoverLift accent={it.accent}>
+                      <div
+                        className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-3.5 md:p-4"
+                        dir={isHe ? 'rtl' : 'ltr'}
+                      >
+                        <AccentWash accent={it.accent} opacity={0.16} />
+                        <GlassImage src={it.hero} accent={it.accent} className="relative h-16 w-16 shrink-0 md:h-20 md:w-20" />
+                        <div className="relative min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between gap-3">
+                            <p
+                              className="truncate text-white/90 text-[15px] md:text-[17px]"
+                              style={{ fontFamily: isHe ? heSerif : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+                            >
+                              {it.title[lang]}
+                            </p>
+                            <p className="shrink-0 leading-none tabular-nums text-emerald-300" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.4rem, 4vw, 1.8rem)' }}>
+                              +{ils(it.potential.revenueILS)}
+                            </p>
+                          </div>
+                          <span className="relative mt-2.5 block h-2 overflow-hidden rounded-full bg-white/[0.06]">
+                            <motion.span
+                              className="absolute inset-y-0 start-0 rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${shareOfTotal(it.potential.revenueILS, potential.revenueILS)}%` }}
+                              transition={{ duration: 0.8, ease: 'easeOut' }}
+                              style={{ background: it.accent }}
+                            />
+                          </span>
+                        </div>
+                      </div>
+                    </HoverLift>
+                  </motion.div>
+                ))}
+              </Stagger>
+
+              <p className="mt-2.5 text-white/30 text-[10px] tracking-wide" style={{ fontFamily: sans }}>
+                {t('Estimated upside per drink, from your data.', 'צפי הכנסה לכל קוקטייל, מהנתונים שלכם.')}
+              </p>
+            </section>
+          )}
+
+          {/* 4b — lever split (secondary) */}
           {hasUpside && (
             <section>
-              <SectionLabel icon={Target}>{t('Where the money is', 'איפה הכסף')}</SectionLabel>
-
+              <SectionLabel icon={Eye}>{t('By lever', 'לפי מנוף')}</SectionLabel>
               <div className="grid gap-3 md:grid-cols-2">
                 <LeverBar
                   icon={Target}
@@ -304,36 +345,6 @@ export default function RevenueCenterPage() {
                   accent="#7dd3fc"
                 />
               </div>
-
-              {topUpside.length > 0 && (
-                <Stagger className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
-                  {topUpside.map((it) => (
-                    <motion.div key={it.slug} variants={staggerItem}>
-                      <HoverLift accent={it.accent} className="h-full">
-                        <div
-                          className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5"
-                          dir={isHe ? 'rtl' : 'ltr'}
-                        >
-                          <AccentWash accent={it.accent} opacity={0.18} />
-                          <GlassImage src={it.hero} accent={it.accent} className="relative mb-4 h-64 w-full transition-transform duration-300 group-hover:scale-[1.03]" />
-                          <p
-                            className="relative text-center text-white/90 text-[16px]"
-                            style={{ fontFamily: isHe ? heSerif : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
-                          >
-                            {it.title[lang]}
-                          </p>
-                          <p className="relative mt-3 text-center leading-none text-emerald-300" style={{ fontFamily: serif, fontWeight: 700, fontSize: '1.9rem' }}>
-                            +{ils(it.potential.revenueILS)}
-                          </p>
-                          <p className="relative mt-1.5 text-center text-white/40 text-[10px] tracking-[0.18em] uppercase" style={{ fontFamily: sans }}>
-                            {t('estimated upside', 'צפי הכנסה')}
-                          </p>
-                        </div>
-                      </HoverLift>
-                    </motion.div>
-                  ))}
-                </Stagger>
-              )}
             </section>
           )}
 
@@ -359,11 +370,12 @@ export default function RevenueCenterPage() {
 /** Big trust stat — real measured closed-loop count (not an estimate). */
 function ProvenStat({ value, label, accent }: { value: number | string; label: string; accent: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-center">
-      <p className="leading-none" style={{ color: accent, fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.8rem, 5vw, 2.8rem)' }}>
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-center">
+      <GlassSheen />
+      <p className="relative leading-none" style={{ color: accent, fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.8rem, 5vw, 2.8rem)' }}>
         <CountUpText text={String(value)} />
       </p>
-      <p className="mt-2 text-white/45 text-[11px] tracking-[0.1em] uppercase" style={{ fontFamily: sans }}>{label}</p>
+      <p className="relative mt-2 text-white/45 text-[11px] tracking-[0.1em] uppercase" style={{ fontFamily: sans }}>{label}</p>
     </div>
   );
 }
@@ -371,12 +383,13 @@ function ProvenStat({ value, label, accent }: { value: number | string; label: s
 /** Real actual-sales stat (measured revenue — not attributed to the platform). */
 function ActualStat({ value, label, accent }: { value: string; label: string; accent: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-      <span className="mb-3 block h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-      <p className="leading-tight text-white text-2xl" style={{ fontFamily: serif, fontWeight: 700 }}>
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+      <GlassSheen />
+      <span className="relative mb-3 block h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
+      <p className="relative leading-tight text-white text-2xl" style={{ fontFamily: serif, fontWeight: 700 }}>
         <CountUpText text={value} />
       </p>
-      <p className="mt-1 text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>{label}</p>
+      <p className="relative mt-1 text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>{label}</p>
     </div>
   );
 }

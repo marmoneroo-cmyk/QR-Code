@@ -182,3 +182,59 @@ export function StoryBlock({
     </div>
   );
 }
+
+/**
+ * A cocktail glass that BREAKS THE FRAME — overflows its slot upward with a grounded
+ * shadow + accent glow, so the drink feels bigger than its container (the premium
+ * "hero" / featured treatment). The PARENT must be `overflow-visible` and reserve top
+ * space (e.g. pt-20). `overflow` is the image height relative to the slot.
+ */
+export function FrameBreakImage({
+  src,
+  accent,
+  className,
+  overflow = '155%',
+}: {
+  src: string;
+  accent: string;
+  className?: string;
+  overflow?: string;
+}) {
+  return (
+    <span className={`relative block ${className ?? ''}`} aria-hidden>
+      <span
+        className="absolute left-1/2 top-1/2 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+        style={{ background: `radial-gradient(circle, ${accent}55, transparent 70%)` }}
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt=""
+        className="absolute bottom-0 left-1/2 w-auto max-w-none -translate-x-1/2 object-contain mix-blend-screen"
+        style={{ height: overflow, filter: `drop-shadow(0 26px 34px ${accent}40) drop-shadow(0 12px 22px rgba(0,0,0,0.55))` }}
+      />
+    </span>
+  );
+}
+
+/**
+ * Premium glass layer — diagonal light wash, a light streak, an inner vignette, and
+ * faint noise (luxury-watch-site feel). Place inside a `relative` rounded parent; it
+ * inherits the radius. Pure decoration, pointer-events-none.
+ */
+export function GlassSheen({ className }: { className?: string }) {
+  return (
+    <span aria-hidden className={`pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit] ${className ?? ''}`}>
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(125deg, rgba(255,255,255,0.10), rgba(255,255,255,0) 42%)' }} />
+      <span className="absolute -inset-y-12 -left-1/3 w-1/3 rotate-12 opacity-40" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)' }} />
+      <span className="absolute inset-0" style={{ boxShadow: 'inset 0 0 130px rgba(0,0,0,0.5)' }} />
+      <span
+        className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>\")",
+        }}
+      />
+    </span>
+  );
+}

@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, Clock, Sunrise, Check } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { GlassImage, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
+import { GlassImage, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { PotentialValue, ConfidenceMeter } from '@/components/ui/value';
-import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
+import { Tilt, AccentWash, FrameBreakImage, GlassSheen } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { buildActions, type CoachAction } from '@/lib/value/actions';
 import { buildMenuBenchmark } from '@/lib/value/potential';
@@ -107,16 +107,7 @@ export default function CoachPage() {
       ) : top ? (
         <>
           <HeroAction action={top} lang={lang} headFont={headFont} isHe={isHe} />
-          {nextUp.length > 0 && (
-            <section className="mt-14">
-              <SectionLabel icon={Sparkles}>{isHe ? 'הבאים בתור' : 'Next up'}</SectionLabel>
-              <div className="flex flex-col gap-3">
-                {nextUp.map((a, i) => (
-                  <NextRow key={a.id} action={a} rank={i + 2} lang={lang} isHe={isHe} />
-                ))}
-              </div>
-            </section>
-          )}
+          {nextUp.length > 0 && <NextUpStrip actions={nextUp} lang={lang} isHe={isHe} />}
         </>
       ) : (
         <EmptyHero noData={noData} lang={lang} headFont={headFont} isHe={isHe} />
@@ -125,7 +116,7 @@ export default function CoachPage() {
   );
 }
 
-/* ── The #1 action — a GIANT full-width hero ──────────────────────────────── */
+/* ── The #1 action — a near-FULL-SCREEN cinematic stage where the DRINK IS KING ── */
 
 function HeroAction({
   action,
@@ -141,187 +132,141 @@ function HeroAction({
   const cocktail = findCocktailBySlug(action.slug);
   const accent = getAccent(action.slug);
   const title = action.title[lang];
-  // Lead with the two strongest pieces of evidence — less prose, more signal.
-  const topWhy = action.why.slice(0, 2);
+  // One line of WHY — the single strongest piece of evidence. No clutter.
+  const why = action.why[0];
 
   return (
     <motion.section
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="relative overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/[0.02]"
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      // The stage: tall, centered, overflow-visible so the glass can rise above
+      // everything. Generous top padding reserves the air the frame-break needs.
+      className="relative flex min-h-[calc(100vh-13rem)] flex-col items-center overflow-visible rounded-[2.5rem] border border-white/10 bg-white/[0.02] px-6 pb-12 pt-28 text-center md:px-10 md:pt-36"
     >
-      {/* Per-drink accent wash behind the whole hero (from the visual kit) */}
-      <AccentWash accent={accent} opacity={0.2} />
+      {/* Per-drink accent wash + luxury glass sheen on the whole stage */}
+      <AccentWash accent={accent} opacity={0.26} />
+      <GlassSheen />
 
-      <div className="relative grid items-center gap-10 p-7 md:grid-cols-2 md:gap-14 md:p-14">
-        {/* MASSIVE glass — ~50% of the hero, tilted toward the cursor (parallax) */}
-        <div className="order-1 flex justify-center md:order-none">
-          {cocktail ? (
-            <Tilt className="w-full max-w-[34rem]" max={9}>
-              <GlassImage
-                src={cocktail.heroImage}
-                accent={accent}
-                className="aspect-[3/4] w-full drop-shadow-[0_30px_70px_rgba(0,0,0,0.45)]"
-              />
-            </Tilt>
-          ) : (
-            <div className="aspect-[3/4] w-full max-w-[34rem] rounded-3xl bg-white/[0.03]" />
-          )}
-        </div>
+      {/* THE DRINK — massive, breaking the frame, tilting toward the cursor */}
+      <div className="relative w-full max-w-[26rem]">
+        {cocktail ? (
+          <Tilt className="block w-full" max={8}>
+            <FrameBreakImage src={cocktail.heroImage} accent={accent} overflow="170%" className="h-80 w-full md:h-[26rem]" />
+          </Tilt>
+        ) : (
+          <div className="h-80 w-full rounded-3xl bg-white/[0.03] md:h-[26rem]" />
+        )}
+      </div>
 
-        {/* The move — staggered entrance */}
-        <Stagger className="order-2 min-w-0 md:order-none">
+      {/* THE MOVE — vertical, centered, staggered entrance below the drink */}
+      <Stagger className="relative z-[1] mt-2 flex w-full max-w-2xl flex-col items-center">
+        <motion.p
+          variants={staggerItem}
+          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.45em]"
+          style={{ color: accent, fontFamily: sans }}
+        >
+          <Sunrise size={13} strokeWidth={2} />
+          {isHe ? 'המהלך של היום' : "Today's move"}
+        </motion.p>
+
+        <motion.h2
+          variants={staggerItem}
+          className="mt-5 text-balance text-white"
+          style={{
+            fontFamily: headFont,
+            fontStyle: isHe ? 'normal' : 'italic',
+            fontWeight: 500,
+            lineHeight: 1.04,
+            fontSize: 'clamp(2.4rem, 6vw, 4.6rem)',
+          }}
+        >
+          {title}
+        </motion.h2>
+
+        {/* ONE line of WHY — the single strongest evidence */}
+        {why && (
           <motion.p
             variants={staggerItem}
-            className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.4em]"
-            style={{ color: accent, fontFamily: sans }}
+            className="mt-6 text-[15px] leading-relaxed text-white/65"
+            style={{ fontFamily: sans }}
           >
-            <Sunrise size={13} strokeWidth={2} />
-            {isHe ? 'המהלך של היום' : "Today's move"}
+            <span className="text-white/85">{why.label[lang]}</span>
+            <span className="text-white/35"> — </span>
+            <span className="tabular-nums text-white" style={{ fontWeight: 600 }}>
+              {why.value}
+            </span>
           </motion.p>
+        )}
 
-          <motion.h2
-            variants={staggerItem}
-            className="mt-4 text-white"
-            style={{
-              fontFamily: headFont,
-              fontStyle: isHe ? 'normal' : 'italic',
-              fontWeight: 500,
-              lineHeight: 1.06,
-              fontSize: 'clamp(2.1rem, 5vw, 3.8rem)',
-            }}
-          >
-            {title}
-          </motion.h2>
+        {/* Value (honest estimate) + confidence + effort — centered */}
+        <motion.div
+          variants={staggerItem}
+          className="mt-8 flex flex-col items-center gap-4"
+        >
+          <PotentialValue potential={action.potential} lang={lang} size="lg" accent="#34d399" />
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <ConfidenceMeter pct={action.confidencePct} lang={lang} />
+            <span className="inline-flex items-center gap-1.5 text-[11px] text-white/40" style={{ fontFamily: sans }}>
+              <Clock size={12} strokeWidth={1.8} />
+              {isHe ? `~${action.effortMin} דק'` : `~${action.effortMin} min`}
+            </span>
+          </div>
+        </motion.div>
 
-          {/* WHY — the two strongest evidence points */}
-          {topWhy.length > 0 && (
-            <motion.div variants={staggerItem} className="mt-7">
-              <p className="text-[10px] uppercase tracking-[0.4em] text-amber-200/70" style={{ fontFamily: sans }}>
-                {isHe ? 'למה' : 'Why'}
-              </p>
-              <ul className="mt-3 flex flex-col gap-2">
-                {topWhy.map((ev, i) => (
-                  <li
-                    key={`${ev.label.en}-${i}`}
-                    className="flex items-baseline gap-2.5 text-[14px] leading-relaxed text-white/70"
-                    style={{ fontFamily: sans }}
-                  >
-                    <span className="mt-[1px] shrink-0" style={{ color: accent }} aria-hidden>
-                      •
-                    </span>
-                    <span className="min-w-0">
-                      <span className="text-white/85">{ev.label[lang]}</span>
-                      <span className="text-white/40"> — </span>
-                      <span className="tabular-nums text-white" style={{ fontWeight: 600 }}>
-                        {ev.value}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          )}
-
-          {/* Value (honest estimate) + confidence + effort */}
-          <motion.div variants={staggerItem} className="mt-7 flex flex-wrap items-center gap-4">
-            <PotentialValue potential={action.potential} lang={lang} size="lg" accent="#34d399" />
-            <div className="flex flex-col gap-2.5">
-              <ConfidenceMeter pct={action.confidencePct} lang={lang} />
-              <span
-                className="inline-flex items-center gap-1.5 text-[11px] text-white/40"
-                style={{ fontFamily: sans }}
-              >
-                <Clock size={12} strokeWidth={1.8} />
-                {isHe ? `~${action.effortMin} דק'` : `~${action.effortMin} min`}
-              </span>
-            </div>
-          </motion.div>
-
-          {/* The one big primary CTA */}
-          <motion.div variants={staggerItem} className="mt-8">
-            <Link href={action.executeHref} className={primaryBtn} style={{ fontFamily: sans }}>
-              {action.executeLabel[lang]}
-              <ArrowRight
-                size={16}
-                strokeWidth={2.2}
-                className={isHe ? 'rotate-180 transition-transform group-hover:-translate-x-0.5' : 'transition-transform group-hover:translate-x-0.5'}
-              />
-            </Link>
-          </motion.div>
-        </Stagger>
-      </div>
+        {/* The one LARGE primary CTA — "Act now" */}
+        <motion.div variants={staggerItem} className="mt-9">
+          <Link href={action.executeHref} className={primaryBtn} style={{ fontFamily: sans }}>
+            {isHe ? 'בצע עכשיו' : 'Act now'}
+            <ArrowRight
+              size={17}
+              strokeWidth={2.2}
+              className={isHe ? 'rotate-180 transition-transform group-hover:-translate-x-0.5' : 'transition-transform group-hover:translate-x-0.5'}
+            />
+          </Link>
+        </motion.div>
+      </Stagger>
     </motion.section>
   );
 }
 
-/* ── "Next up" — compact rows for actions 2-4 ─────────────────────────────── */
+/* ── "Next up" — a tiny, muted footer strip (thumbnails only) ─────────────── */
 
-function NextRow({
-  action,
-  rank,
+function NextUpStrip({
+  actions,
   lang,
   isHe,
 }: {
-  action: CoachAction;
-  rank: number;
+  actions: CoachAction[];
   lang: 'en' | 'he';
   isHe: boolean;
 }) {
-  const cocktail = findCocktailBySlug(action.slug);
-  const accent = getAccent(action.slug);
-  const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
-
   return (
-    <HoverLift accent={accent} className="rounded-2xl">
-      <div className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition-colors hover:border-white/20">
-        {/* Per-drink accent wash (from the visual kit) */}
-        <AccentWash accent={accent} opacity={0.12} />
-
-        <span
-          className="relative grid h-7 w-7 shrink-0 place-items-center rounded-full border border-white/12 text-[12px] tabular-nums text-white/50"
-          style={{ fontFamily: sans }}
-          aria-hidden
-        >
-          {rank}
-        </span>
-
-        {/* Doubled thumbnail — 48px → 96px */}
-        {cocktail ? (
-          <GlassImage src={cocktail.heroImage} accent={accent} className="relative h-24 w-24 shrink-0" />
-        ) : (
-          <span className="relative h-24 w-24 shrink-0 rounded-2xl bg-white/[0.04]" />
-        )}
-
-        <div className="relative min-w-0 flex-1">
-          <p className="truncate text-[14px] text-white/90" style={{ fontFamily: sans, fontWeight: 600 }}>
-            {action.title[lang]}
-          </p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-            {action.potential ? (
-              <span className="text-[12px] tabular-nums text-emerald-300" style={{ fontFamily: sans, fontWeight: 600 }}>
-                +{ils(action.potential.revenueILS)}
-              </span>
+    <section className="mt-10 flex flex-wrap items-center justify-center gap-3 opacity-60 transition-opacity hover:opacity-100">
+      <span className="text-[10px] uppercase tracking-[0.32em] text-white/35" style={{ fontFamily: sans }}>
+        {isHe ? 'הבאים בתור' : 'Next up'}
+      </span>
+      {actions.map((a) => {
+        const cocktail = findCocktailBySlug(a.slug);
+        const accent = getAccent(a.slug);
+        return (
+          <Link
+            key={a.id}
+            href={a.executeHref}
+            title={a.title[lang]}
+            aria-label={a.title[lang]}
+            className="relative block h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 transition-colors hover:border-white/30"
+          >
+            <AccentWash accent={accent} opacity={0.18} />
+            {cocktail ? (
+              <GlassImage src={cocktail.heroImage} accent={accent} className="relative h-12 w-12" />
             ) : (
-              <span className="text-[11px] italic text-white/30" style={{ fontFamily: sans }}>
-                {isHe ? 'אסוף עוד תנועה' : 'Collect more traffic'}
-              </span>
+              <span className="relative block h-12 w-12 bg-white/[0.04]" />
             )}
-            <ConfidenceMeter pct={action.confidencePct} lang={lang} segments={6} />
-          </div>
-        </div>
-
-        <Link
-          href={action.executeHref}
-          className="relative inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/12 px-3.5 py-2 text-[11px] tracking-[0.06em] text-white/70 transition-colors hover:border-amber-200/40 hover:text-amber-100"
-          style={{ fontFamily: sans }}
-        >
-          <span className="hidden sm:inline">{action.executeLabel[lang]}</span>
-          <ArrowRight size={14} strokeWidth={2} className={isHe ? 'rotate-180' : ''} />
-        </Link>
-      </div>
-    </HoverLift>
+          </Link>
+        );
+      })}
+    </section>
   );
 }
 
