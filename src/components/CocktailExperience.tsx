@@ -357,9 +357,6 @@ function ExplodedView({
         {isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
       </motion.p>
 
-      {/* Center spine */}
-      <div aria-hidden className="pointer-events-none absolute inset-y-28 left-1/2 w-px -translate-x-1/2" style={{ background: `linear-gradient(to bottom, transparent, ${accent}40, ${accent}66)` }} />
-
       <ol className="relative flex w-full flex-col gap-9">
         {stack.map((label, i) => {
           const img = imageForLayer.get(label.layerId);
