@@ -23,6 +23,12 @@ interface MenuCardProps {
   experienceConfig?: ExperienceConfig;
 }
 
+/**
+ * Diner menu card — IMAGE-FIRST. The drink fills the card; only the name and price
+ * sit below it. Everything else (ingredients, 3D, story, pairings) lives one tap
+ * away on the cocktail page. A diner should think "that drink looks incredible",
+ * not "let me read this dashboard".
+ */
 export function MenuCard({
   cocktail,
   lang,
@@ -47,11 +53,11 @@ export function MenuCard({
   const xPos = useMotionValue(0);
   const yPos = useMotionValue(0);
 
-  const rotateX = useSpring(useTransform(yPos, [-0.5, 0.5], [16, -16]), {
+  const rotateX = useSpring(useTransform(yPos, [-0.5, 0.5], [10, -10]), {
     stiffness: 180,
     damping: 22,
   });
-  const rotateY = useSpring(useTransform(xPos, [-0.5, 0.5], [-16, 16]), {
+  const rotateY = useSpring(useTransform(xPos, [-0.5, 0.5], [-10, 10]), {
     stiffness: 180,
     damping: 22,
   });
@@ -108,6 +114,12 @@ export function MenuCard({
   };
 
   const isHebrew = lang === 'he';
+  const priceText =
+    priced && priced.discounted
+      ? null // rendered as a struck-through pair below
+      : cocktail.priceILS !== undefined
+        ? formatPrice(cocktail.priceILS, currency)
+        : '';
 
   return (
     <div className="relative">
@@ -117,87 +129,72 @@ export function MenuCard({
         </div>
       )}
       <Link href={href} className="block">
-      <motion.div
-        className="relative w-full h-[560px] [transform-style:preserve-3d]"
-        style={{ perspective: 1600 }}
-        onMouseMove={handleMove}
-        onMouseEnter={handleEnter}
-        onMouseLeave={handleLeave}
-        initial={{ opacity: 0, y: 60, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{
-          duration: 1.1,
-          delay: 0.5 + index * 0.15,
-          ease: [0.16, 1, 0.3, 1],
-        }}
-      >
         <motion.div
-          className="pointer-events-none absolute -inset-10 rounded-3xl opacity-60"
-          style={{
-            background:
-              'radial-gradient(circle at center, rgba(252,211,77,0.18), transparent 65%)',
-            filter: 'blur(40px)',
-          }}
-          animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.8, 0.5] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        />
-
-        <motion.div
-          className="group relative w-full h-full rounded-2xl border border-amber-200/25 hover:border-amber-200/60 bg-gradient-to-b from-zinc-900/90 via-black to-zinc-950/80 overflow-hidden transition-colors duration-500"
-          style={{
-            rotateX,
-            rotateY,
-            transformStyle: 'preserve-3d',
-            boxShadow:
-              '0 50px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.06)',
+          className="relative w-full h-[500px] [transform-style:preserve-3d]"
+          style={{ perspective: 1600 }}
+          onMouseMove={handleMove}
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+          initial={{ opacity: 0, y: 50, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            duration: 1.0,
+            delay: 0.15 + index * 0.08,
+            ease: [0.16, 1, 0.3, 1],
           }}
         >
-          <div className="pointer-events-none absolute inset-0 opacity-40">
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  'radial-gradient(ellipse at top, rgba(252,211,77,0.06), transparent 60%)',
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  'radial-gradient(ellipse at bottom, rgba(190,24,93,0.18), transparent 65%)',
-              }}
-            />
-          </div>
+          <motion.div
+            className="pointer-events-none absolute -inset-10 rounded-3xl opacity-60"
+            style={{
+              background:
+                'radial-gradient(circle at center, rgba(252,211,77,0.18), transparent 65%)',
+              filter: 'blur(40px)',
+            }}
+            animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.8, 0.5] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          />
 
           <motion.div
-            className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+            className="group relative w-full h-full rounded-2xl border border-amber-200/25 hover:border-amber-200/60 bg-gradient-to-b from-zinc-900/90 via-black to-zinc-950/80 overflow-hidden transition-colors duration-500"
             style={{
-              background:
-                'radial-gradient(circle at var(--mx) var(--my), rgba(252,211,77,0.16), transparent 55%)',
-              ['--mx' as string]: shineX,
-              ['--my' as string]: shineY,
+              rotateX,
+              rotateY,
+              transformStyle: 'preserve-3d',
+              boxShadow:
+                '0 50px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.06)',
             }}
-          />
-
-          <div
-            className="pointer-events-none absolute top-0 left-0 right-0 h-px"
-            style={{
-              background:
-                'linear-gradient(90deg, transparent, rgba(252,211,77,0.6), transparent)',
-            }}
-          />
-
-          <div
-            className="absolute top-5 left-5 right-5 flex items-center justify-between z-20"
-            style={{ transform: 'translateZ(20px)' }}
           >
-            <span
-              className="text-amber-200/60 text-[9px] tracking-[0.4em] uppercase opacity-70"
-              style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
-            >
-              No. {String(index + 1).padStart(2, '0')}
-            </span>
-            {onToggleFavorite ? (
+            {/* Ambient color wash */}
+            <div className="pointer-events-none absolute inset-0 opacity-40">
+              <div
+                className="absolute inset-0"
+                style={{ background: 'radial-gradient(ellipse at top, rgba(252,211,77,0.06), transparent 60%)' }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{ background: 'radial-gradient(ellipse at bottom, rgba(190,24,93,0.18), transparent 65%)' }}
+              />
+            </div>
+
+            {/* Cursor shine */}
+            <motion.div
+              className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              style={{
+                background:
+                  'radial-gradient(circle at var(--mx) var(--my), rgba(252,211,77,0.16), transparent 55%)',
+                ['--mx' as string]: shineX,
+                ['--my' as string]: shineY,
+              }}
+            />
+
+            {/* Top hairline */}
+            <div
+              className="pointer-events-none absolute top-0 left-0 right-0 h-px"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(252,211,77,0.6), transparent)' }}
+            />
+
+            {/* Favorite (small, floating top-end) */}
+            {onToggleFavorite && (
               <button
                 type="button"
                 onClick={(e) => {
@@ -206,181 +203,109 @@ export function MenuCard({
                   onToggleFavorite(cocktail.slug);
                 }}
                 aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                className={`relative w-7 h-7 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                className={`absolute top-4 z-20 w-8 h-8 rounded-full border flex items-center justify-center backdrop-blur-md transition-all duration-300 ${
+                  isHebrew ? 'left-4' : 'right-4'
+                } ${
                   isFavorite
                     ? 'border-rose-300/80 bg-rose-900/30 text-rose-200 shadow-[0_0_12px_rgba(244,114,182,0.4)]'
-                    : 'border-amber-200/40 text-amber-200/60 hover:text-amber-100 hover:border-amber-200/70'
+                    : 'border-amber-200/30 bg-black/30 text-amber-200/60 hover:text-amber-100 hover:border-amber-200/70'
                 }`}
+                style={{ transform: 'translateZ(40px)' }}
               >
-                <svg
-                  width="11"
-                  height="10"
-                  viewBox="0 0 11 10"
-                  fill={isFavorite ? 'currentColor' : 'none'}
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                >
+                <svg width="12" height="11" viewBox="0 0 11 10" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.2">
                   <path d="M5.5 9.2L4.5 8.3C1.5 5.7 0 4.4 0 2.7 0 1.3 1.1 0.2 2.5 0.2c0.8 0 1.6 0.4 2 1 0.4-0.6 1.2-1 2-1C7.9 0.2 9 1.3 9 2.7c0 1.7-1.5 3-4.5 5.6L5.5 9.2z" />
                 </svg>
               </button>
-            ) : (
-              <div className="flex items-center gap-1.5 opacity-70">
-                <div className="w-3 h-px bg-amber-200/50" />
-                <div className="w-1 h-1 border border-amber-200/60 rotate-45" />
-                <div className="w-3 h-px bg-amber-200/50" />
-              </div>
             )}
-          </div>
 
-          {/*
-            Content laid out as a flex COLUMN so the glass image and the
-            description can never overlap, no matter how long the title is:
-            the image takes the remaining space on top, the text takes only
-            what it needs at the bottom.
-          */}
-          <div
-            className="absolute inset-0 flex flex-col"
-            style={{ transformStyle: 'preserve-3d' }}
-          >
-            <div
-              className="pointer-events-none relative flex-1 min-h-0 flex items-end justify-center px-6 pt-14 pb-3"
-              style={{ transform: 'translateZ(60px)' }}
-            >
+            {/* IMAGE-FIRST body: the drink owns the card; name + price sit on a slim base. */}
+            <div className="absolute inset-0 flex flex-col" style={{ transformStyle: 'preserve-3d' }}>
               <div
-                className="pointer-events-none absolute inset-x-10 bottom-1 h-12 opacity-50 group-hover:opacity-80 transition-opacity duration-700"
-                style={{
-                  background:
-                    'radial-gradient(ellipse at center, rgba(252,211,77,0.5), transparent 70%)',
-                  filter: 'blur(20px)',
-                }}
-              />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={cocktail.heroImage}
-                alt={cocktail.title[lang]}
-                className="relative object-contain max-h-full max-w-[82%] drop-shadow-[0_30px_60px_rgba(0,0,0,0.8)] group-hover:drop-shadow-[0_30px_80px_rgba(252,211,77,0.35)] transition-opacity duration-500"
-                style={{ opacity: hoverVideo && playing ? 0 : 1 }}
-              />
-              {hoverVideo && (
-                // eslint-disable-next-line jsx-a11y/media-has-caption
-                <video
-                  ref={videoRef}
-                  src={hoverVideo}
-                  poster={cocktail.heroImage}
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  className="absolute inset-0 m-auto h-full w-full object-contain transition-opacity duration-500"
-                  style={{ opacity: playing ? 1 : 0 }}
-                />
-              )}
-            </div>
-
-            {/*
-              Fixed-height text block so EVERY card is identical: the title
-              always reserves two lines, the tagline always reserves two
-              lines, and the price + "Explore" row is pinned to the same
-              baseline via mt-auto. Result — all rows line up across cards
-              regardless of title length or content.
-            */}
-            <div
-              className="relative shrink-0 h-[244px] px-7 pb-7 pt-1 flex flex-col"
-              style={{ transform: 'translateZ(40px)' }}
-              dir={isHebrew ? 'rtl' : 'ltr'}
-              lang={lang}
-            >
-              <div className={`flex items-center gap-2 mb-4 opacity-70 ${isHebrew ? 'justify-end' : ''}`}>
-                <div className="w-7 h-px bg-amber-200/60" />
-                <div className="w-1 h-1 border border-amber-200/80 rotate-45" />
-                <div className="w-7 h-px bg-amber-200/60" />
-              </div>
-              <h2
-                className="text-3xl text-white leading-tight line-clamp-2 min-h-[4.6rem]"
-                style={{
-                  fontFamily: isHebrew
-                    ? 'var(--font-frank-ruhl, serif)'
-                    : 'var(--font-playfair, serif)',
-                  fontStyle: isHebrew ? 'normal' : 'italic',
-                  fontWeight: 500,
-                  letterSpacing: '0.02em',
-                }}
+                className="pointer-events-none relative flex-1 min-h-0"
+                style={{ transform: 'translateZ(60px)' }}
               >
-                {cocktail.title[lang]}
-              </h2>
-              <p
-                className="text-[12px] text-amber-200/75 mt-2 leading-relaxed line-clamp-2 min-h-[2.4rem]"
-                style={{
-                  fontFamily: isHebrew
-                    ? 'var(--font-heebo, sans-serif)'
-                    : 'var(--font-garamond, serif)',
-                }}
-              >
-                {cocktail.tagline?.[lang] ?? ''}
-              </p>
-              <div className={`mt-auto flex items-end justify-between gap-3 ${isHebrew ? 'flex-row-reverse' : ''}`}>
-                <p
-                  className="text-amber-100 text-lg tracking-wider"
-                  style={{
-                    fontFamily: 'var(--font-inter, sans-serif)',
-                    fontWeight: 500,
-                  }}
-                >
-                  {priced && priced.discounted ? (
-                  <span className="inline-flex items-baseline gap-2">
-                    <span className="text-sm line-through opacity-40">
-                      {formatPrice(priced.original, currency)}
-                    </span>
-                    <span className="text-amber-300">{formatPrice(priced.price, currency)}</span>
-                  </span>
-                ) : cocktail.priceILS !== undefined ? (
-                  formatPrice(cocktail.priceILS, currency)
-                ) : (
-                  ''
-                )}
-                </p>
                 <div
-                  className={`flex items-center gap-2 text-amber-200/60 group-hover:text-amber-100 transition-all duration-500 ${
-                    isHebrew ? 'flex-row-reverse' : ''
-                  }`}
-                >
-                  <span
-                    className="text-[10px] tracking-[0.35em] uppercase whitespace-nowrap"
-                    style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+                  className="absolute inset-x-8 bottom-2 h-14 opacity-50 group-hover:opacity-80 transition-opacity duration-700"
+                  style={{ background: 'radial-gradient(ellipse at center, rgba(252,211,77,0.5), transparent 70%)', filter: 'blur(22px)' }}
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={cocktail.heroImage}
+                  alt={cocktail.title[lang]}
+                  className="absolute inset-0 h-full w-full object-contain px-6 pt-14 pb-2 drop-shadow-[0_30px_60px_rgba(0,0,0,0.8)] group-hover:drop-shadow-[0_30px_80px_rgba(252,211,77,0.35)] transition-all duration-500 group-hover:scale-[1.04]"
+                  style={{ opacity: hoverVideo && playing ? 0 : 1 }}
+                />
+                {hoverVideo && (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <video
+                    ref={videoRef}
+                    src={hoverVideo}
+                    poster={cocktail.heroImage}
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="absolute inset-0 h-full w-full object-contain px-6 pt-14 pb-2 transition-opacity duration-500"
+                    style={{ opacity: playing ? 1 : 0 }}
+                  />
+                )}
+              </div>
+
+              {/* Name + price ONLY — pinned to the base over a soft scrim. */}
+              <div
+                className="relative shrink-0 px-6 pb-6 pt-3"
+                style={{ transform: 'translateZ(40px)' }}
+                dir={isHebrew ? 'rtl' : 'ltr'}
+                lang={lang}
+              >
+                <div
+                  className="pointer-events-none absolute inset-x-0 -top-10 bottom-0 -z-10"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 35%, transparent)' }}
+                />
+                <div className={`flex items-end justify-between gap-3 ${isHebrew ? 'flex-row-reverse' : ''}`}>
+                  <h2
+                    className="min-w-0 truncate text-[1.8rem] leading-tight text-white"
+                    style={{
+                      fontFamily: isHebrew ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)',
+                      fontStyle: isHebrew ? 'normal' : 'italic',
+                      fontWeight: 500,
+                      letterSpacing: '0.01em',
+                    }}
                   >
-                    {isHebrew ? 'גלה את הקוקטייל' : 'Explore breakdown'}
-                  </span>
-                  <motion.span
-                    className="text-base"
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                    {cocktail.title[lang]}
+                  </h2>
+                  <p
+                    className="shrink-0 text-amber-100 text-xl tracking-wide"
+                    style={{ fontFamily: 'var(--font-inter, sans-serif)', fontWeight: 600 }}
                   >
-                    {isHebrew ? '←' : '→'}
-                  </motion.span>
+                    {priced && priced.discounted ? (
+                      <span className="inline-flex items-baseline gap-1.5">
+                        <span className="text-xs line-through opacity-40">{formatPrice(priced.original, currency)}</span>
+                        <span className="text-amber-300">{formatPrice(priced.price, currency)}</span>
+                      </span>
+                    ) : (
+                      priceText
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div
-            className="pointer-events-none absolute bottom-0 left-0 right-0 h-px"
-            style={{
-              background:
-                'linear-gradient(90deg, transparent, rgba(252,211,77,0.4), transparent)',
-            }}
-          />
+            {/* Bottom hairline */}
+            <div
+              className="pointer-events-none absolute bottom-0 left-0 right-0 h-px"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(252,211,77,0.4), transparent)' }}
+            />
+          </motion.div>
         </motion.div>
-      </motion.div>
       </Link>
 
       {hoverVideo && (
         <button
           type="button"
           onClick={togglePlay}
-          aria-label={
-            playing ? (isHebrew ? 'עצור סרטון' : 'Stop video') : (isHebrew ? 'נגן סרטון' : 'Play video')
-          }
-          className={`absolute left-1/2 top-[34%] z-40 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-amber-200/70 bg-black/55 backdrop-blur-md text-amber-100 shadow-[0_8px_30px_rgba(0,0,0,0.65)] transition-all duration-300 hover:scale-110 hover:border-amber-200 active:scale-95 ${
+          aria-label={playing ? (isHebrew ? 'עצור סרטון' : 'Stop video') : (isHebrew ? 'נגן סרטון' : 'Play video')}
+          className={`absolute left-1/2 top-[42%] z-40 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-amber-200/70 bg-black/55 backdrop-blur-md text-amber-100 shadow-[0_8px_30px_rgba(0,0,0,0.65)] transition-all duration-300 hover:scale-110 hover:border-amber-200 active:scale-95 ${
             playing ? 'h-10 w-10 opacity-50' : 'h-16 w-16 opacity-95'
           }`}
         >

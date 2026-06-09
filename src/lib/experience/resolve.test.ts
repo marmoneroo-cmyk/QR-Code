@@ -57,7 +57,7 @@ describe('resolveBadges', () => {
     };
     const out = resolveBadges(cfg, MON, UTC);
     expect(out).toEqual<ActiveBadge[]>([
-      { kind: 'signature', label: { en: 'Signature', he: 'קוקטייל הבית' }, tone: 'gold' },
+      { kind: 'signature', label: { en: "⭐ Bartender's Pick", he: '⭐ מומלץ על ידי הברמן' }, tone: 'gold' },
       { kind: 'custom', label: { en: "Bartender's Pick", he: 'בחירת הברמן' }, tone: 'accent' },
     ]);
   });

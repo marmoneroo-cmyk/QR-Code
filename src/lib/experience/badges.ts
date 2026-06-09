@@ -2,9 +2,9 @@ import type { BadgeKind, BadgeLabel, BadgeTone } from './types';
 
 /** Default bilingual label per badge kind (custom must supply its own). */
 export const BADGE_LABELS: Record<BadgeKind, BadgeLabel> = {
-  signature: { en: 'Signature', he: 'קוקטייל הבית' },
-  guest_favorite: { en: 'Guest Favorite', he: 'מועדף האורחים' },
-  trending: { en: 'Trending', he: 'חם עכשיו' },
+  signature: { en: "⭐ Bartender's Pick", he: '⭐ מומלץ על ידי הברמן' },
+  guest_favorite: { en: '❤ Guest Favorite', he: '❤ אהוב על האורחים' },
+  trending: { en: '🔥 Most Popular', he: '🔥 הכי פופולרי' },
   happy_hour: { en: 'Happy Hour', he: 'שעה שמחה' },
   discount: { en: 'Special Price', he: 'מחיר מיוחד' },
   seasonal: { en: 'Seasonal', he: 'עונתי' },
