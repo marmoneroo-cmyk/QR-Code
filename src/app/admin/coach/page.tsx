@@ -10,6 +10,7 @@ import { PotentialValue, ConfidenceMeter } from '@/components/ui/value';
 import { Tilt, AccentWash, FrameBreakImage, GlassSheen } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { buildActions, type CoachAction } from '@/lib/value/actions';
+import { buildBriefing } from '@/lib/value/briefing';
 import { buildMenuBenchmark } from '@/lib/value/potential';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { useLang } from '@/lib/useLang';
@@ -93,13 +94,13 @@ export default function CoachPage() {
 
   return (
     <AdminShell
-      title="AI Coach"
-      titleHe="המאמן שלך"
-      eyebrow="Your coach for today"
-      eyebrowHe="המאמן שלך להיום"
+      title="Shift Briefing"
+      titleHe="תדריך המשמרת"
+      eyebrow="Tonight's briefing"
+      eyebrowHe="תדריך הערב"
       active="/admin/coach"
-      subtitle="One move that makes the most money — with the reason and a one-click path."
-      subtitleHe="המהלך שמרוויח הכי הרבה — עם הסיבה ובלחיצה אחת."
+      subtitle="Here's the one move worth making tonight."
+      subtitleHe="הנה המהלך האחד ששווה לעשות הערב."
       actions={<LiveDot label={isHe ? 'חי' : 'Live'} />}
     >
       {showInitialLoading ? (
@@ -132,8 +133,13 @@ function HeroAction({
   const cocktail = findCocktailBySlug(action.slug);
   const accent = getAccent(action.slug);
   const title = action.title[lang];
-  // One line of WHY — the single strongest piece of evidence. No clutter.
-  const why = action.why[0];
+  // The drink's bilingual display name — reuse the cocktail config's own title,
+  // falling back to the action title so the narrative always reads naturally.
+  const drink = cocktail ? cocktail.title : action.title;
+  // The consultant narrative — a 2-sentence story (honest, no fabricated figures)
+  // that leads the hero. The numbers below support it.
+  const briefing = buildBriefing(action.type, drink);
+  const story = lang === 'he' ? briefing.he : briefing.en;
 
   return (
     <motion.section
@@ -167,7 +173,7 @@ function HeroAction({
           style={{ color: accent, fontFamily: sans }}
         >
           <Sunrise size={13} strokeWidth={2} />
-          {isHe ? 'המהלך של היום' : "Today's move"}
+          {isHe ? 'תדריך הערב · מהלך אחד' : "Tonight's briefing · one move"}
         </motion.p>
 
         <motion.h2
@@ -184,20 +190,15 @@ function HeroAction({
           {title}
         </motion.h2>
 
-        {/* ONE line of WHY — the single strongest evidence */}
-        {why && (
-          <motion.p
-            variants={staggerItem}
-            className="mt-6 text-[15px] leading-relaxed text-white/65"
-            style={{ fontFamily: sans }}
-          >
-            <span className="text-white/85">{why.label[lang]}</span>
-            <span className="text-white/35"> — </span>
-            <span className="tabular-nums text-white" style={{ fontWeight: 600 }}>
-              {why.value}
-            </span>
-          </motion.p>
-        )}
+        {/* THE BRIEFING — a calm advisor's narrative, spoken not measured. Leads the
+            hero; the ₪ estimate and confidence below merely support it. */}
+        <motion.p
+          variants={staggerItem}
+          className="mt-6 max-w-2xl text-lg leading-relaxed text-white/80 md:text-xl"
+          style={{ fontFamily: headFont }}
+        >
+          {story}
+        </motion.p>
 
         {/* Value (honest estimate) + confidence + effort — centered */}
         <motion.div
@@ -244,7 +245,7 @@ function NextUpStrip({
   return (
     <section className="mt-10 flex flex-wrap items-center justify-center gap-3 opacity-60 transition-opacity hover:opacity-100">
       <span className="text-[10px] uppercase tracking-[0.32em] text-white/35" style={{ fontFamily: sans }}>
-        {isHe ? 'הבאים בתור' : 'Next up'}
+        {isHe ? 'גם על הרשימה הערב' : "Also on tonight's list"}
       </span>
       {actions.map((a) => {
         const cocktail = findCocktailBySlug(a.slug);
@@ -290,15 +291,15 @@ function EmptyHero({
       ? 'אסוף עוד תנועה'
       : 'Collect more traffic'
     : isHe
-      ? 'הכל מטופל'
-      : 'All caught up';
+      ? 'שקט באולם'
+      : 'All quiet on the floor';
   const body = noData
     ? isHe
-      ? 'אין עדיין מספיק נתונים כדי להמליץ על מהלך. ברגע שאורחים יתחילו לסרוק את התפריט, המאמן יציע לך מה לעשות.'
-      : 'Not enough data yet to recommend a move. Once guests start scanning the menu, your coach will surface the one thing to do.'
+      ? 'אין עדיין מספיק נתונים כדי להמליץ על מהלך. ברגע שאורחים יתחילו לסרוק את התפריט, נדע בדיוק מה כדאי לעשות.'
+      : "Not enough data yet to recommend a move. Once guests start scanning the menu, we'll know exactly what's worth doing."
     : isHe
-      ? 'אין כרגע מהלך פתוח. חזור מאוחר יותר — המאמן ימשיך לעקוב אחרי התנועה ויעדכן ברגע שתופיע הזדמנות.'
-      : 'No open move right now. Check back later — your coach keeps watching the traffic and will surface the next opportunity the moment it appears.';
+      ? 'שקט באולם — אין שום דבר דחוף הערב. נמשיך לעקוב אחרי התנועה ונעדכן ברגע שיופיע מהלך ששווה לעשות.'
+      : "All quiet on the floor — nothing urgent tonight. We'll keep an eye on the traffic and flag the next move the moment it's worth making.";
 
   return (
     <motion.section

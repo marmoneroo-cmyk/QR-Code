@@ -12,6 +12,7 @@ import { buildMenuBenchmark } from '@/lib/value/potential';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { HoverLift, AccentWash, Tilt } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
+import { Confetti } from '@/components/ui/celebrate';
 import { useLang } from '@/lib/useLang';
 import type { Opportunity } from '@/lib/opportunities/types';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
@@ -24,6 +25,23 @@ const serifHe = 'var(--font-frank-ruhl, serif)';
 const FOCUS_COUNT = 3;
 /** Auto-refresh cadence (ms) so the screen stays live without a manual reload. */
 const POLL_MS = 20_000;
+/** How long the success moment (confetti + reinforcement line) lingers after "Done". */
+const CELEBRATE_MS = 2_000;
+
+/**
+ * Honest, hospitality-voiced reinforcement shown the moment an action is done.
+ * Only ever surfaces a ₪ figure when `valueILS` is a real number from the action,
+ * and always frames it as an estimate ("about" / "בערך"). No invented numbers.
+ */
+function celebrationMessage(valueILS: number | null, lang: 'en' | 'he'): string {
+  if (typeof valueILS === 'number') {
+    const rounded = Math.round(valueILS);
+    return lang === 'he'
+      ? `יפה — בערך ₪${rounded} של פוטנציאל עכשיו בתנועה.`
+      : `Nice — that's about ₪${rounded} of upside now in motion.`;
+  }
+  return lang === 'he' ? 'בוצע. דבר אחד פחות על הפס.' : 'Done. One less thing on the pass.';
+}
 
 /* ── Done state, persisted to the SAME key the Opportunity board uses so they sync ── */
 
@@ -166,6 +184,24 @@ export default function ActionCenterPage() {
   const { statuses, markDone, clearStatus } = useOppStatuses();
   const now = Date.now();
 
+  // The id whose row is mid-celebration (confetti + reinforcement line). Cleared by an
+  // effect timeout — never set synchronously during render (React 19 would throw).
+  const [celebratingId, setCelebratingId] = useState<string | null>(null);
+
+  const handleDone = useCallback(
+    (id: string) => {
+      markDone(id);
+      setCelebratingId(id);
+    },
+    [markDone],
+  );
+
+  useEffect(() => {
+    if (!celebratingId) return;
+    const t = window.setTimeout(() => setCelebratingId(null), CELEBRATE_MS);
+    return () => window.clearTimeout(t);
+  }, [celebratingId]);
+
   // The focus is the TOP 3 actions; within those, split open vs. already done today.
   const { focusOpen, focusDone } = useMemo(() => {
     const top = actions.slice(0, FOCUS_COUNT);
@@ -231,7 +267,8 @@ export default function ActionCenterPage() {
                       lang={lang}
                       isHe={isHe}
                       headFont={headFont}
-                      onDone={() => markDone(action.id)}
+                      celebrating={celebratingId === action.id}
+                      onDone={() => handleDone(action.id)}
                     />
                   );
                 })}
@@ -244,6 +281,7 @@ export default function ActionCenterPage() {
                 lang={lang}
                 isHe={isHe}
                 headFont={headFont}
+                celebratingId={celebratingId}
                 onUndo={(id) => clearStatus(id)}
               />
             )}
@@ -262,10 +300,11 @@ interface ActionRowProps {
   lang: 'en' | 'he';
   isHe: boolean;
   headFont: string;
+  celebrating: boolean;
   onDone: () => void;
 }
 
-function ActionRow({ action, rank, lang, isHe, headFont, onDone }: ActionRowProps) {
+function ActionRow({ action, rank, lang, isHe, headFont, celebrating, onDone }: ActionRowProps) {
   const cocktail = findCocktailBySlug(action.slug);
   const accent = getAccent(action.slug);
   const Arrow = isHe ? ArrowLeft : ArrowRight;
@@ -283,6 +322,7 @@ function ActionRow({ action, rank, lang, isHe, headFont, onDone }: ActionRowProp
           style={{ background: `linear-gradient(90deg, transparent, ${accent}88, transparent)` }}
           aria-hidden
         />
+        {celebrating && <Confetti count={22} />}
 
         <div className="relative flex flex-col gap-7 md:flex-row md:items-center md:gap-8">
           {/* Rank numeral */}
@@ -374,11 +414,15 @@ interface DoneTodaySectionProps {
   lang: 'en' | 'he';
   isHe: boolean;
   headFont: string;
+  celebratingId: string | null;
   onUndo: (id: string) => void;
 }
 
-function DoneTodaySection({ actions, lang, isHe, headFont, onUndo }: DoneTodaySectionProps) {
+function DoneTodaySection({ actions, lang, isHe, headFont, celebratingId, onUndo }: DoneTodaySectionProps) {
   const [open, setOpen] = useState(false);
+  // The freshly-completed action's reinforcement line — shown briefly even while the
+  // list stays collapsed, so the win is felt without forcing the section open.
+  const justDone = celebratingId ? actions.find((a) => a.id === celebratingId) ?? null : null;
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.02]">
       <button
@@ -399,6 +443,20 @@ function DoneTodaySection({ actions, lang, isHe, headFont, onUndo }: DoneTodaySe
           aria-hidden
         />
       </button>
+
+      {justDone && (
+        <div className="relative overflow-hidden px-5 pb-4">
+          <Confetti count={22} />
+          <p
+            className="relative inline-flex items-center gap-2 text-[13px] text-emerald-200/90"
+            style={{ fontFamily: sans }}
+            role="status"
+          >
+            <Sparkles size={14} strokeWidth={1.9} className="text-emerald-300/80" />
+            {celebrationMessage(justDone.valueILS, lang)}
+          </p>
+        </div>
+      )}
 
       {open && (
         <ul className="flex flex-col gap-2 px-5 pb-5">
@@ -450,7 +508,7 @@ function AllDoneState({ isHe, headFont }: { isHe: boolean; headFont: string }) {
         className="text-white/90 leading-tight"
         style={{ fontFamily: headFont, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600, fontSize: 'clamp(1.4rem, 3vw, 2rem)' }}
       >
-        {isHe ? 'כל הכבוד — סיימת להיום' : "Nice — you're done for today"}
+        {isHe ? 'זהו, האולם מסודר להיום. עבודה יפה.' : "That's the floor handled for today. Nicely done."}
       </h3>
       <p className="mx-auto mt-3 max-w-md text-[14px] text-white/50" style={{ fontFamily: sans }}>
         {isHe ? 'חזרו מחר לפעולות חדשות, או פתחו את הפעולות שבוצעו למטה.' : 'Come back tomorrow for fresh actions, or reopen what you did below.'}

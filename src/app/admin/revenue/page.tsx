@@ -137,8 +137,8 @@ export default function RevenueCenterPage() {
 
   return (
     <AdminShell
-      title="Revenue Center"
-      titleHe="מרכז הכנסות"
+      title="House Performance"
+      titleHe="ביצועי הבית"
       eyebrow="The growth engine"
       eyebrowHe="מנוע הצמיחה"
       active="/admin/revenue"

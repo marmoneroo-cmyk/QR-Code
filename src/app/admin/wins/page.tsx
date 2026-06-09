@@ -21,6 +21,7 @@ import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { CountUpText, LiveDot, SectionLabel } from '@/components/ui/dataviz';
 import { FrameBreakImage, GlassSheen, AccentWash, HoverLift, Tilt } from '@/components/ui/visual';
+import { Confetti, VictoryRing } from '@/components/ui/celebrate';
 import { Reveal, Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import type { MetricKey, Confidence } from '@/lib/closedloop/types';
@@ -138,6 +139,17 @@ export default function HallOfWinsPage() {
     return Math.round(deltas.reduce((s, n) => s + n, 0) / deltas.length);
   }, [wins]);
 
+  // The single best win in the active window — by real deltaPct. Gets the crown label.
+  const bestWinId = useMemo<string | null>(() => {
+    let best: ClosedLoopItem | null = null;
+    for (const w of wins) {
+      const d = w.result.deltaPct;
+      if (typeof d !== 'number') continue;
+      if (!best || d > (best.result.deltaPct ?? 0)) best = w;
+    }
+    return best?.change.id ?? null;
+  }, [wins]);
+
   const hasAnyWinEver = allWins.length > 0;
 
   return (
@@ -158,6 +170,17 @@ export default function HallOfWinsPage() {
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
                   <SectionLabel icon={Trophy}>{t('Measured wins', 'ניצחונות נמדדים')}</SectionLabel>
+                  <h2
+                    className="mb-1 leading-tight text-white"
+                    style={{
+                      fontFamily: isHe ? serifHe : serif,
+                      fontStyle: isHe ? 'normal' : 'italic',
+                      fontWeight: 700,
+                      fontSize: 'clamp(1.4rem,3vw,1.9rem)',
+                    }}
+                  >
+                    {t('Wins worth celebrating', 'ניצחונות ששווה לחגוג')}
+                  </h2>
                   <div className="flex items-baseline gap-3">
                     <span
                       className="leading-none text-white"
@@ -250,7 +273,15 @@ export default function HallOfWinsPage() {
                 variants={staggerItem}
                 className={i === 0 ? 'sm:col-span-2' : ''}
               >
-                <WinCard item={w} lang={lang} isHe={isHe} t={t} featured={i === 0} />
+                <WinCard
+                  item={w}
+                  lang={lang}
+                  isHe={isHe}
+                  t={t}
+                  featured={i === 0}
+                  isBest={w.change.id === bestWinId}
+                  activeTab={tab}
+                />
               </motion.div>
             ))}
           </Stagger>
@@ -266,9 +297,17 @@ interface WinCardProps {
   isHe: boolean;
   t: (en: string, he: string) => string;
   featured: boolean;
+  isBest: boolean;
+  activeTab: TabKey;
 }
 
-function WinCard({ item, lang, isHe, t, featured }: WinCardProps) {
+const BEST_LABEL: Record<TabKey, Bilingual> = {
+  week: { en: 'Best result this week', he: 'התוצאה הכי טובה השבוע' },
+  month: { en: 'Best result this month', he: 'התוצאה הכי טובה החודש' },
+  all: { en: 'Best result of all time', he: 'התוצאה הכי טובה אי פעם' },
+};
+
+function WinCard({ item, lang, isHe, t, featured, isBest, activeTab }: WinCardProps) {
   const slug = item.change.entityId;
   const cocktail = slug ? findCocktailBySlug(slug) : undefined;
   const accent = slug ? getAccent(slug) : GOLD;
@@ -289,28 +328,42 @@ function WinCard({ item, lang, isHe, t, featured }: WinCardProps) {
         className={`relative h-full overflow-visible rounded-[28px] border bg-white/[0.02] px-6 pb-6 ${padTop}`}
         style={{ borderColor: `${accent}33` }}
       >
-        <AccentWash accent={accent} opacity={0.18} />
+        <AccentWash accent={accent} opacity={featured ? 0.24 : 0.18} />
         <GlassSheen />
 
-        {/* Frame-breaking drink */}
+        {/* Frame-breaking drink — the featured (most-recent) win gets a victory glow + confetti */}
         {cocktail && (
-          <Tilt className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
-            <FrameBreakImage
-              src={cocktail.heroImage}
-              accent={accent}
-              className={`${imageSlotH} w-40`}
-              overflow="165%"
-            />
-          </Tilt>
+          <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
+            {featured && <VictoryRing accent={accent} size={240} />}
+            <Tilt className="flex justify-center">
+              <FrameBreakImage
+                src={cocktail.heroImage}
+                accent={accent}
+                className={`${imageSlotH} w-40`}
+                overflow="165%"
+              />
+            </Tilt>
+          </div>
         )}
+        {featured && <Confetti count={36} />}
 
         <div className="relative flex h-full flex-col gap-3" dir={isHe ? 'rtl' : 'ltr'}>
-          {/* Win badge */}
+          {/* Crown — the single best result in the active window (real max deltaPct) */}
+          {isBest && (
+            <span
+              className="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.22em]"
+              style={{ borderColor: `${GOLD}66`, color: GOLD, background: `${GOLD}14`, fontFamily: sans, fontWeight: 700 }}
+            >
+              <Trophy size={12} strokeWidth={2} /> {BEST_LABEL[activeTab][lang]}
+            </span>
+          )}
+
+          {/* Success badge */}
           <span
             className="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.22em]"
             style={{ borderColor: `${EMERALD}66`, color: EMERALD, background: `${EMERALD}14`, fontFamily: sans, fontWeight: 700 }}
           >
-            <PartyPopper size={13} strokeWidth={2} /> {t('Win', 'הצלחה')}
+            <PartyPopper size={13} strokeWidth={2} /> {t('🎉 Success', '🎉 הצלחה')}
           </span>
 
           {/* Cocktail name */}
@@ -336,6 +389,11 @@ function WinCard({ item, lang, isHe, t, featured }: WinCardProps) {
               text={`+${delta}%`}
               style={{ fontSize: featured ? 'clamp(2.6rem,7vw,4rem)' : 'clamp(1.9rem,5vw,2.6rem)', lineHeight: 1 }}
             />
+          </p>
+
+          {/* Story-first result line — real delta + real metric, ordered per language */}
+          <p className="text-[15px] text-white/80" style={{ fontFamily: sans, fontWeight: 600 }}>
+            {isHe ? `${metric.label.he} +${delta}%` : `+${delta}% ${metric.label.en}`}
           </p>
 
           {/* Real, attributable facts only: metric · window · date */}
@@ -408,7 +466,7 @@ function EmptyState({ isHe, t }: EmptyStateProps) {
             style={{ fontFamily: sans, fontWeight: 700 }}
           >
             <Rocket size={14} strokeWidth={2.2} />
-            {t('Make a move', 'בצעו צעד')}
+            {t('Make your first move', 'בצע את המהלך הראשון')}
           </Link>
         </div>
       </div>
