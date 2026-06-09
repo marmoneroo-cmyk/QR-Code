@@ -130,7 +130,7 @@ export function MenuCard({
       )}
       <Link href={href} className="block">
         <motion.div
-          className="relative w-full h-[500px] [transform-style:preserve-3d]"
+          className="relative w-full h-[460px] sm:h-[500px] [transform-style:preserve-3d]"
           style={{ perspective: 1600 }}
           onMouseMove={handleMove}
           onMouseEnter={handleEnter}
@@ -202,7 +202,11 @@ export function MenuCard({
                   e.stopPropagation();
                   onToggleFavorite(cocktail.slug);
                 }}
-                aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                aria-label={
+                  isFavorite
+                    ? isHebrew ? 'הסר ממועדפים' : 'Remove from favorites'
+                    : isHebrew ? 'הוסף למועדפים' : 'Add to favorites'
+                }
                 className={`absolute top-4 z-20 w-8 h-8 rounded-full border flex items-center justify-center backdrop-blur-md transition-all duration-300 ${
                   isHebrew ? 'left-4' : 'right-4'
                 } ${
@@ -244,7 +248,7 @@ export function MenuCard({
                     muted
                     loop
                     playsInline
-                    preload="auto"
+                    preload="none"
                     className="absolute inset-0 h-full w-full object-contain px-6 pt-14 pb-2 transition-opacity duration-500"
                     style={{ opacity: playing ? 1 : 0 }}
                   />

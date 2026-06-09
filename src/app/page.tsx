@@ -160,7 +160,7 @@ export default function Home() {
           <div className="w-full flex justify-center">
             <div className="flex flex-wrap justify-center gap-7 md:gap-8" style={{ width: 'min(100%, 1480px)' }}>
               {filtered.map((cocktail) => (
-                <ImpressionTracker key={cocktail.slug} slug={cocktail.slug} className="w-[320px] max-w-full">
+                <ImpressionTracker key={cocktail.slug} slug={cocktail.slug} className="w-full max-w-[360px] sm:w-[330px] min-w-0">
                   <MenuCard
                     cocktail={cocktail}
                     lang={lang}
