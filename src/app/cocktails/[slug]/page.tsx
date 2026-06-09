@@ -1,7 +1,15 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CocktailSceneClient } from '@/components/CocktailSceneClient';
+import { CocktailExperience } from '@/components/CocktailExperience';
 import { findCocktailBySlug, MENU } from '@/data/cocktail';
+
+/**
+ * Prototype gate: the new full-screen "Cocktail Experience" runs ONLY for these
+ * slugs while we evaluate it. Everything else keeps the existing 3D scene.
+ * Roll out by adding slugs (or removing the gate entirely).
+ */
+const EXPERIENCE_SLUGS = new Set(['diner-aperol-spritz']);
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -40,6 +48,9 @@ export default async function CocktailPage({ params }: PageProps) {
   const config = findCocktailBySlug(slug);
   if (!config) {
     notFound();
+  }
+  if (EXPERIENCE_SLUGS.has(config.slug)) {
+    return <CocktailExperience config={config} />;
   }
   return <CocktailSceneClient config={config} />;
 }

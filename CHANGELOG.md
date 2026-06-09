@@ -7,6 +7,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-06-09
 
+### Added — Cocktail Experience prototype (Aperol Spritz only)
+
+Full-screen cinematic drink page (`CocktailExperience`) inspired by luxury-spirits sites:
+hero drink at ~56vh with glow + reflection, name + one-line tagline + price, exactly three
+actions (Ingredients / Video / AR — AR highlighted and pinned top), an exploded ingredient
+view (numbered components float above the glass, bilingual one-liners from the existing
+labels), and a cinematic video mode (feature mp4, muted, no loop, returns to hero). Reusable
+and config-driven; gated to `diner-aperol-spritz` via `EXPERIENCE_SLUGS` while we evaluate.
+Funnel intact: fires the same `cocktail_opened` / `ingredients_opened` /
+`cocktail_video_opened` / `ar_opened` / `order_started` events.
+
 ### Added — Emotional Layer (hospitality voice · briefing copy · celebration)
 
 Give the platform personality so it feels built by restaurant operators, not software
