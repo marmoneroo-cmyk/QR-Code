@@ -5,7 +5,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-## [Unreleased] — 2026-06-08
+## [Unreleased] — 2026-06-09
+
+### Added — Emotional Layer (hospitality voice · briefing copy · celebration)
+
+Give the platform personality so it feels built by restaurant operators, not software
+engineers. Verified (`tsc` + `next build` clean, 92 tests / 13 files green) and deployed.
+- **Hospitality renaming:** _Revenue Center_ → **House Performance** (ביצועי הבית);
+  _AI Coach_ → **Shift Briefing** (תדריך המשמרת). Routes unchanged; nav + screen titles updated.
+- **Consultant voice — `buildBriefing()`** (`lib/value/briefing.ts`): turns each opportunity
+  type into a 2-sentence story about what's happening in the room ("Guests keep finding X — but
+  it sits low on the menu… the interest is real; the visibility isn't") instead of a metric dump.
+  Bilingual, honest (no fabricated figures). The **Shift Briefing** screen now leads with this
+  advisor narrative; the ₪ estimate + confidence support it below.
+- **Celebration kit — `components/ui/celebrate.tsx`:** `Confetti`, `VictoryRing`,
+  `CelebrateOnTrigger` — deterministic (no `Math.random` ⇒ no hydration drift), `prefers-reduced-motion` safe.
+- **Hall of Wins** now feels like a win: confetti + glow ring on the top win, "🎉 Success" framing,
+  a "Best result this week" crown, warmer forward-looking empty state — still measured-only, no invented numbers.
+- **Action Center** fires a confetti burst + honest reinforcement on Done ("Nice — that's about
+  ₪{est} of upside now in motion" / "Done. One less thing on the pass." when value isn't estimable).
 
 ### Added — Backlog completion (editor polish · CMS reorder · public motion · tests)
 
