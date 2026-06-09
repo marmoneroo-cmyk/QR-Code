@@ -4,16 +4,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
-import { Wrench, ArrowUpCircle, BadgePercent, Scissors, Sparkles, ShieldCheck, Trash2, TrendingUp, ShoppingBag, ArrowRight, ArrowLeft, Wand2 } from 'lucide-react';
+import { Wrench, ArrowUpCircle, BadgePercent, Scissors, Sparkles, ShieldCheck, Trash2, ShoppingBag, ArrowRight, ArrowLeft, Wand2 } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Pill, Skeleton } from '@/components/ui/dataviz';
+import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import type { MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 import { buildRecommendations, type Recommendation, type Confidence, type RecAction } from '@/lib/optimization';
 import { estimatePotential, buildMenuBenchmark } from '@/lib/value/potential';
-import { PotentialValue, BeforeAfterBar } from '@/components/ui/value';
+import { PotentialValue } from '@/components/ui/value';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -50,6 +51,22 @@ function ActionBadge({ action, lang }: { action: RecAction; lang: 'en' | 'he' })
       <Icon size={12} strokeWidth={2} /> {a[lang]}
     </span>
   );
+}
+
+/** Short, glance-able "after" badge for the visual before/after, keyed by action. */
+function afterBadge(action: RecAction, lang: 'en' | 'he'): string {
+  const isHe = lang === 'he';
+  switch (action) {
+    case 'fix_offer':
+      return isHe ? 'משופר' : 'fixed';
+    case 'promote_position':
+    case 'feature':
+      return isHe ? 'מומלץ' : 'featured';
+    case 'raise_price':
+      return '₪';
+    default:
+      return isHe ? 'מבצע' : 'promo';
+  }
 }
 
 /** Actions that send the manager to the promotions composer, prefilled with the drink. */
@@ -191,80 +208,76 @@ export function OptimizePanel() {
               <motion.article
                 key={`${r.slug}:${r.action}`}
                 variants={staggerItem}
-                className="group relative flex flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.05] to-transparent transition-colors"
-                style={{ borderColor: `${accent}33` }}
+                className="h-full"
               >
-                {/* Visual: contained cocktail glass with accent glow (never crops). */}
-                <div className="relative grid place-items-center px-5 pt-5">
-                  {cocktail ? (
-                    <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-36 transition-transform duration-300 group-hover:scale-105" />
-                  ) : (
-                    <div className="w-full h-36 rounded-2xl border border-white/10 bg-white/[0.02]" aria-hidden />
-                  )}
-                  <span className="absolute top-4 start-4">
-                    <ActionBadge action={r.action} lang={lang} />
-                  </span>
-                </div>
+                <HoverLift accent={accent} className="h-full">
+                  <div
+                    className="group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.05] to-transparent transition-colors"
+                    style={{ borderColor: `${accent}33` }}
+                  >
+                    {/* Per-drink accent backdrop wash. */}
+                    <AccentWash accent={accent} />
 
-                <div className="flex flex-1 flex-col gap-2.5 p-5">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3
-                      className="text-white/95 text-[17px] leading-tight"
-                      style={{
-                        fontFamily: isHebrew ? serifHe : serif,
-                        fontStyle: isHebrew ? 'normal' : 'italic',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {title}
-                    </h3>
-                    <span className="shrink-0">
-                      <ConfidenceBadge pct={CONFIDENCE_PCT[r.confidence]} label={CONFIDENCE_LABEL[r.confidence][lang]} />
-                    </span>
-                  </div>
+                    {/* Visual: doubled cocktail glass with accent glow (never crops). */}
+                    <div className="relative grid place-items-center px-5 pt-6">
+                      {cocktail ? (
+                        <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-56 transition-transform duration-300 group-hover:scale-105" />
+                      ) : (
+                        <div className="w-full h-56 rounded-2xl border border-white/10 bg-white/[0.02]" aria-hidden />
+                      )}
+                      <span className="absolute top-4 start-4">
+                        <ActionBadge action={r.action} lang={lang} />
+                      </span>
+                    </div>
 
-                  <p className="text-white text-[14px] leading-snug" style={{ fontFamily: sans, fontWeight: 500 }}>
-                    {r.headline[lang]}
-                  </p>
+                    <div className="relative flex flex-1 flex-col gap-2.5 p-5">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3
+                          className="text-white/95 text-[17px] leading-tight"
+                          style={{
+                            fontFamily: isHebrew ? serifHe : serif,
+                            fontStyle: isHebrew ? 'normal' : 'italic',
+                            fontWeight: 600,
+                          }}
+                        >
+                          {title}
+                        </h3>
+                        <span className="shrink-0">
+                          <ConfidenceBadge pct={CONFIDENCE_PCT[r.confidence]} label={CONFIDENCE_LABEL[r.confidence][lang]} />
+                        </span>
+                      </div>
 
-                  <p className="text-white/50 text-[12px] leading-relaxed line-clamp-2" style={{ fontFamily: sans }}>
-                    {r.rationale[lang]}
-                  </p>
-
-                  <div className="mt-auto flex flex-col gap-2.5 pt-1">
-                    {/* Primary: honest revenue upside (renders a "collect more data" note when null). */}
-                    <PotentialValue potential={potential} lang={lang} accent={accent} size="md" />
-
-                    {/* Before → After orders, only when there's a quantified upside. */}
-                    {potential && item && (
-                      <BeforeAfterBar
-                        before={item.orders}
-                        after={item.orders + potential.extraOrders}
-                        lang={lang}
-                        accent={accent}
-                        unit={isHebrew ? ' הז׳' : ' ord'}
-                      />
-                    )}
-
-                    {/* Secondary: the qualitative impact note, kept when present. */}
-                    {r.estimatedImpact && (
-                      <p className="inline-flex items-center gap-1.5 text-white/45 text-[11px] leading-snug" style={{ fontFamily: sans }}>
-                        <TrendingUp size={12} strokeWidth={2} className="shrink-0" style={{ color: accent }} />
-                        <span>{r.estimatedImpact[lang]}</span>
+                      <p className="text-white text-[14px] leading-snug" style={{ fontFamily: sans, fontWeight: 500 }}>
+                        {r.headline[lang]}
                       </p>
-                    )}
 
-                    {sale && (
-                      <Pill
-                        icon={ShoppingBag}
-                        accent="#7dd3fc"
-                        text={`${sale.units} ${isHebrew ? 'יח׳' : 'units'} · ₪${Math.round(sale.revenue).toLocaleString()}`}
-                      />
-                    )}
+                      <div className="mt-auto flex flex-col gap-2.5 pt-1">
+                        {/* Primary: honest revenue upside (renders a "collect more data" note when null). */}
+                        <PotentialValue potential={potential} lang={lang} accent={accent} size="md" />
 
-                    <ApplyAction action={r.action} slug={r.slug} lang={lang} />
+                        {/* Visual Before → After: drink imagery, not numbers. */}
+                        {cocktail && potential && (
+                          <BeforeAfterImage
+                            src={cocktail.heroImage}
+                            accent={accent}
+                            lang={lang}
+                            afterBadge={afterBadge(r.action, lang)}
+                          />
+                        )}
+
+                        {sale && (
+                          <Pill
+                            icon={ShoppingBag}
+                            accent="#7dd3fc"
+                            text={`${sale.units} ${isHebrew ? 'יח׳' : 'units'} · ₪${Math.round(sale.revenue).toLocaleString()}`}
+                          />
+                        )}
+
+                        <ApplyAction action={r.action} slug={r.slug} lang={lang} />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </HoverLift>
               </motion.article>
             );
           })}

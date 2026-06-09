@@ -1,11 +1,14 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Star, Beef, Puzzle, TrendingDown } from 'lucide-react';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, LiveDot, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
+import { HoverLift, AccentWash } from '@/components/ui/visual';
+import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import type { MenuClass, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
@@ -23,28 +26,28 @@ interface ClassMeta {
 const CLASS_META: Record<MenuClass, ClassMeta> = {
   star: {
     label: { en: 'Stars', he: 'כוכבים' },
-    rec: { en: 'Feature prominently · protect quality & price', he: 'הצג בבולטות · שמור על איכות ומחיר' },
+    rec: { en: 'Feature first · protect quality', he: 'הצג ראשון · שמור על איכות' },
     color: '#fbbf24',
     tint: 'rgba(251,191,36,0.07)',
     icon: Star,
   },
   plowhorse: {
     label: { en: 'Plowhorses', he: 'סוסי עבודה' },
-    rec: { en: 'Popular but thin margin — raise price slightly or cut cost', he: 'פופולרי אך רווח דק — העלה מחיר מעט או הוזל עלות' },
+    rec: { en: 'Popular, thin margin — nudge price up', he: 'פופולרי, רווח דק — העלה מחיר' },
     color: '#7dd3fc',
     tint: 'rgba(125,211,252,0.07)',
     icon: Beef,
   },
   puzzle: {
     label: { en: 'Puzzles', he: 'חידות' },
-    rec: { en: 'High margin, low demand — promote, move up, QR campaign', he: 'רווח גבוה, ביקוש נמוך — קדם, העלה במיקום, קמפיין QR' },
+    rec: { en: 'High margin, low demand — promote', he: 'רווח גבוה, ביקוש נמוך — קדם' },
     color: '#c4b5fd',
     tint: 'rgba(196,181,253,0.07)',
     icon: Puzzle,
   },
   dog: {
     label: { en: 'Dogs', he: 'כלבים' },
-    rec: { en: 'Low demand & margin — consider removing or reworking', he: 'ביקוש ורווח נמוכים — שקול הסרה או שינוי' },
+    rec: { en: 'Low on both — rework or cut', he: 'נמוך בשניהם — שנה או הסר' },
     color: '#fb7185',
     tint: 'rgba(251,113,133,0.07)',
     icon: TrendingDown,
@@ -221,7 +224,7 @@ export function MenuEngineeringPanel() {
       {hasItems && (
         <section>
           <SectionLabel>{t('Every drink', 'כל משקה')}</SectionLabel>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <Stagger className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {items.map((i) => (
               <ItemCard
                 key={i.slug}
@@ -233,7 +236,7 @@ export function MenuEngineeringPanel() {
                 isFlashed={flashed === i.slug}
               />
             ))}
-          </div>
+          </Stagger>
         </section>
       )}
 
@@ -257,7 +260,7 @@ export function MenuEngineeringPanel() {
       </section>
 
       <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
-        {t('Costs are seeded estimates · override per drink to refine margins', 'העלויות הן הערכות · עדכן לכל משקה לחידוד הרווחים')}
+        {t('Seeded cost estimates · override per drink', 'הערכות עלות · עדכן לכל משקה')}
       </p>
     </div>
   );
@@ -319,10 +322,10 @@ function MatrixThumb({ item, lang, t, pos, isHovered, isSelected, isDimmed, onHo
           border: `${isSelected ? 2 : 1}px solid ${active ? meta.color : `${meta.color}99`}`,
         }}
       >
-        <GlassImage src={item.hero} accent={item.accent} className="h-12 w-12 rounded-full" />
+        <GlassImage src={item.hero} accent={item.accent} className="h-16 w-16 rounded-full" />
       </span>
       <span
-        className="mt-1 max-w-[84px] truncate text-center text-[9px] leading-tight transition-colors"
+        className="mt-1.5 max-w-[92px] truncate text-center text-[10px] leading-tight transition-colors"
         style={{ fontFamily: sans, color: active ? meta.color : 'rgba(255,255,255,0.65)' }}
       >
         {item.title[lang]}
@@ -387,28 +390,33 @@ function ItemCard({ item, lang, t, registerCard, isSelected, isFlashed }: ItemCa
   const Icon = meta.icon;
   const borderColor = isSelected ? meta.color : `${meta.color}30`;
   return (
-    <div
-      ref={(el) => registerCard(item.slug, el)}
-      className="group relative overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.04] to-transparent p-4 transition-[box-shadow,border-color] duration-500"
-      style={{
-        borderColor,
-        boxShadow: isFlashed ? `0 0 0 2px ${meta.color}, 0 0 28px ${meta.color}80` : 'none',
-      }}
-      dir={lang === 'he' ? 'rtl' : 'ltr'}
-    >
-      <span className="absolute top-3 end-3 z-10 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[9px] tracking-[0.15em] uppercase backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.4)', color: meta.color, border: `1px solid ${meta.color}66`, fontFamily: sans }}>
-        <Icon size={10} strokeWidth={2} /> {meta.label[lang]}
-      </span>
-      <GlassImage src={item.hero} accent={item.accent} className="w-full h-32 mb-3 transition-transform duration-300 group-hover:scale-105" />
-      <p className="text-white/90 text-[15px] text-center leading-tight mb-3" style={{ fontFamily: serif, fontStyle: lang === 'he' ? 'normal' : 'italic', fontWeight: 600 }}>
-        {item.title[lang]}
-      </p>
-      <div className="grid grid-cols-3 gap-1 text-center">
-        <Stat v={`${Math.round(item.marginPct)}%`} l={t('margin', 'רווח')} accent={meta.color} />
-        <Stat v={`${Math.round(item.conversionPct)}%`} l={t('conv.', 'המרה')} />
-        <Stat v={`${item.views}`} l={t('views', 'צפיות')} />
-      </div>
-    </div>
+    <motion.div variants={staggerItem}>
+      <HoverLift accent={item.accent} className="h-full rounded-3xl">
+        <div
+          ref={(el) => registerCard(item.slug, el)}
+          className="group relative h-full overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.04] to-transparent p-4 transition-[box-shadow,border-color] duration-500"
+          style={{
+            borderColor,
+            boxShadow: isFlashed ? `0 0 0 2px ${meta.color}, 0 0 28px ${meta.color}80` : 'none',
+          }}
+          dir={lang === 'he' ? 'rtl' : 'ltr'}
+        >
+          <AccentWash accent={item.accent} />
+          <span className="absolute top-3 end-3 z-10 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[9px] tracking-[0.15em] uppercase backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.4)', color: meta.color, border: `1px solid ${meta.color}66`, fontFamily: sans }}>
+            <Icon size={10} strokeWidth={2} /> {meta.label[lang]}
+          </span>
+          <GlassImage src={item.hero} accent={item.accent} className="relative w-full h-44 mb-3 transition-transform duration-500 group-hover:scale-105" />
+          <p className="relative text-white/90 text-[15px] text-center leading-tight mb-3" style={{ fontFamily: serif, fontStyle: lang === 'he' ? 'normal' : 'italic', fontWeight: 600 }}>
+            {item.title[lang]}
+          </p>
+          <div className="relative grid grid-cols-3 gap-1 text-center">
+            <Stat v={`${Math.round(item.marginPct)}%`} l={t('margin', 'רווח')} accent={meta.color} />
+            <Stat v={`${Math.round(item.conversionPct)}%`} l={t('conv.', 'המרה')} />
+            <Stat v={`${item.views}`} l={t('views', 'צפיות')} />
+          </div>
+        </div>
+      </HoverLift>
+    </motion.div>
   );
 }
 

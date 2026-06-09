@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   CheckCircle2,
   TrendingDown,
@@ -17,6 +18,8 @@ import {
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, SectionLabel, Skeleton } from '@/components/ui/dataviz';
+import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual';
+import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import type { ImpactStatus, MetricKey, Confidence } from '@/lib/closedloop/types';
 import type { ClosedLoopItem, ClosedLoopReport } from '@/lib/closedloop/server';
@@ -156,11 +159,13 @@ export default function ClosedLoopPage() {
               </p>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {data?.measured.map((m: ClosedLoopItem) => (
-                <ResultCard key={m.change.id} item={m} lang={lang} isHe={isHe} t={t} titleBySlug={titleBySlug} />
+                <motion.div key={m.change.id} variants={staggerItem}>
+                  <ResultCard item={m} lang={lang} isHe={isHe} t={t} titleBySlug={titleBySlug} />
+                </motion.div>
               ))}
-            </div>
+            </Stagger>
           </section>
         )}
 
@@ -249,68 +254,18 @@ export default function ClosedLoopPage() {
   );
 }
 
-/** Normalized baseline for the relative before/after visual (no fabricated absolutes). */
-const RELATIVE_BASELINE = 100;
-
-interface BeforeAfterProps {
-  deltaPct: number;
-  direction: 'up' | 'down' | 'flat' | null;
-  t: (en: string, he: string) => string;
-}
-
-/**
- * Compact BEFORE → AFTER mini-visual. The engine only exposes a per-day-rate
- * delta (no raw counts), so we normalize Before to a baseline and derive After
- * as baseline × (1 + deltaPct/100). It is therefore labeled RELATIVE — never
- * presenting fabricated absolute numbers.
- */
-function BeforeAfter({ deltaPct, direction, t }: BeforeAfterProps) {
-  const before = RELATIVE_BASELINE;
-  const after = Math.max(0, before * (1 + deltaPct / 100));
-  const max = Math.max(before, after, 1);
-  const beforeH = Math.max(6, (before / max) * 100);
-  const afterH = Math.max(6, (after / max) * 100);
-  const down = direction === 'down';
-  const flat = direction === 'flat' || direction === null;
-  const afterColor = flat ? '#e7e5e4' : down ? '#fb7185' : '#34d399';
-  const DeltaArrow = down ? ArrowDownRight : flat ? Minus : ArrowUpRight;
-
-  const Bar = ({ heightPct, color, labelEn, labelHe }: { heightPct: number; color: string; labelEn: string; labelHe: string }) => (
-    <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
-      <div className="flex h-12 w-full items-end justify-center">
-        <div
-          className="w-7 rounded-t-md transition-all"
-          style={{ height: `${heightPct}%`, background: color, boxShadow: `0 0 14px -4px ${color}` }}
-        />
-      </div>
-      <span className="truncate text-[9px] uppercase tracking-[0.12em] text-white/45" style={{ fontFamily: sans }}>
-        {t(labelEn, labelHe)}
-      </span>
-    </div>
-  );
-
-  return (
-    <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] px-3 py-2.5">
-      <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="text-[9px] uppercase tracking-[0.22em] text-white/30" style={{ fontFamily: sans }}>
-          {t('Relative', 'יחסי')}
-        </span>
-        <span
-          className="inline-flex items-center gap-0.5 text-[12px]"
-          style={{ color: afterColor, fontFamily: serif, fontWeight: 700 }}
-        >
-          <DeltaArrow size={13} strokeWidth={2.4} />
-          {deltaPct > 0 ? '+' : ''}
-          {deltaPct}%
-        </span>
-      </div>
-      <div className="flex items-end gap-2.5">
-        <Bar heightPct={beforeH} color="rgba(255,255,255,0.32)" labelEn="Before" labelHe="לפני" />
-        <DeltaArrow size={16} strokeWidth={2.2} className="mb-5 shrink-0" style={{ color: afterColor }} aria-hidden />
-        <Bar heightPct={afterH} color={afterColor} labelEn="After" labelHe="אחרי" />
-      </div>
-    </div>
-  );
+/** Short status label worn by the "after" drink image in the visual before→after. */
+function afterBadge(status: ImpactStatus, isHe: boolean): string {
+  switch (status) {
+    case 'success':
+      return isHe ? 'הצליח' : 'worked';
+    case 'declined':
+      return isHe ? 'ירד' : 'down';
+    case 'no_effect':
+      return '—';
+    default:
+      return isHe ? 'מוקדם' : 'early';
+  }
 }
 
 interface ResultCardProps {
@@ -324,82 +279,93 @@ interface ResultCardProps {
 function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
   const st = STATUS[m.result.status];
   const StatusIcon = st.icon;
-  const cocktail = m.change.entityId ? findCocktailBySlug(m.change.entityId) : undefined;
-  const accent = m.change.entityId ? getAccent(m.change.entityId) : st.color;
-  const title = m.change.entityId ? titleBySlug.get(m.change.entityId)?.[lang] ?? m.change.entityId : '';
+  const slug = m.change.entityId;
+  const cocktail = slug ? findCocktailBySlug(slug) : undefined;
+  const accent = slug ? getAccent(slug) : st.color;
+  const title = slug ? titleBySlug.get(slug)?.[lang] ?? slug : '';
   const delta = m.result.deltaPct;
   const down = m.result.direction === 'down';
   const DeltaArrow = down ? ArrowDownRight : ArrowUpRight;
 
   return (
-    <article
-      className="relative flex flex-col overflow-hidden rounded-3xl border bg-white/[0.02]"
-      style={{ borderColor: `${st.color}33`, boxShadow: `0 30px 90px -55px ${st.color}` }}
-      dir={isHe ? 'rtl' : 'ltr'}
+    <HoverLift
+      accent={accent}
+      className="relative flex h-full flex-col overflow-hidden rounded-3xl border bg-white/[0.02]"
     >
-      {/* Image (always definite height, never cropped) */}
-      {cocktail ? (
-        <div className="relative grid place-items-center p-4 pb-0">
-          <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-36" />
-        </div>
-      ) : (
-        <div className="h-12" aria-hidden />
-      )}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-3xl border"
+        style={{ borderColor: `${st.color}33` }}
+      />
+      <AccentWash accent={accent} />
 
-      {/* Big status badge */}
-      <div className="px-5 pt-3">
-        <span
-          className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.2em]"
-          style={{ borderColor: `${st.color}66`, color: st.color, background: `${st.color}14`, fontFamily: sans, fontWeight: 600 }}
-        >
-          <StatusIcon size={13} strokeWidth={2} /> {st[lang]}
-        </span>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-2.5 p-5 pt-2.5">
-        {title && (
-          <h4
-            className="text-white text-[17px] leading-tight"
-            style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
-          >
-            {title}
-          </h4>
-        )}
-
-        {/* Big delta with arrow */}
-        {delta !== null ? (
-          <p className="inline-flex items-baseline gap-1.5" style={{ color: down ? '#fb7185' : '#34d399', fontFamily: serif, fontWeight: 700 }}>
-            <DeltaArrow size={26} strokeWidth={2.4} className="self-center" />
-            <span style={{ fontSize: 'clamp(1.8rem,4vw,2.6rem)', lineHeight: 1 }}>
-              {delta > 0 ? '+' : ''}
-              {delta}%
-            </span>
-          </p>
+      <div className="relative flex flex-1 flex-col" dir={isHe ? 'rtl' : 'ltr'}>
+        {/* Doubled hero image (taller, never cropped) */}
+        {cocktail ? (
+          <div className="relative grid place-items-center p-4 pb-0">
+            <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-44" />
+          </div>
         ) : (
-          <p className="text-white/35 text-sm italic" style={{ fontFamily: sans }}>
-            {t('No reportable delta yet', 'אין עדיין דלתא מדידה')}
-          </p>
+          <div className="h-10" aria-hidden />
         )}
 
-        {/* Before → After mini-visual (relative — derived from the delta, no fabricated absolutes) */}
-        {delta !== null && <BeforeAfter deltaPct={delta} direction={m.result.direction} t={t} />}
+        {/* Status badge */}
+        <div className="px-5 pt-3">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.2em]"
+            style={{ borderColor: `${st.color}66`, color: st.color, background: `${st.color}14`, fontFamily: sans, fontWeight: 600 }}
+          >
+            <StatusIcon size={13} strokeWidth={2} /> {st[lang]}
+          </span>
+        </div>
 
-        {/* Metric + observation window */}
-        <p className="text-white/55 text-[12px]" style={{ fontFamily: sans }}>
-          {METRIC[m.metric][lang]} · {m.observationDays} {t('days', 'ימים')}
-          {m.stillAccumulating ? t(' (accumulating)', ' (נצבר)') : ''}
-        </p>
+        <div className="flex flex-1 flex-col gap-2.5 p-5 pt-2.5">
+          {title && (
+            <h4
+              className="text-white text-[17px] leading-tight"
+              style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+            >
+              {title}
+            </h4>
+          )}
 
-        {/* Action taken */}
-        <p className="text-white/45 text-[12px] leading-snug" style={{ fontFamily: sans }}>
-          <span className="text-white/35">{t('Action: ', 'פעולה: ')}</span>
-          {m.change.summary}
-        </p>
+          {/* Big delta with arrow */}
+          {delta !== null ? (
+            <p className="inline-flex items-baseline gap-1.5" style={{ color: down ? '#fb7185' : '#34d399', fontFamily: serif, fontWeight: 700 }}>
+              <DeltaArrow size={26} strokeWidth={2.4} className="self-center" />
+              <span style={{ fontSize: 'clamp(1.8rem,4vw,2.6rem)', lineHeight: 1 }}>
+                {delta > 0 ? '+' : ''}
+                {delta}%
+              </span>
+            </p>
+          ) : (
+            <p className="text-white/35 text-sm italic" style={{ fontFamily: sans }}>
+              {t('No delta yet', 'אין דלתא')}
+            </p>
+          )}
 
-        <div className="mt-auto pt-1.5">
-          <ConfidenceBadge pct={CONF_PCT[m.confidence]} label={CONF_LABEL[m.confidence][lang]} />
+          {/* Visual Before → After: the change's cocktail image, "after" wears the result label */}
+          {cocktail && (
+            <BeforeAfterImage
+              src={cocktail.heroImage}
+              accent={accent}
+              lang={lang}
+              afterBadge={afterBadge(m.result.status, isHe)}
+            />
+          )}
+
+          {/* Metric · window (compact) */}
+          <p className="text-white/50 text-[11px]" style={{ fontFamily: sans }}>
+            {METRIC[m.metric][lang]} · {m.observationDays}
+            {t('d', 'י')}
+            {m.stillAccumulating ? t(' · live', ' · נצבר') : ''}
+          </p>
+
+          <div className="mt-auto pt-1.5">
+            <ConfidenceBadge pct={CONF_PCT[m.confidence]} label={CONF_LABEL[m.confidence][lang]} />
+          </div>
         </div>
       </div>
-    </article>
+    </HoverLift>
   );
 }

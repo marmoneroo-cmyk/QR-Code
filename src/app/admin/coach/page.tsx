@@ -7,6 +7,8 @@ import { Sparkles, ArrowRight, Clock, Sunrise, Check } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { PotentialValue, ConfidenceMeter } from '@/components/ui/value';
+import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
+import { Stagger, staggerItem } from '@/components/ui/motion';
 import { buildActions, type CoachAction } from '@/lib/value/actions';
 import { buildMenuBenchmark } from '@/lib/value/potential';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
@@ -139,65 +141,68 @@ function HeroAction({
   const cocktail = findCocktailBySlug(action.slug);
   const accent = getAccent(action.slug);
   const title = action.title[lang];
+  // Lead with the two strongest pieces of evidence — less prose, more signal.
+  const topWhy = action.why.slice(0, 2);
 
   return (
     <motion.section
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.02]"
+      className="relative overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/[0.02]"
     >
-      {/* Ambient accent wash behind the whole hero */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-50"
-        style={{ background: `radial-gradient(120% 90% at ${isHe ? '85%' : '15%'} 10%, ${accent}22, transparent 60%)` }}
-        aria-hidden
-      />
-      <div className="relative grid items-center gap-8 p-7 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-10 md:p-12">
-        {/* HUGE glass — ~40-50% of the hero */}
+      {/* Per-drink accent wash behind the whole hero (from the visual kit) */}
+      <AccentWash accent={accent} opacity={0.2} />
+
+      <div className="relative grid items-center gap-10 p-7 md:grid-cols-2 md:gap-14 md:p-14">
+        {/* MASSIVE glass — ~50% of the hero, tilted toward the cursor (parallax) */}
         <div className="order-1 flex justify-center md:order-none">
           {cocktail ? (
-            <GlassImage
-              src={cocktail.heroImage}
-              accent={accent}
-              className="aspect-[3/4] w-full max-w-[20rem] md:max-w-none"
-            />
+            <Tilt className="w-full max-w-[34rem]" max={9}>
+              <GlassImage
+                src={cocktail.heroImage}
+                accent={accent}
+                className="aspect-[3/4] w-full drop-shadow-[0_30px_70px_rgba(0,0,0,0.45)]"
+              />
+            </Tilt>
           ) : (
-            <div className="aspect-[3/4] w-full max-w-[20rem] rounded-3xl bg-white/[0.03] md:max-w-none" />
+            <div className="aspect-[3/4] w-full max-w-[34rem] rounded-3xl bg-white/[0.03]" />
           )}
         </div>
 
-        {/* The move */}
-        <div className="order-2 min-w-0 md:order-none">
-          <p
+        {/* The move — staggered entrance */}
+        <Stagger className="order-2 min-w-0 md:order-none">
+          <motion.p
+            variants={staggerItem}
             className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.4em]"
             style={{ color: accent, fontFamily: sans }}
           >
             <Sunrise size={13} strokeWidth={2} />
             {isHe ? 'המהלך של היום' : "Today's move"}
-          </p>
+          </motion.p>
 
-          <h2
+          <motion.h2
+            variants={staggerItem}
             className="mt-4 text-white"
             style={{
               fontFamily: headFont,
               fontStyle: isHe ? 'normal' : 'italic',
               fontWeight: 500,
-              lineHeight: 1.08,
-              fontSize: 'clamp(2rem, 4.5vw, 3.4rem)',
+              lineHeight: 1.06,
+              fontSize: 'clamp(2.1rem, 5vw, 3.8rem)',
             }}
           >
             {title}
-          </h2>
+          </motion.h2>
 
-          {/* WHY — real evidence as a clean bullet list */}
-          {action.why.length > 0 && (
-            <div className="mt-7">
+          {/* WHY — the two strongest evidence points */}
+          {topWhy.length > 0 && (
+            <motion.div variants={staggerItem} className="mt-7">
               <p className="text-[10px] uppercase tracking-[0.4em] text-amber-200/70" style={{ fontFamily: sans }}>
                 {isHe ? 'למה' : 'Why'}
               </p>
               <ul className="mt-3 flex flex-col gap-2">
-                {action.why.map((ev, i) => (
+                {topWhy.map((ev, i) => (
                   <li
                     key={`${ev.label.en}-${i}`}
                     className="flex items-baseline gap-2.5 text-[14px] leading-relaxed text-white/70"
@@ -216,11 +221,11 @@ function HeroAction({
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
           )}
 
           {/* Value (honest estimate) + confidence + effort */}
-          <div className="mt-7 flex flex-wrap items-center gap-4">
+          <motion.div variants={staggerItem} className="mt-7 flex flex-wrap items-center gap-4">
             <PotentialValue potential={action.potential} lang={lang} size="lg" accent="#34d399" />
             <div className="flex flex-col gap-2.5">
               <ConfidenceMeter pct={action.confidencePct} lang={lang} />
@@ -232,10 +237,10 @@ function HeroAction({
                 {isHe ? `~${action.effortMin} דק'` : `~${action.effortMin} min`}
               </span>
             </div>
-          </div>
+          </motion.div>
 
           {/* The one big primary CTA */}
-          <div className="mt-8">
+          <motion.div variants={staggerItem} className="mt-8">
             <Link href={action.executeHref} className={primaryBtn} style={{ fontFamily: sans }}>
               {action.executeLabel[lang]}
               <ArrowRight
@@ -244,8 +249,8 @@ function HeroAction({
                 className={isHe ? 'rotate-180 transition-transform group-hover:-translate-x-0.5' : 'transition-transform group-hover:translate-x-0.5'}
               />
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </Stagger>
       </div>
     </motion.section>
   );
@@ -269,48 +274,54 @@ function NextRow({
   const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
 
   return (
-    <div className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-3.5 transition-colors hover:border-white/20 hover:bg-white/[0.03]">
-      <span
-        className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-white/12 text-[12px] tabular-nums text-white/50"
-        style={{ fontFamily: sans }}
-        aria-hidden
-      >
-        {rank}
-      </span>
+    <HoverLift accent={accent} className="rounded-2xl">
+      <div className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition-colors hover:border-white/20">
+        {/* Per-drink accent wash (from the visual kit) */}
+        <AccentWash accent={accent} opacity={0.12} />
 
-      {cocktail ? (
-        <GlassImage src={cocktail.heroImage} accent={accent} className="h-12 w-12 shrink-0" />
-      ) : (
-        <span className="h-12 w-12 shrink-0 rounded-full bg-white/[0.04]" />
-      )}
+        <span
+          className="relative grid h-7 w-7 shrink-0 place-items-center rounded-full border border-white/12 text-[12px] tabular-nums text-white/50"
+          style={{ fontFamily: sans }}
+          aria-hidden
+        >
+          {rank}
+        </span>
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] text-white/90" style={{ fontFamily: sans, fontWeight: 600 }}>
-          {action.title[lang]}
-        </p>
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-          {action.potential ? (
-            <span className="text-[12px] tabular-nums text-emerald-300" style={{ fontFamily: sans, fontWeight: 600 }}>
-              +{ils(action.potential.revenueILS)}
-            </span>
-          ) : (
-            <span className="text-[11px] italic text-white/30" style={{ fontFamily: sans }}>
-              {isHe ? 'אסוף עוד תנועה' : 'Collect more traffic'}
-            </span>
-          )}
-          <ConfidenceMeter pct={action.confidencePct} lang={lang} segments={6} />
+        {/* Doubled thumbnail — 48px → 96px */}
+        {cocktail ? (
+          <GlassImage src={cocktail.heroImage} accent={accent} className="relative h-24 w-24 shrink-0" />
+        ) : (
+          <span className="relative h-24 w-24 shrink-0 rounded-2xl bg-white/[0.04]" />
+        )}
+
+        <div className="relative min-w-0 flex-1">
+          <p className="truncate text-[14px] text-white/90" style={{ fontFamily: sans, fontWeight: 600 }}>
+            {action.title[lang]}
+          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+            {action.potential ? (
+              <span className="text-[12px] tabular-nums text-emerald-300" style={{ fontFamily: sans, fontWeight: 600 }}>
+                +{ils(action.potential.revenueILS)}
+              </span>
+            ) : (
+              <span className="text-[11px] italic text-white/30" style={{ fontFamily: sans }}>
+                {isHe ? 'אסוף עוד תנועה' : 'Collect more traffic'}
+              </span>
+            )}
+            <ConfidenceMeter pct={action.confidencePct} lang={lang} segments={6} />
+          </div>
         </div>
-      </div>
 
-      <Link
-        href={action.executeHref}
-        className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/12 px-3.5 py-2 text-[11px] tracking-[0.06em] text-white/70 transition-colors hover:border-amber-200/40 hover:text-amber-100"
-        style={{ fontFamily: sans }}
-      >
-        <span className="hidden sm:inline">{action.executeLabel[lang]}</span>
-        <ArrowRight size={14} strokeWidth={2} className={isHe ? 'rotate-180' : ''} />
-      </Link>
-    </div>
+        <Link
+          href={action.executeHref}
+          className="relative inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/12 px-3.5 py-2 text-[11px] tracking-[0.06em] text-white/70 transition-colors hover:border-amber-200/40 hover:text-amber-100"
+          style={{ fontFamily: sans }}
+        >
+          <span className="hidden sm:inline">{action.executeLabel[lang]}</span>
+          <ArrowRight size={14} strokeWidth={2} className={isHe ? 'rotate-180' : ''} />
+        </Link>
+      </div>
+    </HoverLift>
   );
 }
 
@@ -386,9 +397,9 @@ function EmptyHero({
 
 function CoachSkeleton() {
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] p-7 md:p-12">
-      <div className="grid items-center gap-8 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-10">
-        <Skeleton className="mx-auto aspect-[3/4] w-full max-w-[20rem] rounded-3xl md:max-w-none" />
+    <div className="rounded-[2.25rem] border border-white/10 bg-white/[0.02] p-7 md:p-14">
+      <div className="grid items-center gap-10 md:grid-cols-2 md:gap-14">
+        <Skeleton className="mx-auto aspect-[3/4] w-full max-w-[34rem] rounded-3xl" />
         <div className="flex flex-col gap-4">
           <Skeleton className="h-3 w-32" />
           <Skeleton className="h-12 w-3/4" />

@@ -28,6 +28,7 @@ import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { CountUpText, GlassImage, KpiCard, LiveDot, SectionLabel, Skeleton } from '@/components/ui/dataviz';
 import { Stagger, staggerItem } from '@/components/ui/motion';
+import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { useLang } from '@/lib/useLang';
 import { deviceLabel } from '@/lib/tracking/eventLabels';
 import type { JourneyStep, SessionJourney, SessionJourneys } from '@/lib/analytics/journey-types';
@@ -325,8 +326,8 @@ function FunnelStepper({ nodes, total, isHebrew, t }: FunnelStepperProps) {
           style={{ fontFamily: sans }}
         >
           {t(
-            `Cumulative reach across ${total.toLocaleString()} sessions · real events`,
-            `הגעה מצטברת על פני ${total.toLocaleString()} ביקורים · אירועים אמיתיים`,
+            `${total.toLocaleString()} sessions · real events`,
+            `${total.toLocaleString()} ביקורים · אירועים אמיתיים`,
           )}
         </p>
       </div>
@@ -396,6 +397,20 @@ export function JourneysPanel() {
   // Aggregate journey funnel — cumulative reach per canonical stage, real events only.
   const funnel = useMemo(() => computeFunnel(sessions), [sessions]);
 
+  // Most-touched drinks across all sessions — pure visual lead-in for the funnel.
+  // Read-only derivation: ranks slugs by how many sessions touched them, takes top 8.
+  const topSlugs = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const s of sessions) {
+      for (const slug of viewedSlugs(s)) counts.set(slug, (counts.get(slug) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([slug]) => slug)
+      .filter((slug) => findCocktailBySlug(slug))
+      .slice(0, 8);
+  }, [sessions]);
+
   return (
     <>
       <div className="mb-4 flex justify-end">
@@ -432,6 +447,23 @@ export function JourneysPanel() {
         </p>
       )}
 
+      {sessions.length > 0 && topSlugs.length > 0 && (
+        <div className="mb-5 flex flex-wrap justify-center gap-3" dir={isHebrew ? 'rtl' : 'ltr'}>
+          {topSlugs.map((slug) => {
+            const c = findCocktailBySlug(slug);
+            if (!c) return null;
+            return (
+              <GlassImage
+                key={slug}
+                src={c.heroImage}
+                accent={getAccent(slug)}
+                className="w-16 h-24 sm:w-[4.5rem] sm:h-28"
+              />
+            );
+          })}
+        </div>
+      )}
+
       {sessions.length > 0 && (
         <FunnelStepper nodes={funnel} total={kpis.total} isHebrew={isHebrew} t={t} />
       )}
@@ -453,18 +485,23 @@ export function JourneysPanel() {
           const DeviceIcon = deviceIcon(s.device);
           const slugs = viewedSlugs(s);
 
+          // Accent wash uses the dominant drink when the session centers on one.
+          const dominantAccent = slugs.length === 1 ? getAccent(slugs[0]) : src.accent;
+          const singleDrink = slugs.length === 1;
+
           return (
-            <motion.div
-              key={s.sessionId}
-              variants={staggerItem}
-              className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.035] to-transparent"
-              style={open ? { borderColor: `${src.accent}55` } : undefined}
+            <motion.div key={s.sessionId} variants={staggerItem}>
+            <HoverLift accent={dominantAccent} className="rounded-3xl">
+            <div
+              className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.035] to-transparent"
+              style={open ? { borderColor: `${dominantAccent}55` } : undefined}
             >
+              {singleDrink && <AccentWash accent={dominantAccent} opacity={0.12} />}
               {/* HEADER — clean visual summary, not a raw log line */}
               <button
                 type="button"
                 onClick={() => setOpenId(open ? null : s.sessionId)}
-                className="w-full p-5 text-start hover:bg-white/[0.02] transition-colors rounded-3xl"
+                className="relative w-full p-5 text-start hover:bg-white/[0.02] transition-colors rounded-3xl"
                 dir={isHebrew ? 'rtl' : 'ltr'}
               >
                 <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -503,7 +540,7 @@ export function JourneysPanel() {
                         <ShoppingBag size={13} strokeWidth={1.8} /> ₪{s.revenue.toLocaleString()}
                       </span>
                     ) : (
-                      <span className="text-white/25 text-[12px]" style={{ fontFamily: sans }}>{t('no order', 'ללא הזמנה')}</span>
+                      <span className="text-white/20 text-[13px]" aria-label={t('no order', 'ללא הזמנה')}>—</span>
                     )}
                     <span className="text-white/35 text-xs">{open ? '▾' : '▸'}</span>
                   </div>
@@ -532,16 +569,16 @@ export function JourneysPanel() {
                   })}
                 </div>
 
-                {/* COCKTAIL THUMBNAILS — small GlassImages, wrap, never crop */}
+                {/* COCKTAIL THUMBNAILS — drink-forward, doubled size, wrap, never crop */}
                 {slugs.length > 0 && (
-                  <div className="flex flex-wrap gap-3 mt-4">
+                  <div className="flex flex-wrap gap-4 mt-5">
                     {slugs.map((slug) => {
                       const c = findCocktailBySlug(slug);
                       if (!c) return null;
                       return (
-                        <div key={slug} className="flex flex-col items-center w-16">
-                          <GlassImage src={c.heroImage} accent={getAccent(slug)} className="w-12 h-16" />
-                          <span className="text-white/45 text-[9px] text-center mt-1 leading-tight truncate w-full" style={{ fontFamily: sans }}>
+                        <div key={slug} className="flex flex-col items-center w-[5.5rem]">
+                          <GlassImage src={c.heroImage} accent={getAccent(slug)} className="w-[5.5rem] h-28" />
+                          <span className="text-white/55 text-[10px] text-center mt-1.5 leading-tight truncate w-full" style={{ fontFamily: sans }}>
                             {c.title[lang]}
                           </span>
                         </div>
@@ -607,13 +644,15 @@ export function JourneysPanel() {
                   </ol>
                 </div>
               )}
+            </div>
+            </HoverLift>
             </motion.div>
           );
         })}
       </Stagger>
 
       <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-6 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
-        {t('Latest 40 sessions · anonymous · reconstructed from raw events', '40 ביקורים אחרונים · אנונימי · משוחזר מאירועים גולמיים')}
+        {t('Latest 40 · anonymous', '40 אחרונים · אנונימי')}
       </p>
     </>
   );

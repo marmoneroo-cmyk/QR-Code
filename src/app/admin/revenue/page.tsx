@@ -14,6 +14,8 @@ import {
 } from '@/lib/value/potential';
 import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
+import { HoverLift, Tilt, AccentWash, StoryBlock } from '@/components/ui/visual';
+import { Stagger, staggerItem } from '@/components/ui/motion';
 import type { AnalyticsOverview, MenuEngineeringItem } from '@/lib/analytics/types';
 
 const sans = 'var(--font-inter, sans-serif)';
@@ -151,77 +153,96 @@ export default function RevenueCenterPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-14" dir={isHe ? 'rtl' : 'ltr'}>
-          {/* 1 — GIANT HERO: the money headline (ESTIMATE, clearly labeled) */}
+          {/* 1 — GIANT HERO: 50/50 — money headline beside a big tilted drink (ESTIMATE) */}
           <section
             className="relative overflow-hidden rounded-[2rem] border px-6 py-12 md:px-12 md:py-16"
             style={{ borderColor: `${heroAccent}44`, boxShadow: `0 50px 140px -60px ${heroAccent}` }}
           >
+            <AccentWash accent={heroAccent} opacity={0.18} />
             {/* radial glow behind the number */}
             <span
               className="pointer-events-none absolute left-1/2 top-1/2 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-3xl"
               style={{ background: `radial-gradient(circle, ${heroAccent}22, transparent 62%)` }}
               aria-hidden
             />
-            <div className="relative z-10 flex flex-col items-center gap-6 text-center">
-              {/* top cocktail image, ~40% of the hero */}
-              {heroCocktail && (
-                <GlassImage
-                  src={heroCocktail.heroImage}
-                  accent={heroAccent}
-                  className="h-44 w-[40%] min-w-[180px] md:h-56"
-                />
-              )}
-
-              <p className="text-emerald-300/80 text-[11px] md:text-[12px] tracking-[0.35em] uppercase" style={{ fontFamily: sans }}>
-                {t('Revenue opportunity available now · estimate', 'הזדמנות הכנסה זמינה עכשיו · צפי')}
-              </p>
-
-              {hasUpside ? (
-                <motion.h2
-                  key={potential.revenueILS}
-                  initial={{ opacity: 0, scale: 0.97 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                  className="leading-[0.95] text-emerald-300"
-                  style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(3.2rem, 11vw, 7.5rem)' }}
-                >
-                  <CountUpText text={ils(potential.revenueILS)} durationMs={1100} />
-                </motion.h2>
+            <div className="relative z-10 grid items-center gap-8 md:grid-cols-2 md:gap-12">
+              {/* big tilted hero drink — ~50% of the hero */}
+              {heroCocktail ? (
+                <Tilt className="mx-auto w-full max-w-[420px]">
+                  <GlassImage
+                    src={heroCocktail.heroImage}
+                    accent={heroAccent}
+                    className="h-64 w-full md:h-[26rem]"
+                  />
+                </Tilt>
               ) : (
-                <h2
-                  className="max-w-2xl leading-tight text-white/85"
-                  style={{ fontFamily: titleFont, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600, fontSize: 'clamp(1.6rem, 4vw, 2.6rem)' }}
-                >
-                  {t('Collect more traffic to quantify opportunity', 'אסוף עוד תנועה כדי לכמת הזדמנות')}
-                </h2>
+                <span aria-hidden />
               )}
 
-              {hasUpside && (
-                <p className="text-white/55 text-[13px] md:text-[14px]" style={{ fontFamily: sans }}>
-                  {t(
-                    `${potential.count} actions · ~${ils(potential.profitILS)} added profit`,
-                    `${potential.count} פעולות · רווח נוסף ~${ils(potential.profitILS)}`,
-                  )}
+              <div className={`flex flex-col gap-5 ${isHe ? 'items-end text-end md:text-start' : 'items-start text-start'}`}>
+                <p className="text-emerald-300/80 text-[11px] md:text-[12px] tracking-[0.35em] uppercase" style={{ fontFamily: sans }}>
+                  {t('Available now · estimate', 'זמין עכשיו · צפי')}
                 </p>
-              )}
 
-              <p className="max-w-md text-white/35 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
-                {t(
-                  'Based on real data — no fabricated numbers.',
-                  'מבוסס נתונים אמיתיים — בלי מספרים מומצאים.',
+                {hasUpside ? (
+                  <motion.h2
+                    key={potential.revenueILS}
+                    initial={{ opacity: 0, scale: 0.97 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    className="leading-[0.92] text-emerald-300"
+                    style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(3.4rem, 9vw, 7rem)' }}
+                  >
+                    <CountUpText text={ils(potential.revenueILS)} durationMs={1100} />
+                  </motion.h2>
+                ) : (
+                  <h2
+                    className="max-w-md leading-tight text-white/85"
+                    style={{ fontFamily: titleFont, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600, fontSize: 'clamp(1.6rem, 4vw, 2.6rem)' }}
+                  >
+                    {t('Collect more traffic to quantify opportunity', 'אסוף עוד תנועה כדי לכמת הזדמנות')}
+                  </h2>
                 )}
-              </p>
 
-              <Link
-                href="/admin/actions"
-                className="group mt-2 inline-flex items-center gap-2 rounded-full bg-amber-300 px-8 py-3.5 text-[12px] tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]"
-                style={{ fontFamily: sans, fontWeight: 700 }}
-              >
-                {t('Act now', 'בצע עכשיו')}
-                <ArrowRight size={15} strokeWidth={2.4} className={isHe ? 'rotate-180' : ''} />
-              </Link>
+                {hasUpside && (
+                  <p className="text-white/55 text-[13px] md:text-[14px]" style={{ fontFamily: sans }}>
+                    {t(
+                      `${potential.count} actions · ~${ils(potential.profitILS)} added profit`,
+                      `${potential.count} פעולות · רווח נוסף ~${ils(potential.profitILS)}`,
+                    )}
+                  </p>
+                )}
+
+                <Link
+                  href="/admin/actions"
+                  className="group mt-1 inline-flex items-center gap-2 rounded-full bg-amber-300 px-8 py-3.5 text-[12px] tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]"
+                  style={{ fontFamily: sans, fontWeight: 700 }}
+                >
+                  {t('Act now', 'בצע עכשיו')}
+                  <ArrowRight size={15} strokeWidth={2.4} className={isHe ? 'rotate-180' : ''} />
+                </Link>
+              </div>
             </div>
           </section>
+
+          {/* 1b — STORY: today's available money → tomorrow's lead-drink potential (visual) */}
+          {hasUpside && heroCocktail && (
+            <StoryBlock
+              src={heroCocktail.heroImage}
+              accent={heroAccent}
+              lang={lang}
+              eyebrow={t('Today → tomorrow', 'היום → מחר')}
+              title={t(`${ils(potential.revenueILS)} on the table`, `${ils(potential.revenueILS)} על השולחן`)}
+              imageHeight="h-52 md:h-72"
+            >
+              <p className="text-white/55 text-[13px] md:text-[14px] leading-relaxed" style={{ fontFamily: sans }}>
+                {t(
+                  `Lead with ${heroCocktail.title.en} tomorrow and unlock ~${ils(potential.profitILS)} added profit.`,
+                  `הובילו עם ${heroCocktail.title.he} מחר ופתחו רווח נוסף של ~${ils(potential.profitILS)}.`,
+                )}
+              </p>
+            </StoryBlock>
+          )}
 
           {/* 2 — PROVEN counter row (TRUST: real, measured closed-loop results) */}
           <section>
@@ -285,29 +306,33 @@ export default function RevenueCenterPage() {
               </div>
 
               {topUpside.length > 0 && (
-                <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
+                <Stagger className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
                   {topUpside.map((it) => (
-                    <div
-                      key={it.slug}
-                      className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-colors hover:border-white/20"
-                      dir={isHe ? 'rtl' : 'ltr'}
-                    >
-                      <GlassImage src={it.hero} accent={it.accent} className="mb-4 h-40 w-full transition-transform duration-300 group-hover:scale-105" />
-                      <p
-                        className="text-center text-white/90 text-[16px]"
-                        style={{ fontFamily: isHe ? heSerif : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
-                      >
-                        {it.title[lang]}
-                      </p>
-                      <p className="mt-3 text-center leading-none text-emerald-300" style={{ fontFamily: serif, fontWeight: 700, fontSize: '1.7rem' }}>
-                        +{ils(it.potential.revenueILS)}
-                      </p>
-                      <p className="mt-1.5 text-center text-white/40 text-[10px] tracking-wide" style={{ fontFamily: sans }}>
-                        {t('estimated upside', 'צפי הכנסה נוספת')} · {isHe ? it.potential.basisHe : it.potential.basisEn}
-                      </p>
-                    </div>
+                    <motion.div key={it.slug} variants={staggerItem}>
+                      <HoverLift accent={it.accent} className="h-full">
+                        <div
+                          className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5"
+                          dir={isHe ? 'rtl' : 'ltr'}
+                        >
+                          <AccentWash accent={it.accent} opacity={0.18} />
+                          <GlassImage src={it.hero} accent={it.accent} className="relative mb-4 h-64 w-full transition-transform duration-300 group-hover:scale-[1.03]" />
+                          <p
+                            className="relative text-center text-white/90 text-[16px]"
+                            style={{ fontFamily: isHe ? heSerif : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+                          >
+                            {it.title[lang]}
+                          </p>
+                          <p className="relative mt-3 text-center leading-none text-emerald-300" style={{ fontFamily: serif, fontWeight: 700, fontSize: '1.9rem' }}>
+                            +{ils(it.potential.revenueILS)}
+                          </p>
+                          <p className="relative mt-1.5 text-center text-white/40 text-[10px] tracking-[0.18em] uppercase" style={{ fontFamily: sans }}>
+                            {t('estimated upside', 'צפי הכנסה')}
+                          </p>
+                        </div>
+                      </HoverLift>
+                    </motion.div>
                   ))}
-                </div>
+                </Stagger>
               )}
             </section>
           )}

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { QrCode, Eye, ShoppingBag, Target, Crown, Share2, Sparkles, LayoutGrid } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, LiveDot, Pill, SectionLabel, Skeleton } from '@/components/ui/dataviz';
+import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
@@ -158,7 +159,7 @@ export function TablesPanel() {
           )}
         </div>
         <p className="text-white/35 text-[11px]" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
-          {t('Each QR opens the menu tagged with its table number — every scan, view and order is attributed to that table.', 'כל QR פותח את התפריט מתויג במספר השולחן — כל סריקה, צפייה והזמנה מיוחסות לאותו שולחן.')}
+          {t('Every scan, view and order is attributed to its table.', 'כל סריקה, צפייה והזמנה מיוחסות לשולחן.')}
         </p>
       </section>
 
@@ -195,11 +196,11 @@ export function TablesPanel() {
       {/* Share / viral split — kept OUT of table attribution */}
       {hasViral && viral && (
         <section className="mb-12 no-print" dir={isHebrew ? 'rtl' : 'ltr'}>
-          <SectionLabel icon={Share2}>{t('Shared / viral (not credited to any table)', 'שיתופי / ויראלי (לא מיוחס לשולחן)')}</SectionLabel>
+          <SectionLabel icon={Share2}>{t('Shared / viral · uncredited', 'שיתופי / ויראלי · לא מיוחס')}</SectionLabel>
           <div className="flex flex-wrap gap-2">
             <Pill icon={Sparkles} text={`${viral.sessions.toLocaleString()} ${t('sessions', 'ביקורים')}`} accent="#7dd3fc" />
             <Pill icon={ShoppingBag} text={`${viral.orders.toLocaleString()} ${t('orders', 'הזמנות')}`} accent="#7dd3fc" />
-            <Pill icon={Share2} text={`${ils(viral.revenue)} ${t('via re-shared links', 'מלינקים ששותפו')}`} accent="#7dd3fc" />
+            <Pill icon={Share2} text={`${ils(viral.revenue)} ${t('re-shared', 'משיתוף')}`} accent="#7dd3fc" />
           </div>
         </section>
       )}
@@ -215,15 +216,15 @@ export function TablesPanel() {
                   <span className="block h-2 w-2 rounded-[3px] bg-white/25" />
                   <span className="block h-3.5 w-3.5 rounded-[4px] bg-white/35" />
                 </span>
-                {t('Size = revenue', 'גודל = הכנסה')}
+                {t('Revenue', 'הכנסה')}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-3 w-12 rounded-full" style={{ background: 'linear-gradient(90deg, rgba(251,191,36,0.12), #fbbf24)' }} aria-hidden />
-                {t('Heat = conversion', 'חום = המרה')}
+                {t('Conversion', 'המרה')}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Crown size={11} strokeWidth={2} className="text-amber-300" />
-                {t('Top performer', 'המוביל')}
+                {t('Top', 'מוביל')}
               </span>
             </div>
           )}
@@ -242,50 +243,48 @@ export function TablesPanel() {
               const cocktail = findCocktailBySlug(slug);
               const accent = getAccent(slug);
               return (
-                <motion.article
-                  key={row.tableId}
-                  variants={staggerItem}
-                  className="group relative flex flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.05] to-transparent transition-colors"
-                  style={{ borderColor: isBest ? `${accent}66` : `${accent}26`, boxShadow: isBest ? `0 30px 90px -50px ${accent}` : undefined }}
-                >
-                  {/* Top cocktail visual — contained glass, never crops */}
-                  <div className="relative grid place-items-center px-5 pt-5">
-                    {cocktail ? (
-                      <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-28 transition-transform duration-300 group-hover:scale-105" />
-                    ) : (
-                      <div className="w-full h-28 rounded-2xl border border-white/10 bg-white/[0.02]" aria-hidden />
-                    )}
-                    {/* Big serif table numeral */}
-                    <span
-                      className="absolute top-3 start-4 leading-none text-white/90"
-                      style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 700, fontSize: 'clamp(2.4rem,5vw,3.2rem)' }}
+                <motion.div key={row.tableId} variants={staggerItem}>
+                  <HoverLift accent={accent}>
+                    <article
+                      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.05] to-transparent transition-colors"
+                      style={{ borderColor: isBest ? `${accent}66` : `${accent}26`, boxShadow: isBest ? `0 30px 90px -50px ${accent}` : undefined }}
                     >
-                      {row.tableId}
-                    </span>
-                    {isBest && (
-                      <span
-                        className="absolute top-4 end-4 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] tracking-[0.2em] uppercase"
-                        style={{ color: accent, background: `${accent}1a`, border: `1px solid ${accent}55`, fontFamily: sans }}
-                      >
-                        <Crown size={11} strokeWidth={2} /> {t('Top', 'מוביל')}
-                      </span>
-                    )}
-                  </div>
+                      <AccentWash accent={accent} opacity={isBest ? 0.24 : 0.16} />
+                      {/* Hero cocktail visual — doubled glass, the signature drink leads */}
+                      <div className="relative grid place-items-center px-5 pt-6">
+                        {cocktail ? (
+                          <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-56 transition-transform duration-500 group-hover:scale-[1.07]" />
+                        ) : (
+                          <div className="w-full h-56 rounded-2xl border border-white/10 bg-white/[0.02]" aria-hidden />
+                        )}
+                        {/* Big serif table numeral */}
+                        <span
+                          className="absolute top-4 start-5 leading-none text-white/90"
+                          style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 700, fontSize: 'clamp(3rem,6vw,4rem)' }}
+                        >
+                          {row.tableId}
+                        </span>
+                        {isBest && (
+                          <span
+                            className="absolute top-5 end-5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] tracking-[0.2em] uppercase"
+                            style={{ color: accent, background: `${accent}1a`, border: `1px solid ${accent}55`, fontFamily: sans }}
+                          >
+                            <Crown size={11} strokeWidth={2} /> {t('Top', 'מוביל')}
+                          </span>
+                        )}
+                      </div>
 
-                  <div className="flex flex-1 flex-col gap-3 p-5">
-                    <p className="text-white/55 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
-                      {t('Table', 'שולחן')} {row.tableId}
-                      {cocktail && <span className="text-white/30"> · {cocktail.title[lang]}</span>}
-                    </p>
-
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                      <MiniStat v={row.views.toLocaleString()} l={t('Views', 'צפיות')} />
-                      <MiniStat v={row.orders.toLocaleString()} l={t('Orders', 'הזמנות')} />
-                      <MiniStat v={ils(row.revenue)} l={t('Revenue', 'הכנסה')} accent="#34d399" />
-                      <MiniStat v={`${row.conversionPct.toFixed(1)}%`} l={t('Conversion', 'המרה')} accent={accent} />
-                    </div>
-                  </div>
-                </motion.article>
+                      <div className="relative flex flex-1 flex-col p-5">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                          <MiniStat v={row.views.toLocaleString()} l={t('Views', 'צפיות')} />
+                          <MiniStat v={row.orders.toLocaleString()} l={t('Orders', 'הזמנות')} />
+                          <MiniStat v={ils(row.revenue)} l={t('Revenue', 'הכנסה')} accent="#34d399" />
+                          <MiniStat v={`${row.conversionPct.toFixed(1)}%`} l={t('Conversion', 'המרה')} accent={accent} />
+                        </div>
+                      </div>
+                    </article>
+                  </HoverLift>
+                </motion.div>
               );
             })}
           </Stagger>
@@ -293,11 +292,10 @@ export function TablesPanel() {
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02]">
-                <div className="px-5 pt-5">
-                  <Skeleton className="h-28 w-full rounded-2xl" />
+                <div className="px-5 pt-6">
+                  <Skeleton className="h-56 w-full rounded-2xl" />
                 </div>
-                <div className="flex flex-1 flex-col gap-3 p-5">
-                  <Skeleton className="h-3 w-28" />
+                <div className="flex flex-1 flex-col p-5">
                   <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                     <Skeleton className="h-5 w-16" />
                     <Skeleton className="h-5 w-16" />
@@ -311,8 +309,8 @@ export function TablesPanel() {
         ) : (
           <p className="text-white/40 text-sm leading-relaxed" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
             {t(
-              'No table data yet. Generate the QR codes above, print one per table, and scans will attribute here automatically.',
-              'עדיין אין נתוני שולחנות. ייצר את ה-QR למעלה, הדפס אחד לכל שולחן, והסריקות ייוחסו כאן אוטומטית.',
+              'No table data yet. Print a QR per table — scans attribute here automatically.',
+              'עדיין אין נתוני שולחנות. הדפס QR לכל שולחן — סריקות ייוחסו כאן אוטומטית.',
             )}
           </p>
         )}
@@ -336,6 +334,7 @@ const NODE_MIN_PX = 64;
 const NODE_MAX_PX = 116;
 const FAINT_HEAT = 0.12;
 const FULL_HEAT = 0.92;
+const FLOOR_ACCENT = '#fbbf24';
 
 /** Map a value into [0,1] relative to the floor's max (linear, guards empty). */
 function normalize(value: number, max: number): number {
@@ -388,39 +387,45 @@ function FloorPlan({
 
   if (tables.length === 0) {
     return (
-      <div className={`${floorClass} grid min-h-[220px] place-items-center text-center`}>
-        <div className="relative max-w-sm">
-          <span className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl border border-amber-200/25 text-amber-200/70">
-            <QrCode size={20} strokeWidth={1.6} />
-          </span>
-          <p className="text-white/70" style={{ fontFamily: serif, fontStyle: 'italic', fontSize: '1.15rem' }}>
-            {t('An empty floor — for now.', 'רצפה ריקה — לבינתיים.')}
-          </p>
-          <p className="mt-2 text-[12px] leading-relaxed text-white/40" style={{ fontFamily: sans }}>
-            {t(
-              'Generate QR codes above and place one on each table. As guests scan, tables light up here by revenue and conversion.',
-              'ייצר קודי QR למעלה והנח אחד על כל שולחן. ככל שאורחים סורקים, השולחנות נדלקים כאן לפי הכנסה והמרה.',
-            )}
-          </p>
+      <HoverLift accent={FLOOR_ACCENT} className="relative">
+        <AccentWash accent={FLOOR_ACCENT} className="rounded-3xl" />
+        <div className={`${floorClass} grid min-h-[260px] place-items-center text-center`}>
+          <div className="relative max-w-sm">
+            <span className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl border border-amber-200/25 text-amber-200/70">
+              <QrCode size={24} strokeWidth={1.6} />
+            </span>
+            <p className="text-white/70" style={{ fontFamily: serif, fontStyle: 'italic', fontSize: '1.3rem' }}>
+              {t('An empty floor — for now.', 'רצפה ריקה — לבינתיים.')}
+            </p>
+            <p className="mt-2 text-[12px] leading-relaxed text-white/40" style={{ fontFamily: sans }}>
+              {t(
+                'Place a QR on each table. As guests scan, tables light up by revenue and conversion.',
+                'הנח QR על כל שולחן. ככל שאורחים סורקים, השולחנות נדלקים לפי הכנסה והמרה.',
+              )}
+            </p>
+          </div>
         </div>
-      </div>
+      </HoverLift>
     );
   }
 
   return (
-    <div className={floorClass}>
-      <Stagger className="relative flex flex-wrap items-end justify-center gap-5 sm:gap-7">
-        {tables.map((row) => (
-          <FloorNode
-            key={row.tableId}
-            row={row}
-            sizeRatio={normalize(useRevenueForSize ? row.revenue : row.views, sizeMax)}
-            isBest={bestTableId === row.tableId}
-            t={t}
-          />
-        ))}
-      </Stagger>
-    </div>
+    <HoverLift accent={FLOOR_ACCENT} className="relative">
+      <AccentWash accent={FLOOR_ACCENT} className="rounded-3xl" />
+      <div className={floorClass}>
+        <Stagger className="relative flex flex-wrap items-end justify-center gap-5 sm:gap-7">
+          {tables.map((row) => (
+            <FloorNode
+              key={row.tableId}
+              row={row}
+              sizeRatio={normalize(useRevenueForSize ? row.revenue : row.views, sizeMax)}
+              isBest={bestTableId === row.tableId}
+              t={t}
+            />
+          ))}
+        </Stagger>
+      </div>
+    </HoverLift>
   );
 }
 

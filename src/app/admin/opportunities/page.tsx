@@ -9,7 +9,8 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, SectionLabel, Skeleton } from '@/components/ui/dataviz';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
-import { PotentialValue, BeforeAfterBar } from '@/components/ui/value';
+import { PotentialValue } from '@/components/ui/value';
+import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual';
 import { estimatePotential, buildMenuBenchmark, type MenuBenchmark } from '@/lib/value/potential';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
 import type { Opportunity, OpportunityType, Confidence, LayoutInsight } from '@/lib/opportunities/types';
@@ -33,6 +34,15 @@ const TYPE_META: Record<OpportunityType, { icon: LucideIcon; color: string }> = 
   promote_marketing: { icon: Megaphone, color: '#7dd3fc' },
   promotion_candidate: { icon: Tag, color: '#f472b6' },
   reengage_returning: { icon: Repeat, color: '#c084fc' },
+};
+
+/** Short bilingual "after" badge per opportunity type — the suggested change, as a label. */
+const AFTER_BADGE: Record<OpportunityType, { en: string; he: string }> = {
+  fix_offer: { en: 'fixed', he: 'משופר' },
+  promote_position: { en: 'promo', he: 'מבצע' },
+  promote_marketing: { en: 'promo', he: 'מבצע' },
+  promotion_candidate: { en: 'promo', he: 'מבצע' },
+  reengage_returning: { en: 'featured', he: 'מומלץ' },
 };
 
 const CONF_PCT: Record<Confidence, number> = { high: 90, medium: 70, low: 45 };
@@ -384,23 +394,25 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
   const potential = item ? estimatePotential(item, bench) : null;
 
   return (
+    <HoverLift accent={accent} className="h-full">
     <article
-      className="group relative overflow-hidden rounded-3xl border bg-white/[0.02] p-5 flex flex-col gap-4 transition-colors hover:border-white/25"
+      className="group relative h-full overflow-hidden rounded-3xl border bg-white/[0.02] p-5 flex flex-col gap-4 transition-colors hover:border-white/25"
       style={{ borderColor: `${meta.color}33` }}
     >
+      <AccentWash accent={accent} />
       <div className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${meta.color}88, transparent)` }} aria-hidden />
 
       <div className="relative grid place-items-center">
         {cocktail ? (
-          <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-40 transition-transform duration-300 group-hover:scale-105" />
+          <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-64 transition-transform duration-300 group-hover:scale-105" />
         ) : (
-          <div className="w-full h-40 rounded-2xl border border-white/10 bg-white/[0.02] grid place-items-center">
-            <Sparkles size={22} className="text-white/20" strokeWidth={1.5} />
+          <div className="w-full h-64 rounded-2xl border border-white/10 bg-white/[0.02] grid place-items-center">
+            <Sparkles size={26} className="text-white/20" strokeWidth={1.5} />
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-2 flex-wrap">
+      <div className="relative flex items-center justify-between gap-2 flex-wrap">
         <span
           className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[9.5px] tracking-[0.18em] uppercase"
           style={{ borderColor: `${meta.color}55`, color: meta.color, background: `${meta.color}14`, fontFamily: sans }}
@@ -411,37 +423,37 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
       </div>
 
       <h3
-        className="text-white/95 text-[18px] leading-tight"
+        className="relative text-white/95 text-[18px] leading-tight"
         style={{ fontFamily: headFont, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
       >
         {title}
       </h3>
 
       {/* Headline value: the honest ₪ upside now carries the card's message. */}
-      <PotentialValue potential={potential} lang={lang} accent={meta.color} size="md" />
+      <div className="relative">
+        <PotentialValue potential={potential} lang={lang} accent={meta.color} size="md" />
+      </div>
 
-      {potential && item && (
-        <div>
-          <p className="text-white/40 text-[9px] uppercase tracking-[0.22em] mb-1.5" style={{ fontFamily: sans }}>
-            {isHe ? 'הזמנות · לפני → אחרי' : 'Orders · before → after'}
-          </p>
-          <BeforeAfterBar
-            before={item.orders}
-            after={item.orders + potential.extraOrders}
+      {/* Visual before → after: the drink, repeated, the "after" wearing the change. */}
+      {cocktail && (
+        <div className="relative">
+          <BeforeAfterImage
+            src={cocktail.heroImage}
+            accent={accent}
             lang={lang}
-            accent={meta.color}
+            afterBadge={AFTER_BADGE[o.type][lang]}
           />
         </div>
       )}
 
       {/* Suggested action — secondary now; the ₪ value above leads. */}
-      <p className="text-white/70 text-[13px] leading-snug" style={{ fontFamily: sans }}>
+      <p className="relative text-white/70 text-[13px] leading-snug line-clamp-2" style={{ fontFamily: sans }}>
         {o.action[lang]}
       </p>
 
       {o.evidence.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-auto pt-1">
-          {o.evidence.map((e, j) => (
+        <div className="relative flex flex-wrap gap-2 mt-auto pt-1">
+          {o.evidence.slice(0, 2).map((e, j) => (
             <span
               key={j}
               className="inline-flex items-center gap-1 text-[11px] text-white/55 border border-white/10 bg-white/[0.03] rounded-full px-2.5 py-1"
@@ -453,7 +465,7 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-2 pt-3 mt-auto border-t border-white/[0.06]">
+      <div className="relative grid grid-cols-3 gap-2 pt-3 mt-auto border-t border-white/[0.06]">
         <CardActionButton
           icon={Check}
           label={isHe ? 'בוצע' : 'Done'}
@@ -474,6 +486,7 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
         />
       </div>
     </article>
+    </HoverLift>
   );
 }
 

@@ -10,6 +10,9 @@ import { PotentialValue } from '@/components/ui/value';
 import { buildMenuBenchmark, estimatePotential } from '@/lib/value/potential';
 import type { MenuBenchmark, RevenuePotential } from '@/lib/value/potential';
 import { useLang } from '@/lib/useLang';
+import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
+import { Stagger, staggerItem } from '@/components/ui/motion';
+import { motion } from 'framer-motion';
 import type { CoViewRow, Recommendations } from '@/lib/analytics/recommendations-types';
 import type { MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
@@ -137,7 +140,8 @@ export default function RecommendationsPage() {
       )}
 
       {hasData && (
-        <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 mb-12" dir={isHebrew ? 'rtl' : 'ltr'}>
+        <section dir={isHebrew ? 'rtl' : 'ltr'}>
+        <Stagger className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 mb-12 items-start">
           {ranked.map(({ row, potential }, index) => {
             const cocktail = findCocktailBySlug(row.slug);
             const accent = getAccent(row.slug);
@@ -146,13 +150,40 @@ export default function RecommendationsPage() {
             const confidence = pairingConfidence(row);
             const isTopPick = index === 0 && potential !== null;
             const rankLabel = index === 0 ? t('#1 this week', '#1 השבוע') : `#${index + 1}`;
+            const imageHeight = isTopPick ? 'h-64 sm:h-72' : 'h-56';
+
+            const glass =
+              cocktail ? (
+                <GlassImage
+                  src={cocktail.heroImage}
+                  accent={accent}
+                  className={`w-full ${imageHeight} transition-transform duration-300 group-hover:scale-[1.04]`}
+                />
+              ) : (
+                <div className={`w-full ${imageHeight} rounded-2xl border border-white/10 bg-white/[0.02]`} aria-hidden />
+              );
 
             return (
-              <article
+              <motion.article
                 key={row.slug}
-                className="group relative flex flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.05] to-transparent transition-colors"
-                style={{ borderColor: isTopPick ? 'rgba(251,191,36,0.55)' : `${accent}33` }}
+                variants={staggerItem}
+                className={`${isTopPick ? 'sm:col-span-2 xl:col-span-1' : ''}`}
               >
+              <HoverLift
+                accent={accent}
+                lift={isTopPick ? -8 : -5}
+                className="h-full"
+              >
+              <div
+                className="group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.05] to-transparent transition-colors"
+                style={{
+                  borderColor: isTopPick ? 'rgba(251,191,36,0.55)' : `${accent}33`,
+                  boxShadow: isTopPick ? `0 26px 70px -24px ${accent}55` : undefined,
+                }}
+              >
+                {/* Per-drink accent wash — colours the card to its cocktail. */}
+                <AccentWash accent={accent} opacity={isTopPick ? 0.26 : 0.16} />
+
                 {/* Top-Pick corner ribbon — only the #1 ranked, money-backed card. */}
                 {isTopPick && (
                   <div className="pointer-events-none absolute -end-12 top-5 z-20 rotate-45">
@@ -167,13 +198,9 @@ export default function RecommendationsPage() {
 
                 {/* Visual: generous, contained cocktail glass with accent glow (never crops). */}
                 <div className="relative grid place-items-center px-5 pt-5">
-                  {cocktail ? (
-                    <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-48 transition-transform duration-300 group-hover:scale-105" />
-                  ) : (
-                    <div className="w-full h-48 rounded-2xl border border-white/10 bg-white/[0.02]" aria-hidden />
-                  )}
+                  {isTopPick ? <Tilt className="w-full">{glass}</Tilt> : glass}
                   {/* Rank badge — bold standing in the ranking. */}
-                  <span className="absolute top-4 start-4">
+                  <span className="absolute top-4 start-4 z-10">
                     <span
                       className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] tracking-[0.14em] uppercase"
                       style={{
@@ -187,14 +214,14 @@ export default function RecommendationsPage() {
                       {isTopPick && <Crown size={12} strokeWidth={2.4} />} {rankLabel}
                     </span>
                   </span>
-                  <span className="absolute top-4 end-4">
+                  <span className="absolute top-4 end-4 z-10">
                     <ConfidenceBadge pct={confidence} label={t('AI confidence', 'ביטחון AI')} />
                   </span>
                 </div>
 
-                <div className="flex flex-1 flex-col gap-3 p-5">
+                <div className="relative flex flex-1 flex-col gap-3 p-5">
                   <h3
-                    className="text-white/95 text-[18px] leading-tight"
+                    className={`text-white/95 leading-tight ${isTopPick ? 'text-[22px]' : 'text-[18px]'}`}
                     style={{ fontFamily: isHebrew ? serifHe : serif, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 600 }}
                   >
                     {title}
@@ -206,12 +233,12 @@ export default function RecommendationsPage() {
                   {top ? (
                     <p className="text-white/85 text-[13px] leading-snug" style={{ fontFamily: sans, fontWeight: 500 }}>
                       <Link2 size={12} strokeWidth={2} className="inline mb-0.5 me-1" style={{ color: PAIR_ACCENT }} />
-                      {t('Pair with', 'שלבו עם')} {titleOf(top.slug)}
+                      {titleOf(top.slug)}
                       <span className="text-white/40 font-mono text-[11px] ms-1">×{top.coViews}</span>
                     </p>
                   ) : (
                     <p className="text-white/40 text-[13px] italic" style={{ fontFamily: sans }}>
-                      {t('No pairing yet.', 'אין עדיין שילוב.')}
+                      {t('No pairing yet.', 'אין שילוב.')}
                     </p>
                   )}
 
@@ -227,9 +254,12 @@ export default function RecommendationsPage() {
                     </Link>
                   </div>
                 </div>
-              </article>
+              </div>
+              </HoverLift>
+              </motion.article>
             );
           })}
+        </Stagger>
         </section>
       )}
 

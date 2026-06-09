@@ -10,6 +10,8 @@ import { PotentialValue, ConfidenceMeter } from '@/components/ui/value';
 import { buildActions, type CoachAction } from '@/lib/value/actions';
 import { buildMenuBenchmark } from '@/lib/value/potential';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
+import { HoverLift, AccentWash, Tilt } from '@/components/ui/visual';
+import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import type { Opportunity } from '@/lib/opportunities/types';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
@@ -217,7 +219,7 @@ export default function ActionCenterPage() {
             {allDone && <AllDoneState isHe={isHe} headFont={headFont} />}
 
             {focusOpen.length > 0 && (
-              <div className="flex flex-col gap-6">
+              <Stagger className="flex flex-col gap-6">
                 {focusOpen.map((action) => {
                   // Rank is the action's true 1-based position in the full ranked list.
                   const rank = actions.findIndex((a) => a.id === action.id) + 1;
@@ -233,7 +235,7 @@ export default function ActionCenterPage() {
                     />
                   );
                 })}
-              </div>
+              </Stagger>
             )}
 
             {focusDone.length > 0 && (
@@ -269,96 +271,99 @@ function ActionRow({ action, rank, lang, isHe, headFont, onDone }: ActionRowProp
   const Arrow = isHe ? ArrowLeft : ArrowRight;
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="group relative overflow-hidden rounded-3xl border bg-white/[0.02] p-6 md:p-7"
-      style={{ borderColor: `${accent}33` }}
-    >
-      <span
-        className="absolute inset-x-0 top-0 h-px"
-        style={{ background: `linear-gradient(90deg, transparent, ${accent}88, transparent)` }}
-        aria-hidden
-      />
-
-      <div className="flex flex-col gap-6 md:flex-row md:items-center">
-        {/* Rank numeral */}
+    <HoverLift accent={accent} className="rounded-[1.75rem]">
+      <motion.article
+        variants={staggerItem}
+        className="group relative overflow-hidden rounded-[1.75rem] border bg-white/[0.02] p-6 md:p-8"
+        style={{ borderColor: `${accent}33` }}
+      >
+        <AccentWash accent={accent} opacity={0.18} />
         <span
-          className="shrink-0 leading-none text-white/15 select-none"
-          style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(3rem, 8vw, 5rem)' }}
+          className="absolute inset-x-0 top-0 h-px"
+          style={{ background: `linear-gradient(90deg, transparent, ${accent}88, transparent)` }}
           aria-hidden
-        >
-          {rank}
-        </span>
+        />
 
-        {/* Big glass */}
-        <div className="shrink-0 self-center">
-          {cocktail ? (
-            <GlassImage
-              src={cocktail.heroImage}
-              accent={accent}
-              className="h-36 w-36 md:h-40 md:w-40 transition-transform duration-300 group-hover:scale-105"
-            />
-          ) : (
-            <div className="grid h-36 w-36 place-items-center rounded-2xl border border-white/10 bg-white/[0.02] md:h-40 md:w-40">
-              <Sparkles size={26} className="text-white/20" strokeWidth={1.5} />
-            </div>
-          )}
-        </div>
-
-        {/* Title + meta */}
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
-          <h3
-            className="text-white/95 leading-tight"
-            style={{
-              fontFamily: headFont,
-              fontStyle: isHe ? 'normal' : 'italic',
-              fontWeight: 600,
-              fontSize: 'clamp(1.35rem, 3vw, 1.9rem)',
-            }}
+        <div className="relative flex flex-col gap-7 md:flex-row md:items-center md:gap-8">
+          {/* Rank numeral */}
+          <span
+            className="shrink-0 leading-none text-white/[0.18] select-none"
+            style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(4rem, 11vw, 7rem)' }}
+            aria-hidden
           >
-            {action.title[lang]}
-          </h3>
+            {rank}
+          </span>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[12px] text-white/70"
+          {/* Big glass — the visual anchor */}
+          <div className="relative shrink-0 self-center">
+            {cocktail ? (
+              <Tilt className="transition-transform duration-300 group-hover:scale-[1.03]">
+                <GlassImage
+                  src={cocktail.heroImage}
+                  accent={accent}
+                  className="h-64 w-64 md:h-72 md:w-72"
+                />
+              </Tilt>
+            ) : (
+              <div className="grid h-64 w-64 place-items-center rounded-3xl border border-white/10 bg-white/[0.02] md:h-72 md:w-72">
+                <Sparkles size={40} className="text-white/20" strokeWidth={1.5} />
+              </div>
+            )}
+          </div>
+
+          {/* Title + meta */}
+          <div className="flex min-w-0 flex-1 flex-col gap-5">
+            <h3
+              className="text-white/95 leading-tight"
+              style={{
+                fontFamily: headFont,
+                fontStyle: isHe ? 'normal' : 'italic',
+                fontWeight: 600,
+                fontSize: 'clamp(1.6rem, 3.4vw, 2.3rem)',
+              }}
+            >
+              {action.title[lang]}
+            </h3>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-2 text-[13px] text-white/75"
+                style={{ fontFamily: sans }}
+              >
+                <Clock size={14} strokeWidth={1.9} />
+                {isHe ? `~${action.effortMin} דק'` : `~${action.effortMin} min`}
+              </span>
+              <ConfidenceMeter pct={action.confidencePct} lang={lang} />
+            </div>
+
+            <div className="max-w-sm">
+              <PotentialValue potential={action.potential} lang={lang} accent={accent} size="md" />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex shrink-0 flex-col gap-3 md:w-48">
+            <Link
+              href={action.executeHref}
+              className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3.5 text-[14px] font-medium text-black transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              style={{ background: accent, fontFamily: sans }}
+            >
+              {action.executeLabel[lang]}
+              <Arrow size={16} strokeWidth={2.2} />
+            </Link>
+            <button
+              type="button"
+              onClick={onDone}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-[14px] text-white/70 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
               style={{ fontFamily: sans }}
             >
-              <Clock size={13} strokeWidth={1.9} />
-              {isHe ? `~${action.effortMin} דק'` : `~${action.effortMin} min`}
-            </span>
-            <ConfidenceMeter pct={action.confidencePct} lang={lang} />
-          </div>
-
-          <div className="max-w-sm">
-            <PotentialValue potential={action.potential} lang={lang} accent={accent} size="md" />
+              <Check size={16} strokeWidth={2.2} style={{ color: '#34d399' }} />
+              {isHe ? 'בוצע' : 'Done'}
+            </button>
           </div>
         </div>
-
-        {/* Actions */}
-        <div className="flex shrink-0 flex-col gap-3 md:w-44">
-          <Link
-            href={action.executeHref}
-            className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-[13px] font-medium text-black transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-            style={{ background: accent, fontFamily: sans }}
-          >
-            {action.executeLabel[lang]}
-            <Arrow size={15} strokeWidth={2.2} />
-          </Link>
-          <button
-            type="button"
-            onClick={onDone}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-5 py-3 text-[13px] text-white/70 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
-            style={{ fontFamily: sans }}
-          >
-            <Check size={15} strokeWidth={2.2} style={{ color: '#34d399' }} />
-            {isHe ? 'בוצע' : 'Done'}
-          </button>
-        </div>
-      </div>
-    </motion.article>
+      </motion.article>
+    </HoverLift>
   );
 }
 

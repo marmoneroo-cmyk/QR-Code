@@ -9,6 +9,7 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { LiveFunnel } from '@/components/admin/LiveFunnel';
 import { AreaChart, GlassImage, KpiCard, deltaPct, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { Stagger, staggerItem } from '@/components/ui/motion';
+import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { useLang } from '@/lib/useLang';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
@@ -47,14 +48,12 @@ interface TrendPanelProps {
   color: string;
   delta: number | null;
   icon: LucideIcon;
-  windowLabel: string;
   peakLabel: string;
   lastLabel: string;
-  vsLabel: string;
 }
 
 /** A single day-trend panel: title + window total + WoW delta + real AreaChart + peak/last annotation. */
-function TrendPanel({ title, total, data, color, delta, icon: Icon, windowLabel, peakLabel, lastLabel, vsLabel }: TrendPanelProps) {
+function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, lastLabel }: TrendPanelProps) {
   const hasData = data.length > 0;
   const peak = hasData ? Math.max(...data) : 0;
   const last = hasData ? data[data.length - 1] : 0;
@@ -91,10 +90,8 @@ function TrendPanel({ title, total, data, color, delta, icon: Icon, windowLabel,
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-white/40 tracking-wide" style={{ fontFamily: sans }}>
-        <span>{windowLabel}</span>
         <span>{peakLabel} {peak.toLocaleString()}</span>
         <span>{lastLabel} {last.toLocaleString()}</span>
-        {delta !== null && <span className="text-white/30">{vsLabel}</span>}
       </div>
     </div>
   );
@@ -173,8 +170,8 @@ export default function AnalyticsPage() {
       eyebrow="Restaurant Analytics"
       eyebrowHe="אנליטיקת מסעדה"
       active="/admin/analytics"
-      subtitle="What your diners actually scan, view, and order — computed live from anonymized QR + in-app events."
-      subtitleHe="מה שהאורחים שלך באמת סורקים, צופים ומזמינים — מחושב חי מאירועי QR ואפליקציה אנונימיים."
+      subtitle="What your diners scan, view, and order — live."
+      subtitleHe="מה שהאורחים סורקים, צופים ומזמינים — בזמן אמת."
       actions={
         <span className="inline-flex items-center gap-2 text-emerald-300/80 text-[10px] tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
           <LiveDot label={isHebrew ? 'חי' : 'Live'} />
@@ -246,28 +243,29 @@ export default function AnalyticsPage() {
         {performers.length > 0 && (
           <section>
             <SectionLabel icon={TrendingUp}>{t('Top performers', 'הפריטים המובילים')}</SectionLabel>
-            <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {performers.map((it, i) => (
-                <motion.div
-                  key={it.slug}
-                  variants={staggerItem}
-                  className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5"
-                >
-                  <span className="absolute top-3 start-4 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>
-                    {i + 1}
-                  </span>
-                  <GlassImage src={it.hero} accent={it.accent} className="w-full h-40 mb-3 transition-transform duration-300 group-hover:scale-105" />
-                  <p className="text-white/90 text-[15px] text-center leading-tight" style={{ fontFamily: isHebrew ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 600 }}>
-                    {it.title[lang]}
-                  </p>
-                  <div className="mt-3 flex items-center justify-center gap-4 text-[11px]" style={{ fontFamily: sans }}>
-                    <span className="inline-flex items-center gap-1 text-amber-200/80">
-                      <Eye size={12} strokeWidth={2} /> {it.views.toLocaleString()}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-emerald-300/80">
-                      <ShoppingBag size={12} strokeWidth={2} /> {it.orders.toLocaleString()}
-                    </span>
-                  </div>
+                <motion.div key={it.slug} variants={staggerItem}>
+                  <HoverLift accent={it.accent} className="h-full">
+                    <div className="group relative h-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5">
+                      <AccentWash accent={it.accent} />
+                      <span className="absolute top-3 start-4 z-10 text-white/15 text-5xl font-bold leading-none" style={{ fontFamily: serif }}>
+                        {i + 1}
+                      </span>
+                      <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 lg:h-80 mb-4 transition-transform duration-500 group-hover:scale-[1.04]" />
+                      <p className="relative text-white/95 text-[17px] text-center leading-tight" style={{ fontFamily: isHebrew ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 600 }}>
+                        {it.title[lang]}
+                      </p>
+                      <div className="relative mt-3 flex items-center justify-center gap-4 text-[12px]" style={{ fontFamily: sans }}>
+                        <span className="inline-flex items-center gap-1 text-amber-200/80">
+                          <Eye size={13} strokeWidth={2} /> {it.views.toLocaleString()}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-emerald-300/80">
+                          <ShoppingBag size={13} strokeWidth={2} /> {it.orders.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </HoverLift>
                 </motion.div>
               ))}
             </Stagger>
@@ -311,10 +309,8 @@ export default function AnalyticsPage() {
               color="#fbbf24"
               delta={viewsDelta}
               icon={Eye}
-              windowLabel={t(activePeriod.en, activePeriod.he)}
               peakLabel={t('peak', 'שיא')}
               lastLabel={t('today', 'היום')}
-              vsLabel={t('vs last week', 'מול שבוע קודם')}
             />
             <TrendPanel
               title={t('Orders', 'הזמנות')}
@@ -323,10 +319,8 @@ export default function AnalyticsPage() {
               color="#34d399"
               delta={ordersDelta}
               icon={ShoppingBag}
-              windowLabel={t(activePeriod.en, activePeriod.he)}
               peakLabel={t('peak', 'שיא')}
               lastLabel={t('today', 'היום')}
-              vsLabel={t('vs last week', 'מול שבוע קודם')}
             />
           </div>
         </section>
@@ -396,7 +390,7 @@ export default function AnalyticsPage() {
         </section>
 
         <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
-          {t('Live data from anonymized events · refreshes automatically', 'נתונים חיים מאירועים אנונימיים · מתעדכן אוטומטית')}
+          {t('Live · anonymized events', 'בזמן אמת · אירועים אנונימיים')}
         </p>
       </div>
     </AdminShell>

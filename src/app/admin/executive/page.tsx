@@ -6,7 +6,8 @@ import { Sparkles, Flame, ArrowRight, Users, ShoppingBag, TrendingUp, TrendingDo
 import { motion } from 'framer-motion';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { Skeleton, SkeletonGrid, LiveDot, AreaChart } from '@/components/ui/dataviz';
-import { Stagger, staggerItem } from '@/components/ui/motion';
+import { Stagger, staggerItem, Reveal } from '@/components/ui/motion';
+import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
 import { useLang } from '@/lib/useLang';
 import { getAccent, findCocktailBySlug } from '@/data/cocktail';
 import { totalPotential } from '@/lib/value/potential';
@@ -213,13 +214,13 @@ export default function ExecutiveSummaryPage() {
       eyebrow="Your AI restaurant advisor"
       eyebrowHe="יועץ ה‑AI של המסעדה"
       active="/admin/executive"
-      subtitle="The opportunity worth the most money, why, what it looks like, and the revenue it can generate."
-      subtitleHe="ההזדמנות ששווה הכי הרבה כסף, למה, איך היא נראית, וכמה הכנסה היא יכולה לייצר."
+      subtitle="The opportunity worth the most money — and the revenue it can generate."
+      subtitleHe="ההזדמנות ששווה הכי הרבה כסף — וכמה הכנסה היא יכולה לייצר."
       actions={<LiveDot label={isHe ? 'חי' : 'Live'} />}
     >
       {loading && !me && (
         <div className="flex flex-col gap-12" dir={isHe ? 'rtl' : 'ltr'}>
-          <Skeleton className="h-[340px] w-full rounded-[2rem] md:h-[440px]" />
+          <Skeleton className="h-[460px] w-full rounded-[2rem] md:h-[600px]" />
           <SkeletonGrid count={4} className="grid grid-cols-2 lg:grid-cols-4 gap-3" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -247,11 +248,15 @@ export default function ExecutiveSummaryPage() {
             const p = project(hero);
             const leak = hero.highInterestLowConversion;
             return (
+              <Reveal>
               <section className="relative overflow-hidden rounded-[2rem] border" style={{ borderColor: `${hero.accent}55`, boxShadow: `0 40px 120px -50px ${hero.accent}` }}>
                 <div className="absolute inset-0" style={{ background: `linear-gradient(120deg, ${hero.accent}26, rgba(8,8,10,0.7) 60%)` }} aria-hidden />
+                <AccentWash accent={hero.accent} opacity={0.18} />
                 <div className="relative z-10 grid md:grid-cols-2 gap-2 items-stretch">
-                  <div className="relative min-h-[300px] md:min-h-[440px] grid place-items-center p-6">
-                    <GlassImage src={hero.hero} accent={hero.accent} className="w-full h-[300px] md:h-[440px]" />
+                  <div className="relative min-h-[420px] md:min-h-[600px] grid place-items-center p-6 md:p-8">
+                    <Tilt className="w-full">
+                      <GlassImage src={hero.hero} accent={hero.accent} className="w-full h-[420px] md:h-[600px]" />
+                    </Tilt>
                     <span className="absolute top-5 start-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] tracking-[0.2em] uppercase backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.4)', color: hero.accent, fontFamily: sans, border: `1px solid ${hero.accent}55` }}>
                       <Sparkles size={12} strokeWidth={2} /> {t('Top opportunity', 'הזדמנות מובילה')}
                     </span>
@@ -266,8 +271,8 @@ export default function ExecutiveSummaryPage() {
                       </h2>
                       <p className="text-white/65 text-[14px] mt-2.5 max-w-md mx-auto md:mx-0" style={{ fontFamily: sans }}>
                         {leak
-                          ? t(`Drew ${hero.attentionScore}/100 attention but only ${Math.round(hero.conversionPct)}% ordered — the offer needs work.`, `משך ${hero.attentionScore}/100 תשומת לב אך רק ${Math.round(hero.conversionPct)}% הזמינו — ההצעה צריכה שיפור.`)
-                          : t(`Best margin (${ils(hero.margin)}/glass), low visibility — feature it higher.`, `המרווח הכי טוב (${ils(hero.margin)} לכוס), נראוּת נמוכה — הדגישו אותו.`)}
+                          ? t(`${hero.attentionScore}/100 attention, only ${Math.round(hero.conversionPct)}% ordered.`, `${hero.attentionScore}/100 תשומת לב, רק ${Math.round(hero.conversionPct)}% הזמינו.`)
+                          : t(`Best margin (${ils(hero.margin)}/glass), low visibility.`, `המרווח הכי טוב (${ils(hero.margin)} לכוס), נראוּת נמוכה.`)}
                       </p>
                     </div>
 
@@ -296,6 +301,7 @@ export default function ExecutiveSummaryPage() {
                   </div>
                 </div>
               </section>
+              </Reveal>
             );
           })()}
 
@@ -373,18 +379,21 @@ export default function ExecutiveSummaryPage() {
                   const p = project(it);
                   return (
                     <motion.div key={it.slug} variants={staggerItem}>
-                      <Link href="/admin/menu-analysis" className="group h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-amber-200/40 transition-colors flex flex-col" dir={isHe ? 'rtl' : 'ltr'}>
-                        <GlassImage src={it.hero} accent={it.accent} className="w-full h-40 mb-3 transition-transform duration-300 group-hover:scale-105" />
-                        <p className="text-white/90 text-[16px] text-center" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
-                        <p className="text-center text-[11px] mt-2 mb-3" style={{ color: '#34d399', fontFamily: sans }}>
-                          <BadgeCheck size={11} strokeWidth={2} className="inline mb-0.5" /> {t('AI confidence', 'ביטחון AI')} {p.confidence}%
-                        </p>
-                        <div className="mt-auto grid grid-cols-3 gap-1 text-center">
-                          <Mini v={`+${p.customers}`} l={t('guests', 'אורחים')} />
-                          <Mini v={`+${p.orders}`} l={t('orders', 'הזמנות')} />
-                          <Mini v={`≈${ils(p.revenue)}`} l={t('potential', 'פוטנציאל')} accent={it.accent} />
-                        </div>
-                      </Link>
+                      <HoverLift accent={it.accent} className="h-full">
+                        <Link href="/admin/menu-analysis" className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-amber-200/40 transition-colors flex flex-col" dir={isHe ? 'rtl' : 'ltr'}>
+                          <AccentWash accent={it.accent} opacity={0.14} />
+                          <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 mb-3 transition-transform duration-300 group-hover:scale-105" />
+                          <p className="relative text-white/90 text-[16px] text-center" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
+                          <p className="relative text-center text-[11px] mt-2 mb-3" style={{ color: '#34d399', fontFamily: sans }}>
+                            <BadgeCheck size={11} strokeWidth={2} className="inline mb-0.5" /> {t('AI confidence', 'ביטחון AI')} {p.confidence}%
+                          </p>
+                          <div className="relative mt-auto grid grid-cols-3 gap-1 text-center">
+                            <Mini v={`+${p.customers}`} l={t('guests', 'אורחים')} />
+                            <Mini v={`+${p.orders}`} l={t('orders', 'הזמנות')} />
+                            <Mini v={`≈${ils(p.revenue)}`} l={t('potential', 'פוטנציאל')} accent={it.accent} />
+                          </div>
+                        </Link>
+                      </HoverLift>
                     </motion.div>
                   );
                 })}
@@ -399,14 +408,17 @@ export default function ExecutiveSummaryPage() {
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {trending.map((it, i) => (
-                <Link key={it.slug} href="/admin/menu-analysis" className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5 hover:border-amber-200/40 transition-colors">
-                  <span className="absolute top-3 left-4 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>{i + 1}</span>
-                  <GlassImage src={it.hero} accent={it.accent} className="w-full h-44 mb-3 transition-transform duration-300 group-hover:scale-110" />
-                  <p className="text-white/90 text-[15px] text-center leading-tight" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
-                  <p className="text-amber-200/70 text-[11px] text-center mt-1" style={{ fontFamily: sans }}>
-                    <TrendingUp size={11} className="inline mb-0.5" strokeWidth={2} /> {it.views} {t('views', 'צפיות')} · {it.attentionScore}/100
-                  </p>
-                </Link>
+                <HoverLift key={it.slug} accent={it.accent} className="h-full">
+                  <Link href="/admin/menu-analysis" className="group relative block h-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5 hover:border-amber-200/40 transition-colors">
+                    <AccentWash accent={it.accent} opacity={0.16} />
+                    <span className="absolute top-3 left-4 z-10 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>{i + 1}</span>
+                    <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 mb-3 transition-transform duration-300 group-hover:scale-110" />
+                    <p className="relative text-white/90 text-[15px] text-center leading-tight" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
+                    <p className="relative text-amber-200/70 text-[11px] text-center mt-1" style={{ fontFamily: sans }}>
+                      <TrendingUp size={11} className="inline mb-0.5" strokeWidth={2} /> {it.views} {t('views', 'צפיות')} · {it.attentionScore}/100
+                    </p>
+                  </Link>
+                </HoverLift>
               ))}
             </div>
           </section>
