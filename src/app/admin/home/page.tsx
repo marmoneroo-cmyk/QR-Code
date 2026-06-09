@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { MENU } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { AdminLauncher } from '@/components/ui/AdminLauncher';
-import { Skeleton, AreaChart } from '@/components/ui/dataviz';
+import { Skeleton, AreaChart, CountUpText } from '@/components/ui/dataviz';
 import { useLang } from '@/lib/useLang';
 import { totalPotential } from '@/lib/value/potential';
 import type { Opportunity, OpportunityType } from '@/lib/opportunities/types';
@@ -105,7 +105,7 @@ export default function HomeDashboardPage() {
       subtitle="Your restaurant at a glance — top actions, health, and what changed. Everything else is one click away."
       subtitleHe="המסעדה שלך במבט אחד — פעולות מובילות, בריאות, ומה השתנה. כל השאר במרחק קליק."
     >
-      {/* MONEY HERO — compact open-potential strip (honest: quantified upside only) */}
+      {/* MONEY HERO — dominant revenue hero (honest: quantified upside only, realized = ₪0) */}
       {!loading && <MoneyHero potential={potential} isHe={isHe} />}
 
       {/* Icon launcher — the control center: click any section */}
@@ -256,46 +256,76 @@ export default function HomeDashboardPage() {
   );
 }
 
-/** Compact, honest money strip: open potential (₪) + recommended actions today → opportunities. */
+/**
+ * Dominant, honest money hero (Bloomberg/Tesla feel): three stacked/inline stats
+ * (recommended actions · available-now estimate · realized) + a big amber "Act now"
+ * CTA → opportunities. Realized is honestly ₪0 — we have no measured attribution yet.
+ */
 function MoneyHero({ potential, isHe }: { potential: { revenueILS: number; count: number }; isHe: boolean }) {
   const t = (en: string, he: string) => (isHe ? he : en);
   const hasUpside = potential.count > 0;
-  const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
+  const availableText = `₪${Math.round(potential.revenueILS).toLocaleString()}`;
   return (
-    <Link
-      href="/admin/opportunities"
-      className="group relative mb-6 block overflow-hidden rounded-2xl p-[1px] transition-transform hover:scale-[1.005]"
-      style={{ background: 'linear-gradient(120deg, rgba(52,211,153,0.5), rgba(16,185,129,0.15) 60%, rgba(52,211,153,0.4))' }}
+    <section
+      className="relative mb-8 overflow-hidden rounded-2xl p-[1px]"
+      style={{ background: 'linear-gradient(120deg, rgba(52,211,153,0.55), rgba(16,185,129,0.12) 55%, rgba(52,211,153,0.45))' }}
       dir={isHe ? 'rtl' : 'ltr'}
     >
-      <div className="rounded-[calc(1rem-1px)] bg-zinc-950/85 backdrop-blur-xl px-5 py-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-emerald-300/80 text-[9px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
-              {t('Open opportunity', 'הזדמנות פתוחה')}
-            </p>
-            {hasUpside ? (
-              <p className="mt-1 leading-none text-emerald-300" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.7rem,4vw,2.6rem)' }}>
-                {ils(potential.revenueILS)}
-                <span className="ms-2 align-middle text-white/45 text-[12px] tracking-wide" style={{ fontFamily: sans, fontWeight: 400 }}>
-                  · {potential.count} {t('actions today', 'פעולות מומלצות היום')}
-                </span>
+      <div className="rounded-[calc(1rem-1px)] bg-zinc-950/90 backdrop-blur-xl px-6 py-7 sm:px-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          {/* Three stats */}
+          <div className="flex flex-wrap items-end gap-x-10 gap-y-5">
+            {/* Recommended actions */}
+            <div className="min-w-0">
+              <p className="text-emerald-300 leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.6rem,3.5vw,2.4rem)' }}>
+                {potential.count}
               </p>
-            ) : (
-              <p className="mt-1 leading-tight text-white/85" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.1rem,2.5vw,1.5rem)' }}>
-                {t('Collect more traffic', 'אסוף עוד תנועה')}
+              <p className="mt-1.5 text-white/50 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
+                {t('recommended actions', 'פעולות מומלצות')}
               </p>
-            )}
-            <p className="mt-1 text-white/30 text-[10px] tracking-wide" style={{ fontFamily: sans }}>
-              {t('Estimate · based on real data', 'צפי · מבוסס נתונים אמיתיים')}
-            </p>
+            </div>
+
+            {/* Available now · estimate (hero number) */}
+            <div className="min-w-0">
+              {hasUpside ? (
+                <CountUpText
+                  text={availableText}
+                  className="block text-emerald-300 leading-none"
+                  style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2rem,5vw,3.2rem)' }}
+                />
+              ) : (
+                <p className="text-white/85 leading-tight" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.3rem,3vw,1.8rem)' }}>
+                  {t('collect more traffic', 'אסוף עוד תנועה')}
+                </p>
+              )}
+              <p className="mt-1.5 text-white/50 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
+                {t('available now · est.', 'זמין כעת · צפי')}
+              </p>
+            </div>
+
+            {/* Realized — honestly ₪0 (no measured attribution yet) */}
+            <div className="min-w-0">
+              <p className="text-white/40 leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.6rem,3.5vw,2.4rem)' }}>
+                ₪0
+              </p>
+              <p className="mt-1.5 text-white/40 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
+                {t('realized', 'מומשו')}
+              </p>
+            </div>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-300/40 bg-emerald-300/10 px-4 py-2 text-[10px] tracking-[0.2em] uppercase text-emerald-200 transition-colors group-hover:border-emerald-300/70" style={{ fontFamily: sans, fontWeight: 600 }}>
-            {t('Act now', 'פעלו עכשיו')} {isHe ? '↩' : '→'}
-          </span>
+
+          {/* Act now CTA — big amber pill */}
+          <Link
+            href="/admin/opportunities"
+            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-300 to-amber-400 px-7 py-3.5 text-[13px] tracking-[0.16em] uppercase text-black shadow-[0_10px_30px_rgba(252,211,77,0.28)] transition-all hover:from-amber-200 hover:to-amber-300 hover:shadow-[0_12px_38px_rgba(252,211,77,0.4)]"
+            style={{ fontFamily: sans, fontWeight: 700 }}
+          >
+            {t('Act now', 'בצע עכשיו')}
+            <span className="transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5">{isHe ? '↩' : '→'}</span>
+          </Link>
         </div>
       </div>
-    </Link>
+    </section>
   );
 }
 

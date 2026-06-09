@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  Banknote,
   Lightbulb,
   Repeat,
   Tag,
@@ -42,6 +43,7 @@ export const ADMIN_GROUPS: AdminNavGroup[] = [
     en: 'Act',
     he: 'פעולה',
     items: [
+      { href: '/admin/revenue', en: 'Revenue', he: 'הכנסות', descEn: 'How much money the system makes you', descHe: 'כמה כסף המערכת מייצרת', Icon: Banknote },
       { href: '/admin/opportunities', en: 'Opportunities', he: 'הזדמנויות', descEn: 'What to do today', descHe: 'מה לעשות היום', Icon: Lightbulb },
       { href: '/admin/closed-loop', en: 'Closed Loop', he: 'לולאה סגורה', descEn: 'Did changes work?', descHe: 'האם השינויים עבדו?', Icon: Repeat },
       { href: '/admin/promotions', en: 'Promotions', he: 'מבצעים', descEn: 'Discounts & happy hour', descHe: 'הנחות ושעה שמחה', Icon: Tag },

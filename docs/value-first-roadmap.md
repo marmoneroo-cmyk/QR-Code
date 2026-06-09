@@ -48,9 +48,22 @@ assumption, and shows "collect more traffic" when data is insufficient. Engine: 
 
 ---
 
-## Execution sprints
-- **Sprint 1 (FOUNDATION + selling screens):** `potential.ts` estimator (+tests) → `PotentialValue` + `BeforeAfterBar` components → apply to **Opportunities, Recommendations, Optimize** + **Home/Executive hero** (₪ open potential · actions today). ← *delivers priorities #1 & #2 on the highest-leverage screens.*
-- **Sprint 2:** Closed Loop timeline + counter · Sales drag&drop + status + graph · Performance cards + sparklines.
-- **Sprint 3 (new value screens):** Revenue Center · Executive Weekly Report · AI Coach.
-- **Sprint 4:** Menu quadrant chart + AI summary · Guests journey map · Experiments before/after + winner · Signals QA ring · Import wizard.
-- **Sprint 5 (polish/heavy):** Live Restaurant · Leaderboard · menu editor drag&drop+undo · QR/table previews · Changelog→Roadmap.
+## NORTH STAR (owner reframe — "growth engine, not analytics dashboard")
+The product must feel like a **restaurant sales-growth machine**. The ONE KPI that matters:
+**Revenue — Influenced / Generated / Potential** — never views, events, clicks, or sessions.
+The first screen every owner sees must answer in 3 seconds: *"how much money did this make me?"*
+Every major workflow should point back to the **Revenue Center**.
+
+> Integrity caveat (non-negotiable): "Generated" is an attribution claim → only show what is
+> **measured** (Closed Loop wins). "Potential/available" is an **estimate** (labeled). Never
+> fabricate a big "generated" number — a paying customer who catches it churns.
+
+## Execution sprints (re-prioritized per owner)
+- **Sprint 1 — DONE:** `potential.ts` estimator (+tests) · `PotentialValue`/`BeforeAfterBar` · applied to Opportunities, Recommendations, Optimize, Executive+Home hero.
+- **Sprint 2 — Revenue Center (THE landing screen) + Home upgrade:** giant `/admin/revenue` — "available now (est.)" + "proven (measured)" + counter (X measured · Y worked · Z%) + where-the-money-is breakdown + Act-now CTA. Make it the entry point (person icon + nav #1). Home hero → "N actions · ₪ available now · ₪ realized · [Act now]".
+- **Sprint 3 — the "wow" value screens:** **Hall of Wins** (successes only, ₪ + % per drink) · **AI Coach** (one big card: "do X today · reason · est ₪ · [auto-apply]") · **Live Restaurant** (Guests reborn: "17 active now · table 4 viewing Aperol…").
+- **Sprint 4 — kill card-grid fatigue + real before/after:** introduce 4 block types (Hero / KPI / Story-with-image / Chart); **2× all drink images** (drink ≈ 40% of card, not 10%); **visual** Before/After (image + "bartender rec: none → Aperol", not bars/%). Menu quadrant chart + AI summary.
+- **Sprint 5:** Sales drag&drop + status + graph · Performance cards + sparklines · Closed Loop timeline · Experiments before/after + winner · Signals QA ring · Import wizard.
+- **Sprint 6 (heavy):** Leaderboard (chains) · menu editor drag&drop+undo · QR/table previews · Changelog→Roadmap.
+
+## Scorecard (owner, current): UX 8.5 · UI 8 · Product thinking 9 · **Business-value visibility 6.5** ← the gap = the sale.
