@@ -460,8 +460,8 @@ const APEROL_SPRITZ_LABELS: IngredientLabel[] = [
     number: '01',
     name: { en: 'Orange Peel', he: 'קליפת תפוז' },
     description: {
-      en: 'Hand-cut peel, expressed over the glass to release citrus oils.',
-      he: 'קליפת תפוז חתוכה ידנית, נסחטת מעל הכוס לשחרור שמני הדרים.',
+      en: 'Hand-cut and expressed over the glass — the citrus oils wake the drink up.',
+      he: 'נחתכת ביד ונסחטת מעל הכוס — שמני ההדר מעירים את המשקה.',
     },
     origin: { en: 'Hand-zested', he: 'מסולסל ידנית' },
     layerId: 'lime_peel',
@@ -471,8 +471,8 @@ const APEROL_SPRITZ_LABELS: IngredientLabel[] = [
     number: '02',
     name: { en: 'Orange Slice', he: 'פלח תפוז' },
     description: {
-      en: 'A fresh orange wheel for a vibrant aroma and golden garnish.',
-      he: 'פלח תפוז טרי לארומה תוססת וקישוט זהוב.',
+      en: 'Cut fresh every morning — bright aroma, golden garnish.',
+      he: 'נחתך טרי כל בוקר — ארומה בוהקת וקישוט זהוב.',
     },
     origin: { en: 'Fresh, pressed daily', he: 'טרי, נחתך כל יום' },
     layerId: 'lime_wedges',
@@ -493,8 +493,8 @@ const APEROL_SPRITZ_LABELS: IngredientLabel[] = [
     number: '04',
     name: { en: 'Aperol', he: 'אפרול' },
     description: {
-      en: 'The signature bitter orange — herbs, rhubarb, and gentian.',
-      he: 'הליקר האיטלקי המר — עשבים, ריבס וגנציאן.',
+      en: 'The bittersweet heart — bitter orange, herbs and gentian.',
+      he: 'הלב המר-מתוק של המשקה — תפוז מר, עשבי תיבול וגנציאנה.',
     },
     origin: { en: 'Aperol, Padua, Italy', he: 'Aperol, פדובה, איטליה' },
     layerId: 'splash_pink',

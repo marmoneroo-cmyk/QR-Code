@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
+import { Layers, Play } from 'lucide-react';
 import { getAccent, getFeatureVideo, formatPrice, type CocktailConfig, type Lang } from '@/data/cocktail';
+import { FlavorTags } from './FlavorTags';
 import { track } from '@/lib/tracking/track';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
+import { useEngagement } from '@/lib/tracking/useEngagement';
 
 /**
  * CocktailExperience — a full-screen, cinematic "dedicated landing page" for ONE drink.
@@ -14,10 +17,12 @@ import { setRestaurantSlug } from '@/lib/tracking/queue';
  * ingredient view that floats the components above the glass.
  *
  * Reusable: everything is driven by CocktailConfig (heroImage, labels, layers,
- * feature video, AR route). Mobile is the primary target; desktop gets the same
- * vertical spine, wider. Honest by design — every interaction fires the existing
- * funnel events (cocktail_opened / ingredients_opened / cocktail_video_opened /
- * ar_opened / order_started), so analytics keep working unchanged.
+ * feature video, flavor profile). Mobile is the primary target; desktop gets the
+ * same vertical spine, wider. The hero screen is LOCKED (no scroll) — only the
+ * ingredient view scrolls. There is no order button by design: interest is
+ * measured from real behaviour (opens, dwell, scroll) via the existing funnel
+ * events (cocktail_opened / ingredients_opened / cocktail_video_opened) plus
+ * useEngagement's dwell/scroll signals — analytics keep working unchanged.
  */
 
 type ExperienceMode = 'hero' | 'ingredients' | 'video';
@@ -31,13 +36,15 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 export function CocktailExperience({ config }: CocktailExperienceProps) {
   const [lang, setLang] = useState<Lang>('en');
   const [mode, setMode] = useState<ExperienceMode>('hero');
-  const [ordered, setOrdered] = useState(false);
   const reduce = useReducedMotion();
+
+  // Real engagement signals (active dwell + scroll depth) — this is how interest
+  // is measured on this screen, instead of a fake "order" button.
+  useEngagement(config.slug);
 
   const isHe = lang === 'he';
   const accent = getAccent(config.slug);
   const featureVideo = getFeatureVideo(config.slug);
-  const arHref = `/ar/${config.slug}`;
 
   const serif = isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
   const sans = isHe ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
@@ -70,14 +77,6 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
     track({ event: 'cocktail_video_opened', cocktailSlug: config.slug });
     setMode('video');
   };
-  const handleAr = () => {
-    track({ event: 'ar_opened', cocktailSlug: config.slug });
-  };
-  const handleOrder = () => {
-    if (ordered) return;
-    track({ event: 'order_started', cocktailSlug: config.slug, metadata: { source: 'experience' } });
-    setOrdered(true);
-  };
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-black text-white" dir={isHe ? 'rtl' : 'ltr'} lang={lang}>
@@ -90,7 +89,7 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
         }}
       />
 
-      {/* Top bar — back · language · AR always visible (the premium action) */}
+      {/* Top bar — back · language. Nothing else. */}
       <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 pt-5">
         <Link
           href="/"
@@ -99,24 +98,14 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
         >
           <span aria-hidden className="text-lg leading-none">{isHe ? '→' : '←'}</span>
         </Link>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setLang(isHe ? 'en' : 'he')}
-            className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-[11px] tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white"
-            style={{ fontFamily: sans }}
-          >
-            {isHe ? 'EN' : 'עב'}
-          </button>
-          <Link
-            href={arHref}
-            onClick={handleAr}
-            className="flex h-10 items-center gap-2 rounded-full px-5 text-[11px] font-semibold tracking-[0.22em] uppercase text-black shadow-[0_0_24px_rgba(255,122,26,0.45)] transition-transform hover:scale-105"
-            style={{ background: `linear-gradient(120deg, #ffd9a8, ${accent})`, fontFamily: sans }}
-          >
-            <span aria-hidden>◉</span> AR
-          </Link>
-        </div>
+        <button
+          type="button"
+          onClick={() => setLang(isHe ? 'en' : 'he')}
+          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-[11px] tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white"
+          style={{ fontFamily: sans }}
+        >
+          {isHe ? 'EN' : 'עב'}
+        </button>
       </header>
 
       <AnimatePresence mode="wait">
@@ -129,13 +118,9 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
             serif={serif}
             sans={sans}
             reduce={!!reduce}
-            ordered={ordered}
             hasVideo={Boolean(featureVideo)}
             onIngredients={openIngredients}
             onVideo={openVideo}
-            onAr={handleAr}
-            arHref={arHref}
-            onOrder={handleOrder}
           />
         )}
 
@@ -146,6 +131,9 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
             glassLabel={glassLabel}
             glassImage={imageForLayer.get('glass') ?? config.heroImage}
             imageForLayer={imageForLayer}
+            flavor={config.flavor}
+            note={config.bartenderNote?.[lang]}
+            noteName={config.bartenderName}
             lang={lang}
             accent={accent}
             serif={serif}
@@ -179,18 +167,14 @@ interface HeroStageProps {
   serif: string;
   sans: string;
   reduce: boolean;
-  ordered: boolean;
   hasVideo: boolean;
-  arHref: string;
   onIngredients: () => void;
   onVideo: () => void;
-  onAr: () => void;
-  onOrder: () => void;
 }
 
 function HeroStage({
-  config, lang, accent, serif, sans, reduce, ordered, hasVideo, arHref,
-  onIngredients, onVideo, onAr, onOrder,
+  config, lang, accent, serif, sans, reduce, hasVideo,
+  onIngredients, onVideo,
 }: HeroStageProps) {
   const isHe = lang === 'he';
   const ref = useRef<HTMLDivElement>(null);
@@ -200,7 +184,9 @@ function HeroStage({
   return (
     <motion.main
       ref={ref}
-      className="relative z-10 flex min-h-screen flex-col items-center px-6 pt-20 pb-10"
+      // LOCKED screen: exactly one viewport, nothing scrolls here (only the
+      // ingredient view scrolls). overflow-hidden also clips the reflection.
+      className="relative z-10 flex h-dvh flex-col items-center overflow-hidden px-6 pt-20 pb-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.35 } }}
@@ -286,44 +272,32 @@ function HeroStage({
         </span>
       </motion.button>
 
-      {/* THREE actions + order. That's the whole control surface. */}
+      {/* TWO actions. That's the whole control surface — no order button: interest
+          is measured from real behaviour (opens, dwell, scroll), not a dead CTA. */}
       <motion.div
-        className="mt-12 flex w-full max-w-sm flex-col items-center gap-5"
+        className="mt-8 grid w-full max-w-sm shrink-0 grid-cols-2 gap-3"
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
       >
-        <div className="grid w-full grid-cols-3 gap-3">
-          <ActionTile label={isHe ? 'מרכיבים' : 'Ingredients'} icon="✦" onClick={onIngredients} sans={sans} />
-          <ActionTile label={isHe ? 'וידאו' : 'Video'} icon="▶" onClick={hasVideo ? onVideo : undefined} sans={sans} />
-          <Link
-            href={arHref}
-            onClick={onAr}
-            className="flex flex-col items-center gap-2 rounded-2xl border px-3 py-4 text-center transition-transform hover:-translate-y-0.5"
-            style={{ borderColor: `${accent}66`, background: `linear-gradient(160deg, ${accent}24, transparent)`, boxShadow: `0 0 30px ${accent}2e` }}
-          >
-            <span aria-hidden className="text-lg leading-none" style={{ color: accent }}>◉</span>
-            <span className="text-[11px] tracking-[0.14em] uppercase text-white/90" style={{ fontFamily: sans }}>
-              {isHe ? 'חוויית AR' : 'AR Experience'}
-            </span>
-          </Link>
-        </div>
-
-        <button
-          type="button"
-          onClick={onOrder}
-          disabled={ordered}
-          className="w-full rounded-full py-4 text-[13px] font-bold tracking-[0.28em] uppercase text-black transition-all hover:scale-[1.02] disabled:opacity-90"
-          style={{ background: ordered ? '#34d399' : `linear-gradient(120deg, #ffd9a8, ${accent})`, fontFamily: sans, boxShadow: `0 14px 40px ${accent}45` }}
-        >
-          {ordered ? (isHe ? '✓ נרשם — הצוות בדרך' : '✓ Noted — staff on the way') : isHe ? 'הזמן' : 'Order'}
-        </button>
+        <ActionTile
+          label={isHe ? 'מרכיבים' : 'Ingredients'}
+          icon={<Layers size={20} strokeWidth={1.6} aria-hidden />}
+          onClick={onIngredients}
+          sans={sans}
+        />
+        <ActionTile
+          label={isHe ? 'וידאו' : 'Video'}
+          icon={<Play size={20} strokeWidth={1.6} aria-hidden />}
+          onClick={hasVideo ? onVideo : undefined}
+          sans={sans}
+        />
       </motion.div>
     </motion.main>
   );
 }
 
-function ActionTile({ label, icon, onClick, sans }: { label: string; icon: string; onClick?: () => void; sans: string }) {
+function ActionTile({ label, icon, onClick, sans }: { label: string; icon: ReactNode; onClick?: () => void; sans: string }) {
   return (
     <button
       type="button"
@@ -331,7 +305,7 @@ function ActionTile({ label, icon, onClick, sans }: { label: string; icon: strin
       disabled={!onClick}
       className="flex flex-col items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-4 backdrop-blur-sm transition-transform hover:-translate-y-0.5 hover:border-white/30 disabled:opacity-35"
     >
-      <span aria-hidden className="text-lg leading-none text-amber-100/90">{icon}</span>
+      <span aria-hidden className="leading-none text-amber-100/90">{icon}</span>
       <span className="text-[11px] tracking-[0.14em] uppercase text-white/80" style={{ fontFamily: sans }}>
         {label}
       </span>
@@ -346,6 +320,9 @@ interface ExplodedViewProps {
   glassLabel: CocktailConfig['labels'][number] | null;
   glassImage: string;
   imageForLayer: Map<string, string>;
+  flavor: CocktailConfig['flavor'];
+  note?: string;
+  noteName?: string;
   lang: Lang;
   accent: string;
   serif: string;
@@ -355,7 +332,7 @@ interface ExplodedViewProps {
 }
 
 function ExplodedView({
-  ingredients, glassLabel, glassImage, imageForLayer, lang, accent, serif, sans, reduce, onClose,
+  ingredients, glassLabel, glassImage, imageForLayer, flavor, note, noteName, lang, accent, serif, sans, reduce, onClose,
 }: ExplodedViewProps) {
   const isHe = lang === 'he';
   // Natural label order = physical explosion order: 01 garnish floats highest,
@@ -453,6 +430,24 @@ function ExplodedView({
           </figcaption>
         )}
       </motion.figure>
+
+      {/* Flavor profile — the one "data" block a guest actually understands. */}
+      <motion.div
+        className="mt-14 flex flex-col items-center"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3 + stack.length * 0.12, ease: EASE }}
+      >
+        <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/45" style={{ fontFamily: sans }}>
+          {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
+        </p>
+        <FlavorTags flavor={flavor} lang={lang} accent={accent} />
+        {note && (
+          <p className="mt-8 max-w-xs text-center text-[13px] italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
+            ”{note}“{noteName ? ` — ${noteName}` : ''}
+          </p>
+        )}
+      </motion.div>
 
       <button
         type="button"
