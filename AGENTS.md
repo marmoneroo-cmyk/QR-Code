@@ -31,3 +31,22 @@ and the live conversion **Funnel** are for people who came looking for analytics
 marketing terms (Conversion, CTR, Funnel, Cohort) are fine and expected.
 
 When unsure which layer a string is in, treat it as **owner layer**.
+
+# Foundation Freeze — multi-tenant SaaS hardening before features
+
+The product is becoming a multi-tenant SaaS platform. A full grounded audit lives in
+[`docs/saas-foundation/`](docs/saas-foundation/README.md) (start at `00-executive-summary-and-audit.md`).
+
+**Headline:** the database is already multi-tenant (every business table has `restaurant_id`,
+RLS is enabled), but the runtime enforces none of it — the server uses the **service-role key
+(bypasses RLS)**, there is **no auth** (`/admin/*` is open), and the tenant is a hardcoded
+`TENANT_SLUG='diner'`. There is no Super Admin, billing, or security audit log yet.
+
+**Rule:** do **not** build net-new restaurant features until the **Definition-of-Done Gates 0–4**
+in `docs/saas-foundation/00-executive-summary-and-audit.md` §6 are green (auth exists; RLS is the
+live boundary; tenant is session-derived; known cross-tenant holes closed; roles + super_admin
+enforced). Phase 0 first: rotate the exposed Supabase secrets, add authentication, stop using
+service-role for tenant CRUD. See `docs/saas-foundation/01-roadmap-risk-migration.md`.
+
+If a request asks for a new tenant-facing feature before those gates pass, flag this freeze and
+propose doing the relevant foundation phase first.
