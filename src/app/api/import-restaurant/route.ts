@@ -83,6 +83,16 @@ function placeholderHero(name: string): string {
   return `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`;
 }
 
+// Default to `turbo` — a free-tier ("Seed") model. `flux` is an "advanced"
+// model behind Pollinations' paid Flower tier (returns 402 otherwise). Override
+// with POLLINATIONS_MODEL if you upgrade.
+const POLLINATIONS_MODEL = process.env.POLLINATIONS_MODEL || 'turbo';
+
+/** Server-only secret first; NEXT_PUBLIC_ kept only for back-compat. */
+function pollinationsToken(): string | undefined {
+  return process.env.POLLINATIONS_TOKEN || process.env.NEXT_PUBLIC_POLLINATIONS_TOKEN;
+}
+
 function buildPollinationsUrl(prompt: string, seed: number): string {
   const params = new URLSearchParams({
     // Smaller on serverless: the hero travels as an inline data URL into the
@@ -90,14 +100,13 @@ function buildPollinationsUrl(prompt: string, seed: number): string {
     width: IS_SERVERLESS ? '832' : '1024',
     height: IS_SERVERLESS ? '1040' : '1280',
     seed: String(seed),
-    model: 'flux',
+    model: POLLINATIONS_MODEL,
     nologo: 'true',
     enhance: 'true',
   });
-  // Pollinations now requires a (free) app token — without it generation 403s
-  // ("Missing Turnstile token"). Same env var the editor's generator uses.
-  const token = process.env.NEXT_PUBLIC_POLLINATIONS_TOKEN;
-  if (token) params.set('token', token);
+  // NOTE: the token is sent server-side as an Authorization: Bearer header
+  // (the documented, authenticated method) — NOT a ?token= query param, which
+  // a browser can't send and which falls back to anonymous per-IP rate limits.
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?${params.toString()}`;
 }
 
@@ -174,7 +183,10 @@ export async function POST(req: Request): Promise<Response> {
           let heroImage = placeholderHero(item.name);
           let imageNote: string | undefined;
           try {
-            const response = await fetch(pollinationsUrl);
+            const token = pollinationsToken();
+            const response = await fetch(pollinationsUrl, {
+              headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            });
             if (!response.ok) {
               throw new Error(`Pollinations HTTP ${response.status}`);
             }
