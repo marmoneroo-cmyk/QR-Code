@@ -52,12 +52,35 @@ function slugify(input: string): string {
   );
 }
 
+// Neutral wording — imports can be food OR drinks (pasta is not "a cocktail").
 function buildHeroPrompt(name: string, desc: string | null | undefined): string {
   const detail = desc?.trim();
   const baseDesc = detail
-    ? `with the following components: ${detail}`
-    : 'in a fitting cocktail glass';
-  return `A beautifully lit cocktail called "${name}" ${baseDesc}, with elegant garnish, served against pure pitch black background with no surface or shadow below, ${STYLE_SUFFIX}`;
+    ? `made of: ${detail}`
+    : 'elegantly presented';
+  return `A beautifully lit restaurant menu item called "${name}", ${baseDesc}, fine-dining plating with elegant garnish, served against pure pitch black background with no surface or shadow below, ${STYLE_SUFFIX}`;
+}
+
+/**
+ * Elegant inline placeholder when no image could be generated: a dark luxury
+ * card with the item's initial and name in gold serif — fits food and drinks
+ * alike (an empty cocktail glass on a pasta dish looked absurd).
+ */
+function placeholderHero(name: string): string {
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const trimmed = name.trim();
+  const initial = esc(trimmed.charAt(0).toUpperCase() || '·');
+  const label = esc(trimmed.length > 24 ? `${trimmed.slice(0, 23)}…` : trimmed);
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="832" height="1040" viewBox="0 0 832 1040">` +
+    `<rect width="832" height="1040" fill="#09090b"/>` +
+    `<rect x="26" y="26" width="780" height="988" fill="none" stroke="#fbbf24" stroke-opacity="0.22" stroke-width="2"/>` +
+    `<circle cx="416" cy="450" r="160" fill="none" stroke="#fbbf24" stroke-opacity="0.35" stroke-width="2"/>` +
+    `<text x="416" y="505" font-family="Georgia, 'Times New Roman', serif" font-size="160" fill="#fde68a" text-anchor="middle">${initial}</text>` +
+    `<text x="416" y="700" font-family="Georgia, 'Times New Roman', serif" font-size="42" fill="#ffffff" fill-opacity="0.6" text-anchor="middle">${label}</text>` +
+    `</svg>`;
+  return `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`;
 }
 
 function buildPollinationsUrl(prompt: string, seed: number): string {
@@ -148,7 +171,7 @@ export async function POST(req: Request): Promise<Response> {
           // service is down/unfunded (Pollinations 402/403 without a token).
           // On failure the item imports with a placeholder and the owner adds
           // a photo in the editor (manual upload already supported there).
-          let heroImage = '/cocktail/glass.png';
+          let heroImage = placeholderHero(item.name);
           let imageNote: string | undefined;
           try {
             const response = await fetch(pollinationsUrl);
