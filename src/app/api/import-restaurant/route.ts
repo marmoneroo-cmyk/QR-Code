@@ -1,12 +1,19 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { removeBackground } from '@imgly/background-removal-node';
 import { SHARED_LAYERS, type Category, type CocktailConfig } from '@/data/cocktail';
 
 export const runtime = 'nodejs';
 // Vercel Hobby plan caps serverless maxDuration at 300s. Bulk imports that
 // need longer should be chunked client-side (one item per request).
 export const maxDuration = 300;
+
+/**
+ * On serverless (Vercel) the filesystem is READ-ONLY — writing under
+ * public/ throws EROFS and files written to /tmp aren't web-served anyway.
+ * There we return the hero as an inline data URL (the drafts store keeps it
+ * in localStorage); locally we keep writing real files to public/drafts.
+ */
+const IS_SERVERLESS = Boolean(process.env.VERCEL);
 
 interface ItemInput {
   name: string;
@@ -55,14 +62,36 @@ function buildHeroPrompt(name: string, desc: string | null | undefined): string 
 
 function buildPollinationsUrl(prompt: string, seed: number): string {
   const params = new URLSearchParams({
-    width: '1024',
-    height: '1280',
+    // Smaller on serverless: the hero travels as an inline data URL into the
+    // client's localStorage drafts, so keep it lean there.
+    width: IS_SERVERLESS ? '832' : '1024',
+    height: IS_SERVERLESS ? '1040' : '1280',
     seed: String(seed),
     model: 'flux',
     nologo: 'true',
     enhance: 'true',
   });
+  // Pollinations now requires a (free) app token — without it generation 403s
+  // ("Missing Turnstile token"). Same env var the editor's generator uses.
+  const token = process.env.NEXT_PUBLIC_POLLINATIONS_TOKEN;
+  if (token) params.set('token', token);
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?${params.toString()}`;
+}
+
+/**
+ * Background removal is BEST-EFFORT: the model package is heavy and may be
+ * unavailable on serverless. Lazy-imported so a load failure can never 500 the
+ * whole route — on any failure the raw (opaque) image is used instead.
+ */
+async function tryRemoveBackground(raw: Buffer): Promise<Buffer> {
+  try {
+    const { removeBackground } = await import('@imgly/background-removal-node');
+    const rawBlob = new Blob([new Uint8Array(raw)], { type: 'image/png' });
+    const transparentBlob = await removeBackground(rawBlob);
+    return Buffer.from(await transparentBlob.arrayBuffer());
+  } catch {
+    return raw;
+  }
 }
 
 export async function POST(req: Request): Promise<Response> {
@@ -85,7 +114,14 @@ export async function POST(req: Request): Promise<Response> {
 
   const restaurantSlug = slugify(body.restaurantSlug);
   const outputDir = path.join(process.cwd(), 'public', 'cocktail', 'drafts');
-  await fs.mkdir(outputDir, { recursive: true });
+  if (!IS_SERVERLESS) {
+    try {
+      await fs.mkdir(outputDir, { recursive: true });
+    } catch {
+      // Read-only FS (e.g. an unexpected serverless host) — fall back to
+      // inline data URLs below instead of failing the whole request.
+    }
+  }
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
@@ -108,18 +144,36 @@ export async function POST(req: Request): Promise<Response> {
           const seed = Date.now() + i * 211;
           const pollinationsUrl = buildPollinationsUrl(prompt, seed);
 
-          const response = await fetch(pollinationsUrl);
-          if (!response.ok) {
-            throw new Error(`Pollinations HTTP ${response.status}`);
+          // IMAGE IS OPTIONAL: menu import must succeed even when the image
+          // service is down/unfunded (Pollinations 402/403 without a token).
+          // On failure the item imports with a placeholder and the owner adds
+          // a photo in the editor (manual upload already supported there).
+          let heroImage = '/cocktail/glass.png';
+          let imageNote: string | undefined;
+          try {
+            const response = await fetch(pollinationsUrl);
+            if (!response.ok) {
+              throw new Error(`Pollinations HTTP ${response.status}`);
+            }
+            const rawBuffer = Buffer.from(await response.arrayBuffer());
+            const heroBuffer = await tryRemoveBackground(rawBuffer);
+
+            const filename = `${itemSlug}-hero.png`;
+            if (IS_SERVERLESS) {
+              // No writable, web-served disk here — inline the image instead.
+              heroImage = `data:image/png;base64,${heroBuffer.toString('base64')}`;
+            } else {
+              try {
+                await fs.writeFile(path.join(outputDir, filename), heroBuffer);
+                heroImage = `/cocktail/drafts/${filename}`;
+              } catch {
+                heroImage = `data:image/png;base64,${heroBuffer.toString('base64')}`;
+              }
+            }
+          } catch (imgErr: unknown) {
+            const why = imgErr instanceof Error ? imgErr.message : String(imgErr);
+            imageNote = `image unavailable (${why}) — add a photo in the editor`;
           }
-          const rawBuffer = Buffer.from(await response.arrayBuffer());
-
-          const rawBlob = new Blob([new Uint8Array(rawBuffer)], { type: 'image/png' });
-          const transparentBlob = await removeBackground(rawBlob);
-          const transparentBuffer = Buffer.from(await transparentBlob.arrayBuffer());
-
-          const filename = `${itemSlug}-hero.png`;
-          await fs.writeFile(path.join(outputDir, filename), transparentBuffer);
 
           const draft: CocktailConfig = {
             slug: itemSlug,
@@ -129,7 +183,7 @@ export async function POST(req: Request): Promise<Response> {
               ? { en: item.desc, he: item.desc }
               : undefined,
             category: item.category ?? 'citrus',
-            heroImage: `/cocktail/drafts/${filename}`,
+            heroImage,
             heroPrompt: prompt,
             flavor: { sweet: 2, bitter: 2, citrus: 2, smoky: 2, herbal: 2 },
             bartenderNote: {
@@ -143,7 +197,7 @@ export async function POST(req: Request): Promise<Response> {
           };
 
           drafts.push(draft);
-          send({ event: 'item-done', index: i, name: item.name, draft });
+          send({ event: 'item-done', index: i, name: item.name, draft, message: imageNote });
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           send({ event: 'item-error', index: i, name: item.name, message });
