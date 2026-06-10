@@ -7,6 +7,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-06-09
 
+### Added — Cocktail Experience: guest recommendations + full-menu rollout
+
+- **"Guests also explored" strip** below the flavor profile in the ingredient view:
+  up to 3 other drinks (image · name · price → their page). Honest two-tier source —
+  real co-view data from `/api/analytics/recommendations` ("Guests who opened this also
+  explored…"); curated same-category fallback labelled as a plain suggestion ("You might
+  also like") when a drink has no behavioral data yet. Analytics failures never break the page.
+- **Rolled out to all 9 cocktails** — `EXPERIENCE_SLUGS` gate removed; every
+  `/cocktails/[slug]` now renders the full-screen Experience. Drinks without a feature
+  video get a single full-width Ingredients action (no disabled tile).
+
 ### Added — Cocktail Experience prototype (Aperol Spritz only)
 
 Full-screen cinematic drink page (`CocktailExperience`) inspired by luxury-spirits sites:

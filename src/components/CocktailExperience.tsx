@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { Layers, Play } from 'lucide-react';
-import { getAccent, getFeatureVideo, formatPrice, type CocktailConfig, type Lang } from '@/data/cocktail';
+import { getAccent, getFeatureVideo, formatPrice, findCocktailBySlug, MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
 import { FlavorRadar } from './FlavorRadar';
 import { track } from '@/lib/tracking/track';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
@@ -146,6 +146,7 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
             flavor={config.flavor}
             note={config.bartenderNote?.[lang]}
             noteName={config.bartenderName}
+            currentSlug={config.slug}
             lang={lang}
             accent={accent}
             serif={serif}
@@ -285,7 +286,7 @@ function HeroStage({
       {/* TWO actions. That's the whole control surface — no order button: interest
           is measured from real behaviour (opens, dwell, scroll), not a dead CTA. */}
       <motion.div
-        className="mt-8 grid w-full max-w-sm shrink-0 grid-cols-2 gap-3"
+        className={`mt-8 grid w-full max-w-sm shrink-0 gap-3 ${hasVideo ? 'grid-cols-2' : 'grid-cols-1'}`}
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
@@ -296,12 +297,14 @@ function HeroStage({
           onClick={onIngredients}
           sans={sans}
         />
-        <ActionTile
-          label={isHe ? 'וידאו' : 'Video'}
-          icon={<Play size={20} strokeWidth={1.6} aria-hidden />}
-          onClick={hasVideo ? onVideo : undefined}
-          sans={sans}
-        />
+        {hasVideo && (
+          <ActionTile
+            label={isHe ? 'וידאו' : 'Video'}
+            icon={<Play size={20} strokeWidth={1.6} aria-hidden />}
+            onClick={onVideo}
+            sans={sans}
+          />
+        )}
       </motion.div>
     </motion.main>
   );
@@ -333,6 +336,7 @@ interface ExplodedViewProps {
   flavor: CocktailConfig['flavor'];
   note?: string;
   noteName?: string;
+  currentSlug: string;
   lang: Lang;
   accent: string;
   serif: string;
@@ -341,7 +345,7 @@ interface ExplodedViewProps {
 }
 
 function ExplodedView({
-  ingredients, glassLabel, glassImage, imageForLayer, flavor, note, noteName, lang, accent, serif, sans, reduce,
+  ingredients, glassLabel, glassImage, imageForLayer, flavor, note, noteName, currentSlug, lang, accent, serif, sans, reduce,
 }: ExplodedViewProps) {
   const isHe = lang === 'he';
   // Natural label order = physical explosion order: 01 garnish floats highest,
@@ -454,7 +458,128 @@ function ExplodedView({
           </p>
         )}
       </motion.div>
+
+      {/* What other guests explored — the recommendation, right below the profile. */}
+      <AlsoExplored currentSlug={currentSlug} lang={lang} serif={serif} sans={sans} />
     </motion.section>
+  );
+}
+
+/* ── "Guests also explored" — co-view recommendation strip ─────────────────── */
+
+interface AlsoExploredProps {
+  currentSlug: string;
+  lang: Lang;
+  serif: string;
+  sans: string;
+}
+
+/**
+ * Shows up to 3 other drinks below the flavor profile. HONEST two-tier source:
+ * real co-view data ("guests who opened this also explored…") when the analytics
+ * have it for this drink; otherwise a curated same-category fallback labelled as
+ * a plain suggestion ("you might also like") — never a fabricated behavior claim.
+ */
+function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
+  const isHe = lang === 'he';
+  const [picks, setPicks] = useState<CocktailConfig[] | null>(null);
+  const [fromGuests, setFromGuests] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      let found: CocktailConfig[] = [];
+      let behavioral = false;
+      try {
+        const res = await fetch('/api/analytics/recommendations', { cache: 'no-store' });
+        const json: {
+          success: boolean;
+          data?: { rows?: { slug: string; related?: { slug: string; coViews: number }[] }[] };
+        } = await res.json();
+        const row = json.success ? json.data?.rows?.find((r) => r.slug === currentSlug) : undefined;
+        const related = (row?.related ?? [])
+          .map((r) => findCocktailBySlug(r.slug))
+          .filter((c): c is CocktailConfig => Boolean(c) && c?.slug !== currentSlug);
+        if (related.length > 0) {
+          found = related.slice(0, 3);
+          behavioral = true;
+        }
+      } catch {
+        /* analytics never breaks the page — fall through to the curated list */
+      }
+      if (found.length === 0) {
+        const self = findCocktailBySlug(currentSlug);
+        const sameCategory = MENU.filter((c) => c.slug !== currentSlug && c.category === self?.category);
+        const others = MENU.filter((c) => c.slug !== currentSlug && !sameCategory.includes(c));
+        found = [...sameCategory, ...others].slice(0, 3);
+      }
+      if (!cancelled) {
+        setPicks(found);
+        setFromGuests(behavioral);
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentSlug]);
+
+  if (!picks || picks.length === 0) return null;
+
+  const title = fromGuests
+    ? isHe ? 'אורחים שפתחו את זה התעניינו גם ב…' : 'Guests who opened this also explored…'
+    : isHe ? 'אולי תאהבו גם' : 'You might also like';
+
+  return (
+    <motion.aside
+      className="mt-14 w-full"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
+      aria-label={title}
+    >
+      <p className="mb-6 text-center text-[11px] tracking-[0.5em] uppercase text-white/45" style={{ fontFamily: sans }}>
+        {title}
+      </p>
+      <div className="flex items-stretch justify-center gap-3">
+        {picks.map((c) => {
+          const cAccent = getAccent(c.slug);
+          return (
+            <Link
+              key={c.slug}
+              href={`/cocktails/${c.slug}`}
+              className="group flex w-28 flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-2 pb-3 pt-2 text-center transition-all hover:-translate-y-1 hover:border-white/25 md:w-32"
+            >
+              <span className="relative block h-24 w-full md:h-28">
+                <span
+                  aria-hidden
+                  className="absolute inset-0 rounded-full blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  style={{ background: `radial-gradient(circle, ${cAccent}40, transparent 70%)` }}
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={c.heroImage}
+                  alt={c.title[lang]}
+                  className="relative h-full w-full object-contain"
+                  style={{ filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.7))' }}
+                />
+              </span>
+              <span
+                className="block w-full truncate text-[13px] leading-tight text-white/90"
+                style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+              >
+                {c.title[lang]}
+              </span>
+              {c.priceILS !== undefined && (
+                <span className="text-[11px] text-amber-100/80" style={{ fontFamily: sans }}>
+                  {formatPrice(c.priceILS, 'ILS')}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+      </div>
+    </motion.aside>
   );
 }
 
