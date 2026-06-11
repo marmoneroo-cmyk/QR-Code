@@ -13,6 +13,19 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+/**
+ * Non-ASCII slugs (e.g. Hebrew item names from import) arrive URL-encoded in the
+ * route param but are stored decoded. Decode defensively — idempotent for plain
+ * ASCII slugs, and a no-op fallback if the value is malformed.
+ */
+function decodeSlug(raw: string): string {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 type EditSource = 'draft' | 'published';
 
 interface Resolved {
@@ -21,7 +34,8 @@ interface Resolved {
 }
 
 export default function EditDraftPage({ params }: PageProps) {
-  const { slug } = use(params);
+  const { slug: rawSlug } = use(params);
+  const slug = decodeSlug(rawSlug);
   const router = useRouter();
   const { findBySlug, hydrated } = useDrafts();
   const { lang } = useLang();

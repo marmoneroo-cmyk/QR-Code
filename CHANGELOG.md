@@ -7,6 +7,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-06-09
 
+### Added — Menu import: category groups · description · per-item ChatGPT prompt + edit
+
+Reworked the import flow into a self-serve "import → edit → add image" loop:
+- **Grouped selection** — scan flattens the whole menu and shows items grouped under
+  the restaurant's OWN categories (preserved from the scrape), with per-group and
+  global select-all/none. Descriptions are kept and become each item's tagline.
+- **Results screen** (no more auto-redirect) — every imported item shows a ready
+  **ChatGPT image prompt** (copy button) + an **Edit · add image** link straight to
+  its editor. "needs a photo" flag when the image is a placeholder.
+- **Editor** — new "Make the image in ChatGPT" box (readonly prompt + Copy) next to the
+  existing AI-generate / upload controls. Shared `buildGptImagePrompt()` (drinks + food).
+- **Fix** — Hebrew (non-ASCII) draft slugs now resolve in `/admin/[slug]/edit` and
+  `/drafts/[slug]` (decode the URL-encoded route param; idempotent for ASCII).
+
 ### Added — Cocktail Experience: guest recommendations + full-menu rollout
 
 - **"Guests also explored" strip** below the flavor profile in the ingredient view:

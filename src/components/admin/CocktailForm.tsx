@@ -14,6 +14,7 @@ import {
   Lightbulb,
   Upload,
   Check,
+  ClipboardCopy,
 } from 'lucide-react';
 import {
   CATEGORY_LABEL,
@@ -28,7 +29,7 @@ import {
 import { GlassImage, SectionLabel } from '@/components/ui/dataviz';
 import { useDrafts } from '@/lib/useDrafts';
 import { useLang } from '@/lib/useLang';
-import { buildHeroPrompt, buildPollinationsUrl, slugify } from '@/lib/heroPrompts';
+import { buildHeroPrompt, buildPollinationsUrl, buildGptImagePrompt, slugify } from '@/lib/heroPrompts';
 
 const CATEGORY_OPTIONS: Category[] = ['citrus', 'smoky', 'bitter', 'sweet', 'mocktail'];
 const FLAVOR_AXES: Array<keyof FlavorProfile> = ['sweet', 'bitter', 'citrus', 'smoky', 'herbal'];
@@ -75,6 +76,7 @@ export function CocktailForm({
   );
   const [heroPrompt, setHeroPrompt] = useState(initialHeroPrompt ?? initial?.heroPrompt ?? '');
   const [heroUrl, setHeroUrl] = useState(initial?.heroImage ?? '');
+  const [gptCopied, setGptCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [breakdownLayers, setBreakdownLayers] = useState<LayerConfig[] | null>(
     initialLayers ?? (initial && initial.layers !== SHARED_LAYERS ? initial.layers : null)
@@ -404,6 +406,43 @@ export function CocktailForm({
             className={`${inputClass} resize-y`}
           />
         </Field>
+
+        {/* Ready-to-paste ChatGPT prompt — generate the photo in ChatGPT (DALL·E),
+            then "Upload photo" below. Useful when the in-app generator is unavailable. */}
+        <Field label={t('Make the image in ChatGPT', 'יצירת התמונה ב-ChatGPT')}>
+          <textarea
+            readOnly
+            value={buildGptImagePrompt({ name: name.en || name.he, description: tagline.en || tagline.he })}
+            rows={3}
+            onFocus={(e) => e.currentTarget.select()}
+            className={`${inputClass} resize-y text-white/70`}
+          />
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(
+                    buildGptImagePrompt({ name: name.en || name.he, description: tagline.en || tagline.he })
+                  );
+                  setGptCopied(true);
+                  window.setTimeout(() => setGptCopied(false), 1800);
+                } catch {
+                  /* clipboard blocked — the field above is selectable as a fallback */
+                }
+              }}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-[11px] tracking-[0.3em] uppercase"
+              style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+            >
+              {gptCopied ? <Check size={13} strokeWidth={2.4} /> : <ClipboardCopy size={13} strokeWidth={2} />}
+              {gptCopied ? t('Copied', 'הועתק') : t('Copy ChatGPT prompt', 'העתק פרומפט ל-ChatGPT')}
+            </button>
+            <span className="text-white/35 text-[11px] italic" style={{ fontFamily: 'var(--font-garamond, serif)' }}>
+              {t('Paste in ChatGPT → download the PNG → Upload photo below.', 'הדביקו ב-ChatGPT → הורידו את ה-PNG → העלו למטה.')}
+            </span>
+          </div>
+        </Field>
+
         <div className="flex flex-wrap items-center gap-4">
           <motion.button
             type="button"

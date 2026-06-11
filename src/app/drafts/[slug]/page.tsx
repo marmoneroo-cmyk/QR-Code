@@ -15,8 +15,18 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+/** Non-ASCII slugs (e.g. Hebrew imports) arrive URL-encoded; stored decoded. */
+function decodeSlug(raw: string): string {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 export default function DraftPage({ params }: PageProps) {
-  const { slug } = use(params);
+  const { slug: rawSlug } = use(params);
+  const slug = decodeSlug(rawSlug);
   const { findBySlug, hydrated } = useDrafts();
   const [config, setConfig] = useState<CocktailConfig | null>(null);
 

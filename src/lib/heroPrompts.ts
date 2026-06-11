@@ -34,6 +34,25 @@ export function buildPollinationsUrl(
   return `https://image.pollinations.ai/prompt/${encoded}?${params.toString()}`;
 }
 
+/**
+ * A ready-to-paste ChatGPT / DALL·E prompt for a menu item's photo, in the app's
+ * house style: subject centered and fully visible, pure black background, portrait,
+ * no text. Works for both drinks and plated food. The owner pastes this into
+ * ChatGPT, downloads the PNG, and uploads it in the editor.
+ */
+export function buildGptImagePrompt(input: { name: string; description?: string | null }): string {
+  const name = input.name.trim();
+  const desc = input.description?.trim();
+  const made = desc ? `, ${desc}` : '';
+  return (
+    `A beautifully lit, photorealistic studio shot of "${name}"${made}. ` +
+    `Centered and fully visible with generous margin so nothing is cropped, elegant garnish/plating, ` +
+    `against a pure solid black background with no surface and no shadow. ` +
+    `Cinematic product photography, dramatic moody lighting from the upper-right, ultra-sharp focus, 8k, ` +
+    `portrait 4:5 orientation. No text, no watermark, no logo.`
+  );
+}
+
 export function slugify(input: string): string {
   return input
     .trim()
