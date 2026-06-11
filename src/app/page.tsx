@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { MenuCard } from '@/components/MenuCard';
-import { ImpressionTracker } from '@/components/ImpressionTracker';
 import { SettingsToolbar } from '@/components/SettingsToolbar';
 import { BackgroundFX } from '@/components/BackgroundFX';
-import { useFavorites } from '@/lib/useFavorites';
+import { MenuRow, type MenuSection } from '@/components/MenuRow';
 import { useDrafts } from '@/lib/useDrafts';
 import { useMenuOrder } from '@/lib/useMenuOrder';
 import { useCurrency } from '@/lib/useCurrency';
@@ -16,22 +14,44 @@ import { track } from '@/lib/tracking/track';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
 import { MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
 
-/** Where the guest was in the menu — restored when they come back from a drink. */
 const MENU_SCROLL_KEY = 'cocktail-demo:menu-scroll';
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+/** Order food sections like a real menu: starters → mains → desserts; drinks last. */
+function courseRank(course: string): number {
+  const c = course.toLowerCase();
+  if (/ראשונ|starter|appetiz|פתיח/.test(c)) return 1;
+  if (/סלט|salad/.test(c)) return 2;
+  if (/מרק|soup/.test(c)) return 2.5;
+  if (/עיקרי|main|המבורגר|burger|פסטה|pasta|סטייק|steak|פיצה|pizza|שניצל/.test(c)) return 3;
+  if (/תוספת|side|צ['׳]יפס|fries/.test(c)) return 4;
+  if (/ילדים|kids/.test(c)) return 4.5;
+  if (/קינוח|dessert/.test(c)) return 5;
+  if (/בירה|beer|יין|wine/.test(c)) return 8;
+  return 3.5;
+}
+
+function matchesQuery(c: CocktailConfig, q: string): boolean {
+  if (!q) return true;
+  const hay = [
+    c.title.en, c.title.he, c.tagline?.en ?? '', c.tagline?.he ?? '', c.course ?? '',
+    ...c.labels.flatMap((l) => [l.name.en, l.name.he]),
+  ].join(' ').toLowerCase();
+  return hay.includes(q);
+}
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>('en');
   const [query, setQuery] = useState('');
-  const { isFavorite, toggle } = useFavorites();
   const { drafts } = useDrafts();
   const { apply: applyMenuOrder } = useMenuOrder();
   const { currency, setCurrency } = useCurrency();
   const { name: restaurantName, setName: setRestaurantName, logo: restaurantLogo } = useRestaurant();
   const { promotions, experience } = useMenuConfig('diner');
 
-  const isHebrew = lang === 'he';
-  const titleFont = isHebrew ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
-  const sansFont = isHebrew ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
+  const isHe = lang === 'he';
+  const titleFont = isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
+  const sans = isHe ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
 
   const allCocktails = useMemo<ReadonlyArray<CocktailConfig>>(
     () => [...MENU, ...drafts.filter((d) => !MENU.some((m) => m.slug === d.slug))],
@@ -39,40 +59,52 @@ export default function Home() {
   );
   const orderedCocktails = useMemo(() => applyMenuOrder(allCocktails), [allCocktails, applyMenuOrder]);
   const draftSlugs = useMemo(() => new Set(drafts.map((d) => d.slug)), [drafts]);
+  const featured = orderedCocktails[0] ?? null;
 
-  // Search is the ONLY filter on the diner's first screen — they came to pick a
-  // drink, not to operate a system. Everything else lives one tap into the card.
-  const filtered = useMemo(() => {
-    const trimmed = query.trim().toLowerCase();
-    if (!trimmed) return orderedCocktails;
-    return orderedCocktails.filter((cocktail) => {
-      const haystack = [
-        cocktail.title.en,
-        cocktail.title.he,
-        cocktail.tagline?.en ?? '',
-        cocktail.tagline?.he ?? '',
-        ...cocktail.labels.flatMap((l) => [l.name.en, l.name.he]),
-      ]
-        .join(' ')
-        .toLowerCase();
-      return haystack.includes(trimmed);
-    });
-  }, [query, orderedCocktails]);
+  // Group into Netflix-style rows: one per food course, plus one for all cocktails.
+  const sections = useMemo<MenuSection[]>(() => {
+    const q = query.trim().toLowerCase();
+    const food = orderedCocktails.filter((c) => c.kind === 'food');
+    const drinks = orderedCocktails.filter((c) => c.kind !== 'food');
+
+    const byCourse = new Map<string, CocktailConfig[]>();
+    for (const f of food) {
+      const key = (f.course || (isHe ? 'מנות' : 'Dishes')).trim();
+      const arr = byCourse.get(key) ?? [];
+      arr.push(f);
+      byCourse.set(key, arr);
+    }
+    const foodSections = [...byCourse.entries()]
+      .map(([title, items]) => ({ title, items, rank: courseRank(title) }))
+      .sort((a, b) => a.rank - b.rank);
+
+    const built: Array<{ key: string; title: string; items: CocktailConfig[] }> = [
+      ...foodSections.map((s) => ({ key: `food:${s.title}`, title: s.title, items: s.items })),
+      ...(drinks.length ? [{ key: 'bar', title: isHe ? 'קוקטיילים' : 'Cocktails', items: drinks }] : []),
+    ];
+
+    return built
+      .map((s) => ({
+        key: s.key,
+        title: s.title,
+        items: s.items
+          .filter((c) => matchesQuery(c, q))
+          .map((cocktail) => ({ cocktail, isDraft: draftSlugs.has(cocktail.slug) })),
+      }))
+      .filter((s) => s.items.length > 0);
+  }, [orderedCocktails, draftSlugs, isHe, query]);
 
   useEffect(() => {
     setRestaurantSlug('diner');
     track({ event: 'menu_opened' });
   }, []);
 
-  // Scroll memory: coming back from a drink returns the guest to WHERE THEY WERE
-  // in the menu, not to the top. Saved on scroll AND synchronously when a card is
-  // clicked (capture) — the click save is the one that matters, and it works even
-  // where scroll events are throttled. Restored once on mount.
+  // Scroll memory: returning from an item lands the guest where they were.
   const saveMenuScroll = () => {
     try {
       sessionStorage.setItem(MENU_SCROLL_KEY, String(window.scrollY));
     } catch {
-      /* quota / private mode — scroll memory just won't persist */
+      /* private mode — won't persist */
     }
   };
   useEffect(() => {
@@ -80,7 +112,7 @@ export default function Home() {
       const saved = Number(sessionStorage.getItem(MENU_SCROLL_KEY));
       if (saved > 0) window.scrollTo(0, saved);
     } catch {
-      /* private mode — skip restore */
+      /* skip */
     }
     window.addEventListener('scroll', saveMenuScroll, { passive: true });
     window.addEventListener('pagehide', saveMenuScroll);
@@ -90,21 +122,9 @@ export default function Home() {
     };
   }, []);
 
-  const handleToggleFavorite = (slug: string) => {
-    const adding = !isFavorite(slug);
-    track({
-      event: 'cocktail_favorited',
-      cocktailSlug: slug,
-      value: adding ? 1 : 0,
-      metadata: { action: adding ? 'add' : 'remove' },
-    });
-    toggle(slug);
-  };
-
   return (
-    <div className="relative w-full min-h-screen bg-black">
+    <div className="relative min-h-screen w-full bg-black" onClickCapture={saveMenuScroll}>
       <BackgroundFX />
-
       <SettingsToolbar
         lang={lang}
         onLangChange={setLang}
@@ -114,51 +134,62 @@ export default function Home() {
         onRestaurantChange={setRestaurantName}
       />
 
-      <div className="relative z-10 w-full px-6 sm:px-8 pt-24 pb-28 flex flex-col items-center">
-        {/* Compact hero — name of the place, what this is, and one search box. No essay. */}
-        <motion.header
-          className="text-center mb-10 md:mb-12 flex flex-col items-center"
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
-          dir={isHebrew ? 'rtl' : 'ltr'}
-          lang={lang}
-        >
+      {/* ── Cinematic hero — one big wow on entry ─────────────────────────── */}
+      <section
+        className="relative flex min-h-[54vh] w-full flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-10 text-center"
+        dir={isHe ? 'rtl' : 'ltr'}
+      >
+        {featured && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <motion.img
+            src={featured.heroImage}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-[44%] h-[80%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
+            style={{ filter: 'drop-shadow(0 40px 80px rgba(0,0,0,0.9))' }}
+            initial={{ opacity: 0, scale: 1.06 }}
+            animate={{ opacity: 0.28, scale: 1 }}
+            transition={{ duration: 1.8, ease: EASE }}
+          />
+        )}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{ background: 'radial-gradient(110% 75% at 50% 38%, transparent, rgba(0,0,0,0.55) 78%), linear-gradient(to bottom, rgba(0,0,0,0.35), transparent 35%, transparent 60%, #000 96%)' }}
+        />
+
+        <motion.div className="relative z-10 flex flex-col items-center" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0, ease: EASE }} lang={lang}>
           {restaurantLogo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={restaurantLogo} alt={restaurantName} className="mb-5 max-h-16 w-auto object-contain" />
-          ) : restaurantName ? (
-            <p className="text-amber-200/70 text-[11px] tracking-[0.5em] uppercase mb-5" style={{ fontFamily: sansFont }}>
-              {restaurantName}
+          ) : (
+            <p className="mb-4 text-amber-200/70 text-[11px] tracking-[0.55em] uppercase" style={{ fontFamily: sans }}>
+              {isHe ? 'תפריט' : 'Menu'}
             </p>
-          ) : null}
+          )}
 
           <h1
-            className="text-white leading-[1.05] text-5xl md:text-6xl flex items-center gap-3"
-            style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 600 }}
+            className="text-white leading-[1.04] text-5xl md:text-7xl"
+            style={{ fontFamily: titleFont, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
           >
-            <span aria-hidden style={{ fontStyle: 'normal' }}>🍸</span>
             <span
               style={{
-                background: 'linear-gradient(180deg, #ffffff 0%, #fde68a 55%, #d97706 115%)',
+                background: 'linear-gradient(180deg, #ffffff 0%, #fde68a 58%, #d97706 120%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}
             >
-              {isHebrew ? 'הקוקטיילים שלנו' : 'Our Cocktails'}
+              {restaurantName || (isHe ? 'התפריט שלנו' : 'Our Menu')}
             </span>
           </h1>
 
-          <p className="text-white/55 text-sm md:text-base mt-3" style={{ fontFamily: sansFont, letterSpacing: '0.04em' }}>
-            {isHebrew
-              ? `${allCocktails.length} קוקטיילים נבחרים`
-              : `${allCocktails.length} hand-picked cocktails`}
+          <p className="mt-4 text-white/55 text-sm md:text-base" style={{ fontFamily: sans, letterSpacing: '0.04em' }}>
+            {isHe ? `${orderedCocktails.length} מנות ומשקאות` : `${orderedCocktails.length} dishes & drinks`}
           </p>
 
-          {/* One clean search box — that's the whole control surface. */}
           <div className="relative mt-7 w-full max-w-sm">
-            <span className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-amber-200/45 ${isHebrew ? 'right-4' : 'left-4'}`} aria-hidden>
+            <span className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-amber-200/45 ${isHe ? 'right-4' : 'left-4'}`} aria-hidden>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <circle cx="11" cy="11" r="7" />
                 <path d="M21 21l-4.3-4.3" />
@@ -169,44 +200,38 @@ export default function Home() {
               inputMode="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={isHebrew ? 'חיפוש משקה…' : 'Search a drink…'}
-              aria-label={isHebrew ? 'חיפוש משקה' : 'Search a drink'}
-              dir={isHebrew ? 'rtl' : 'ltr'}
-              className={`w-full rounded-full border border-amber-200/20 bg-white/[0.04] py-3 text-white placeholder:text-white/35 outline-none backdrop-blur-sm transition-colors duration-300 focus:border-amber-200/55 focus:bg-white/[0.06] ${
-                isHebrew ? 'pr-11 pl-5 text-right' : 'pl-11 pr-5'
+              placeholder={isHe ? 'חיפוש בתפריט…' : 'Search the menu…'}
+              aria-label={isHe ? 'חיפוש בתפריט' : 'Search the menu'}
+              dir={isHe ? 'rtl' : 'ltr'}
+              className={`w-full rounded-full border border-amber-200/20 bg-black/40 py-3 text-white placeholder:text-white/35 outline-none backdrop-blur-md transition-colors duration-300 focus:border-amber-200/55 focus:bg-black/55 ${
+                isHe ? 'pr-11 pl-5 text-right' : 'pl-11 pr-5'
               }`}
-              style={{ fontFamily: sansFont, fontSize: '15px' }}
+              style={{ fontFamily: sans, fontSize: '15px' }}
             />
           </div>
-        </motion.header>
+        </motion.div>
+      </section>
 
-        {/* The gallery — the whole point of the screen. */}
-        {filtered.length === 0 ? (
-          <p className="text-center text-white/40 text-base italic mt-10" style={{ fontFamily: titleFont }}>
-            {isHebrew ? 'לא נמצא משקה תואם.' : 'No matching drink.'}
-          </p>
-        ) : (
-          <div className="w-full flex justify-center" onClickCapture={saveMenuScroll}>
-            <div className="flex flex-wrap justify-center gap-7 md:gap-8" style={{ width: 'min(100%, 1480px)' }}>
-              {filtered.map((cocktail) => (
-                <ImpressionTracker key={cocktail.slug} slug={cocktail.slug} className="w-full max-w-[360px] sm:w-[330px] min-w-0">
-                  <MenuCard
-                    cocktail={cocktail}
-                    lang={lang}
-                    currency={currency}
-                    index={orderedCocktails.indexOf(cocktail)}
-                    isFavorite={isFavorite(cocktail.slug)}
-                    isDraft={draftSlugs.has(cocktail.slug)}
-                    onToggleFavorite={handleToggleFavorite}
-                    promotions={promotions}
-                    experienceConfig={experience[cocktail.slug]}
-                  />
-                </ImpressionTracker>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      {/* ── The rows ──────────────────────────────────────────────────────── */}
+      {sections.length === 0 ? (
+        <p className="py-16 text-center text-white/40 text-base italic" style={{ fontFamily: titleFont }}>
+          {isHe ? 'לא נמצאו תוצאות.' : 'No matching items.'}
+        </p>
+      ) : (
+        <div className="relative z-10 flex flex-col gap-12 pb-28 pt-2 md:gap-14">
+          {sections.map((section, i) => (
+            <MenuRow
+              key={section.key}
+              section={section}
+              lang={lang}
+              currency={currency}
+              promotions={promotions}
+              experience={experience}
+              index={i}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

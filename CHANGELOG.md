@@ -7,6 +7,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-06-09
 
+### Added — Netflix-style sectioned menu (the public landing)
+
+The flat card grid is now a **cinematic, sectioned menu**: a hero (restaurant name +
+featured image + search) over **horizontal, snap-scrolling rows** — one per food course
+(ראשונות → עיקריות → קינוחים, ordered like a real menu) plus a **Cocktails** row for all
+drinks. Image-forward cards (`MenuRow`/`RowCard`) with the emotional badges and hover video;
+food cards open the food experience (`/drafts`), drinks the cinematic one (`/cocktails`).
+Search filters within rows; per-card impression tracking and scroll-memory preserved.
+
 ### Added — Food guest experience (a dish, not a drink)
 
 The cocktail page now dispatches by `kind`: a food item renders a **FoodExperience** —
