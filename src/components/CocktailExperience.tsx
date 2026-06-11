@@ -289,7 +289,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
 
   return (
     <motion.main
-      className="relative z-10 flex min-h-dvh flex-col items-center px-6 pt-20 pb-10"
+      className="relative z-10 flex h-dvh flex-col items-center px-6 pt-20 pb-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.35 } }}
@@ -330,7 +330,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         onClick={hasComponents ? onIngredients : undefined}
         disabled={!hasComponents}
         aria-label={isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
-        className="group relative mt-5 flex w-full flex-col items-center outline-none disabled:cursor-default"
+        className="group relative mt-5 flex w-full flex-1 flex-col items-center justify-center outline-none disabled:cursor-default"
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 1.1, delay: 0.25, ease: EASE }}
@@ -349,7 +349,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
           <img
             src={config.heroImage}
             alt={config.title[lang]}
-            className="relative z-10 mx-auto max-h-[30vh] w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
+            className="relative z-10 mx-auto max-h-[46vh] w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
             style={{ filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)` }}
           />
         </motion.span>
