@@ -349,7 +349,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
           <img
             src={config.heroImage}
             alt={config.title[lang]}
-            className="relative z-10 mx-auto max-h-[46vh] w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
+            className="relative z-10 mx-auto max-h-[52vh] w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
             style={{ filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)` }}
           />
         </motion.span>
