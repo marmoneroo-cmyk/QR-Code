@@ -62,9 +62,17 @@ function parseGetmood(html: string): { categories: ParsedCategory[]; hasPhotos: 
     for (const m of section.matchAll(itemRe)) {
       const name = stripTags(m[1]);
       const tail = m[2];
-      const price = (tail.match(/(\d+(?:\/\d+)?)\s*shkalim/i) || [])[1] || null;
-      const descMatch = tail.match(/<p[^>]*>\s*([^<]+?)\s*<\/p>/);
-      const desc = descMatch ? descMatch[1].replace(/\s+/g, ' ').trim() : null;
+      // getmood markup (class-based, stable):
+      //   <div class="menuModuleTextItemPrice">96<span class="scr-reader-only">shkalim</span></div>
+      //   <div class="menuModuleTextItemDescription">חסה, שבבי בטטה ואיולי כמהין</div>
+      const priceMatch =
+        tail.match(/menuModuleTextItemPrice[^>]*>\s*(\d+(?:[.,/]\d+)?)/) ||
+        tail.match(/(\d+(?:\/\d+)?)\s*(?:shkalim|₪|ש"?ח)/i);
+      const price = priceMatch ? priceMatch[1] : null;
+      const descMatch =
+        tail.match(/menuModuleTextItemDescription[^>]*>([\s\S]*?)(?:<\/div>|$)/) ||
+        tail.match(/<p[^>]*>\s*([^<]+?)\s*<\/p>/);
+      const desc = descMatch ? stripTags(descMatch[1]).replace(/\s+/g, ' ').trim() || null : null;
       if (!name || name.length < 2 || name.startsWith('*') || /המטבח/.test(name)) continue;
       items.push({ name, price, desc });
     }

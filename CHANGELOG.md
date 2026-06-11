@@ -7,6 +7,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-06-09
 
+### Fixed — Menu import now keeps price + description
+
+- **Scraper (getmood.io)** — was matching `"NN shkalim"` for price (but the real markup is
+  `<div class="menuModuleTextItemPrice">96<span>shkalim</span></div>`) and `<p>` for the
+  description (it's a `<div class="menuModuleTextItemDescription">`). Switched to the stable
+  class selectors → price + description now extract. (Verified on a real 75-item menu:
+  75/75 prices, 46/75 descriptions.)
+- **Import** — the price was dropped entirely; now parsed to `priceILS` on the draft (and the
+  description still flows to the tagline). The selection list shows a **₪ price** column and the
+  results cards show the price.
+- **Editor** — added a **Price (₪)** field (the form had none), so price is editable like the
+  tagline/description.
+
 ### Added — Menu import: category groups · description · per-item ChatGPT prompt + edit
 
 Reworked the import flow into a self-serve "import → edit → add image" loop:

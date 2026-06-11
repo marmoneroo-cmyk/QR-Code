@@ -18,6 +18,7 @@ const IS_SERVERLESS = Boolean(process.env.VERCEL);
 interface ItemInput {
   name: string;
   desc?: string | null;
+  price?: string | null;
   category?: Category;
 }
 
@@ -53,6 +54,15 @@ function slugify(input: string): string {
 }
 
 // Neutral wording — imports can be food OR drinks (pasta is not "a cocktail").
+/** Parse a scraped price string ("96", "96/120", "₪54") to a positive number. */
+function parseImportedPrice(raw: string | null | undefined): number | undefined {
+  if (!raw) return undefined;
+  const m = String(raw).match(/\d+(?:\.\d+)?/);
+  if (!m) return undefined;
+  const n = Number(m[0]);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
+}
+
 function buildHeroPrompt(name: string, desc: string | null | undefined): string {
   const detail = desc?.trim();
   const baseDesc = detail
@@ -218,6 +228,7 @@ export async function POST(req: Request): Promise<Response> {
               ? { en: item.desc, he: item.desc }
               : undefined,
             category: item.category ?? 'citrus',
+            priceILS: parseImportedPrice(item.price),
             heroImage,
             heroPrompt: prompt,
             flavor: { sweet: 2, bitter: 2, citrus: 2, smoky: 2, herbal: 2 },

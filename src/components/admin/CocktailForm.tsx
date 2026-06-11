@@ -77,6 +77,7 @@ export function CocktailForm({
   const [heroPrompt, setHeroPrompt] = useState(initialHeroPrompt ?? initial?.heroPrompt ?? '');
   const [heroUrl, setHeroUrl] = useState(initial?.heroImage ?? '');
   const [gptCopied, setGptCopied] = useState(false);
+  const [priceText, setPriceText] = useState(initial?.priceILS != null ? String(initial.priceILS) : '');
   const [generating, setGenerating] = useState(false);
   const [breakdownLayers, setBreakdownLayers] = useState<LayerConfig[] | null>(
     initialLayers ?? (initial && initial.layers !== SHARED_LAYERS ? initial.layers : null)
@@ -237,6 +238,7 @@ export function CocktailForm({
           ? { en: tagline.en.trim(), he: tagline.he.trim() || tagline.en.trim() }
           : undefined,
       category,
+      priceILS: priceText.trim() ? Number(priceText.replace(/[^\d.]/g, '')) || undefined : undefined,
       heroImage: heroUrl,
       heroPrompt,
       flavor,
@@ -291,6 +293,18 @@ export function CocktailForm({
             onChange={(e) => setTagline({ ...tagline, he: e.target.value })}
             placeholder="ג׳ין · לבנדר · לימון · חלבון ביצה"
             dir="rtl"
+            className={inputClass}
+          />
+        </Field>
+        <Field label={t('Price (₪)', 'מחיר (₪)')}>
+          <input
+            type="number"
+            inputMode="decimal"
+            min="0"
+            value={priceText}
+            onChange={(e) => setPriceText(e.target.value)}
+            placeholder={t('e.g. 54', 'לדוגמה: 54')}
+            dir="ltr"
             className={inputClass}
           />
         </Field>

@@ -263,8 +263,8 @@ export default function ImportRestaurantPage() {
         body: JSON.stringify({
           restaurantSlug,
           restaurantName,
-          // Keep the description — it becomes the item's tagline on the menu.
-          items: chosen.map((c) => ({ name: c.name, desc: c.desc, category: c.category })),
+          // Keep the description (-> tagline) AND the price (-> priceILS) on the menu.
+          items: chosen.map((c) => ({ name: c.name, desc: c.desc, price: c.price, category: c.category })),
         }),
       });
 
@@ -465,6 +465,9 @@ export default function ImportRestaurantPage() {
                               <div className="truncate text-white/90 text-[15px]">{it.name}</div>
                               {it.desc && <div className="mt-0.5 truncate text-white/40 text-xs italic" style={{ fontFamily: serif }}>{it.desc}</div>}
                             </div>
+                            {it.price && (
+                              <span className="shrink-0 text-amber-100/90 text-sm tabular-nums" style={{ fontFamily: sans }} dir="ltr">₪{it.price}</span>
+                            )}
                             <select value={it.category} disabled={!it.selected || importing} onChange={(e) => updateItemCategory(it.uid, e.target.value as Category)}
                               className="shrink-0 rounded-lg border border-white/12 bg-black/40 px-2.5 py-1.5 text-amber-100/90 text-[11px] outline-none focus:border-amber-200/40 disabled:opacity-40" style={{ fontFamily: sans }}>
                               {CATEGORY_OPTIONS.map((c) => (<option key={c.id} value={c.id} className="bg-black">{t(c.label, c.labelHe)}</option>))}
@@ -537,6 +540,7 @@ export default function ImportRestaurantPage() {
                       <div className="min-w-0">
                         <div className="text-white/90 text-[15px]">{draft.title[lang] || draft.title.en}</div>
                         {draft.tagline && <div className="mt-0.5 text-white/40 text-xs italic" style={{ fontFamily: serif }}>{draft.tagline[lang] || draft.tagline.en}</div>}
+                        {draft.priceILS !== undefined && <div className="mt-1 text-amber-100/90 text-[13px] tabular-nums" style={{ fontFamily: sans }} dir="ltr">₪{draft.priceILS}</div>}
                         {needsImage && (
                           <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-0.5 text-[10px] tracking-wide text-amber-200/85" style={{ fontFamily: sans }}>
                             <ImagePlus size={11} strokeWidth={2} /> {t('needs a photo', 'צריך תמונה')}
