@@ -67,10 +67,22 @@ export default function Home() {
   const titleFont = isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
   const sans = isHe ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
 
-  const allCocktails = useMemo<ReadonlyArray<CocktailConfig>>(
-    () => [...MENU, ...drafts.filter((d) => !MENU.some((m) => m.slug === d.slug))],
-    [drafts]
-  );
+  // Built-in MENU wins. Hide any draft that duplicates a built-in by slug OR by
+  // name (ignoring a trailing "(200 גרם)"-style suffix) — so promoting an item to
+  // a built-in rich version doesn't leave the old imported draft showing twice.
+  const allCocktails = useMemo<ReadonlyArray<CocktailConfig>>(() => {
+    const norm = (s: string) => s.replace(/\([^)]*\)/g, '').trim().toLowerCase().replace(/\s+/g, ' ');
+    const menuKeys = new Set<string>();
+    for (const m of MENU) {
+      menuKeys.add(`s:${m.slug}`);
+      if (m.title.he) menuKeys.add(`t:${norm(m.title.he)}`);
+      if (m.title.en) menuKeys.add(`t:${norm(m.title.en)}`);
+    }
+    const uniqueDrafts = drafts.filter(
+      (d) => !menuKeys.has(`s:${d.slug}`) && !menuKeys.has(`t:${norm(d.title.he)}`) && !menuKeys.has(`t:${norm(d.title.en)}`)
+    );
+    return [...MENU, ...uniqueDrafts];
+  }, [drafts]);
   const orderedCocktails = useMemo(() => applyMenuOrder(allCocktails), [allCocktails, applyMenuOrder]);
   const draftSlugs = useMemo(() => new Set(drafts.map((d) => d.slug)), [drafts]);
   const featured = orderedCocktails[0] ?? null;

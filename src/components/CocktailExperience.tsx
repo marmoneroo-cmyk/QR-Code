@@ -330,8 +330,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         onClick={hasComponents ? onIngredients : undefined}
         disabled={!hasComponents}
         aria-label={isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
-        className="group relative mt-5 flex-1 outline-none disabled:cursor-default"
-        style={{ minHeight: '44vh', maxHeight: '56vh' }}
+        className="group relative mt-5 flex w-full flex-col items-center outline-none disabled:cursor-default"
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 1.1, delay: 0.25, ease: EASE }}
@@ -342,7 +341,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
           style={{ background: `radial-gradient(circle, ${accent}44, transparent 70%)` }}
         />
         <motion.span
-          className="relative block h-full"
+          className="relative block"
           animate={reduce ? undefined : { y: [0, -8, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         >
@@ -350,7 +349,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
           <img
             src={config.heroImage}
             alt={config.title[lang]}
-            className="relative z-10 mx-auto h-full w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
+            className="relative z-10 mx-auto max-h-[38vh] w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
             style={{ filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)` }}
           />
         </motion.span>
@@ -438,24 +437,35 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.12 + i * 0.1, ease: EASE }}
             >
-              {/* Number medallion — the dish has no per-part PNG, so the number IS the marker. */}
+              {/* Floating component image — the dish's answer to the drink's floating ingredient.
+                  Wider box: the burger layers are landscape slices, not square garnishes. */}
               <motion.span
-                className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border md:h-20 md:w-20"
-                style={{ borderColor: `${accent}55` }}
-                animate={reduce ? undefined : { y: [0, -5, 0] }}
+                className="relative block h-24 w-28 shrink-0 md:h-28 md:w-36"
+                animate={reduce ? undefined : { y: [0, -6, 0] }}
                 transition={{ duration: 4.5 + (i % 3), repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
               >
-                <span aria-hidden className="absolute inset-0 rounded-full blur-xl" style={{ background: `radial-gradient(circle, ${accent}33, transparent 70%)` }} />
-                <span className="relative text-lg text-amber-100/90 md:text-xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
-                  {label.number}
-                </span>
+                <span aria-hidden className="absolute inset-0 rounded-full blur-2xl" style={{ background: `radial-gradient(circle, ${accent}40, transparent 70%)` }} />
+                {label.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={label.image}
+                    alt=""
+                    aria-hidden
+                    className="relative h-full w-full object-contain"
+                    style={{ filter: 'drop-shadow(0 16px 26px rgba(0,0,0,0.7))' }}
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                  />
+                ) : null}
               </motion.span>
 
               <div className="min-w-0 flex-1">
-                <h3 className="text-xl leading-tight text-white md:text-2xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
+                <p className="text-[10px] tracking-[0.4em] text-white/35" style={{ fontFamily: sans }}>
+                  {label.number}
+                </p>
+                <h3 className="mt-1 text-xl leading-tight text-white md:text-2xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
                   {label.name[lang]}
                 </h3>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-white/55 md:text-sm" style={{ fontFamily: sans }}>
                   {label.description[lang]}
                 </p>
               </div>
@@ -478,13 +488,26 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
           <p className="text-lg text-white" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
             {config.title[lang]}
           </p>
-          {note && (
-            <p className="mt-2 max-w-xs text-[12.5px] italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
-              ”{note}“{config.bartenderName ? ` — ${config.bartenderName}` : ''}
-            </p>
-          )}
         </figcaption>
       </motion.figure>
+
+      {/* Flavor profile — the same radar the drinks use. */}
+      <motion.div
+        className="mt-14 flex flex-col items-center"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3 + components.length * 0.1, ease: EASE }}
+      >
+        <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/45" style={{ fontFamily: sans }}>
+          {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
+        </p>
+        <FlavorRadar flavor={config.flavor} lang={lang} size={230} />
+        {note && (
+          <p className="mt-8 max-w-xs text-center text-[13px] italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
+            ”{note}“{config.bartenderName ? ` — ${config.bartenderName}` : ''}
+          </p>
+        )}
+      </motion.div>
 
       <AlsoExplored currentSlug={config.slug} lang={lang} serif={serif} sans={sans} />
     </motion.section>
