@@ -11,8 +11,9 @@ import type { Promotion } from '@/lib/promotions/types';
 import type { ExperienceConfig } from '@/lib/experience/types';
 
 /**
- * A Netflix-style menu ROW: a section title + a horizontal, snap-scrolling rail
- * of image-forward cards. One row per course (food) or "Cocktails" (drinks).
+ * A menu SECTION: a section title + a responsive grid of image-forward cards
+ * (2 per row on phones, 3–4 on wider screens). One section per food course or
+ * "Cocktails" (drinks). Vertical scroll — no horizontal rail.
  */
 
 const serif = 'var(--font-playfair, serif)';
@@ -58,13 +59,10 @@ export function MenuRow({ section, lang, currency, promotions, experience, index
         </span>
       </div>
 
-      {/* The rail */}
-      <div
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-6 px-6 pb-3 md:px-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        style={{ scrollbarWidth: 'none' }}
-      >
+      {/* Responsive grid — 2 per row on phones, 3–4 on wider screens */}
+      <div className="mx-auto grid max-w-[1500px] grid-cols-2 gap-3 px-6 pb-2 md:grid-cols-3 md:gap-5 md:px-10 lg:grid-cols-4">
         {section.items.map(({ cocktail, isDraft }, i) => (
-          <ImpressionTracker key={cocktail.slug} slug={cocktail.slug} className="shrink-0 snap-start">
+          <ImpressionTracker key={cocktail.slug} slug={cocktail.slug} className="min-w-0">
             <RowCard
               cocktail={cocktail}
               isDraft={isDraft}
@@ -120,7 +118,7 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
 
   return (
     <motion.div
-      className="relative w-[210px] shrink-0 snap-start md:w-[230px]"
+      className="relative w-full"
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, delay: Math.min(delay * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
@@ -132,7 +130,7 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
       )}
       <Link href={href} className="group block" onMouseEnter={onEnter} onMouseLeave={onLeave}>
         <div
-          className="relative h-72 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-900/80 via-black to-zinc-950/80 transition-all duration-500 group-hover:-translate-y-1.5 md:h-80"
+          className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-900/80 via-black to-zinc-950/80 transition-all duration-500 group-hover:-translate-y-1.5"
           style={{ boxShadow: '0 30px 60px -24px rgba(0,0,0,0.8)' }}
         >
           <span
@@ -148,7 +146,7 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
               <img
                 src={cocktail.heroImage}
                 alt={cocktail.title[lang]}
-                className="absolute inset-0 h-full w-full object-contain px-5 pt-7 pb-1 drop-shadow-[0_22px_38px_rgba(0,0,0,0.75)] transition-transform duration-500 group-hover:scale-[1.05]"
+                className="absolute inset-0 h-full w-full object-contain px-3 pt-5 pb-1 md:px-5 md:pt-7 drop-shadow-[0_22px_38px_rgba(0,0,0,0.75)] transition-transform duration-500 group-hover:scale-[1.05]"
                 style={{ opacity: hoverVideo && playing ? 0 : 1 }}
               />
               {hoverVideo && (
@@ -160,15 +158,15 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
                   loop
                   playsInline
                   preload="none"
-                  className="absolute inset-0 h-full w-full object-contain px-5 pt-7 pb-1 transition-opacity duration-500"
+                  className="absolute inset-0 h-full w-full object-contain px-3 pt-5 pb-1 md:px-5 md:pt-7 transition-opacity duration-500"
                   style={{ opacity: playing ? 1 : 0 }}
                 />
               )}
             </div>
-            <div className="relative shrink-0 px-4 pb-4 pt-2" dir={isHe ? 'rtl' : 'ltr'}>
+            <div className="relative shrink-0 px-3 pb-3 pt-2 md:px-4 md:pb-4" dir={isHe ? 'rtl' : 'ltr'}>
               <div className="pointer-events-none absolute inset-x-0 -top-8 bottom-0 -z-10" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 40%, transparent)' }} />
               <h3
-                className="truncate text-white text-[16px] leading-tight"
+                className="line-clamp-2 text-white text-[16px] leading-tight"
                 style={{ fontFamily: isHe ? serifHe : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
               >
                 {cocktail.title[lang]}
