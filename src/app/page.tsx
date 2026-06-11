@@ -13,9 +13,23 @@ import { useMenuConfig } from '@/lib/useMenuConfig';
 import { track } from '@/lib/tracking/track';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
 import { MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
+import { inferKind, type ItemKind } from '@/lib/menu/classify';
 
 const MENU_SCROLL_KEY = 'cocktail-demo:menu-scroll';
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+const MENU_SLUGS = new Set(MENU.map((m) => m.slug));
+
+/**
+ * Resolve an item's kind for menu grouping. An explicit `kind` always wins; the
+ * built-in cocktails are drinks; any other item (e.g. an imported or older draft
+ * with no `kind`) is classified from its name so food lands in a food row.
+ */
+function itemKind(c: CocktailConfig): ItemKind {
+  if (c.kind) return c.kind;
+  if (MENU_SLUGS.has(c.slug)) return 'drink';
+  return inferKind(`${c.title.en} ${c.title.he}`, c.course ?? '');
+}
 
 /** Order food sections like a real menu: starters → mains → desserts; drinks last. */
 function courseRank(course: string): number {
@@ -64,8 +78,8 @@ export default function Home() {
   // Group into Netflix-style rows: one per food course, plus one for all cocktails.
   const sections = useMemo<MenuSection[]>(() => {
     const q = query.trim().toLowerCase();
-    const food = orderedCocktails.filter((c) => c.kind === 'food');
-    const drinks = orderedCocktails.filter((c) => c.kind !== 'food');
+    const food = orderedCocktails.filter((c) => itemKind(c) === 'food');
+    const drinks = orderedCocktails.filter((c) => itemKind(c) === 'drink');
 
     const byCourse = new Map<string, CocktailConfig[]>();
     for (const f of food) {
