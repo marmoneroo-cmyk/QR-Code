@@ -994,8 +994,19 @@ export const DINER_WHISKEY_SOUR: CocktailConfig = {
 
 const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
   {
-    id: 'aioli',
+    id: 'bun-top',
     number: '01',
+    layerId: 'bun-top',
+    image: '/Food/comp-bun-cut.png',
+    name: { en: 'Brioche bun · top', he: 'לחמנייה עליונה' },
+    description: {
+      en: 'Buttery sesame brioche, toasted golden.',
+      he: 'בריוש חמאתי עם שומשום, מוזהב בקלייה.',
+    },
+  },
+  {
+    id: 'aioli',
+    number: '02',
     layerId: 'aioli',
     image: '/Food/comp-aioli-cut.png',
     name: { en: 'Truffle aioli', he: 'איולי כמהין' },
@@ -1006,7 +1017,7 @@ const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
   },
   {
     id: 'sweet-potato',
-    number: '02',
+    number: '03',
     layerId: 'sweet-potato',
     image: '/Food/comp-sweet-potato-cut.png',
     name: { en: 'Crispy sweet-potato straws', he: 'שבבי בטטה פריכים' },
@@ -1017,7 +1028,7 @@ const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
   },
   {
     id: 'lettuce',
-    number: '03',
+    number: '04',
     layerId: 'lettuce',
     image: '/Food/comp-lettuce-cut.png',
     name: { en: 'Fresh lettuce', he: 'חסה טרייה' },
@@ -1028,7 +1039,7 @@ const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
   },
   {
     id: 'patty',
-    number: '04',
+    number: '05',
     layerId: 'patty',
     image: '/Food/comp-patty-cut.png',
     name: { en: 'Beef patty · 200g', he: 'קציצת בקר · 200 גרם' },
@@ -1038,14 +1049,14 @@ const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
     },
   },
   {
-    id: 'bun',
-    number: '05',
-    layerId: 'bun',
-    image: '/Food/comp-bun-cut.png',
-    name: { en: 'Brioche bun', he: 'לחמניית בריוש' },
+    id: 'bun-bottom',
+    number: '06',
+    layerId: 'bun-bottom',
+    image: '/Food/comp-bun-bottom-cut.png',
+    name: { en: 'Brioche bun · bottom', he: 'לחמנייה תחתונה' },
     description: {
-      en: 'Soft, buttery brioche with sesame, toasted golden.',
-      he: 'לחמנייה רכה וחמאתית עם שומשום, מוזהבת בקלייה.',
+      en: 'Soft and buttery, toasted to hold it all together.',
+      he: 'רכה וחמאתית, קלויה כדי להחזיק את הכל יחד.',
     },
   },
 ];

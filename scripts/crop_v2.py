@@ -14,6 +14,7 @@ comps = {
     'sweet-potato': (564, 733),   # #3 sweet-potato straws
     'lettuce':      (768, 927),   # #4 fresh lettuce
     'patty':        (971, 1118),  # #5 grilled beef patty
+    'bun-bottom':   (1320, 1483), # #7 brioche bottom
 }
 
 for name, (y0, y1) in comps.items():

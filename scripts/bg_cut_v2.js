@@ -4,7 +4,7 @@ const fs = require('fs');
 const { removeBackground } = require('@imgly/background-removal-node');
 let sharp = null; try { sharp = require('sharp'); } catch {}
 
-const names = ['bun', 'aioli', 'sweet-potato', 'lettuce', 'patty'];
+const names = ['bun', 'aioli', 'sweet-potato', 'lettuce', 'patty', 'bun-bottom'];
 
 (async () => {
   for (const name of names) {
