@@ -997,7 +997,7 @@ const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
     id: 'aioli',
     number: '01',
     layerId: 'aioli',
-    image: '/Food/comp-aioli.png',
+    image: '/Food/comp-aioli-cut.png',
     name: { en: 'Truffle aioli', he: 'איולי כמהין' },
     description: {
       en: 'Velvety aioli laced with black truffle — earthy depth and a rich aroma.',
@@ -1008,7 +1008,7 @@ const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
     id: 'sweet-potato',
     number: '02',
     layerId: 'sweet-potato',
-    image: '/Food/comp-sweet-potato.png',
+    image: '/Food/comp-sweet-potato-cut.png',
     name: { en: 'Crispy sweet-potato straws', he: 'שבבי בטטה פריכים' },
     description: {
       en: 'Thin, crisp sweet-potato straws for gentle sweetness and crunch.',
@@ -1019,7 +1019,7 @@ const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
     id: 'lettuce',
     number: '03',
     layerId: 'lettuce',
-    image: '/Food/comp-lettuce.png',
+    image: '/Food/comp-lettuce-cut.png',
     name: { en: 'Fresh lettuce', he: 'חסה טרייה' },
     description: {
       en: 'Cool, fresh leaves that balance the richness.',
@@ -1030,7 +1030,7 @@ const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
     id: 'patty',
     number: '04',
     layerId: 'patty',
-    image: '/Food/comp-patty.png',
+    image: '/Food/comp-patty-cut.png',
     name: { en: 'Beef patty · 200g', he: 'קציצת בקר · 200 גרם' },
     description: {
       en: 'Coarse-ground fresh beef, fire-seared, juicy at the center.',
@@ -1041,7 +1041,7 @@ const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
     id: 'bun',
     number: '05',
     layerId: 'bun',
-    image: '/Food/comp-bun.png',
+    image: '/Food/comp-bun-cut.png',
     name: { en: 'Brioche bun', he: 'לחמניית בריוש' },
     description: {
       en: 'Soft, buttery brioche with sesame, toasted golden.',
@@ -1062,7 +1062,7 @@ export const TRUFFLE_BURGER: CocktailConfig = {
   category: 'smoky',
   kind: 'food',
   course: 'עיקריות',
-  heroImage: '/Food/truffle-burger.png',
+  heroImage: '/Food/truffle-burger-cut.png',
   flavor: { sweet: 2, bitter: 1, citrus: 0, smoky: 4, herbal: 2 },
   bartenderNote: {
     en: 'The secret is balance — rich truffle against cool lettuce and crisp sweet potato.',
