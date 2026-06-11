@@ -1,0 +1,137 @@
+'use client';
+
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Loader2, Lock } from 'lucide-react';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
+import { useLang } from '@/lib/useLang';
+
+const sans = 'var(--font-inter, sans-serif)';
+
+function LoginForm() {
+  const router = useRouter();
+  const search = useSearchParams();
+  const { lang } = useLang();
+  const isHe = lang === 'he';
+  const t = (en: string, he: string) => (isHe ? he : en);
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const configured = isSupabaseConfigured();
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!configured) {
+      setError(t('Supabase is not configured.', 'Supabase לא מוגדר.'));
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const sb = createClient();
+      const { error: signInError } = await sb.auth.signInWithPassword({ email: email.trim(), password });
+      if (signInError) {
+        setError(signInError.message);
+        setLoading(false);
+        return;
+      }
+      const next = search.get('next') || '/admin';
+      router.push(next);
+      router.refresh();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t('Sign-in failed.', 'ההתחברות נכשלה.'));
+      setLoading(false);
+    }
+  };
+
+  const inputClass =
+    'w-full rounded-xl border border-white/12 bg-black/40 px-4 py-3 text-white text-[15px] outline-none transition-colors duration-300 placeholder:text-white/30 focus:border-amber-200/50 focus:bg-black/55';
+
+  return (
+    <div className="relative flex min-h-screen items-center justify-center bg-black px-6 text-white" dir={isHe ? 'rtl' : 'ltr'} lang={lang}>
+      <div aria-hidden className="pointer-events-none fixed inset-0" style={{ background: 'radial-gradient(80% 50% at 50% 20%, rgba(251,191,36,0.10), transparent 70%), linear-gradient(to bottom, #000, #0a0a0a)' }} />
+
+      <div className="relative z-10 w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <span className="mx-auto mb-5 grid h-12 w-12 place-items-center rounded-full border border-amber-200/30 bg-amber-200/10 text-amber-200">
+            <Lock size={18} strokeWidth={1.8} />
+          </span>
+          <p className="text-amber-200/70 text-[10px] tracking-[0.45em] uppercase" style={{ fontFamily: sans }}>
+            {t('Restaurant Admin', 'ניהול מסעדה')}
+          </p>
+          <h1
+            className="mt-3 text-3xl text-white"
+            style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)', fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+          >
+            {t('Sign in', 'התחברות')}
+          </h1>
+        </div>
+
+        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="mb-1.5 block text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
+              {t('Email', 'אימייל')}
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+              dir="ltr"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
+              {t('Password', 'סיסמה')}
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+              dir="ltr"
+              className={inputClass}
+            />
+          </div>
+
+          {error && (
+            <p className="text-rose-300/90 text-[13px]" style={{ fontFamily: sans }}>
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-amber-200 py-3 text-[12px] font-semibold tracking-[0.28em] uppercase text-black transition-transform hover:scale-[1.02] disabled:opacity-50"
+            style={{ fontFamily: sans }}
+          >
+            {loading ? <Loader2 size={15} strokeWidth={2.2} className="animate-spin" /> : null}
+            {loading ? t('Signing in…', 'מתחבר…') : t('Sign in', 'התחבר')}
+          </button>
+        </form>
+
+        <div className="mt-8 text-center">
+          <Link href="/" className="text-white/40 hover:text-white/70 text-[10px] tracking-[0.3em] uppercase transition-colors" style={{ fontFamily: sans }}>
+            {t('← Back to menu', '→ חזרה לתפריט')}
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <LoginForm />
+    </Suspense>
+  );
+}

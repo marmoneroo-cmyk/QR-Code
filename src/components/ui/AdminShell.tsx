@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { LayoutGrid, Home, X } from 'lucide-react';
 import { useLang } from '@/lib/useLang';
 import { AdminLauncher } from './AdminLauncher';
+import { AuthStatus } from '@/components/admin/AuthStatus';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -100,6 +101,7 @@ export function AdminShell({
                 </button>
               ))}
             </div>
+            <AuthStatus lang={lang} />
           </div>
         </div>
       </header>
