@@ -1,15 +1,10 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useDrafts } from '@/lib/useDrafts';
+import { CocktailExperience } from '@/components/CocktailExperience';
 import type { CocktailConfig } from '@/data/cocktail';
-
-const CocktailScene = dynamic(
-  () => import('@/components/CocktailScene').then((mod) => mod.CocktailScene),
-  { ssr: false }
-);
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -88,5 +83,5 @@ export default function DraftPage({ params }: PageProps) {
     );
   }
 
-  return <CocktailScene config={config} />;
+  return <CocktailExperience config={config} />;
 }

@@ -33,7 +33,14 @@ interface CocktailExperienceProps {
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
+/** Dispatch by item kind — a dish gets a dish layout, a drink gets the cinematic one. */
 export function CocktailExperience({ config }: CocktailExperienceProps) {
+  return config.kind === 'food'
+    ? <FoodExperience config={config} />
+    : <DrinkExperience config={config} />;
+}
+
+function DrinkExperience({ config }: CocktailExperienceProps) {
   const [lang, setLang] = useState<Lang>('en');
   const [mode, setMode] = useState<ExperienceMode>('hero');
   const reduce = useReducedMotion();
@@ -163,6 +170,120 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
             sans={sans}
             onEnd={() => setMode('hero')}
           />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ── Food experience — a dish, not a drink: no glass, no flavor radar ──────── */
+
+function FoodExperience({ config }: CocktailExperienceProps) {
+  const [lang, setLang] = useState<Lang>('en');
+  const [showVideo, setShowVideo] = useState(false);
+  useEngagement(config.slug);
+
+  const isHe = lang === 'he';
+  const accent = getAccent(config.slug);
+  const featureVideo = getFeatureVideo(config.slug);
+  const serif = isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
+  const sans = isHe ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
+
+  useEffect(() => {
+    setRestaurantSlug('diner');
+    track({ event: 'cocktail_opened', cocktailSlug: config.slug });
+  }, [config.slug]);
+
+  const openVideo = () => {
+    track({ event: 'cocktail_video_opened', cocktailSlug: config.slug });
+    setShowVideo(true);
+  };
+
+  const dietary = [
+    { on: config.dietary.vegan, en: 'Vegan', he: 'טבעוני' },
+    { on: config.dietary.glutenFree, en: 'Gluten-free', he: 'ללא גלוטן' },
+  ].filter((d) => d.on);
+
+  return (
+    <div className="relative min-h-screen w-full overflow-x-hidden bg-black text-white" dir={isHe ? 'rtl' : 'ltr'} lang={lang}>
+      <div aria-hidden className="pointer-events-none fixed inset-0" style={{ background: `radial-gradient(90% 55% at 50% 18%, ${accent}1c, transparent 70%)` }} />
+
+      <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 pt-5">
+        <Link href="/" aria-label={isHe ? 'חזרה לתפריט' : 'Back to menu'}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 backdrop-blur-md transition-colors hover:text-white">
+          <span aria-hidden className="text-lg leading-none">{isHe ? '→' : '←'}</span>
+        </Link>
+        <button type="button" onClick={() => setLang(isHe ? 'en' : 'he')}
+          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-[11px] tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white" style={{ fontFamily: sans }}>
+          {isHe ? 'EN' : 'עב'}
+        </button>
+      </header>
+
+      <main className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-6 pt-20 pb-16 text-center">
+        {/* Plated image — big, but no glass reflection (this is a dish). */}
+        <motion.div
+          className="relative w-full"
+          style={{ height: '44vh', minHeight: 260 }}
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.0, ease: EASE }}
+        >
+          <span aria-hidden className="absolute left-1/2 top-1/2 h-[70%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" style={{ background: `radial-gradient(circle, ${accent}3a, transparent 70%)` }} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={config.heroImage} alt={config.title[lang]} className="relative h-full w-full object-contain" style={{ filter: 'drop-shadow(0 30px 55px rgba(0,0,0,0.8))' }} />
+        </motion.div>
+
+        {config.course && (
+          <p className="mt-6 text-[11px] tracking-[0.4em] uppercase text-amber-200/70" style={{ fontFamily: sans }}>
+            {config.course}
+          </p>
+        )}
+
+        <motion.h1
+          className="mt-2 text-[2.2rem] leading-tight md:text-5xl"
+          style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
+        >
+          {config.title[lang]}
+        </motion.h1>
+
+        {config.priceILS !== undefined && (
+          <p className="mt-3 text-2xl text-amber-100/90" style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
+            {formatPrice(config.priceILS, 'ILS')}
+          </p>
+        )}
+
+        {/* Description — for food this IS the components/ingredients. */}
+        {config.tagline?.[lang]?.trim() && (
+          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-white/65" style={{ fontFamily: serif }}>
+            {config.tagline[lang]}
+          </p>
+        )}
+
+        {dietary.length > 0 && (
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            {dietary.map((d) => (
+              <span key={d.en} className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-[11px] tracking-wide text-emerald-200/90" style={{ fontFamily: sans }}>
+                {isHe ? d.he : d.en}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {featureVideo && (
+          <button type="button" onClick={openVideo}
+            className="mt-7 inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-[11px] tracking-[0.22em] uppercase transition-transform hover:-translate-y-0.5"
+            style={{ borderColor: `${accent}66`, color: '#fde9c8', background: `linear-gradient(160deg, ${accent}20, transparent)`, fontFamily: sans }}>
+            <Play size={15} strokeWidth={1.8} aria-hidden /> {isHe ? 'וידאו' : 'Watch'}
+          </button>
+        )}
+
+        <AlsoExplored currentSlug={config.slug} lang={lang} serif={serif} sans={sans} />
+      </main>
+
+      <AnimatePresence>
+        {showVideo && featureVideo && (
+          <VideoStage key="food-video" src={featureVideo} lang={lang} sans={sans} onEnd={() => setShowVideo(false)} />
         )}
       </AnimatePresence>
     </div>

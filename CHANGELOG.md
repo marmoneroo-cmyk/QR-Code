@@ -7,6 +7,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-06-09
 
+### Added — Food guest experience (a dish, not a drink)
+
+The cocktail page now dispatches by `kind`: a food item renders a **FoodExperience** —
+big plated image (no glass reflection), course eyebrow, name, price, the full
+description (for food this IS the components), dietary badges (vegan / gluten-free),
+optional video, and "you might also like". **No** glass, **no** exploded-ingredient
+view, **no** flavor-profile radar, **no** "tap to explore". Drinks keep the cinematic
+cocktail layout unchanged. Draft preview (`/drafts/[slug]`) now uses the same Experience,
+so imported food items preview correctly (instead of the old 3D cocktail scene).
+
 ### Added — Drink vs food: type-aware editing
 
 Menu items are no longer assumed to be cocktails. Each item has a `kind` (`drink` |
