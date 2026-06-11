@@ -987,6 +987,86 @@ export const DINER_WHISKEY_SOUR: CocktailConfig = {
   labels: WHISKEY_SOUR_LABELS,
 };
 
+/* ── Food — a dish, not a drink. Same rich treatment: numbered component
+   breakdown + a preparation video. Driven by `kind: 'food'`. ──────────────── */
+
+const TRUFFLE_BURGER_LABELS: IngredientLabel[] = [
+  {
+    id: 'aioli',
+    number: '01',
+    layerId: 'aioli',
+    name: { en: 'Truffle aioli', he: 'איולי כמהין' },
+    description: {
+      en: 'Velvety aioli laced with black truffle — earthy depth and a rich aroma.',
+      he: 'איולי קטיפתי עם תמצית כמהין שחור — עומק אדמתי וניחוח עשיר.',
+    },
+  },
+  {
+    id: 'sweet-potato',
+    number: '02',
+    layerId: 'sweet-potato',
+    name: { en: 'Crispy sweet-potato straws', he: 'שבבי בטטה פריכים' },
+    description: {
+      en: 'Thin, crisp sweet-potato straws for gentle sweetness and crunch.',
+      he: 'שבבי בטטה דקים ופריכים שמוסיפים מתיקות עדינה ומרקם פריך.',
+    },
+  },
+  {
+    id: 'lettuce',
+    number: '03',
+    layerId: 'lettuce',
+    name: { en: 'Fresh lettuce', he: 'חסה טרייה' },
+    description: {
+      en: 'Cool, fresh leaves that balance the richness.',
+      he: 'עלי חסה טריים וקרירים שמאזנים את העושר.',
+    },
+  },
+  {
+    id: 'patty',
+    number: '04',
+    layerId: 'patty',
+    name: { en: 'Beef patty · 200g', he: 'קציצת בקר · 200 גרם' },
+    description: {
+      en: 'Coarse-ground fresh beef, fire-seared, juicy at the center.',
+      he: 'בקר טרי נטחן גס, צרוב על האש, עסיסי במרכז.',
+    },
+  },
+  {
+    id: 'bun',
+    number: '05',
+    layerId: 'bun',
+    name: { en: 'Brioche bun', he: 'לחמניית בריוש' },
+    description: {
+      en: 'Soft, buttery brioche with sesame, toasted golden.',
+      he: 'לחמנייה רכה וחמאתית עם שומשום, מוזהבת בקלייה.',
+    },
+  },
+];
+
+export const TRUFFLE_BURGER: CocktailConfig = {
+  slug: 'truffle-burger',
+  priceILS: 96,
+  title: { en: 'Truffle Burger', he: 'המבורגר כמהין' },
+  subtitle: { en: 'Components Breakdown', he: 'פירוט המרכיבים' },
+  tagline: {
+    en: 'Truffle aioli · Sweet-potato straws · 200g beef',
+    he: 'איולי כמהין · שבבי בטטה · בקר 200 גרם',
+  },
+  category: 'smoky',
+  kind: 'food',
+  course: 'עיקריות',
+  heroImage: '/Food/truffle-burger.png',
+  flavor: { sweet: 2, bitter: 1, citrus: 0, smoky: 4, herbal: 1 },
+  bartenderNote: {
+    en: 'The secret is balance — rich truffle against cool lettuce and crisp sweet potato.',
+    he: 'הסוד הוא האיזון — כמהין עשיר מול חסה קרירה ובטטה פריכה.',
+  },
+  bartenderName: 'Chef',
+  dietary: { vegan: false, glutenFree: false, alcoholFree: true },
+  layers: [],
+  labels: TRUFFLE_BURGER_LABELS,
+};
+
 export const MENU: ReadonlyArray<CocktailConfig> = [
   CITRUS_LIME_SOUR,
   SMOKED_OLD_FASHIONED,
@@ -997,6 +1077,7 @@ export const MENU: ReadonlyArray<CocktailConfig> = [
   DINER_MARGARITA,
   DINER_GREEN_GARDEN,
   DINER_WHISKEY_SOUR,
+  TRUFFLE_BURGER,
 ];
 
 export function findCocktailBySlug(slug: string): CocktailConfig | undefined {
@@ -1033,6 +1114,7 @@ export const COCKTAIL_ACCENT: Record<string, string> = {
   'smoked-old-fashioned': '#c8741f', // smoked bronze
   'citrus-lime-sour': '#e8b53a', // citrus gold
   'garden-spritz': '#7bc96f', // garden green
+  'truffle-burger': '#c8741f', // toasted truffle bronze
 };
 
 export function getAccent(slug: string): string {
@@ -1056,6 +1138,9 @@ export const COCKTAIL_VIDEOS: Record<string, { hover?: string; feature?: string 
   'garden-spritz': {
     hover: '/cocktail/video/garden-spritz.mp4',
     feature: '/cocktail/video/garden-spritz.mp4',
+  },
+  'truffle-burger': {
+    feature: '/Food/truffle-burger-assembly.mp4',
   },
 };
 

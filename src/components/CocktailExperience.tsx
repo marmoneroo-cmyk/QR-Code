@@ -180,12 +180,14 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
 
 function FoodExperience({ config }: CocktailExperienceProps) {
   const [lang, setLang] = useState<Lang>('en');
-  const [showVideo, setShowVideo] = useState(false);
+  const [mode, setMode] = useState<ExperienceMode>('hero');
+  const reduce = useReducedMotion();
   useEngagement(config.slug);
 
   const isHe = lang === 'he';
   const accent = getAccent(config.slug);
   const featureVideo = getFeatureVideo(config.slug);
+  const hasComponents = config.labels.length > 0;
   const serif = isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
   const sans = isHe ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
 
@@ -194,99 +196,298 @@ function FoodExperience({ config }: CocktailExperienceProps) {
     track({ event: 'cocktail_opened', cocktailSlug: config.slug });
   }, [config.slug]);
 
+  const openIngredients = () => {
+    track({ event: 'ingredients_opened', cocktailSlug: config.slug });
+    setMode('ingredients');
+  };
   const openVideo = () => {
     track({ event: 'cocktail_video_opened', cocktailSlug: config.slug });
-    setShowVideo(true);
+    setMode('video');
   };
-
-  const dietary = [
-    { on: config.dietary.vegan, en: 'Vegan', he: 'טבעוני' },
-    { on: config.dietary.glutenFree, en: 'Gluten-free', he: 'ללא גלוטן' },
-  ].filter((d) => d.on);
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-black text-white" dir={isHe ? 'rtl' : 'ltr'} lang={lang}>
       <div aria-hidden className="pointer-events-none fixed inset-0" style={{ background: `radial-gradient(90% 55% at 50% 18%, ${accent}1c, transparent 70%)` }} />
 
+      {/* Back is contextual: from a sub-view it returns to the DISH; only the hero leaves to the menu. */}
       <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 pt-5">
-        <Link href="/" aria-label={isHe ? 'חזרה לתפריט' : 'Back to menu'}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 backdrop-blur-md transition-colors hover:text-white">
-          <span aria-hidden className="text-lg leading-none">{isHe ? '→' : '←'}</span>
-        </Link>
+        {mode === 'hero' ? (
+          <Link href="/" aria-label={isHe ? 'חזרה לתפריט' : 'Back to menu'}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 backdrop-blur-md transition-colors hover:text-white">
+            <span aria-hidden className="text-lg leading-none">{isHe ? '→' : '←'}</span>
+          </Link>
+        ) : (
+          <button type="button" onClick={() => setMode('hero')} aria-label={isHe ? 'חזרה למנה' : 'Back to the dish'}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 backdrop-blur-md transition-colors hover:text-white">
+            <span aria-hidden className="text-lg leading-none">{isHe ? '→' : '←'}</span>
+          </button>
+        )}
         <button type="button" onClick={() => setLang(isHe ? 'en' : 'he')}
           className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-[11px] tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white" style={{ fontFamily: sans }}>
           {isHe ? 'EN' : 'עב'}
         </button>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-6 pt-20 pb-16 text-center">
-        {/* Plated image — big, but no glass reflection (this is a dish). */}
-        <motion.div
-          className="relative w-full"
-          style={{ height: '44vh', minHeight: 260 }}
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.0, ease: EASE }}
-        >
-          <span aria-hidden className="absolute left-1/2 top-1/2 h-[70%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" style={{ background: `radial-gradient(circle, ${accent}3a, transparent 70%)` }} />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={config.heroImage} alt={config.title[lang]} className="relative h-full w-full object-contain" style={{ filter: 'drop-shadow(0 30px 55px rgba(0,0,0,0.8))' }} />
-        </motion.div>
-
-        {config.course && (
-          <p className="mt-6 text-[11px] tracking-[0.4em] uppercase text-amber-200/70" style={{ fontFamily: sans }}>
-            {config.course}
-          </p>
+      <AnimatePresence mode="wait">
+        {mode === 'hero' && (
+          <FoodHero
+            key="hero"
+            config={config}
+            lang={lang}
+            accent={accent}
+            serif={serif}
+            sans={sans}
+            reduce={!!reduce}
+            hasVideo={Boolean(featureVideo)}
+            hasComponents={hasComponents}
+            onIngredients={openIngredients}
+            onVideo={openVideo}
+          />
         )}
 
-        <motion.h1
-          className="mt-2 text-[2.2rem] leading-tight md:text-5xl"
-          style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
-        >
-          {config.title[lang]}
-        </motion.h1>
-
-        {config.priceILS !== undefined && (
-          <p className="mt-3 text-2xl text-amber-100/90" style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
-            {formatPrice(config.priceILS, 'ILS')}
-          </p>
+        {mode === 'ingredients' && hasComponents && (
+          <FoodExplodedView
+            key="ingredients"
+            config={config}
+            lang={lang}
+            accent={accent}
+            serif={serif}
+            sans={sans}
+            reduce={!!reduce}
+          />
         )}
 
-        {/* Description — for food this IS the components/ingredients. */}
-        {config.tagline?.[lang]?.trim() && (
-          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-white/65" style={{ fontFamily: serif }}>
-            {config.tagline[lang]}
-          </p>
-        )}
-
-        {dietary.length > 0 && (
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            {dietary.map((d) => (
-              <span key={d.en} className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-[11px] tracking-wide text-emerald-200/90" style={{ fontFamily: sans }}>
-                {isHe ? d.he : d.en}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {featureVideo && (
-          <button type="button" onClick={openVideo}
-            className="mt-7 inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-[11px] tracking-[0.22em] uppercase transition-transform hover:-translate-y-0.5"
-            style={{ borderColor: `${accent}66`, color: '#fde9c8', background: `linear-gradient(160deg, ${accent}20, transparent)`, fontFamily: sans }}>
-            <Play size={15} strokeWidth={1.8} aria-hidden /> {isHe ? 'וידאו' : 'Watch'}
-          </button>
-        )}
-
-        <AlsoExplored currentSlug={config.slug} lang={lang} serif={serif} sans={sans} />
-      </main>
-
-      <AnimatePresence>
-        {showVideo && featureVideo && (
-          <VideoStage key="food-video" src={featureVideo} lang={lang} sans={sans} onEnd={() => setShowVideo(false)} />
+        {mode === 'video' && featureVideo && (
+          <VideoStage key="video" src={featureVideo} lang={lang} sans={sans} onEnd={() => setMode('hero')} />
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+/* ── Food hero — the plated dish, name, price, two actions ─────────────────── */
+
+interface FoodHeroProps {
+  config: CocktailConfig;
+  lang: Lang;
+  accent: string;
+  serif: string;
+  sans: string;
+  reduce: boolean;
+  hasVideo: boolean;
+  hasComponents: boolean;
+  onIngredients: () => void;
+  onVideo: () => void;
+}
+
+function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComponents, onIngredients, onVideo }: FoodHeroProps) {
+  const isHe = lang === 'he';
+  const dietary = [
+    { on: config.dietary.vegan, en: 'Vegan', he: 'טבעוני' },
+    { on: config.dietary.glutenFree, en: 'Gluten-free', he: 'ללא גלוטן' },
+  ].filter((d) => d.on);
+
+  return (
+    <motion.main
+      className="relative z-10 flex min-h-dvh flex-col items-center px-6 pt-20 pb-10"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.35 } }}
+      transition={{ duration: 0.7, ease: EASE }}
+    >
+      <motion.div
+        className="text-center"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
+      >
+        {config.course && (
+          <p className="mb-3 text-[11px] tracking-[0.4em] uppercase text-amber-200/70" style={{ fontFamily: sans }}>
+            {config.course}
+          </p>
+        )}
+        <h1
+          className="text-[2.6rem] leading-[1.05] md:text-6xl"
+          style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+        >
+          {config.title[lang]}
+        </h1>
+        {config.tagline && (
+          <p className="mt-3 text-[13px] tracking-[0.12em] text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+            {config.tagline[lang]}
+          </p>
+        )}
+        {config.priceILS !== undefined && (
+          <p className="mt-2 text-xl text-amber-100/90" style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
+            {formatPrice(config.priceILS, 'ILS')}
+          </p>
+        )}
+      </motion.div>
+
+      {/* The dish — tap to explore its components. No reflection (a photo, not a transparent glass). */}
+      <motion.button
+        type="button"
+        onClick={hasComponents ? onIngredients : undefined}
+        disabled={!hasComponents}
+        aria-label={isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
+        className="group relative mt-5 flex-1 outline-none disabled:cursor-default"
+        style={{ minHeight: '44vh', maxHeight: '56vh' }}
+        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 1.1, delay: 0.25, ease: EASE }}
+      >
+        <span
+          aria-hidden
+          className="absolute left-1/2 top-1/2 h-[70%] w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+          style={{ background: `radial-gradient(circle, ${accent}44, transparent 70%)` }}
+        />
+        <motion.span
+          className="relative block h-full"
+          animate={reduce ? undefined : { y: [0, -8, 0] }}
+          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={config.heroImage}
+            alt={config.title[lang]}
+            className="relative z-10 mx-auto h-full w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
+            style={{ filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)` }}
+          />
+        </motion.span>
+        {hasComponents && (
+          <span
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] tracking-[0.45em] uppercase text-white/40 transition-colors group-hover:text-white/70"
+            style={{ fontFamily: sans }}
+          >
+            {isHe ? 'גע לגילוי המרכיבים' : 'Tap to explore'}
+          </span>
+        )}
+      </motion.button>
+
+      {dietary.length > 0 && (
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          {dietary.map((d) => (
+            <span key={d.en} className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-[11px] tracking-wide text-emerald-200/90" style={{ fontFamily: sans }}>
+              {isHe ? d.he : d.en}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {(hasComponents || hasVideo) && (
+        <motion.div
+          className={`mt-7 grid w-full max-w-sm shrink-0 gap-3 ${hasComponents && hasVideo ? 'grid-cols-2' : 'grid-cols-1'}`}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
+        >
+          {hasComponents && (
+            <ActionTile label={isHe ? 'מרכיבים' : 'Ingredients'} icon={<Layers size={20} strokeWidth={1.6} aria-hidden />} onClick={onIngredients} sans={sans} />
+          )}
+          {hasVideo && (
+            <ActionTile label={isHe ? 'וידאו' : 'Video'} icon={<Play size={20} strokeWidth={1.6} aria-hidden />} onClick={onVideo} sans={sans} />
+          )}
+        </motion.div>
+      )}
+    </motion.main>
+  );
+}
+
+/* ── Food component breakdown — the dish's answer to the exploded drink view ── */
+
+interface FoodExplodedViewProps {
+  config: CocktailConfig;
+  lang: Lang;
+  accent: string;
+  serif: string;
+  sans: string;
+  reduce: boolean;
+}
+
+function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExplodedViewProps) {
+  const isHe = lang === 'he';
+  const components = config.labels;
+  const note = config.bartenderNote?.[lang];
+
+  return (
+    <motion.section
+      className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center px-6 pt-24 pb-16"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.3 } }}
+      aria-label={isHe ? 'פירוק מרכיבים' : 'Ingredient breakdown'}
+    >
+      <motion.p
+        className="mb-10 text-center text-[11px] tracking-[0.5em] uppercase text-white/45"
+        style={{ fontFamily: sans }}
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: EASE }}
+      >
+        {isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
+      </motion.p>
+
+      <ol className="relative flex w-full flex-col gap-8">
+        {components.map((label, i) => {
+          const side = i % 2 === 0 ? 'start' : 'end'; // alternate around the spine
+          return (
+            <motion.li
+              key={label.id}
+              className={`relative flex items-center gap-5 ${side === 'end' ? 'flex-row-reverse text-end' : ''}`}
+              initial={{ opacity: 0, y: 34 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.12 + i * 0.1, ease: EASE }}
+            >
+              {/* Number medallion — the dish has no per-part PNG, so the number IS the marker. */}
+              <motion.span
+                className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border md:h-20 md:w-20"
+                style={{ borderColor: `${accent}55` }}
+                animate={reduce ? undefined : { y: [0, -5, 0] }}
+                transition={{ duration: 4.5 + (i % 3), repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+              >
+                <span aria-hidden className="absolute inset-0 rounded-full blur-xl" style={{ background: `radial-gradient(circle, ${accent}33, transparent 70%)` }} />
+                <span className="relative text-lg text-amber-100/90 md:text-xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
+                  {label.number}
+                </span>
+              </motion.span>
+
+              <div className="min-w-0 flex-1">
+                <h3 className="text-xl leading-tight text-white md:text-2xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
+                  {label.name[lang]}
+                </h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+                  {label.description[lang]}
+                </p>
+              </div>
+            </motion.li>
+          );
+        })}
+      </ol>
+
+      {/* The finished dish at the base of the stack — like the glass under a drink. */}
+      <motion.figure
+        className="relative mt-14 flex flex-col items-center"
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.9, delay: 0.2 + components.length * 0.1, ease: EASE }}
+      >
+        <span aria-hidden className="absolute left-1/2 top-1/2 h-[75%] w-[85%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" style={{ background: `radial-gradient(circle, ${accent}45, transparent 70%)` }} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={config.heroImage} alt={config.title[lang]} className="relative h-60 w-auto object-contain md:h-72" style={{ filter: 'drop-shadow(0 30px 50px rgba(0,0,0,0.8))' }} />
+        <figcaption className="mt-4 text-center">
+          <p className="text-lg text-white" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
+            {config.title[lang]}
+          </p>
+          {note && (
+            <p className="mt-2 max-w-xs text-[12.5px] italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
+              ”{note}“{config.bartenderName ? ` — ${config.bartenderName}` : ''}
+            </p>
+          )}
+        </figcaption>
+      </motion.figure>
+
+      <AlsoExplored currentSlug={config.slug} lang={lang} serif={serif} sans={sans} />
+    </motion.section>
   );
 }
 
