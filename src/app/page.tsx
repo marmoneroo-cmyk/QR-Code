@@ -136,7 +136,7 @@ export default function Home() {
 
       {/* ── Cinematic hero — one big wow on entry ─────────────────────────── */}
       <section
-        className="relative flex min-h-[54vh] w-full flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-10 text-center"
+        className="relative flex min-h-[42vh] w-full flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-7 text-center md:min-h-[56vh] md:pb-10"
         dir={isHe ? 'rtl' : 'ltr'}
       >
         {featured && (

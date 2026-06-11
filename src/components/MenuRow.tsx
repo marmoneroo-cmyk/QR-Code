@@ -168,18 +168,18 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
             <div className="relative shrink-0 px-4 pb-4 pt-2" dir={isHe ? 'rtl' : 'ltr'}>
               <div className="pointer-events-none absolute inset-x-0 -top-8 bottom-0 -z-10" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 40%, transparent)' }} />
               <h3
-                className="truncate text-white text-[15px] leading-tight"
+                className="truncate text-white text-[16px] leading-tight"
                 style={{ fontFamily: isHe ? serifHe : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
               >
                 {cocktail.title[lang]}
               </h3>
               {priced && priced.discounted ? (
                 <p className="mt-1 inline-flex items-baseline gap-1.5" style={{ fontFamily: sans }} dir="ltr">
-                  <span className="text-[11px] line-through opacity-40">{formatPrice(priced.original, currency)}</span>
-                  <span className="text-amber-300 text-sm font-semibold">{formatPrice(priced.price, currency)}</span>
+                  <span className="text-[12px] line-through opacity-40">{formatPrice(priced.original, currency)}</span>
+                  <span className="text-amber-300 text-[15px] font-semibold">{formatPrice(priced.price, currency)}</span>
                 </p>
               ) : cocktail.priceILS !== undefined ? (
-                <p className="mt-1 text-amber-100/90 text-sm" style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
+                <p className="mt-1 text-amber-100/90 text-[15px]" style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
                   {formatPrice(cocktail.priceILS, currency)}
                 </p>
               ) : null}
