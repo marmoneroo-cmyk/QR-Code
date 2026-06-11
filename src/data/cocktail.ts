@@ -67,6 +67,10 @@ export interface CocktailConfig {
   subtitle: Localized;
   tagline?: Localized;
   category: Category;
+  /** 'drink' (cocktail) or 'food'. Drives which editor/menu fields apply. Absent ⇒ 'drink'. */
+  kind?: 'drink' | 'food';
+  /** For food: the menu section / course it belongs to (e.g. "Mains", "Desserts"). */
+  course?: string;
   heroImage: string;
   heroPrompt?: string;
   flavor: FlavorProfile;

@@ -1,6 +1,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { SHARED_LAYERS, type Category, type CocktailConfig } from '@/data/cocktail';
+import { inferKind } from '@/lib/menu/classify';
 
 export const runtime = 'nodejs';
 // Vercel Hobby plan caps serverless maxDuration at 300s. Bulk imports that
@@ -19,6 +20,8 @@ interface ItemInput {
   name: string;
   desc?: string | null;
   price?: string | null;
+  /** The restaurant's own menu section — drives drink/food detection + course. */
+  sourceCategory?: string | null;
   category?: Category;
 }
 
@@ -228,6 +231,8 @@ export async function POST(req: Request): Promise<Response> {
               ? { en: item.desc, he: item.desc }
               : undefined,
             category: item.category ?? 'citrus',
+            kind: inferKind(item.name, item.sourceCategory),
+            course: item.sourceCategory ?? undefined,
             priceILS: parseImportedPrice(item.price),
             heroImage,
             heroPrompt: prompt,

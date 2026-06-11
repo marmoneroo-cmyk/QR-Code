@@ -264,7 +264,7 @@ export default function ImportRestaurantPage() {
           restaurantSlug,
           restaurantName,
           // Keep the description (-> tagline) AND the price (-> priceILS) on the menu.
-          items: chosen.map((c) => ({ name: c.name, desc: c.desc, price: c.price, category: c.category })),
+          items: chosen.map((c) => ({ name: c.name, desc: c.desc, price: c.price, category: c.category, sourceCategory: c.sourceCategory })),
         }),
       });
 

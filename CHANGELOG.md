@@ -7,6 +7,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — 2026-06-09
 
+### Added — Drink vs food: type-aware editing
+
+Menu items are no longer assumed to be cocktails. Each item has a `kind` (`drink` |
+`food`); imports detect it from the menu section (`inferKind`, e.g. "המבורגרים" → food,
+"בירות" → drink) and store the section as `course`.
+- **Editor** — a **Drink / Food** toggle. For food the cocktail-only fields disappear:
+  the citrus/smoky **category** becomes a free **"Menu section / course"** field
+  (prefilled from the import), the **flavor-profile radar** is hidden, and "Bartender
+  note" becomes **"Chef note"**. Price / description / image / dietary stay for both.
+- Code-defined cocktails (no `kind`) still default to drink — the existing menu is unchanged.
+
 ### Fixed — Menu import now keeps price + description
 
 - **Scraper (getmood.io)** — was matching `"NN shkalim"` for price (but the real markup is

@@ -30,6 +30,7 @@ import { GlassImage, SectionLabel } from '@/components/ui/dataviz';
 import { useDrafts } from '@/lib/useDrafts';
 import { useLang } from '@/lib/useLang';
 import { buildHeroPrompt, buildPollinationsUrl, buildGptImagePrompt, slugify } from '@/lib/heroPrompts';
+import type { ItemKind } from '@/lib/menu/classify';
 
 const CATEGORY_OPTIONS: Category[] = ['citrus', 'smoky', 'bitter', 'sweet', 'mocktail'];
 const FLAVOR_AXES: Array<keyof FlavorProfile> = ['sweet', 'bitter', 'citrus', 'smoky', 'herbal'];
@@ -78,6 +79,10 @@ export function CocktailForm({
   const [heroUrl, setHeroUrl] = useState(initial?.heroImage ?? '');
   const [gptCopied, setGptCopied] = useState(false);
   const [priceText, setPriceText] = useState(initial?.priceILS != null ? String(initial.priceILS) : '');
+  // 'drink' (cocktail) vs 'food' — chooses which fields show. Trusts the stored
+  // kind (code cocktails have none ⇒ 'drink'; imports set it); the owner can flip.
+  const [kind, setKind] = useState<ItemKind>(initial?.kind ?? 'drink');
+  const [course, setCourse] = useState(initial?.course ?? '');
   const [generating, setGenerating] = useState(false);
   const [breakdownLayers, setBreakdownLayers] = useState<LayerConfig[] | null>(
     initialLayers ?? (initial && initial.layers !== SHARED_LAYERS ? initial.layers : null)
@@ -238,6 +243,8 @@ export function CocktailForm({
           ? { en: tagline.en.trim(), he: tagline.he.trim() || tagline.en.trim() }
           : undefined,
       category,
+      kind,
+      course: kind === 'food' && course.trim() ? course.trim() : undefined,
       priceILS: priceText.trim() ? Number(priceText.replace(/[^\d.]/g, '')) || undefined : undefined,
       heroImage: heroUrl,
       heroPrompt,
@@ -259,6 +266,28 @@ export function CocktailForm({
 
   return (
     <form onSubmit={handleSave} className="space-y-6" dir={isHebrew ? 'rtl' : 'ltr'}>
+      {/* Drink vs food — flips the cocktail-only fields (category, flavor radar) off for food. */}
+      <div className="flex items-center gap-3">
+        <span className="text-white/45 text-[11px] tracking-[0.2em] uppercase" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+          {t('Type', 'סוג')}
+        </span>
+        <div className="inline-flex rounded-full border border-white/12 bg-black/30 p-1">
+          {(['drink', 'food'] as const).map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setKind(k)}
+              className={`px-5 py-1.5 rounded-full text-[11px] tracking-[0.2em] uppercase transition-colors ${
+                kind === k ? 'bg-amber-200 text-black' : 'text-white/55 hover:text-white'
+              }`}
+              style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+            >
+              {k === 'drink' ? t('Drink', 'משקה') : t('Food', 'מנה')}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <Section title={t('Name & tagline', 'שם וסלוגן')} icon={Type}>
         <Field label={t('Name (English) *', 'שם (באנגלית) *')}>
           <input
@@ -324,19 +353,30 @@ export function CocktailForm({
       </Section>
 
       <Section title={t('Category & dietary', 'קטגוריה ותזונה')} icon={Tags}>
-        <Field label={t('Category', 'קטגוריה')}>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as Category)}
-            className={inputClass}
-          >
-            {CATEGORY_OPTIONS.map((c) => (
-              <option key={c} value={c} className="bg-black">
-                {CATEGORY_LABEL[c][lang]}
-              </option>
-            ))}
-          </select>
-        </Field>
+        {kind === 'drink' ? (
+          <Field label={t('Category', 'קטגוריה')}>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value as Category)}
+              className={inputClass}
+            >
+              {CATEGORY_OPTIONS.map((c) => (
+                <option key={c} value={c} className="bg-black">
+                  {CATEGORY_LABEL[c][lang]}
+                </option>
+              ))}
+            </select>
+          </Field>
+        ) : (
+          <Field label={t('Menu section / course', 'קטגוריה בתפריט')}>
+            <input
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
+              placeholder={t('e.g. Starters, Mains, Desserts', 'לדוגמה: ראשונות, עיקריות, קינוחים')}
+              className={inputClass}
+            />
+          </Field>
+        )}
         <Field label={t('Dietary flags', 'סימוני תזונה')}>
           <div className="flex flex-wrap gap-4 text-sm">
             {(['vegan', 'glutenFree', 'alcoholFree'] as const).map((k) => (
@@ -354,7 +394,7 @@ export function CocktailForm({
         </Field>
       </Section>
 
-      <Section title={t('Flavor profile (0-5)', 'פרופיל טעם (0-5)')} icon={SlidersHorizontal}>
+      {kind === 'drink' && (<Section title={t('Flavor profile (0-5)', 'פרופיל טעם (0-5)')} icon={SlidersHorizontal}>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {FLAVOR_AXES.map((axis) => (
             <Field key={axis} label={FLAVOR_LABEL[axis][lang]}>
@@ -375,9 +415,9 @@ export function CocktailForm({
             </Field>
           ))}
         </div>
-      </Section>
+      </Section>)}
 
-      <Section title={t('Bartender note', 'הערת הבארמן')} icon={Quote}>
+      <Section title={kind === 'food' ? t('Chef note', 'הערת השף') : t('Bartender note', 'הערת הבארמן')} icon={Quote}>
         <Field label={t('Note (English)', 'הערה (באנגלית)')}>
           <textarea
             value={bartenderNote.en}
