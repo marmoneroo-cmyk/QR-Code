@@ -76,7 +76,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
     if (typeof body.id !== 'string') return err('id is required');
     const { id, restaurant: r, ...patch } = body;
     const restaurant = typeof r === 'string' ? r : 'diner';
-    const data = await updatePromotion(id, patch as Partial<PromotionInput>);
+    const data = await updatePromotion(restaurant, id, patch as Partial<PromotionInput>);
     const single = data.scope === 'item' && data.targetSlugs?.length === 1 ? data.targetSlugs[0] : null;
     await logChange(restaurant, {
       changeType: 'active' in patch ? 'promotion_activated' : 'promotion_edited',
@@ -94,9 +94,10 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
   try {
     const id = req.nextUrl.searchParams.get('id');
+    const restaurant = req.nextUrl.searchParams.get('restaurant') ?? 'diner';
     if (!id) return err('id is required');
-    await deletePromotion(id);
-    await logChange('diner', {
+    await deletePromotion(restaurant, id);
+    await logChange(restaurant, {
       changeType: 'promotion_deleted',
       entityType: 'promotion',
       entityId: id,

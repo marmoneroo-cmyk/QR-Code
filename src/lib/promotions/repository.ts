@@ -91,8 +91,16 @@ export async function createPromotion(restaurantSlug: string, input: PromotionIn
   return rowToPromotion(data as unknown as PromotionRow);
 }
 
-export async function updatePromotion(id: string, patch: Partial<PromotionInput>): Promise<Promotion> {
+export async function updatePromotion(
+  restaurantSlug: string,
+  id: string,
+  patch: Partial<PromotionInput>,
+): Promise<Promotion> {
   const sb = await createAdminSupabase();
+  // Tenant scope: a promotion can only be edited by the restaurant that owns it —
+  // guessing another tenant's promotion id must not allow a cross-tenant write.
+  const restId = await getRestaurantId(restaurantSlug);
+  if (!restId) throw new Error(`Unknown restaurant: ${restaurantSlug}`);
   const upd: Record<string, unknown> = {};
   if (patch.name !== undefined) upd.name = patch.name;
   if (patch.type !== undefined) upd.type = patch.type;
@@ -108,14 +116,21 @@ export async function updatePromotion(id: string, patch: Partial<PromotionInput>
     .from('promotions')
     .update(upd as never)
     .eq('id', id)
+    .eq('restaurant_id', restId)
     .select('*')
     .single();
   if (error) throw new Error(error.message);
   return rowToPromotion(data as unknown as PromotionRow);
 }
 
-export async function deletePromotion(id: string): Promise<void> {
+export async function deletePromotion(restaurantSlug: string, id: string): Promise<void> {
   const sb = await createAdminSupabase();
-  const { error } = await sb.from('promotions').delete().eq('id', id);
+  const restId = await getRestaurantId(restaurantSlug);
+  if (!restId) throw new Error(`Unknown restaurant: ${restaurantSlug}`);
+  const { error } = await sb
+    .from('promotions')
+    .delete()
+    .eq('id', id)
+    .eq('restaurant_id', restId);
   if (error) throw new Error(error.message);
 }
