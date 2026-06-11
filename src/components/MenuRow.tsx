@@ -124,11 +124,16 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
       transition={{ duration: 0.6, delay: Math.min(delay * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
     >
       {badges.length > 0 && (
-        <div className="pointer-events-none absolute top-2.5 left-2.5 z-20">
+        <div className="pointer-events-none absolute top-2.5 start-2.5 z-20">
           <MenuBadges badges={badges} lang={lang} />
         </div>
       )}
-      <Link href={href} className="group block" onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      <Link
+        href={href}
+        className="group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
+      >
         <div
           className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-900/80 via-black to-zinc-950/80 transition-all duration-500 group-hover:-translate-y-1.5"
           style={{ boxShadow: '0 30px 60px -24px rgba(0,0,0,0.8)' }}
