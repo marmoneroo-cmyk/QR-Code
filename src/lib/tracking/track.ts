@@ -4,7 +4,7 @@
  * delivery. No-ops on the server and when the visitor has opted out. Never throws.
  */
 
-import { EVENT_VERSION, type EventSource, type TrackPayload, type TrackRecord } from './taxonomy';
+import { EVENT_VERSION, UI_VERSION, type EventSource, type TrackPayload, type TrackRecord } from './taxonomy';
 import {
   getDeviceType,
   getOrigin,
@@ -61,8 +61,10 @@ export function track(payload: TrackPayload): void {
       eventSource: deriveSource(tableId),
       // Stamp source/origin (attribution) + a transitional copy of visitorId so
       // visitor metrics are verifiable before migration 0006 and so 0006's
-      // backfill (metadata->>'visitorId' → column) has data.
-      metadata: { ...(payload.metadata ?? {}), source: getSource(), origin: getOrigin(), visitorId: getVisitorId() },
+      // backfill (metadata->>'visitorId' → column) has data. uiVersion records WHICH
+      // rendered experience the guest saw, so a future UX change can't silently be
+      // mistaken for a change in the dish itself.
+      metadata: { ...(payload.metadata ?? {}), source: getSource(), origin: getOrigin(), visitorId: getVisitorId(), uiVersion: UI_VERSION },
       sessionId: getSessionId(),
       visitorId: getVisitorId(),
       tableId,

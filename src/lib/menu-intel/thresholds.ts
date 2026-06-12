@@ -10,6 +10,9 @@
  */
 
 export interface FunnelThresholds {
+  /** Stable id of this cut-point set, recorded on every recommendation's provenance
+   *  (e.g. 'default_v1', 'cocktail_v1') so a year-old verdict says which bars produced it. */
+  profile?: string;
   /** Below this reach we refuse to diagnose. */
   minReach: number;
   /** Healthy reach → interest. */
@@ -25,6 +28,7 @@ export interface FunnelThresholds {
 }
 
 export const DEFAULT_THRESHOLDS: FunnelThresholds = {
+  profile: 'default_v1',
   minReach: 30,
   healthyInterest: 0.3,
   healthyDeep: 0.3,
@@ -38,5 +42,8 @@ export const CATEGORY_THRESHOLDS: Readonly<Record<string, Partial<FunnelThreshol
 
 export function thresholdsFor(category?: string): FunnelThresholds {
   const override = category ? CATEGORY_THRESHOLDS[category] : undefined;
-  return override ? { ...DEFAULT_THRESHOLDS, ...override } : DEFAULT_THRESHOLDS;
+  if (!override) return DEFAULT_THRESHOLDS;
+  // A category override gets its own profile id ('cocktail_v1') unless it names one,
+  // so the recommendation records the category-specific bars that decided it.
+  return { ...DEFAULT_THRESHOLDS, profile: `${category}_v1`, ...override };
 }

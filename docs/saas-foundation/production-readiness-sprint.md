@@ -142,9 +142,11 @@ AI reasons over data you cannot trust.
 > **PULLED FORWARD (owner direction) & PARTLY BUILT — runs parallel to Sprint 1 since it's pure logic.**
 > The funnel-shape AI Coach **brain** ships: `src/lib/menu-intel/funnel.ts` (`diagnoseFunnel` — reads the
 > SHAPE, names the bottleneck) + **50 synthetic scenarios** (`scenarios.ts`, growing → 100) + the validation suite
-> (`funnel.test.ts`, **162 tests green**, incl. Aperol→`weak_conversion`, Truffle Burger→`exposure_gap`).
+> (`funnel.test.ts`, **167 tests green**, incl. Aperol→`weak_conversion`, Truffle Burger→`exposure_gap`).
 > Each verdict now carries **diagnosis confidence** (sample-size + separation; same shape at reach 50 vs 50k →
-> different confidence) and an **evidence array**; cut-points are externalized in **`thresholds.ts`** (per-category, tunable).
+> different confidence), an **evidence array**, and a full **provenance envelope** (engine/profile version +
+> frozen evidence snapshot + content-addressed id — see Epic J); cut-points are externalized in
+> **`thresholds.ts`** (per-category, tunable).
 > Remaining: precision/recall metrics + CI gate (I4), and wiring it to **real** funnels (that wiring is H-B,
 > gated behind Sprint 1+2 — never run it on untrusted data).
 
@@ -156,15 +158,30 @@ AI reasons over data you cannot trust.
 | I4 | Compute precision/recall across the suite; gate in CI; catch regressions | code |
 | I✓ | Acceptance: ≥ target precision; **0 false positives** on below-threshold inputs | gate |
 
+## EPIC J — Data Provenance & Platform Health *(metadata > algorithm — cheap now, impossible to backfill)*
+> **Owner direction:** before scaling the AI, make every conclusion *traceable* and prove the
+> *platform itself* is healthy before trusting any per-restaurant read. Provenance is metadata, not a
+> tenant feature → **inside** the Foundation Freeze, not blocked by it. Two pieces shipped now while the
+> pipeline is young; the dashboard is sequenced at its proper slot (after Auth + Isolation).
+| # | Ticket | Owner | Evidence |
+|---|---|---|---|
+| J1 | **`uiVersion`** stamped on every event's metadata (version of the *rendered experience* — image/video/AR/UX) so a future UX change can't be mistaken for a change in the dish — **✅ done** (`UI_VERSION` in taxonomy, stamped in `track.ts`) | code ✅ | tsc+build green |
+| J2 | **Recommendation provenance envelope** — every `diagnoseFunnel` verdict carries `{ recommendationId, engineVersion, thresholdProfile, confidence, evidenceSnapshot }`. `recommendationId` is content-addressed (FNV-1a, deterministic — no clock/random) so an unchanged verdict keeps its id and a changed one gets a new one. `ENGINE_VERSION='3.0'`; profiles `default_v1`/`cocktail_v1` — **✅ done + tested** (11 new cases, 167 green) | code ✅ | funnel.test.ts |
+| J3 | **Dataset Health Dashboard (Super-Admin only — internal, NOT owner-facing).** Events Today · **Duplicate Rate** (conflicts/inserts, from C/0008) · **Queue Retry Rate** (client reports `retryAttempt`) · **Missing-Data Rate** (null visitor/category/source) · **Restaurants Reporting vs Silent** · **Event-Type Distribution**. *Prove the platform is healthy before analysing any restaurant.* **Deferred to slot 4 — needs Auth + super_admin role first; do NOT build owner-less admin UI before B.** | code (later) | — |
+| J✓ | Acceptance: every persisted recommendation is reproducible from its snapshot + engine/profile version; health dashboard renders the 7 platform vitals behind super-admin auth | gate | — |
+
 ---
 
 ## Sequencing (owner order — security & AI accuracy before branding)
-- **Phase 0 — YOU (unblocks everything):** enable Supabase email auth + users · rotate exposed secrets · prep migrations. *Additive instrumentation H1–H3 may also start now (low-risk) so real intent data accrues before it's measured.*
+> **Done ahead of sequence (young-pipeline, can't-backfill metadata — inside the freeze):** C (idempotency
+> client), D (queue), C4 (`eventVersion`/`eventSource`), HA5 (segmentation), **J1 (`uiVersion`)**, **J2
+> (recommendation provenance)**. These protect the *data*, not a tenant feature — so they ran in parallel with Phase 0.
+- **Phase 0 — YOU (unblocks everything):** enable Supabase email auth + users · rotate exposed secrets · **apply migrations 0007 + 0008**. *Additive instrumentation H1–H3 may also start now (low-risk) so real intent data accrues before it's measured.*
 - **1 — A + B** Authentication + Multi-tenant security. *If 100 restaurants arrive, what kills you is leakage/auth, not AI.*
-- **2 — C + D (+E)** Idempotency + Queue persistence + data-consistency.
-- **3 — F** Honest measurement. *(F1 done + tested, parked — ships here.)*
-- **4 — H** Intent Validation — wire & score the ladder. **Highest product risk if skipped: the KPI is currently undefined / built on a dead event.**
-- **5 — I** AI Recommendation Validation — 20–30 scenarios, precision + false-positive gate.
+- **2 — B-tail / E** Tenant isolation tail + data-consistency. *(C + D already landed.)*
+- **3 — J3** **Dataset Health Dashboard** (super-admin) — *prove the platform is healthy before analysing any restaurant.* Needs A+B (super-admin role) first.
+- **4 — F** Honest measurement. *(F1 done + tested, parked — ships here.)*
+- **5 — H-B + I** Wire & score the ladder on trusted data + AI Recommendation Validation (precision + false-positive gate). Each persisted verdict carries its J2 provenance.
 - **6 — G (last)** Vocabulary rename. Renaming adds zero customers; security, reliability and AI accuracy do.
 
 ## Acceptance / regression gate

@@ -10,6 +10,11 @@
  */
 import { DEFAULT_THRESHOLDS, type FunnelThresholds } from './thresholds';
 
+/** Version of the diagnosis engine itself (the v3 intent-ladder brain). Bump when the
+ *  LOGIC changes, so an old verdict says which engine produced it — and you can tell
+ *  whether a recommendation moved because the data changed or because the engine did. */
+export const ENGINE_VERSION = '3.0';
+
 /** Distinct sessions that reached each rung — highest-rung-per-session (no double-count). */
 export interface FunnelShape {
   reach: number;          // saw the dish (impression)
@@ -35,6 +40,32 @@ export type Diagnosis =
 
 export type Bottleneck = 'reach→interest' | 'interest→high' | 'high→intent' | 'none';
 
+/**
+ * The auditable "why" behind a recommendation, frozen at decision time. A year from now
+ * the owner clicks "why?" and sees the exact funnel snapshot, the engine + threshold
+ * versions, and the confidence that produced this verdict — even after the engine or the
+ * cut-points have since changed. In a system that learns from thousands of decisions, the
+ * provenance of a verdict matters as much as the verdict.
+ */
+export interface RecommendationProvenance {
+  /** Content-addressed id: same funnel shape + engine + profile ⇒ same id. A changed id
+   *  means the recommendation genuinely changed (useful for "did our advice move?"). */
+  recommendationId: string;
+  engineVersion: string;
+  thresholdProfile: string;
+  confidence: number;
+  /** The raw counts the verdict was computed from — never recomputed, always the truth-at-the-time. */
+  evidenceSnapshot: {
+    reach: number;
+    interest: number;
+    highInterest: number;
+    orderingIntent: number;
+    videoDeep: number | null;
+    arDeep: number | null;
+    revisits: number | null;
+  };
+}
+
 export interface Recommendation {
   diagnosis: Diagnosis;
   bottleneck: Bottleneck | null;
@@ -49,6 +80,8 @@ export interface Recommendation {
     interestToIntent: number;   // orderingIntent / interest (does it convert once opened?)
     overallIntentRate: number;  // orderingIntent / reach
   };
+  /** Audit trail: where this verdict came from (engine/profile/snapshot/confidence). */
+  provenance: RecommendationProvenance;
 }
 
 const rate = (a: number, b: number): number => (b > 0 ? a / b : 0);
@@ -71,13 +104,17 @@ export function diagnoseFunnel(f: FunnelShape, t: FunnelThresholds = DEFAULT_THR
     observed: number,
     threshold: number,
     evidence: string[],
-  ): Recommendation => ({
-    diagnosis,
-    bottleneck,
-    rates,
-    evidence,
-    confidence: confidenceOf(diagnosis, sampleN, observed, threshold),
-  });
+  ): Recommendation => {
+    const confidence = confidenceOf(diagnosis, sampleN, observed, threshold);
+    return {
+      diagnosis,
+      bottleneck,
+      rates,
+      evidence,
+      confidence,
+      provenance: buildProvenance(f, t, diagnosis, bottleneck, confidence),
+    };
+  };
 
   if (f.reach < t.minReach) {
     return make('insufficient_data', null, f.reach, 0, t.minReach, [`reach ${f.reach} (< ${t.minReach})`]);
@@ -132,6 +169,48 @@ function confidenceOf(diagnosis: Diagnosis, sampleN: number, observed: number, t
       ? clamp01((observed - threshold) / threshold) // how clearly ABOVE healthy
       : clamp01((threshold - observed) / threshold); // how clearly BELOW healthy
   return round2(Math.min(0.99, sample * (0.55 + 0.45 * separation)));
+}
+
+/** Freeze the audit trail for a verdict. The id is content-addressed (FNV-1a over the
+ *  decision inputs) → deterministic and testable, no clock or randomness. */
+function buildProvenance(
+  f: FunnelShape,
+  t: FunnelThresholds,
+  diagnosis: Diagnosis,
+  bottleneck: Bottleneck | null,
+  confidence: number,
+): RecommendationProvenance {
+  const profile = t.profile ?? 'custom';
+  const evidenceSnapshot = {
+    reach: f.reach,
+    interest: f.interest,
+    highInterest: f.highInterest,
+    orderingIntent: f.orderingIntent,
+    videoDeep: f.videoDeep ?? null,
+    arDeep: f.arDeep ?? null,
+    revisits: f.revisits ?? null,
+  };
+  const idInput = [
+    ENGINE_VERSION, profile, diagnosis, bottleneck ?? 'none',
+    f.reach, f.interest, f.highInterest, f.orderingIntent,
+  ].join('|');
+  return {
+    recommendationId: hashId(idInput),
+    engineVersion: ENGINE_VERSION,
+    thresholdProfile: profile,
+    confidence,
+    evidenceSnapshot,
+  };
+}
+
+/** Deterministic FNV-1a → base36, prefixed. Stable across runs/machines; no Date/random. */
+function hashId(input: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i += 1) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return `rec_${(h >>> 0).toString(36)}`;
 }
 
 function mediaMismatch(f: FunnelShape, t: FunnelThresholds): boolean {

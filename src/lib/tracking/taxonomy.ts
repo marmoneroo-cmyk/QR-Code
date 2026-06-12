@@ -88,6 +88,15 @@ export type EventSource = 'mobile_menu' | 'qr_table' | 'ar_mode' | 'tablet_kiosk
  *  so a year of data stays interpretable across model changes (AR/video/intent/revisit). */
 export const EVENT_VERSION = 1;
 
+/**
+ * Version of the RENDERED EXPERIENCE the guest saw (image / video / AR / UX), distinct
+ * from EVENT_VERSION (the data contract). Bump this whenever you ship a visual or UX
+ * change that could move behaviour — a new hero render, a better AR, a redesigned sheet.
+ * Then a jump in Ordering Intent can be attributed to the DISH vs the new INTERFACE,
+ * instead of silently confounding the two. Impossible to backfill — stamp from day one.
+ */
+export const UI_VERSION = '0.7.0';
+
 /** What a caller passes to `track()`. */
 export interface TrackPayload {
   event: TrackEvent;
