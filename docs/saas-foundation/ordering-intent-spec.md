@@ -32,7 +32,9 @@ Reach  →  Interest  →  High Interest  →  Ordering Intent  →  Verified Im
 | **Reach** *(denominator)* | Saw the dish | `cocktail_impression` | ✅ |
 | **Interest** | Opened item · ingredients · **video Started** · **AR Started** · dwell | `cocktail_opened`, `ingredients_opened`, `cocktail_video_opened`, `ar_opened`, `cocktail_dwell` | ✅ |
 | **High Interest** | **video ≥ 50% / Completed** · **AR Engaged (≥5s) / Deep (≥15s)** · **viewed ≥ 3× / revisits** | `cocktail_video_progress` (value=max watched %) ❌NEW · `cocktail_ar_dwell` (value=seconds) ❌NEW · computed from `cocktail_opened`×`visitor_id` ⚠️compute | **missing** |
-| **Ordering Intent** | "Wants this" · Favorite · "Ready to order" (ask waiter) · (future add-to-cart) | `add_to_order_clicked` ✅ · `cocktail_favorited` ❌dead · `order_completed` ✅ (mislabeled) · `call_waiter_clicked` ❌dead | partial |
+| **Ordering Intent** | "Wants this" · **auto-derived Favorites** (opt. ❤ Save) · "Ready to order" · (future add-to-cart) | `add_to_order_clicked` ✅ · `cocktail_favorited` (auto + opt. Save) · `order_completed` ✅ (mislabeled) | partial |
+
+> **`call_waiter` removed from the model** — this is not an ordering/waiter system. **Favorites is not a button**: derive "Your Favorites" from behaviour (dwell/video/AR/revisits), optional ❤ Save only if the guest wants it. *Don't pollute a cinematic, luxury menu for analytics.*
 | **Verified Improvement** *(outcome, not a guest rung)* | A change the closed loop **certifies** moved the funnel | — (measurement output) | — |
 
 **Capture levels, don't collapse them.** Video is one event carrying **max-watched-%** per session → derive
@@ -50,7 +52,7 @@ mistake — we don't.
 `cocktail_video_opened` + **`cocktail_video_progress`(max %)**, `ar_opened` + **`cocktail_ar_dwell`(seconds)** +
 **`cocktail_ar_completed`(reserved — fires when a bounded AR experience exists)**, `cocktail_dwell`,
 `cocktail_scroll_depth`, `add_to_order_clicked`, `order_completed`, and (once their controls exist)
-`cocktail_favorited`, `call_waiter_clicked`.
+**auto-derived** `cocktail_favorited` (behaviour-based + optional ❤ Save). *(`call_waiter_clicked` removed.)*
 
 **Derived later (H-B), from the raw timeline — NOT new events:** time-to-first-interaction, exit-point,
 session-depth, the stage-conversion rates, and (eventually, learned-not-set) the score.

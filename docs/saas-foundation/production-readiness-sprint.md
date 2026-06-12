@@ -120,7 +120,7 @@ C+D land — directional, not perfect; that's fine, nothing interprets it yet).
 | HA1 | **Video progress:** `cocktail_video_progress`, value = max watched % (0–100), emitted on end/leave | code |
 | HA2 | **AR dwell:** `cocktail_ar_dwell`, value = seconds of AR open | code |
 | HA3 | **Scroll depth in the dish page** — confirm `cocktail_scroll_depth` covers the experience (extend if not) | code |
-| HA4 | Add minimal **favorites / call-waiter** controls so `cocktail_favorited` + `call_waiter_clicked` actually emit (the one small UI affordance H-A adds) | code |
+| HA4 | **Auto-derived "Your Favorites"** at the menu foot (from dwell/video/AR/revisits — zero clicks) → emits `cocktail_favorited`; optional ❤ Save later. **`call_waiter` removed from the model.** *Deferred: UI comes after security; never pollute the cinematic UX for analytics.* | code (later) |
 | HA→ | **Time-to-first-interaction, Exit-point, Revisit-count, Session-depth are DERIVED** from the raw timeline (timestamps + session_id already captured) — computed in H-B, not emitted as new events | note |
 | HA✓ | Acceptance: each new raw event lands in `events`; **nothing scores/interprets it**; existing menu behavior unchanged | gate |
 
@@ -139,8 +139,10 @@ AI reasons over data you cannot trust.
 ## EPIC I — AI Recommendation Validation *(the recommendation IS the product — not the UI/AR/dashboard)*
 > **PULLED FORWARD (owner direction) & PARTLY BUILT — runs parallel to Sprint 1 since it's pure logic.**
 > The funnel-shape AI Coach **brain** ships: `src/lib/menu-intel/funnel.ts` (`diagnoseFunnel` — reads the
-> SHAPE, names the bottleneck) + **30 synthetic scenarios** (`scenarios.ts`) + the validation suite
-> (`funnel.test.ts`, 32 tests green, incl. Aperol→`weak_conversion`, Truffle Burger→`exposure_gap`).
+> SHAPE, names the bottleneck) + **50 synthetic scenarios** (`scenarios.ts`, growing → 100) + the validation suite
+> (`funnel.test.ts`, **162 tests green**, incl. Aperol→`weak_conversion`, Truffle Burger→`exposure_gap`).
+> Each verdict now carries **diagnosis confidence** (sample-size + separation; same shape at reach 50 vs 50k →
+> different confidence) and an **evidence array**; cut-points are externalized in **`thresholds.ts`** (per-category, tunable).
 > Remaining: precision/recall metrics + CI gate (I4), and wiring it to **real** funnels (that wiring is H-B,
 > gated behind Sprint 1+2 — never run it on untrusted data).
 

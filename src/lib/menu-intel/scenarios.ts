@@ -62,4 +62,32 @@ export const SCENARIOS: Scenario[] = [
   // ── Two more edges ──────────────────────────────────────────────────────────
   { name: 'tiny-reach exposure gem', funnel: { reach: 600, interest: 40, highInterest: 15, orderingIntent: 6 }, expected: 'exposure_gap', note: '6.7% open, 15% of them want it' },
   { name: 'performer with revisits', funnel: { reach: 800, interest: 500, highInterest: 300, orderingIntent: 50, revisits: 30 }, expected: 'performing', note: 'healthy + loyal' },
+
+  // ── Confidence contrasts — SAME shape, different scale (same diagnosis, different certainty)
+  { name: 'weak_conversion (tiny → low conf)', funnel: { reach: 50, interest: 40, highInterest: 30, orderingIntent: 2 }, expected: 'weak_conversion', note: 'right call, thin evidence' },
+  { name: 'weak_conversion (huge → high conf)', funnel: { reach: 50000, interest: 40000, highInterest: 30000, orderingIntent: 2000 }, expected: 'weak_conversion', note: 'same shape, strong evidence' },
+  { name: 'exposure_gap (tiny → low conf)', funnel: { reach: 40, interest: 10, highInterest: 4, orderingIntent: 2 }, expected: 'exposure_gap', note: 'good convert, tiny n' },
+  { name: 'exposure_gap (huge → high conf)', funnel: { reach: 40000, interest: 10000, highInterest: 4000, orderingIntent: 2000 }, expected: 'exposure_gap', note: 'good convert, big n' },
+  { name: 'low_discovery (huge)', funnel: { reach: 20000, interest: 2000, highInterest: 200, orderingIntent: 20 }, expected: 'low_discovery', note: 'clearly weak at scale' },
+  { name: 'shallow_engagement (huge)', funnel: { reach: 5000, interest: 3000, highInterest: 400, orderingIntent: 30 }, expected: 'shallow_engagement', note: '13% deep at scale' },
+  { name: 'performing (huge)', funnel: { reach: 100000, interest: 60000, highInterest: 30000, orderingIntent: 6000 }, expected: 'performing', note: 'star at scale' },
+  { name: 'performing (small but healthy)', funnel: { reach: 40, interest: 30, highInterest: 20, orderingIntent: 4 }, expected: 'performing', note: 'healthy shape, modest conf' },
+
+  // ── Boundary cases (just over / under the cut-points)
+  { name: 'exposure_gap boundary (i2i just ≥ 0.1)', funnel: { reach: 1000, interest: 250, highInterest: 40, orderingIntent: 26 }, expected: 'exposure_gap', note: 'converts once seen' },
+  { name: 'low_discovery boundary (i2i just < 0.1)', funnel: { reach: 1000, interest: 250, highInterest: 40, orderingIntent: 20 }, expected: 'low_discovery', note: 'weak even when seen' },
+  { name: 'performing boundary (intentRate == 0.1)', funnel: { reach: 1000, interest: 600, highInterest: 300, orderingIntent: 30 }, expected: 'performing', note: 'exactly at the line counts as healthy' },
+  { name: 'weak_conversion just under the line', funnel: { reach: 1000, interest: 600, highInterest: 300, orderingIntent: 29 }, expected: 'weak_conversion', note: 'a hair below healthy intent' },
+  { name: 'insufficient just below floor', funnel: { reach: 28, interest: 25, highInterest: 20, orderingIntent: 8 }, expected: 'insufficient_data', note: 'reach < min' },
+
+  // ── Media at scale (both directions) + balanced-but-shallow
+  { name: 'media_mismatch (AR carries, at scale)', funnel: { reach: 5000, interest: 3000, highInterest: 400, orderingIntent: 30, videoDeep: 20, arDeep: 380 }, expected: 'media_mismatch', note: 'lead with AR' },
+  { name: 'media_mismatch (video carries, at scale)', funnel: { reach: 5000, interest: 3500, highInterest: 500, orderingIntent: 40, videoDeep: 470, arDeep: 30 }, expected: 'media_mismatch', note: 'lead with video' },
+  { name: 'shallow despite balanced media', funnel: { reach: 2000, interest: 1200, highInterest: 300, orderingIntent: 30, videoDeep: 150, arDeep: 150 }, expected: 'shallow_engagement', note: 'both media used, still shallow' },
+  { name: 'performing with balanced deep media', funnel: { reach: 2000, interest: 1000, highInterest: 500, orderingIntent: 80, videoDeep: 250, arDeep: 250 }, expected: 'performing', note: 'media healthy, funnel healthy' },
+
+  // ── Consideration stall vs weak conversion (revisit threshold)
+  { name: 'consideration_stall (at scale)', funnel: { reach: 3000, interest: 1800, highInterest: 600, orderingIntent: 30, revisits: 300 }, expected: 'consideration_stall', note: 'lots of revisits, no act' },
+  { name: 'weak_conversion (revisits below stall bar)', funnel: { reach: 3000, interest: 1800, highInterest: 600, orderingIntent: 30, revisits: 200 }, expected: 'weak_conversion', note: 'revisits too few to call a stall' },
+  { name: 'media_mismatch (AR never lands, video only)', funnel: { reach: 1000, interest: 700, highInterest: 110, orderingIntent: 9, videoDeep: 105, arDeep: 0 }, expected: 'media_mismatch', note: 'one medium is dead' },
 ];
