@@ -81,6 +81,13 @@ export function isTrackEvent(value: unknown): value is TrackEvent {
 
 export type DeviceType = 'mobile' | 'tablet' | 'desktop';
 
+/** Where the event was produced — gold for comparing QR vs AR vs kiosk later. */
+export type EventSource = 'mobile_menu' | 'qr_table' | 'ar_mode' | 'tablet_kiosk' | 'unknown';
+
+/** Schema version of an event. Bump when an event's value/metadata MEANING changes,
+ *  so a year of data stays interpretable across model changes (AR/video/intent/revisit). */
+export const EVENT_VERSION = 1;
+
 /** What a caller passes to `track()`. */
 export interface TrackPayload {
   event: TrackEvent;
@@ -93,6 +100,12 @@ export interface TrackPayload {
 
 /** One fully-enriched event as sent to the server (a batch is TrackRecord[]). */
 export interface TrackRecord extends TrackPayload {
+  /** Client-minted UUID — the idempotency key (server de-dupes on it). */
+  eventId: string;
+  /** Schema version this event was produced under. */
+  eventVersion: number;
+  /** Surface the event came from (mobile menu / QR table / AR / kiosk). */
+  eventSource: EventSource;
   sessionId: string;
   visitorId: string;
   tableId: string | null;

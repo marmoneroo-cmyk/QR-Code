@@ -29,6 +29,7 @@ async function resolveRestaurantId(slug: string): Promise<string | null> {
 
 interface EventRow {
   restaurant_id: string;
+  event_id: string | null;
   cocktail_slug: string | null;
   event_name: string;
   session_id: string;
@@ -55,9 +56,16 @@ function toRow(restaurantId: string, restaurantType: RestaurantType, e: TrackRec
   // threshold-learning can normalise by business type + dish category. Backfilling is impossible.
   const clientMeta = e.metadata && typeof e.metadata === 'object' ? (e.metadata as Record<string, unknown>) : {};
   const menuCategory = menuCategoryOf(typeof e.cocktailSlug === 'string' ? findCocktailBySlug(e.cocktailSlug) : undefined);
-  const metadata = { ...clientMeta, restaurantType, menuCategory } as unknown as Json;
+  const metadata = {
+    ...clientMeta,
+    restaurantType,
+    menuCategory,
+    eventVersion: typeof e.eventVersion === 'number' ? e.eventVersion : 1,
+    eventSource: typeof e.eventSource === 'string' ? e.eventSource : 'unknown',
+  } as unknown as Json;
   return {
     restaurant_id: restaurantId,
+    event_id: typeof e.eventId === 'string' ? e.eventId : null,
     cocktail_slug: typeof e.cocktailSlug === 'string' ? e.cocktailSlug : null,
     event_name: e.event,
     session_id: e.sessionId,
@@ -104,14 +112,23 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const supabase = createAdminSupabase();
-    let { error } = await supabase.from('events').insert(rows);
-
-    // Forward/backward compatible: if migration 0006 (visitor_id) hasn't been
-    // applied yet, the column is unknown — strip it and retry so NO events are
-    // lost in the window before the migration runs.
-    if (error && /visitor_id/.test(error.message)) {
-      const stripped = rows.map(({ visitor_id: _omit, ...rest }) => rest);
-      ({ error } = await supabase.from('events').insert(stripped));
+    // Idempotent ingest: INSERT ... ON CONFLICT (event_id) DO NOTHING, so a retried or
+    // duplicated delivery never double-counts. Requires the unique index from migration
+    // 0008; until that is applied we degrade gracefully to a plain insert so NO events are
+    // lost meanwhile (the client retries; dedupe activates automatically once 0008 is live).
+    // `event_id` isn't in the generated types until migration 0008 is applied — cast at this boundary.
+    let { error } = await supabase
+      .from('events')
+      .upsert(rows as unknown as never[], { onConflict: 'event_id', ignoreDuplicates: true });
+    if (error) {
+      // event_id column / unique index not present yet → drop event_id and insert plainly.
+      const noId = rows.map(({ event_id: _omitId, ...rest }) => rest);
+      ({ error } = await supabase.from('events').insert(noId));
+      // Pre-0006 safety: the visitor_id column might also be missing.
+      if (error && /visitor_id/.test(error.message)) {
+        const noVis = noId.map(({ visitor_id: _omitVis, ...rest }) => rest);
+        ({ error } = await supabase.from('events').insert(noVis));
+      }
     }
     if (error) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });

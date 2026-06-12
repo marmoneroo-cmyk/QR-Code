@@ -60,17 +60,18 @@ KPI is:
 ## EPIC C — Event integrity (idempotency)
 | # | Ticket | Owner | Evidence |
 |---|---|---|---|
-| C1 | Mint client `event_id` (uuid) per `TrackRecord` at enqueue | code | T1 **CONFIRMED** |
-| C2 | Migration: `events.event_id` + UNIQUE; `insert … on conflict do nothing` | code+**YOU apply** | T1 **CONFIRMED** |
-| C3 | Acceptance: re-run T1 → **3 identical POSTs = 1 row** | gate | — |
+| C1 | Mint client `event_id` (uuid) per event + server `upsert … on conflict do nothing` — **✅ done + verified live** (stamps land; graceful pre-migration fallback) | code ✅ | T1 CONFIRMED |
+| C2 | Apply migration **`0008_event_idempotency.sql`** (`events.event_id` + unique index) — **then dedupe activates automatically, no redeploy** | **YOU apply** | T1 CONFIRMED |
+| C3 | Acceptance: after 0008, POST same `eventId` 3× → **1 row** | gate | — |
+| C4 | **`eventVersion` + `eventSource`** stamped on every event (schema versioning + QR/AR/kiosk attribution) — **✅ done + verified live** | code ✅ | — |
 
 ## EPIC D — Queue reliability
 | # | Ticket | Owner | Evidence |
 |---|---|---|---|
-| D1 | Persist queue to localStorage; remove only after confirmed 2xx; drain on load | code | T2 in-memory **CONFIRMED** |
-| D2 | Single unload path (pagehide) + retry/backoff; `sendBeacon===false` → requeue | code | tracking-3/4 |
-| D3 | Stop swallowing transport failures silently; surface + retry | code | integrity-2 |
-| D4 | Acceptance: extend harness — failed send retains + retries (no loss) | gate | — |
+| D1 | Persist queue to localStorage; remove only after a confirmed 2xx; drain on load — **✅ done** | code ✅ | T2 CONFIRMED |
+| D2 | Retry w/ backoff; re-flush on `online`; `sendBeacon` on unload (kept persisted → idempotency de-dupes) — **✅ done** | code ✅ | tracking-3/4 |
+| D3 | No silent failures — a non-2xx / network error KEEPS events (never dropped) — **✅ done** | code ✅ | integrity-2 |
+| D4 | Acceptance: failed send retains + retries; with C ⇒ at-least-once delivery, exactly-once effect | gate | — |
 
 ## EPIC E — Data consistency
 | # | Ticket | Owner | Evidence |
