@@ -122,6 +122,7 @@ C+D land — directional, not perfect; that's fine, nothing interprets it yet).
 | HA3 | **Scroll depth in the dish page** — confirm `cocktail_scroll_depth` covers the experience (extend if not) | code |
 | HA4 | **Auto-derived "Your Favorites"** at the menu foot (from dwell/video/AR/revisits — zero clicks) → emits `cocktail_favorited`; optional ❤ Save later. **`call_waiter` removed from the model.** *Deferred: UI comes after security; never pollute the cinematic UX for analytics.* | code (later) |
 | HA→ | **Time-to-first-interaction, Exit-point, Revisit-count, Session-depth are DERIVED** from the raw timeline (timestamps + session_id already captured) — computed in H-B, not emitted as new events | note |
+| HA5 | **Segment every event** — stamp `restaurantType` + `menuCategory` (server-derived) into metadata so future per-segment threshold-learning is possible; backfilling is impossible. **✅ done + verified live** | code ✅ |
 | HA✓ | Acceptance: each new raw event lands in `events`; **nothing scores/interprets it**; existing menu behavior unchanged | gate |
 
 ### H-B — Interpretation *(DO NOT START until Sprint 1 + 2 are done)*

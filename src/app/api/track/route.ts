@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createAdminSupabase } from '@/lib/supabase/server';
 import type { Json } from '@/lib/supabase/types';
 import { isTrackEvent, type TrackBatch, type TrackRecord } from '@/lib/tracking/taxonomy';
+import { findCocktailBySlug, menuCategoryOf } from '@/data/cocktail';
+import { restaurantTypeFor, type RestaurantType } from '@/lib/segments';
 
 export const runtime = 'nodejs';
 
@@ -40,7 +42,7 @@ interface EventRow {
   occurred_at: string;
 }
 
-function toRow(restaurantId: string, e: TrackRecord, now: number): EventRow | null {
+function toRow(restaurantId: string, restaurantType: RestaurantType, e: TrackRecord, now: number): EventRow | null {
   if (!isTrackEvent(e.event) || typeof e.sessionId !== 'string' || !e.sessionId) {
     return null;
   }
@@ -49,6 +51,11 @@ function toRow(restaurantId: string, e: TrackRecord, now: number): EventRow | nu
     typeof e.occurredAt === 'number' && Math.abs(now - e.occurredAt) <= DAY_MS
       ? e.occurredAt
       : now;
+  // Stamp business segment on EVERY data point (server-derived, NOT client-trusted) so future
+  // threshold-learning can normalise by business type + dish category. Backfilling is impossible.
+  const clientMeta = e.metadata && typeof e.metadata === 'object' ? (e.metadata as Record<string, unknown>) : {};
+  const menuCategory = menuCategoryOf(typeof e.cocktailSlug === 'string' ? findCocktailBySlug(e.cocktailSlug) : undefined);
+  const metadata = { ...clientMeta, restaurantType, menuCategory } as unknown as Json;
   return {
     restaurant_id: restaurantId,
     cocktail_slug: typeof e.cocktailSlug === 'string' ? e.cocktailSlug : null,
@@ -60,7 +67,7 @@ function toRow(restaurantId: string, e: TrackRecord, now: number): EventRow | nu
     language: typeof e.language === 'string' ? e.language : null,
     referrer: typeof e.referrer === 'string' ? e.referrer : null,
     value_num: typeof e.value === 'number' && Number.isFinite(e.value) ? e.value : null,
-    metadata: e.metadata && typeof e.metadata === 'object' ? (e.metadata as Json) : null,
+    metadata,
     occurred_at: new Date(occurred).toISOString(),
   };
 }
@@ -85,10 +92,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       // Unknown tenant — accept silently so the client never retries/errors.
       return NextResponse.json({ success: true, inserted: 0 });
     }
+    const restaurantType = restaurantTypeFor(slug);
 
     const now = Date.now();
     const rows = events
-      .map((e) => toRow(restaurantId, e, now))
+      .map((e) => toRow(restaurantId, restaurantType, e, now))
       .filter((row): row is EventRow => row !== null);
 
     if (rows.length === 0) {

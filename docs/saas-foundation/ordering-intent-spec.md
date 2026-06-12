@@ -101,3 +101,7 @@ Aperol Spritz
 - **Instrument first, weight later.** No hard-coded score weights until real behavior reveals what predicts a
   "working dish" vs a "non-working dish."
 - **One module** encodes the ladder + funnel-shape; everything consumes it. **No metric on a dead event.**
+- **Segment every data point.** Every event is stamped (server-derived) with `restaurantType` + `menuCategory`
+  from day one — a 0.12 intent rate is great for a cocktail, poor for a dessert; a cocktail bar ≠ a burger joint.
+  Backfilling is impossible, so we capture it now; future thresholds are learned **per segment**
+  (`thresholds.ts` is already category-keyed). Types in `src/lib/segments.ts`.

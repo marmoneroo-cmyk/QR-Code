@@ -1,3 +1,5 @@
+import type { MenuCategory } from '@/lib/segments';
+
 export type Lang = 'en' | 'he';
 
 export type Localized = Readonly<Record<Lang, string>>;
@@ -73,6 +75,8 @@ export interface CocktailConfig {
   kind?: 'drink' | 'food';
   /** For food: the menu section / course it belongs to (e.g. "Mains", "Desserts"). */
   course?: string;
+  /** Business menu category (cocktail/burger/dessert…) for segmented analytics. Derived if absent. */
+  menuCategory?: MenuCategory;
   heroImage: string;
   heroPrompt?: string;
   flavor: FlavorProfile;
@@ -1073,6 +1077,7 @@ export const TRUFFLE_BURGER: CocktailConfig = {
   category: 'smoky',
   kind: 'food',
   course: 'עיקריות',
+  menuCategory: 'burger',
   heroImage: '/Food/truffle-burger-cut.png',
   flavor: { sweet: 2, bitter: 1, citrus: 0, smoky: 4, herbal: 2 },
   bartenderNote: {
@@ -1100,6 +1105,13 @@ export const MENU: ReadonlyArray<CocktailConfig> = [
 
 export function findCocktailBySlug(slug: string): CocktailConfig | undefined {
   return MENU.find((item) => item.slug === slug);
+}
+
+/** Business menu category for an item — explicit if set, otherwise a sensible default. */
+export function menuCategoryOf(config: CocktailConfig | undefined | null): MenuCategory {
+  if (!config) return 'other';
+  if (config.menuCategory) return config.menuCategory;
+  return config.kind === 'food' ? 'main' : 'cocktail';
 }
 
 export const CATEGORY_LABEL: Record<Category, Localized> = {
