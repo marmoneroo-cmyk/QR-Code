@@ -38,6 +38,8 @@ const EVENT_TYPE_LABELS: Record<TrackEvent, Label> = {
   cocktail_fully_viewed: { en: 'Fully viewed', he: 'נצפה במלואו' },
   cocktail_shared: { en: 'Cocktail shared', he: 'קוקטייל שותף' },
   cocktail_favorited: { en: 'Favorited', he: 'סומן מועדף' },
+  cocktail_video_progress: { en: 'Video progress', he: 'התקדמות וידאו' },
+  cocktail_ar_dwell: { en: 'AR time', he: 'זמן ב‑AR' },
   cocktail_dwell: { en: 'Dwell time', he: 'זמן שהייה' },
   cocktail_scroll_depth: { en: 'Scroll depth', he: 'עומק גלילה' },
   section_attention: { en: 'Section attention', he: 'תשומת לב לאזור' },

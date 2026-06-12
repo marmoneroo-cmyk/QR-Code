@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { findCocktailBySlug } from '@/data/cocktail';
 import { useLang } from '@/lib/useLang';
+import { track } from '@/lib/tracking/track';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -30,6 +31,23 @@ export default function ArPage({ params }: PageProps) {
 
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
   const gestureStartRef = useRef<{ scale: number; pos: { x: number; y: number }; distance: number; midpoint: { x: number; y: number } } | null>(null);
+
+  // H-A raw signal: seconds spent in the AR view (collection only — no interpretation/scoring).
+  useEffect(() => {
+    const startedAt = Date.now();
+    let flushed = false;
+    const flush = () => {
+      if (flushed) return;
+      flushed = true;
+      const seconds = Math.round((Date.now() - startedAt) / 1000);
+      if (seconds > 0) track({ event: 'cocktail_ar_dwell', cocktailSlug: slug, value: seconds });
+    };
+    window.addEventListener('pagehide', flush);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      flush();
+    };
+  }, [slug]);
 
   useEffect(() => {
     let cancelled = false;

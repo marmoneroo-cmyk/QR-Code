@@ -25,8 +25,10 @@ export type TrackEvent =
   | 'section_attention'
   | 'ingredients_opened'
   | 'ar_opened'
+  | 'cocktail_ar_dwell'
   | '360_opened'
   | 'cocktail_video_opened'
+  | 'cocktail_video_progress'
   // Conversion
   | 'call_waiter_clicked'
   | 'add_to_order_clicked'
@@ -55,8 +57,10 @@ export const TRACK_EVENTS: ReadonlySet<TrackEvent> = new Set<TrackEvent>([
   'section_attention',
   'ingredients_opened',
   'ar_opened',
+  'cocktail_ar_dwell',
   '360_opened',
   'cocktail_video_opened',
+  'cocktail_video_progress',
   'call_waiter_clicked',
   'add_to_order_clicked',
   'order_started',

@@ -168,6 +168,7 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
             src={featureVideo}
             lang={lang}
             sans={sans}
+            cocktailSlug={config.slug}
             onEnd={() => setMode('hero')}
           />
         )}
@@ -258,7 +259,7 @@ function FoodExperience({ config }: CocktailExperienceProps) {
         )}
 
         {mode === 'video' && featureVideo && (
-          <VideoStage key="video" src={featureVideo} lang={lang} sans={sans} onEnd={() => setMode('hero')} />
+          <VideoStage key="video" src={featureVideo} lang={lang} sans={sans} cocktailSlug={config.slug} onEnd={() => setMode('hero')} />
         )}
       </AnimatePresence>
     </div>
@@ -934,11 +935,32 @@ interface VideoStageProps {
   src: string;
   lang: Lang;
   sans: string;
+  /** When set, emits the raw `cocktail_video_progress` (max % watched) signal. */
+  cocktailSlug?: string;
   onEnd: () => void;
 }
 
-function VideoStage({ src, lang, sans, onEnd }: VideoStageProps) {
+function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
   const isHe = lang === 'he';
+  // H-A RAW SIGNAL ONLY: the max % of the video actually watched. No scoring/interpretation here.
+  const maxPct = useRef(0);
+  const flushed = useRef(false);
+  const flushProgress = () => {
+    if (flushed.current || !cocktailSlug) return;
+    flushed.current = true;
+    if (maxPct.current > 0) {
+      track({ event: 'cocktail_video_progress', cocktailSlug, value: Math.round(maxPct.current * 100) });
+    }
+  };
+  useEffect(() => {
+    window.addEventListener('pagehide', flushProgress);
+    return () => {
+      window.removeEventListener('pagehide', flushProgress);
+      flushProgress(); // emit when the player closes / the guest navigates away
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cocktailSlug]);
+
   return (
     <motion.section
       className="fixed inset-0 z-40 flex items-center justify-center bg-black"
@@ -955,7 +977,18 @@ function VideoStage({ src, lang, sans, onEnd }: VideoStageProps) {
         muted
         playsInline
         preload="auto"
-        onEnded={onEnd}
+        onTimeUpdate={(e) => {
+          const v = e.currentTarget;
+          if (v.duration > 0) {
+            const pct = Math.min(1, v.currentTime / v.duration);
+            if (pct > maxPct.current) maxPct.current = pct;
+          }
+        }}
+        onEnded={() => {
+          maxPct.current = 1;
+          flushProgress();
+          onEnd();
+        }}
         className="h-full w-full object-contain"
       />
       <button
