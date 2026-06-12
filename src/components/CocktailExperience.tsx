@@ -7,6 +7,7 @@ import { Layers, Play } from 'lucide-react';
 import { getAccent, getFeatureVideo, formatPrice, findCocktailBySlug, MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
 import { FlavorRadar } from './FlavorRadar';
 import { track } from '@/lib/tracking/track';
+import { recordView } from '@/lib/tracking/revisit';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
 import { useEngagement } from '@/lib/tracking/useEngagement';
 
@@ -74,6 +75,7 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
   useEffect(() => {
     setRestaurantSlug('diner');
     track({ event: 'cocktail_opened', cocktailSlug: config.slug });
+    recordView(config.slug);
   }, [config.slug]);
 
   const openIngredients = () => {
@@ -195,6 +197,7 @@ function FoodExperience({ config }: CocktailExperienceProps) {
   useEffect(() => {
     setRestaurantSlug('diner');
     track({ event: 'cocktail_opened', cocktailSlug: config.slug });
+    recordView(config.slug);
   }, [config.slug]);
 
   const openIngredients = () => {

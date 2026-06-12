@@ -40,6 +40,8 @@ const EVENT_TYPE_LABELS: Record<TrackEvent, Label> = {
   cocktail_favorited: { en: 'Favorited', he: 'סומן מועדף' },
   cocktail_video_progress: { en: 'Video progress', he: 'התקדמות וידאו' },
   cocktail_ar_dwell: { en: 'AR time', he: 'זמן ב‑AR' },
+  cocktail_ar_completed: { en: 'AR completed', he: 'AR הושלם' },
+  cocktail_revisited: { en: 'Revisited', he: 'חזר לפריט' },
   cocktail_dwell: { en: 'Dwell time', he: 'זמן שהייה' },
   cocktail_scroll_depth: { en: 'Scroll depth', he: 'עומק גלילה' },
   section_attention: { en: 'Section attention', he: 'תשומת לב לאזור' },

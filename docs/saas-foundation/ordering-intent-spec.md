@@ -46,12 +46,16 @@ Queue · Integrity · Honest Measurement). Rushing to conclusions on untrusted d
 mistake — we don't.
 
 **Raw signals to collect now (H-A)** — store the observation, never a conclusion:
-`cocktail_impression`, `cocktail_opened`, `ingredients_opened`, `cocktail_video_opened` + **`cocktail_video_progress`(max %)**,
-`ar_opened` + **`cocktail_ar_dwell`(seconds)**, `cocktail_dwell`, `cocktail_scroll_depth`, `add_to_order_clicked`,
-`order_completed`, and (once their controls exist) `cocktail_favorited`, `call_waiter_clicked`.
+`cocktail_impression`, `cocktail_opened`, **`cocktail_revisited`(+ gap since last view)**, `ingredients_opened`,
+`cocktail_video_opened` + **`cocktail_video_progress`(max %)**, `ar_opened` + **`cocktail_ar_dwell`(seconds)** +
+**`cocktail_ar_completed`(reserved — fires when a bounded AR experience exists)**, `cocktail_dwell`,
+`cocktail_scroll_depth`, `add_to_order_clicked`, `order_completed`, and (once their controls exist)
+`cocktail_favorited`, `call_waiter_clicked`.
 
 **Derived later (H-B), from the raw timeline — NOT new events:** time-to-first-interaction, exit-point,
-revisit-count, session-depth, the stage-conversion rates, and (eventually, learned-not-set) the score.
+session-depth, the stage-conversion rates, and (eventually, learned-not-set) the score.
+*Revisit is captured RAW (not derived) — the time-gap between visits is information that must not be
+reconstructed from a lossy timeline (owner's call, conceded).*
 
 ## The KPI: the funnel shape (per dish, per window, distinct sessions, highest rung)
 

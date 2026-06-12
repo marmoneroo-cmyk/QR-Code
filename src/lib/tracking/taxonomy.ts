@@ -16,6 +16,7 @@ export type TrackEvent =
   // Cocktail-level
   | 'cocktail_impression'
   | 'cocktail_opened'
+  | 'cocktail_revisited'
   | 'cocktail_scrolled_to'
   | 'cocktail_fully_viewed'
   | 'cocktail_shared'
@@ -26,6 +27,7 @@ export type TrackEvent =
   | 'ingredients_opened'
   | 'ar_opened'
   | 'cocktail_ar_dwell'
+  | 'cocktail_ar_completed'
   | '360_opened'
   | 'cocktail_video_opened'
   | 'cocktail_video_progress'
@@ -48,6 +50,7 @@ export const TRACK_EVENTS: ReadonlySet<TrackEvent> = new Set<TrackEvent>([
   'language_changed',
   'cocktail_impression',
   'cocktail_opened',
+  'cocktail_revisited',
   'cocktail_scrolled_to',
   'cocktail_fully_viewed',
   'cocktail_shared',
@@ -58,6 +61,7 @@ export const TRACK_EVENTS: ReadonlySet<TrackEvent> = new Set<TrackEvent>([
   'ingredients_opened',
   'ar_opened',
   'cocktail_ar_dwell',
+  'cocktail_ar_completed',
   '360_opened',
   'cocktail_video_opened',
   'cocktail_video_progress',

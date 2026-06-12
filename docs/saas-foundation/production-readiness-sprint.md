@@ -137,6 +137,13 @@ AI reasons over data you cannot trust.
 | HB→ | **Deferred (post-data):** once real multi-restaurant behavior exists, *learn* which patterns predict a "working" vs "non-working" dish — only then a weighted Menu Performance Score | future |
 
 ## EPIC I — AI Recommendation Validation *(the recommendation IS the product — not the UI/AR/dashboard)*
+> **PULLED FORWARD (owner direction) & PARTLY BUILT — runs parallel to Sprint 1 since it's pure logic.**
+> The funnel-shape AI Coach **brain** ships: `src/lib/menu-intel/funnel.ts` (`diagnoseFunnel` — reads the
+> SHAPE, names the bottleneck) + **30 synthetic scenarios** (`scenarios.ts`) + the validation suite
+> (`funnel.test.ts`, 32 tests green, incl. Aperol→`weak_conversion`, Truffle Burger→`exposure_gap`).
+> Remaining: precision/recall metrics + CI gate (I4), and wiring it to **real** funnels (that wiring is H-B,
+> gated behind Sprint 1+2 — never run it on untrusted data).
+
 | # | Ticket | Owner |
 |---|---|---|
 | I1 | Reconstitute the audit harness as a **test-only** endpoint; build a **20–30 synthetic-scenario** suite (known event distribution → expected recommendation) | code |
