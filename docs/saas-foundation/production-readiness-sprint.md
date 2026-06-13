@@ -43,19 +43,20 @@ KPI is:
 ## EPIC A — Authentication *(unblocks B & F authz; do first)*
 | # | Ticket | Owner | Evidence |
 |---|---|---|---|
-| A1 | Enable Supabase email auth; create owner/manager/staff users | **YOU** (dashboard) | `ACTIVATE-AUTH.md` |
-| A2 | Flip `AUTH_ENFORCED=true`; verify proxy gates `/admin/*` | code✓+**YOU** | proxy.ts shipped |
-| A3 | Add session check to every `/api/*` route (reads + writes) | code | T8/T9 no-auth **CONFIRMED** |
-| A4 | Derive tenant from `getSessionContext()`, drop `?restaurant=`/`body.restaurant` defaults | code | T8 cross-tenant **CONFIRMED** |
-| A5 | Rotate exposed secrets (service_role, pollinations sk_) | **YOU** | `SECURITY-rotate-secrets.md` |
+| A1 | Enable Supabase email auth; create owner user — **✅ done** (user `34dc7f5e…`, email-confirmed) | **YOU** ✅ | dashboard |
+| A2 | Flip `AUTH_ENFORCED=true`; proxy gates `/admin/*` | code ✅ · **⏳ YOU** (after 0011) | proxy.ts shipped |
+| A3 | `requireSession()` guard on every admin `/api/*` (reads + writes) — **✅ done + live-verified**: logged-out → **401** on all guarded routes; public menu (`promotions`/`experience` GET, `recommendations`) + `track` still **200** | code ✅ | `verify_auth_guard.js` **13/13** |
+| A4 | Tenant from `getSessionContext()`; drop `?restaurant=`/`body.restaurant` on writes — **✅ done + live** | code ✅ | T8 leak → **closed** |
+| A5 | Rotate exposed secrets (service_role, pollinations sk_) | **⏳ YOU** | `SECURITY-rotate-secrets.md` |
 
 ## EPIC B — Multi-tenant security *(depends A)*
 | # | Ticket | Owner | Evidence |
 |---|---|---|---|
-| B1 | Stop service-role for tenant CRUD; use cookie-bound anon client so **RLS is the live boundary** | code | foundation freeze |
-| B2 | Audit + repair RLS on `events`/`changes`/`promotions`/`experience`/`sales` (anon read already blocked — keep it) | code/migration | T8 anon read=0 **NOT REPRODUCED (good)** |
-| B3 | Close cross-tenant authz leak on `/api/changes,/sales,/experience,/promotions` (`?restaurant=` no auth) | code | T8 **CONFIRMED LEAK** |
-| B4 | Per-tenant write token **or** session auth on `/api/track` (fully open today) | code | T9 **CONFIRMED** |
+| B1 | Stop service-role for tenant CRUD; user-scoped (cookie-bound anon) client on promotions/sales/changes/experience so **RLS is the live boundary** — **✅ done** (repos take an optional `db`; writes+reads pass the user-scoped client) | code ✅ | RLS enforced |
+| B2 | Migration **`0011_membership_seed.sql`** — seeds owner→`diner` membership (prod `restaurant_members` was **EMPTY**, verified) + re-asserts RLS on 8 tables. **Mandatory before A2 or lockout.** | code ✅ · **⏳ YOU apply** | 0011 |
+| B3 | Close cross-tenant authz leak on `/api/{promotions,sales,changes,experience}` (`?restaurant=` write, no auth) — **✅ done + live-verified** | code ✅ | T8 leak → **closed** |
+| B4 | `/api/track` stays public + service-role by design (anonymous diners); per-tenant write token = later hardening | defer | — |
+| **B5** | **HARD GATE before tenant #2:** session-scope the analytics **READ** functions that still default `'diner'` (`getCrmSignals`/`getExecutiveSummary`/`getMenuSignals`/overview/heatmap/journeys/integrity/raw/signals/experiments). They are **auth-gated now** (no anonymous read) but **not yet tenant-isolated** — *single-tenant-safe today*, would serve `diner`'s data to a 2nd tenant's user. Must land before onboarding tenant #2. | code (follow-up) | sec-review **H3** |
 
 ## EPIC C — Event integrity (idempotency)
 | # | Ticket | Owner | Evidence |

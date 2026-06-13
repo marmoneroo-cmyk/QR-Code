@@ -7,6 +7,8 @@ import {
   type PromotionInput,
 } from '@/lib/promotions/repository';
 import { logChange } from '@/lib/changes/repository';
+import { requireSession, unauthorized } from '@/lib/auth/guard';
+import { createServerSupabase } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,7 +20,10 @@ function err(message: string, status = 400): NextResponse {
   return NextResponse.json({ success: false, error: message }, { status });
 }
 
-// NOTE (Phase 2): gate writes behind restaurant-member auth once login is wired.
+// PUBLIC read: the diner menu (useMenuConfig) fetches its restaurant's active promotions.
+// `promotions` is public-read by RLS (badges are shown to anonymous guests), so the
+// ?restaurant= param here exposes only already-public data — it is NOT a tenant breach.
+// The WRITE handlers below are the real boundary and derive the tenant from the session.
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const restaurant = req.nextUrl.searchParams.get('restaurant') ?? 'diner';
@@ -51,60 +56,75 @@ function validateInput(body: Record<string, unknown>): PromotionInput | string {
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    const session = await requireSession();
+    const db = await createServerSupabase();
     const body = (await req.json()) as Record<string, unknown>;
-    const restaurant = (body.restaurant as string) ?? 'diner';
     const input = validateInput(body);
     if (typeof input === 'string') return err(input);
-    const data = await createPromotion(restaurant, input);
+    const data = await createPromotion(session.restaurantSlug, input, db);
     const single = data.scope === 'item' && data.targetSlugs?.length === 1 ? data.targetSlugs[0] : null;
-    await logChange(restaurant, {
-      changeType: 'promotion_created',
-      entityType: single ? 'cocktail' : 'menu',
-      entityId: single,
-      after: { name: data.name, type: data.type, value: data.value, scope: data.scope },
-      summary: `Promotion: ${data.name} (−${data.value}${data.type === 'percentage' ? '%' : '₪'})`,
-    });
+    await logChange(
+      session.restaurantSlug,
+      {
+        changeType: 'promotion_created',
+        entityType: single ? 'cocktail' : 'menu',
+        entityId: single,
+        after: { name: data.name, type: data.type, value: data.value, scope: data.scope },
+        summary: `Promotion: ${data.name} (−${data.value}${data.type === 'percentage' ? '%' : '₪'})`,
+      },
+      db,
+    );
     return NextResponse.json({ success: true, data });
   } catch (error: unknown) {
-    return err(error instanceof Error ? error.message : 'unexpected error', 500);
+    return unauthorized(error);
   }
 }
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
+    const session = await requireSession();
+    const db = await createServerSupabase();
     const body = (await req.json()) as Record<string, unknown>;
     if (typeof body.id !== 'string') return err('id is required');
-    const { id, restaurant: r, ...patch } = body;
-    const restaurant = typeof r === 'string' ? r : 'diner';
-    const data = await updatePromotion(restaurant, id, patch as Partial<PromotionInput>);
+    const { id, restaurant: _ignoredTenant, ...patch } = body;
+    const data = await updatePromotion(session.restaurantSlug, id, patch as Partial<PromotionInput>, db);
     const single = data.scope === 'item' && data.targetSlugs?.length === 1 ? data.targetSlugs[0] : null;
-    await logChange(restaurant, {
-      changeType: 'active' in patch ? 'promotion_activated' : 'promotion_edited',
-      entityType: single ? 'cocktail' : 'menu',
-      entityId: single,
-      after: { name: data.name },
-      summary: `Promotion updated: ${data.name}`,
-    });
+    await logChange(
+      session.restaurantSlug,
+      {
+        changeType: 'active' in patch ? 'promotion_activated' : 'promotion_edited',
+        entityType: single ? 'cocktail' : 'menu',
+        entityId: single,
+        after: { name: data.name },
+        summary: `Promotion updated: ${data.name}`,
+      },
+      db,
+    );
     return NextResponse.json({ success: true, data });
   } catch (error: unknown) {
-    return err(error instanceof Error ? error.message : 'unexpected error', 500);
+    return unauthorized(error);
   }
 }
 
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
   try {
+    const session = await requireSession();
+    const db = await createServerSupabase();
     const id = req.nextUrl.searchParams.get('id');
-    const restaurant = req.nextUrl.searchParams.get('restaurant') ?? 'diner';
     if (!id) return err('id is required');
-    await deletePromotion(restaurant, id);
-    await logChange(restaurant, {
-      changeType: 'promotion_deleted',
-      entityType: 'promotion',
-      entityId: id,
-      summary: 'Promotion deleted',
-    });
+    await deletePromotion(session.restaurantSlug, id, db);
+    await logChange(
+      session.restaurantSlug,
+      {
+        changeType: 'promotion_deleted',
+        entityType: 'promotion',
+        entityId: id,
+        summary: 'Promotion deleted',
+      },
+      db,
+    );
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
-    return err(error instanceof Error ? error.message : 'unexpected error', 500);
+    return unauthorized(error);
   }
 }

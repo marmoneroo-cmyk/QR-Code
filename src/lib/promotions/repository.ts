@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { createAdminSupabase, type SupabaseServerClient } from '@/lib/supabase/server';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 import type { Json } from '@/lib/supabase/types';
 import type { Promotion, DiscountType, PromotionScope } from './types';
@@ -51,8 +51,9 @@ export interface PromotionInput {
 export async function listPromotions(
   restaurantSlug: string,
   opts: { activeOnly?: boolean } = {},
+  db?: SupabaseServerClient,
 ): Promise<Promotion[]> {
-  const sb = await createAdminSupabase();
+  const sb = db ?? createAdminSupabase();
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return [];
   let query = sb
@@ -66,8 +67,12 @@ export async function listPromotions(
   return (data ?? []).map((d) => rowToPromotion(d as unknown as PromotionRow));
 }
 
-export async function createPromotion(restaurantSlug: string, input: PromotionInput): Promise<Promotion> {
-  const sb = await createAdminSupabase();
+export async function createPromotion(
+  restaurantSlug: string,
+  input: PromotionInput,
+  db?: SupabaseServerClient,
+): Promise<Promotion> {
+  const sb = db ?? createAdminSupabase();
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) throw new Error(`Unknown restaurant: ${restaurantSlug}`);
   const { data, error } = await sb
@@ -95,8 +100,9 @@ export async function updatePromotion(
   restaurantSlug: string,
   id: string,
   patch: Partial<PromotionInput>,
+  db?: SupabaseServerClient,
 ): Promise<Promotion> {
-  const sb = await createAdminSupabase();
+  const sb = db ?? createAdminSupabase();
   // Tenant scope: a promotion can only be edited by the restaurant that owns it —
   // guessing another tenant's promotion id must not allow a cross-tenant write.
   const restId = await getRestaurantId(restaurantSlug);
@@ -123,8 +129,8 @@ export async function updatePromotion(
   return rowToPromotion(data as unknown as PromotionRow);
 }
 
-export async function deletePromotion(restaurantSlug: string, id: string): Promise<void> {
-  const sb = await createAdminSupabase();
+export async function deletePromotion(restaurantSlug: string, id: string, db?: SupabaseServerClient): Promise<void> {
+  const sb = db ?? createAdminSupabase();
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) throw new Error(`Unknown restaurant: ${restaurantSlug}`);
   const { error } = await sb

@@ -2,6 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { removeBackground } from '@imgly/background-removal-node';
 import { SHARED_LAYERS, type LayerConfig } from '@/data/cocktail';
+import { requireSession, unauthorized } from '@/lib/auth/guard';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -48,6 +49,12 @@ interface StreamEvent {
 }
 
 export async function POST(req: Request): Promise<Response> {
+  try {
+    await requireSession();
+  } catch (error: unknown) {
+    return unauthorized(error);
+  }
+
   let body: GenerateBreakdownBody;
   try {
     body = await req.json();

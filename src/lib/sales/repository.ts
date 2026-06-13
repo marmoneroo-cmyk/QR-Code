@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { createAdminSupabase, type SupabaseServerClient } from '@/lib/supabase/server';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 
 export interface SaleInput {
@@ -20,8 +20,9 @@ export async function importSales(
   periodStart: string,
   periodEnd: string,
   rows: SaleInput[],
+  db?: SupabaseServerClient,
 ): Promise<number> {
-  const sb = await createAdminSupabase();
+  const sb = db ?? createAdminSupabase();
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) throw new Error(`Unknown restaurant: ${restaurantSlug}`);
   const payload = rows
@@ -41,8 +42,8 @@ export async function importSales(
 }
 
 /** Aggregate all imported sales by slug (units + revenue summed). */
-export async function listSalesByItem(restaurantSlug: string): Promise<SalesByItem[]> {
-  const sb = await createAdminSupabase();
+export async function listSalesByItem(restaurantSlug: string, db?: SupabaseServerClient): Promise<SalesByItem[]> {
+  const sb = db ?? createAdminSupabase();
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return [];
   const { data, error } = await sb

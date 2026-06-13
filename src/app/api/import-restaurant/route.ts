@@ -2,6 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { SHARED_LAYERS, type Category, type CocktailConfig } from '@/data/cocktail';
 import { inferKind } from '@/lib/menu/classify';
+import { requireSession, unauthorized } from '@/lib/auth/guard';
 
 export const runtime = 'nodejs';
 // Vercel Hobby plan caps serverless maxDuration at 300s. Bulk imports that
@@ -140,6 +141,12 @@ async function tryRemoveBackground(raw: Buffer): Promise<Buffer> {
 }
 
 export async function POST(req: Request): Promise<Response> {
+  try {
+    await requireSession();
+  } catch (error: unknown) {
+    return unauthorized(error);
+  }
+
   let body: ImportBody;
   try {
     body = await req.json();

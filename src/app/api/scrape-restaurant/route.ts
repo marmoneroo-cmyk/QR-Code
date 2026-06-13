@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { scrapeRestaurant } from '@/lib/restaurant-scraper';
+import { requireSession, unauthorized } from '@/lib/auth/guard';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -9,6 +10,14 @@ interface Body {
 }
 
 export async function POST(req: Request): Promise<Response> {
+  // Authenticate FIRST — an anonymous caller must not reach body parsing or the
+  // outbound fetch (this route takes an arbitrary URL = an SSRF surface; see follow-up).
+  try {
+    await requireSession();
+  } catch (error: unknown) {
+    return unauthorized(error);
+  }
+
   let body: Body;
   try {
     body = await req.json();
@@ -23,8 +32,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const menu = await scrapeRestaurant(body.url);
     return NextResponse.json(menu);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch (error: unknown) {
+    return unauthorized(error);
   }
 }

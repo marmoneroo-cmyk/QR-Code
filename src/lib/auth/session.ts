@@ -43,12 +43,16 @@ export async function getSessionContext(): Promise<SessionContext | null> {
     .select('slug')
     .eq('id', member.restaurant_id)
     .maybeSingle();
+  // A member whose restaurant row is unreadable is NOT a usable tenant context —
+  // fail closed (401) rather than returning an empty slug that silently resolves
+  // every downstream query to "unknown restaurant" / empty data.
+  if (!restaurant) return null;
 
   return {
     userId: user.id,
     email: user.email ?? null,
     restaurantId: member.restaurant_id,
-    restaurantSlug: restaurant?.slug ?? '',
+    restaurantSlug: restaurant.slug,
     role: member.role as Role,
   };
 }

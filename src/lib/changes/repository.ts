@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { createAdminSupabase, type SupabaseServerClient } from '@/lib/supabase/server';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 import type { Json } from '@/lib/supabase/types';
 
@@ -31,9 +31,9 @@ export interface ChangeRecord {
  * Record a change on the generic timeline.
  * Best-effort: never throws — an audit-log failure must not break the main action.
  */
-export async function logChange(restaurantSlug: string, input: ChangeInput): Promise<void> {
+export async function logChange(restaurantSlug: string, input: ChangeInput, db?: SupabaseServerClient): Promise<void> {
   try {
-    const sb = await createAdminSupabase();
+    const sb = db ?? createAdminSupabase();
     const restId = await getRestaurantId(restaurantSlug);
     if (!restId) return;
     await sb.from('changes').insert({
@@ -52,8 +52,8 @@ export async function logChange(restaurantSlug: string, input: ChangeInput): Pro
   }
 }
 
-export async function listChanges(restaurantSlug: string, limit = 200): Promise<ChangeRecord[]> {
-  const sb = await createAdminSupabase();
+export async function listChanges(restaurantSlug: string, limit = 200, db?: SupabaseServerClient): Promise<ChangeRecord[]> {
+  const sb = db ?? createAdminSupabase();
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return [];
   const { data, error } = await sb

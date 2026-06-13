@@ -49,3 +49,10 @@ export function createAdminSupabase() {
     },
   });
 }
+
+/**
+ * A Supabase client typed to our Database. Both factories return this shape; repositories
+ * accept it as an optional `db` param so a route can pass a USER-SCOPED (RLS-enforced)
+ * client instead of the default service-role one — making RLS the live tenant boundary.
+ */
+export type SupabaseServerClient = Awaited<ReturnType<typeof createServerSupabase>>;

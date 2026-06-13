@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCocktailFunnels } from '@/lib/analytics/queries';
+import { requireSession, unauthorized } from '@/lib/auth/guard';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -8,10 +9,10 @@ export const dynamic = 'force-dynamic';
 // For now it returns aggregate, non-PII funnel counts for the single 'diner' tenant.
 export async function GET(): Promise<NextResponse> {
   try {
-    const data = await getCocktailFunnels();
+    const session = await requireSession();
+    const data = await getCocktailFunnels(session.restaurantSlug);
     return NextResponse.json({ success: true, data });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'unexpected error';
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return unauthorized(error);
   }
 }

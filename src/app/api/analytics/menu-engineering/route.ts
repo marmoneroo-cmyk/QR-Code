@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getMenuEngineering } from '@/lib/analytics/queries';
+import { requireSession, unauthorized } from '@/lib/auth/guard';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// NOTE (Phase 2+): gate behind restaurant-member auth once login is wired.
 export async function GET(): Promise<NextResponse> {
   try {
+    await requireSession();
     const data = await getMenuEngineering();
     return NextResponse.json({ success: true, data });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'unexpected error';
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return unauthorized(error);
   }
 }
