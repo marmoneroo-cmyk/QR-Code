@@ -7,6 +7,7 @@ import {
   Heebo,
 } from 'next/font/google';
 import './globals.css';
+import { DirectionSync } from '@/components/DirectionSync';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -75,7 +76,10 @@ export default function RootLayout({
       lang="en"
       className={`${playfair.variable} ${garamond.variable} ${inter.variable} ${frankRuhl.variable} ${heebo.variable}`}
     >
-      <body className="bg-black text-white font-sans">{children}</body>
+      <body className="bg-black text-white font-sans">
+        <DirectionSync />
+        {children}
+      </body>
     </html>
   );
 }

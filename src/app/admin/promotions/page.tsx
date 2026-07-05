@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Tag, CalendarClock, Power, Percent, Plus, X, Eye, Check, Pencil } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, Pill, SectionLabel, Skeleton } from '@/components/ui/dataviz';
+import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
@@ -129,7 +130,7 @@ const STATUS_STYLE: Record<PromoStatus, { en: string; he: string; cls: string; d
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 const inputCls =
-  'bg-black/40 border border-white/12 rounded-xl px-3.5 py-2.5 text-white text-sm outline-none transition-colors focus:border-amber-200/50 placeholder:text-white/30';
+  'bg-white/[0.04] border border-white/12 rounded-xl px-3.5 py-2.5 text-white text-sm outline-none transition-colors focus:border-amber-200/50 placeholder:text-white/30';
 
 /** Discount chip text from the live form state (e.g. "−20%" / "−15₪"). */
 const formDiscountLabel = (f: Pick<FormState, 'type' | 'value'>): string =>
@@ -256,7 +257,7 @@ function LivePreview({ form, lang, isHe }: { form: FormState; lang: Lang; isHe: 
   );
 }
 
-function PromotionsPageInner() {
+export function PromotionsPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const t = (en: string, he: string) => (isHe ? he : en);
@@ -413,15 +414,7 @@ function PromotionsPageInner() {
   const discountLabel = (p: Promotion) => `−${p.value}${p.type === 'percentage' ? '%' : '₪'}`;
 
   return (
-    <AdminShell
-      title="Promotions"
-      titleHe="מבצעים"
-      eyebrow="Happy hour · discounts · scheduled"
-      eyebrowHe="שעה שמחה · הנחות · מתוזמן"
-      active="/admin/promotions"
-      subtitle="Discounts that auto-apply on the menu and light their own badge when live. No developer needed."
-      subtitleHe="הנחות שמופעלות אוטומטית בתפריט ומדליקות badge כשהן פעילות. ללא צורך במפתח."
-    >
+    <>
       <div className="flex flex-col gap-8" dir={isHe ? 'rtl' : 'ltr'}>
         {/* KPI strip */}
         {items.length > 0 && (
@@ -437,8 +430,8 @@ function PromotionsPageInner() {
           {/* Create form */}
           <section
             ref={formRef}
-            className={`rounded-3xl border bg-white/[0.02] p-6 flex flex-col gap-4 transition-[border-color,box-shadow] duration-700 ${
-              prefilled ? 'border-amber-300/60 shadow-[0_0_0_1px_rgba(252,211,77,0.35),0_0_40px_-8px_rgba(252,211,77,0.45)]' : 'border-white/10'
+            className={`glass-panel relative overflow-hidden rounded-3xl p-6 flex flex-col gap-4 transition-[border-color,box-shadow] duration-700 ${
+              prefilled ? 'border-amber-300/60 shadow-[0_0_0_1px_rgba(252,211,77,0.35),0_0_40px_-8px_rgba(252,211,77,0.45)]' : ''
             }`}
           >
             <SectionLabel icon={editingId ? Pencil : Plus}>
@@ -575,11 +568,23 @@ function PromotionsPageInner() {
                 type="button"
                 onClick={submit}
                 disabled={saving}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-amber-300 text-black text-[11px] tracking-[0.25em] uppercase transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
-                style={{ fontFamily: sans, fontWeight: 700 }}
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden px-6 py-3 rounded-full text-black text-[11px] tracking-[0.25em] uppercase transition-shadow disabled:opacity-50"
+                style={{
+                  fontFamily: sans,
+                  fontWeight: 700,
+                  background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
+                  boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
+                }}
               >
-                {editingId ? <Check size={14} strokeWidth={2.4} /> : <Plus size={14} strokeWidth={2.4} />}
-                {saving ? t('Saving…', 'שומר…') : editingId ? t('Save changes', 'שמור שינויים') : t('Add promotion', 'הוסף מבצע')}
+                <span
+                  aria-hidden
+                  className="absolute inset-y-0 -start-1/2 w-1/3 -skew-x-12 opacity-0 transition-all duration-700 group-hover:start-[120%] group-hover:opacity-60"
+                  style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent)' }}
+                />
+                <span className="relative z-10 inline-flex items-center gap-2">
+                  {editingId ? <Check size={14} strokeWidth={2.4} /> : <Plus size={14} strokeWidth={2.4} />}
+                  {saving ? t('Saving…', 'שומר…') : editingId ? t('Save changes', 'שמור שינויים') : t('Add promotion', 'הוסף מבצע')}
+                </span>
               </button>
               {editingId && (
                 <button
@@ -616,11 +621,9 @@ function PromotionsPageInner() {
               </div>
             )}
             {!loading && items.length === 0 && (
-              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-10 text-center">
-                <p className="text-white/40 text-sm italic" style={{ fontFamily: sans }}>
-                  {t('No promotions yet. Create one →', 'אין מבצעים עדיין. צרו אחד →')}
-                </p>
-              </div>
+              <GlassCard static className="p-10">
+                <EmptyState title={t('No promotions yet. Create one →', 'אין מבצעים עדיין. צרו אחד →')} />
+              </GlassCard>
             )}
 
             <Stagger className="grid sm:grid-cols-2 gap-4">
@@ -724,10 +727,22 @@ function PromotionsPageInner() {
           </section>
         </div>
       </div>
-    </AdminShell>
+    </>
   );
 }
 
 export default function PromotionsPage() {
-  return <PromotionsPageInner />;
+  return (
+    <AdminShell
+      title="Promotions"
+      titleHe="מבצעים"
+      eyebrow="Happy hour · discounts · scheduled"
+      eyebrowHe="שעה שמחה · הנחות · מתוזמן"
+      active="/admin/promotions"
+      subtitle="Discounts that auto-apply on the menu and light their own badge when live. No developer needed."
+      subtitleHe="הנחות שמופעלות אוטומטית בתפריט ומדליקות badge כשהן פעילות. ללא צורך במפתח."
+    >
+      <PromotionsPanel />
+    </AdminShell>
+  );
 }

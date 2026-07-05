@@ -7,6 +7,7 @@ import { AlertTriangle, ArrowUp, Megaphone, Tag, Repeat, Layers, Lightbulb, EyeO
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, SectionLabel, Skeleton } from '@/components/ui/dataviz';
+import { GlassCard, PanelHeader, EmptyState, StatBlock } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { PotentialValue } from '@/components/ui/value';
@@ -163,7 +164,7 @@ function localizeEvidenceValue(value: string, isHe: boolean): string {
     .replace(/\bsession\b/g, 'ביקור');
 }
 
-export default function OpportunitiesPage() {
+export function OpportunitiesPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const [data, setData] = useState<BoardData | null>(null);
@@ -230,15 +231,7 @@ export default function OpportunitiesPage() {
   }, [data, statuses, now]);
 
   return (
-    <AdminShell
-      title="Opportunity Board"
-      titleHe="לוח הזדמנויות"
-      eyebrow="What should I do today?"
-      eyebrowHe="מה כדאי לעשות היום?"
-      active="/admin/opportunities"
-      subtitle="Your morning action list — each opportunity leads with its honest ₪ revenue upside, then its type, confidence, evidence, and a suggested action. Every estimate is tied to the menu's own medians; thin-data items show a target instead of a fabricated number."
-      subtitleHe="רשימת הפעולות של הבוקר — כל הזדמנות פותחת בצפי ההכנסה הנוספת ב-₪ (הערכה כנה), ואז סוג, רמת ביטחון, ראיות ופעולה מומלצת. כל הערכה נשענת על חציוני התפריט עצמו; פריטים עם מעט נתונים מציגים יעד במקום מספר מומצא."
-    >
+    <>
       {loading && (
         <div className="flex flex-col gap-12" dir={isHe ? 'rtl' : 'ltr'}>
           <section>
@@ -274,18 +267,18 @@ export default function OpportunitiesPage() {
               </p>
             )}
             {data.opportunities.length === 0 ? (
-              <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center">
-                <p className="text-white/45 text-sm italic" style={{ fontFamily: sans }}>
-                  {isHe ? 'אין הזדמנויות כרגע — אספו עוד ביקורי אורחים ובדקו שוב בבוקר.' : 'No opportunities right now — collect more guest visits and check back in the morning.'}
-                </p>
-              </section>
+              <GlassCard static className="p-12">
+                <EmptyState
+                  title={isHe ? 'אין הזדמנויות כרגע — אספו עוד ביקורי אורחים ובדקו שוב בבוקר.' : 'No opportunities right now — collect more guest visits and check back in the morning.'}
+                />
+              </GlassCard>
             ) : active.length === 0 ? (
-              <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center">
-                <p className="inline-flex items-center gap-2 text-white/55 text-sm" style={{ fontFamily: sans }}>
-                  <CheckCircle2 size={16} strokeWidth={2} className="text-emerald-300/80" />
-                  {isHe ? 'כל ההזדמנויות טופלו — עבודה יפה.' : 'All caught up — nice work.'}
-                </p>
-              </section>
+              <GlassCard static className="p-12">
+                <EmptyState
+                  icon={<CheckCircle2 size={16} strokeWidth={2} />}
+                  title={isHe ? 'כל ההזדמנויות טופלו — עבודה יפה.' : 'All caught up — nice work.'}
+                />
+              </GlassCard>
             ) : (
               <Stagger className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {active.map((o, i) => (
@@ -321,15 +314,13 @@ export default function OpportunitiesPage() {
           {/* Menu Layout Intelligence */}
           <section>
             <SectionLabel icon={Layers}>{isHe ? 'מודיעין פריסת תפריט' : 'Menu Layout Intelligence'}</SectionLabel>
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-              <p className="text-white/40 text-[12px] mb-5" style={{ fontFamily: sans }}>
-                {isHe ? `מבוסס על ${data.layout.sessions} ביקורים` : `Based on ${data.layout.sessions} sessions`}
-              </p>
+            <GlassCard static className="p-6">
+              <PanelHeader label={isHe ? `מבוסס על ${data.layout.sessions} ביקורים` : `Based on ${data.layout.sessions} sessions`} />
 
               {data.layout.sessions === 0 ? (
-                <p className="text-white/40 text-sm italic" style={{ fontFamily: sans }}>{isHe ? 'אין עדיין נתוני גלילה.' : 'No browsing data yet.'}</p>
+                <EmptyState className="pt-5" title={isHe ? 'אין עדיין נתוני גלילה.' : 'No browsing data yet.'} />
               ) : (
-                <div className="grid sm:grid-cols-3 gap-4">
+                <div className="grid sm:grid-cols-3 gap-4 mt-5">
                   <ReachStat label={isHe ? 'הגיעו לפריט 3+' : 'Reached item 3+'} pct={data.layout.reachedFirst3Pct} accent="#34d399" />
                   <ReachStat label={isHe ? 'הגיעו לאמצע' : 'Reached the middle'} pct={data.layout.reachedHalfPct} accent="#fbbf24" />
                   <ReachStat label={isHe ? 'הגיעו לסוף' : 'Reached the end'} pct={data.layout.reachedAllPct} accent="#7dd3fc" />
@@ -361,10 +352,26 @@ export default function OpportunitiesPage() {
                   </div>
                 </div>
               )}
-            </div>
+            </GlassCard>
           </section>
         </div>
       )}
+    </>
+  );
+}
+
+export default function OpportunitiesPage() {
+  return (
+    <AdminShell
+      title="Opportunity Board"
+      titleHe="לוח הזדמנויות"
+      eyebrow="What should I do today?"
+      eyebrowHe="מה כדאי לעשות היום?"
+      active="/admin/opportunities"
+      subtitle="Your morning action list — each opportunity leads with its honest ₪ revenue upside, then its type, confidence, evidence, and a suggested action. Every estimate is tied to the menu's own medians; thin-data items show a target instead of a fabricated number."
+      subtitleHe="רשימת הפעולות של הבוקר — כל הזדמנות פותחת בצפי ההכנסה הנוספת ב-₪ (הערכה כנה), ואז סוג, רמת ביטחון, ראיות ופעולה מומלצת. כל הערכה נשענת על חציוני התפריט עצמו; פריטים עם מעט נתונים מציגים יעד במקום מספר מומצא."
+    >
+      <OpportunitiesPanel />
     </AdminShell>
   );
 }
@@ -608,10 +615,10 @@ function ReachStat({ label, pct, accent }: { label: string; pct: number; accent:
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
       <span className="w-1.5 h-1.5 rounded-full block mb-3" style={{ background: accent }} />
-      <p className="text-white leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2rem,4vw,2.75rem)' }}>
-        {pct}<span className="text-white/35 text-[1.25rem]">%</span>
-      </p>
-      <p className="text-white/50 text-[12px] mt-2" style={{ fontFamily: sans }}>{label}</p>
+      <StatBlock
+        value={<>{pct}<span className="text-white/35 text-[1.25rem]">%</span></>}
+        label={label}
+      />
     </div>
   );
 }

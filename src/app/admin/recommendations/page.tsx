@@ -6,6 +6,7 @@ import { Link2, Lightbulb, ArrowRight, ArrowLeft, Crown } from 'lucide-react';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Skeleton, LiveDot } from '@/components/ui/dataviz';
+import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { PotentialValue } from '@/components/ui/value';
 import { buildMenuBenchmark, estimatePotential } from '@/lib/value/potential';
 import type { MenuBenchmark, RevenuePotential } from '@/lib/value/potential';
@@ -27,7 +28,7 @@ function pairingConfidence(row: CoViewRow): number {
   return Math.min(95, 58 + top * 6);
 }
 
-export default function RecommendationsPage() {
+export function RecommendationsPanel() {
   const { lang } = useLang();
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
@@ -94,16 +95,11 @@ export default function RecommendationsPage() {
   const ApplyArrow = isHebrew ? ArrowLeft : ArrowRight;
 
   return (
-    <AdminShell
-      title="Recommendations"
-      titleHe="המלצות"
-      eyebrow="Behavioral · co-view"
-      eyebrowHe="התנהגותי · צפייה משותפת"
-      active="/admin/recommendations"
-      subtitle="Guests who viewed one drink also viewed these — surface natural pairings and upsells straight from real browsing behaviour."
-      subtitleHe="אורחים שצפו במשקה אחד צפו גם באלה — חשוף שילובים טבעיים והגדלת מכירה ישירות מהתנהגות גלישה אמיתית."
-      actions={<LiveDot label={t('Live', 'חי')} />}
-    >
+    <>
+      <div className="mb-6 flex justify-end flex-wrap gap-3" dir={isHebrew ? 'rtl' : 'ltr'}>
+        <LiveDot label={t('Live', 'חי')} />
+      </div>
+
       {loading && rows.length === 0 && (
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-12" dir={isHebrew ? 'rtl' : 'ltr'}>
           {Array.from({ length: 6 }).map((_, i) => (
@@ -126,17 +122,17 @@ export default function RecommendationsPage() {
       )}
 
       {!loading && !hasData && (
-        <section className="rounded-2xl border border-white/10 bg-zinc-900/60 p-10 text-center">
-          <p className="text-amber-200/80 text-[10px] tracking-[0.4em] uppercase mb-4" style={{ fontFamily: sans }}>
-            {t('No co-views yet', 'אין צפיות משותפות עדיין')}
-          </p>
-          <p className="text-white/55 text-sm leading-relaxed max-w-xl mx-auto" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
-            {t(
-              'Co-views appear once guests browse more than one drink in the same session. As traffic grows, this page reveals which cocktails are explored together.',
-              'צפיות משותפות מופיעות כאשר אורחים מעיינים ביותר ממשקה אחד באותו ביקור. ככל שהתנועה גדלה, עמוד זה חושף אילו קוקטיילים נחקרים יחד.',
-            )}
-          </p>
-        </section>
+        <GlassCard className="p-10" static>
+          <div dir={isHebrew ? 'rtl' : 'ltr'}>
+            <EmptyState
+              title={t('No co-views yet', 'אין צפיות משותפות עדיין')}
+              hint={t(
+                'Co-views appear once guests browse more than one drink in the same session. As traffic grows, this page reveals which cocktails are explored together.',
+                'צפיות משותפות מופיעות כאשר אורחים מעיינים ביותר ממשקה אחד באותו ביקור. ככל שהתנועה גדלה, עמוד זה חושף אילו קוקטיילים נחקרים יחד.',
+              )}
+            />
+          </div>
+        </GlassCard>
       )}
 
       {hasData && (
@@ -175,9 +171,9 @@ export default function RecommendationsPage() {
                 className="h-full"
               >
               <div
-                className="group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.05] to-transparent transition-colors"
+                className="glass-panel group relative flex h-full flex-col overflow-hidden rounded-3xl transition-colors"
                 style={{
-                  borderColor: isTopPick ? 'rgba(251,191,36,0.55)' : `${accent}33`,
+                  borderColor: isTopPick ? 'rgba(232,201,135,0.55)' : `${accent}33`,
                   boxShadow: isTopPick ? `0 26px 70px -24px ${accent}55` : undefined,
                 }}
               >
@@ -189,7 +185,7 @@ export default function RecommendationsPage() {
                   <div className="pointer-events-none absolute -end-12 top-5 z-20 rotate-45">
                     <span
                       className="block px-12 py-1 text-center text-[10px] tracking-[0.16em] uppercase shadow-lg"
-                      style={{ background: 'linear-gradient(90deg,#f59e0b,#fbbf24)', color: '#1a1205', fontFamily: sans, fontWeight: 800 }}
+                      style={{ background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))', color: '#1a1205', fontFamily: sans, fontWeight: 800 }}
                     >
                       {t('Top pick', 'המלצה מובילה')}
                     </span>
@@ -204,9 +200,9 @@ export default function RecommendationsPage() {
                     <span
                       className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] tracking-[0.14em] uppercase"
                       style={{
-                        color: isTopPick ? '#1a1205' : '#fbbf24',
-                        background: isTopPick ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : 'rgba(251,191,36,0.14)',
-                        border: '1px solid rgba(251,191,36,0.55)',
+                        color: isTopPick ? '#1a1205' : 'var(--champagne)',
+                        background: isTopPick ? 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))' : 'rgba(232,201,135,0.14)',
+                        border: '1px solid rgba(232,201,135,0.55)',
                         fontFamily: sans,
                         fontWeight: 800,
                       }}
@@ -245,8 +241,8 @@ export default function RecommendationsPage() {
                   <div className="mt-auto pt-1">
                     <Link
                       href={`/admin/promotions?cocktail=${encodeURIComponent(row.slug)}`}
-                      className="group/apply inline-flex w-full items-center justify-center gap-1.5 rounded-full px-3.5 py-2.5 text-[12px] tracking-[0.12em] uppercase transition-colors hover:bg-amber-300/20"
-                      style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.45)', fontFamily: sans, fontWeight: 600 }}
+                      className="group/apply inline-flex w-full items-center justify-center gap-1.5 rounded-full px-3.5 py-2.5 text-[12px] tracking-[0.12em] uppercase transition-colors hover:bg-[#e8c987]/20"
+                      style={{ color: 'var(--champagne)', background: 'rgba(232,201,135,0.12)', border: '1px solid rgba(232,201,135,0.45)', fontFamily: sans, fontWeight: 600 }}
                     >
                       <Lightbulb size={13} strokeWidth={2} className="shrink-0" />
                       {t('Create promotion', 'צור מבצע')}
@@ -268,6 +264,22 @@ export default function RecommendationsPage() {
           {t('Co-views counted per guest session · use for pairings & upsell', 'צפיות משותפות נספרות לכל ביקור · לשילובים והגדלת מכירה')}
         </p>
       )}
+    </>
+  );
+}
+
+export default function RecommendationsPage() {
+  return (
+    <AdminShell
+      title="Recommendations"
+      titleHe="המלצות"
+      eyebrow="Behavioral · co-view"
+      eyebrowHe="התנהגותי · צפייה משותפת"
+      active="/admin/recommendations"
+      subtitle="Guests who viewed one drink also viewed these — surface natural pairings and upsells straight from real browsing behaviour."
+      subtitleHe="אורחים שצפו במשקה אחד צפו גם באלה — חשוף שילובים טבעיים והגדלת מכירה ישירות מהתנהגות גלישה אמיתית."
+    >
+      <RecommendationsPanel />
     </AdminShell>
   );
 }

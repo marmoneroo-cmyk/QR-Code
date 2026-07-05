@@ -19,6 +19,7 @@ import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, SectionLabel, Skeleton } from '@/components/ui/dataviz';
 import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual';
+import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import type { ImpactStatus, MetricKey, Confidence } from '@/lib/closedloop/types';
@@ -60,9 +61,9 @@ const METRIC: Record<MetricKey, { en: string; he: string }> = {
 };
 
 const inputCls =
-  'bg-black/40 border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:border-amber-200/50 focus:outline-none transition-colors';
+  'bg-white/[0.04] border border-white/12 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:border-amber-200/50 focus:outline-none transition-colors';
 
-export default function ClosedLoopPage() {
+export function ClosedLoopPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const t = (en: string, he: string) => (isHe ? he : en);
@@ -124,15 +125,7 @@ export default function ClosedLoopPage() {
   const fmtDate = (iso: string): string => iso.slice(0, 10);
 
   return (
-    <AdminShell
-      title="Closed Loop"
-      titleHe="לולאה סגורה"
-      eyebrow="Did our changes work?"
-      eyebrowHe="האם השינויים עבדו?"
-      active="/admin/closed-loop"
-      subtitle="Recommendation → Action → Measured Result. Every result shows its confidence and observation window — so you don't overreact to small samples. No fabricated numbers."
-      subtitleHe="המלצה ← פעולה ← תוצאה נמדדת. לכל תוצאה רמת ביטחון וחלון תצפית — כדי לא להגיב יתר על המידה למדגם קטן. בלי מספרים מומצאים."
-    >
+    <>
       <div className="flex flex-col gap-12" dir={isHe ? 'rtl' : 'ltr'}>
         {loading && (
           <section>
@@ -151,12 +144,12 @@ export default function ClosedLoopPage() {
             <SectionLabel icon={CheckCircle2}>{t('Measured results', 'תוצאות נמדדות')}</SectionLabel>
 
             {(!data || data.measured.length === 0) && (
-              <p className="text-white/40 text-sm italic" style={{ fontFamily: sans }}>
-                {t(
+              <EmptyState
+                title={t(
                   'No measurable changes yet. Make a change (promotion/experience) or log an external one below.',
                   'אין עדיין שינויים מדידים. בצעו פעולה (מבצע/חוויה) או רשמו שינוי חיצוני למטה.'
                 )}
-              </p>
+              />
             )}
 
             <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -170,7 +163,7 @@ export default function ClosedLoopPage() {
         )}
 
         {/* Manual external-change log */}
-        <section className="max-w-xl rounded-3xl border border-white/10 bg-white/[0.02] p-6">
+        <GlassCard static className="max-w-xl p-6">
           <div className="mb-1 inline-flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.1)' }}>
               <Wrench size={15} strokeWidth={1.8} />
@@ -207,11 +200,23 @@ export default function ClosedLoopPage() {
               type="button"
               onClick={submitManual}
               disabled={saving}
-              className="inline-flex w-fit items-center gap-2 self-start rounded-full bg-amber-300 px-6 py-3 text-[11px] uppercase tracking-[0.25em] text-black transition-transform hover:scale-[1.04] disabled:opacity-50"
-              style={{ fontFamily: sans, fontWeight: 700 }}
+              className="group relative inline-flex w-fit shrink-0 items-center justify-center gap-2 self-start overflow-hidden rounded-full px-6 py-3 text-[11px] tracking-[0.25em] uppercase text-black transition-shadow disabled:opacity-50"
+              style={{
+                fontFamily: sans,
+                fontWeight: 700,
+                background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
+                boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
+              }}
             >
-              <PlusCircle size={14} strokeWidth={2.2} />
-              {saving ? t('Logging…', 'רושם…') : t('Log change', 'רשום שינוי')}
+              <span
+                aria-hidden
+                className="absolute inset-y-0 -start-1/2 w-1/3 -skew-x-12 opacity-0 transition-all duration-700 group-hover:start-[120%] group-hover:opacity-60"
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent)' }}
+              />
+              <span className="relative z-10 inline-flex items-center gap-2">
+                <PlusCircle size={14} strokeWidth={2.2} />
+                {saving ? t('Logging…', 'רושם…') : t('Log change', 'רשום שינוי')}
+              </span>
             </button>
             {msg && (
               <p className="text-amber-200/80 text-xs" style={{ fontFamily: sans }}>
@@ -219,13 +224,13 @@ export default function ClosedLoopPage() {
               </p>
             )}
           </div>
-        </section>
+        </GlassCard>
 
         {/* Timeline */}
         {data && data.timeline.length > 0 && (
           <section>
             <SectionLabel icon={Clock}>{t('Change timeline', 'ציר הזמן של השינויים')}</SectionLabel>
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] divide-y divide-white/[0.06]">
+            <GlassCard static className="divide-y divide-white/[0.06]">
               {data.timeline.slice(0, 30).map((c) => {
                 const manual = c.source === 'manual';
                 return (
@@ -246,10 +251,26 @@ export default function ClosedLoopPage() {
                   </div>
                 );
               })}
-            </div>
+            </GlassCard>
           </section>
         )}
       </div>
+    </>
+  );
+}
+
+export default function ClosedLoopPage() {
+  return (
+    <AdminShell
+      title="Closed Loop"
+      titleHe="לולאה סגורה"
+      eyebrow="Did our changes work?"
+      eyebrowHe="האם השינויים עבדו?"
+      active="/admin/closed-loop"
+      subtitle="Recommendation → Action → Measured Result. Every result shows its confidence and observation window — so you don't overreact to small samples. No fabricated numbers."
+      subtitleHe="המלצה ← פעולה ← תוצאה נמדדת. לכל תוצאה רמת ביטחון וחלון תצפית — כדי לא להגיב יתר על המידה למדגם קטן. בלי מספרים מומצאים."
+    >
+      <ClosedLoopPanel />
     </AdminShell>
   );
 }

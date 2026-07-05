@@ -9,6 +9,7 @@ import { GlassImage, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { PotentialValue, ConfidenceMeter } from '@/components/ui/value';
 import { Tilt, AccentWash, FrameBreakImage, GlassSheen } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
+import { GlassCard } from '@/components/ui/premium';
 import { buildActions, type CoachAction } from '@/lib/value/actions';
 import { buildBriefing } from '@/lib/value/briefing';
 import { buildMenuBenchmark } from '@/lib/value/potential';
@@ -28,7 +29,7 @@ const POLL_MS = 20_000;
 const primaryBtn =
   'group inline-flex items-center gap-2.5 rounded-full bg-amber-100 px-7 py-3.5 text-[13px] font-semibold tracking-[0.08em] text-black transition-all duration-300 hover:bg-amber-200 hover:gap-3.5 hover:shadow-[0_0_40px_rgba(251,191,36,0.35)]';
 
-export default function CoachPage() {
+export function CoachPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const headFont = isHe ? serifHe : serif;
@@ -93,16 +94,10 @@ export default function CoachPage() {
   const noData = error || opportunities.length === 0;
 
   return (
-    <AdminShell
-      title="Shift Briefing"
-      titleHe="תדריך המשמרת"
-      eyebrow="Tonight's briefing"
-      eyebrowHe="תדריך הערב"
-      active="/admin/coach"
-      subtitle="Here's the one move worth making tonight."
-      subtitleHe="הנה המהלך האחד ששווה לעשות הערב."
-      actions={<LiveDot label={isHe ? 'חי' : 'Live'} />}
-    >
+    <>
+      <div className="mb-6 flex justify-end flex-wrap gap-3" dir={isHe ? 'rtl' : 'ltr'}>
+        <LiveDot label={isHe ? 'חי' : 'Live'} />
+      </div>
       {showInitialLoading ? (
         <CoachSkeleton />
       ) : top ? (
@@ -113,6 +108,22 @@ export default function CoachPage() {
       ) : (
         <EmptyHero noData={noData} lang={lang} headFont={headFont} isHe={isHe} />
       )}
+    </>
+  );
+}
+
+export default function CoachPage() {
+  return (
+    <AdminShell
+      title="Shift Briefing"
+      titleHe="תדריך המשמרת"
+      eyebrow="Tonight's briefing"
+      eyebrowHe="תדריך הערב"
+      active="/admin/coach"
+      subtitle="Here's the one move worth making tonight."
+      subtitleHe="הנה המהלך האחד ששווה לעשות הערב."
+    >
+      <CoachPanel />
     </AdminShell>
   );
 }
@@ -243,7 +254,7 @@ function NextUpStrip({
   isHe: boolean;
 }) {
   return (
-    <section className="mt-10 flex flex-wrap items-center justify-center gap-3 opacity-60 transition-opacity hover:opacity-100">
+    <Stagger className="mt-10 flex flex-wrap items-center justify-center gap-3 opacity-60 transition-opacity hover:opacity-100">
       <span className="text-[10px] uppercase tracking-[0.32em] text-white/35" style={{ fontFamily: sans }}>
         {isHe ? 'גם על הרשימה הערב' : "Also on tonight's list"}
       </span>
@@ -251,23 +262,24 @@ function NextUpStrip({
         const cocktail = findCocktailBySlug(a.slug);
         const accent = getAccent(a.slug);
         return (
-          <Link
-            key={a.id}
-            href={a.executeHref}
-            title={a.title[lang]}
-            aria-label={a.title[lang]}
-            className="relative block h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 transition-colors hover:border-white/30"
-          >
-            <AccentWash accent={accent} opacity={0.18} />
-            {cocktail ? (
-              <GlassImage src={cocktail.heroImage} accent={accent} className="relative h-12 w-12" />
-            ) : (
-              <span className="relative block h-12 w-12 bg-white/[0.04]" />
-            )}
-          </Link>
+          <motion.div key={a.id} variants={staggerItem}>
+            <Link
+              href={a.executeHref}
+              title={a.title[lang]}
+              aria-label={a.title[lang]}
+              className="relative block h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 transition-colors hover:border-white/30"
+            >
+              <AccentWash accent={accent} opacity={0.18} />
+              {cocktail ? (
+                <GlassImage src={cocktail.heroImage} accent={accent} className="relative h-12 w-12" />
+              ) : (
+                <span className="relative block h-12 w-12 bg-white/[0.04]" />
+              )}
+            </Link>
+          </motion.div>
         );
       })}
-    </section>
+    </Stagger>
   );
 }
 
@@ -302,12 +314,7 @@ function EmptyHero({
       : "All quiet on the floor — nothing urgent tonight. We'll keep an eye on the traffic and flag the next move the moment it's worth making.";
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.02] px-8 py-20 text-center"
-    >
+    <GlassCard accent={accent} static className="px-8 py-20 text-center">
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{ background: `radial-gradient(90% 70% at 50% 0%, ${accent}1f, transparent 60%)` }}
@@ -335,7 +342,7 @@ function EmptyHero({
           {body}
         </p>
       </div>
-    </motion.section>
+    </GlassCard>
   );
 }
 
@@ -343,7 +350,7 @@ function EmptyHero({
 
 function CoachSkeleton() {
   return (
-    <div className="rounded-[2.25rem] border border-white/10 bg-white/[0.02] p-7 md:p-14">
+    <GlassCard static className="p-7 md:p-14">
       <div className="grid items-center gap-10 md:grid-cols-2 md:gap-14">
         <Skeleton className="mx-auto aspect-[3/4] w-full max-w-[34rem] rounded-3xl" />
         <div className="flex flex-col gap-4">
@@ -355,6 +362,6 @@ function CoachSkeleton() {
           <Skeleton className="mt-2 h-12 w-44 rounded-full" />
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 }

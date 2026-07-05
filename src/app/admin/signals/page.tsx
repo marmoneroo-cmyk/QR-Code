@@ -19,6 +19,9 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { LiveDot, SectionLabel, Skeleton } from '@/components/ui/dataviz';
+import { GlassCard, StatBlock } from '@/components/ui/premium';
+import { Stagger, staggerItem } from '@/components/ui/motion';
+import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
 import type { HealthStatus, SignalBlock, SignalVerification } from '@/lib/analytics/signals-types';
 
@@ -289,7 +292,7 @@ function ReadinessRing({
 function GoGreenChecklist({ blockers, t, isHe }: { blockers: string[]; t: Tr; isHe: boolean }) {
   const allClear = blockers.length === 0;
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur-sm">
+    <GlassCard static className="p-5 backdrop-blur-sm">
       <p className="mb-4 inline-flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-white/55" style={{ fontFamily: sans }}>
         <ListChecks size={13} strokeWidth={2} />
         {t('How to go green', 'מה צריך כדי להגיע לירוק')}
@@ -313,7 +316,7 @@ function GoGreenChecklist({ blockers, t, isHe }: { blockers: string[]; t: Tr; is
           ))
         )}
       </ul>
-    </div>
+    </GlassCard>
   );
 }
 
@@ -354,8 +357,10 @@ function DistCard({
   const cfg = STATUS[block.status];
   const clean = Math.max(0, 100 - block.invalidPct - block.missingPct);
   return (
-    <div
-      className="rounded-3xl border bg-zinc-900/50 p-6"
+    <GlassCard
+      static
+      accent={cfg.color}
+      className="p-6"
       style={{ borderColor: cfg.ring, boxShadow: `0 30px 80px -60px ${cfg.color}` }}
     >
       <div className="mb-5 flex items-center justify-between">
@@ -379,7 +384,7 @@ function DistCard({
           {/* Gauge-style headline number: P95 */}
           <div className="mb-5 flex items-end justify-between">
             <div>
-              <p className="leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,3.2rem)', color: cfg.color }}>
+              <p className="leading-none tabular-nums" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,3.2rem)', color: cfg.color }}>
                 {s.p95}
                 <span className="text-white/40 text-lg">{unit}</span>
               </p>
@@ -420,17 +425,16 @@ function DistCard({
           </p>
         </>
       )}
-    </div>
+    </GlassCard>
   );
 }
 
 /** Compact stat tile for the identity / favorites grids. */
 function StatTile({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4">
-      <p className="text-white text-2xl leading-none tabular-nums" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
-      <p className="mt-2 text-white/40 text-[10px] tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>{label}</p>
-    </div>
+    <GlassCard static className="p-4">
+      <StatBlock value={value} label={label} />
+    </GlassCard>
   );
 }
 
@@ -493,8 +497,10 @@ export default function SignalsPage() {
     >
       <div dir={isHebrew ? 'rtl' : 'ltr'} className="flex flex-col gap-10">
         {/* ENGINE READINESS — the centerpiece go/no-go */}
-        <section
-          className="relative overflow-hidden rounded-[2rem] border p-8 md:p-10"
+        <GlassCard
+          static
+          accent={heroColor}
+          className="p-8 md:p-10"
           style={{
             borderColor: ready ? 'rgba(52,211,153,0.45)' : 'rgba(251,191,36,0.45)',
             boxShadow: `0 50px 140px -60px ${heroColor}`,
@@ -557,26 +563,24 @@ export default function SignalsPage() {
               <GoGreenChecklist blockers={d.readiness.blockedBy} t={t} isHe={isHebrew} />
             </div>
           )}
-        </section>
+        </GlassCard>
 
         {/* INSTRUMENTATION HEALTH — grid of status cards */}
         <section>
           <SectionLabel icon={ShieldCheck}>{t('Instrumentation Health', 'תקינות מדידה')}</SectionLabel>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <Stagger className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {health.map((h) => {
               const cfg = STATUS[h.status];
               return (
-                <div
-                  key={h.signal}
-                  className="flex items-start gap-3 rounded-2xl border bg-zinc-900/40 p-4"
-                  style={{ borderColor: cfg.ring }}
-                >
-                  <StatusRing status={h.status} />
-                  <div className="min-w-0">
-                    <p className="truncate text-white/90 text-sm" style={{ fontFamily: sans, fontWeight: 600 }}>{localizeSignal(h.signal, isHebrew)}</p>
-                    <p className="mt-0.5 text-white/45 text-[11px] leading-snug" style={{ fontFamily: sans }}>{localizeDetail(h.signal, h.detail, isHebrew)}</p>
-                  </div>
-                </div>
+                <motion.div key={h.signal} variants={staggerItem}>
+                  <GlassCard static accent={cfg.color} className="flex items-start gap-3 p-4" style={{ borderColor: cfg.ring }}>
+                    <StatusRing status={h.status} />
+                    <div className="min-w-0">
+                      <p className="truncate text-white/90 text-sm" style={{ fontFamily: sans, fontWeight: 600 }}>{localizeSignal(h.signal, isHebrew)}</p>
+                      <p className="mt-0.5 text-white/45 text-[11px] leading-snug" style={{ fontFamily: sans }}>{localizeDetail(h.signal, h.detail, isHebrew)}</p>
+                    </div>
+                  </GlassCard>
+                </motion.div>
               );
             })}
             {!d &&
@@ -591,7 +595,7 @@ export default function SignalsPage() {
                     </div>
                   ))
                 : <p className="text-white/40 text-sm" style={{ fontFamily: sans }}>—</p>)}
-          </div>
+          </Stagger>
         </section>
 
         {/* DISTRIBUTIONS — gauge cards */}
@@ -612,7 +616,7 @@ export default function SignalsPage() {
 
         {/* COVERAGE TREND + DRIFT — direction-coded rows */}
         <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <div className="rounded-3xl border border-white/10 bg-zinc-900/50 p-6">
+          <GlassCard static className="p-6">
             <SectionLabel icon={TrendingUp}>{t('Coverage trend', 'מגמת כיסוי')}</SectionLabel>
             <div className="space-y-2.5">
               {(d?.trends ?? []).map((tr) => (
@@ -626,9 +630,9 @@ export default function SignalsPage() {
               ))}
               {(!d || d.trends.length === 0) && <p className="text-white/35 text-sm" style={{ fontFamily: sans }}>—</p>}
             </div>
-          </div>
+          </GlassCard>
 
-          <div className="rounded-3xl border border-white/10 bg-zinc-900/50 p-6">
+          <GlassCard static className="p-6">
             <SectionLabel icon={AlertTriangle}>{t('Signal drift', 'סחיפת סיגנל')}</SectionLabel>
             <div className="space-y-2.5">
               {(d?.drift ?? []).map((dr) => {
@@ -651,22 +655,22 @@ export default function SignalsPage() {
               })}
               {(!d || d.drift.length === 0) && <p className="text-white/35 text-sm" style={{ fontFamily: sans }}>—</p>}
             </div>
-          </div>
+          </GlassCard>
         </section>
 
         {/* IDENTITY & POLLUTION */}
         <section>
           <SectionLabel icon={Fingerprint}>{t('Visitor identity & pollution', 'זהות מבקר וזיהום')}</SectionLabel>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatTile label={t('Visitors', 'מבקרים')} value={(id?.uniqueVisitors ?? 0).toLocaleString()} />
-            <StatTile label={t('Sessions', 'ביקורים')} value={(id?.uniqueSessions ?? 0).toLocaleString()} />
-            <StatTile label={t('Sessions / visitor', 'ביקורים/מבקר')} value={id?.sessionsPerVisitor ?? 0} />
-            <StatTile label={t('Return visitors', 'חוזרים')} value={id?.returnVisitors ?? 0} />
-            <StatTile label={t('visitor_id coverage', 'כיסוי visitor_id')} value={`${id?.visitorCoveragePct ?? 0}%`} />
-            <StatTile label={t('Avg events/session', 'ממוצע/ביקור')} value={id?.avgEventsPerSession ?? 0} />
-            <StatTile label={t('Max events/visitor', 'מקס/מבקר')} value={id?.maxEventsPerVisitor ?? 0} />
-            <StatTile label={t('Max events/session', 'מקס/ביקור')} value={id?.maxEventsPerSession ?? 0} />
-          </div>
+          <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <motion.div variants={staggerItem}><StatTile label={t('Visitors', 'מבקרים')} value={(id?.uniqueVisitors ?? 0).toLocaleString()} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Sessions', 'ביקורים')} value={(id?.uniqueSessions ?? 0).toLocaleString()} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Sessions / visitor', 'ביקורים/מבקר')} value={id?.sessionsPerVisitor ?? 0} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Return visitors', 'חוזרים')} value={id?.returnVisitors ?? 0} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('visitor_id coverage', 'כיסוי visitor_id')} value={`${id?.visitorCoveragePct ?? 0}%`} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Avg events/session', 'ממוצע/ביקור')} value={id?.avgEventsPerSession ?? 0} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Max events/visitor', 'מקס/מבקר')} value={id?.maxEventsPerVisitor ?? 0} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Max events/session', 'מקס/ביקור')} value={id?.maxEventsPerSession ?? 0} /></motion.div>
+          </Stagger>
           {d && !d.hasVisitorColumn && (
             <p className="mt-4 inline-flex items-start gap-2 rounded-xl border border-amber-300/20 bg-amber-950/10 px-4 py-3 text-amber-200/70 text-xs" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
               <AlertTriangle size={14} strokeWidth={2} className="mt-0.5 shrink-0" />
@@ -678,12 +682,12 @@ export default function SignalsPage() {
         {/* FAVORITES */}
         <section>
           <SectionLabel icon={Heart}>{t('Favorites', 'מועדפים')}</SectionLabel>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatTile label={t('Events', 'אירועים')} value={(d?.favorites.events ?? 0).toLocaleString()} />
-            <StatTile label={t('Unique items', 'פריטים')} value={d?.favorites.distinctItems ?? 0} />
-            <StatTile label={t('Add rate', 'שיעור הוספה')} value={`${d?.favorites.addRatePct ?? 0}%`} />
-            <StatTile label={t('Remove rate', 'שיעור הסרה')} value={`${d?.favorites.removeRatePct ?? 0}%`} />
-          </div>
+          <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <motion.div variants={staggerItem}><StatTile label={t('Events', 'אירועים')} value={(d?.favorites.events ?? 0).toLocaleString()} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Unique items', 'פריטים')} value={d?.favorites.distinctItems ?? 0} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Add rate', 'שיעור הוספה')} value={`${d?.favorites.addRatePct ?? 0}%`} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Remove rate', 'שיעור הסרה')} value={`${d?.favorites.removeRatePct ?? 0}%`} /></motion.div>
+          </Stagger>
         </section>
 
         <p className="inline-flex items-center justify-center gap-2 border-t border-white/10 pt-6 text-center text-white/30 text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>

@@ -79,12 +79,12 @@ function DraftCard({
         setCanDrag(false);
         onDragEnd();
       }}
-      className={`group relative rounded-2xl border bg-gradient-to-b from-zinc-900/80 to-black p-6 ps-11 transition-all ${
+      className={`group relative rounded-2xl p-6 ps-11 transition-all ${
         isDragging
-          ? 'border-amber-200/40 opacity-60'
+          ? 'border border-amber-200/40 bg-white/[0.03] opacity-60'
           : isDropTarget
-            ? 'border-amber-200/70 ring-1 ring-amber-200/40'
-            : 'border-white/10 hover:border-amber-200/30'
+            ? 'border border-amber-200/70 bg-white/[0.03] ring-1 ring-amber-200/40'
+            : 'glass-panel hover:border-amber-200/30'
       }`}
     >
       <button
@@ -172,18 +172,28 @@ export default function AdminPage() {
             <button
               type="button"
               onClick={copyAllDrafts}
-              className="px-5 py-2.5 rounded-full border border-white/15 text-white/70 hover:text-amber-100 hover:border-amber-200/50 transition-colors text-[10px] tracking-[0.3em] uppercase"
-              style={{ fontFamily: sans }}
+              className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-[12px] tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100"
+              style={{ fontFamily: sans, fontWeight: 600 }}
             >
               {copiedAll ? t('Copied!', 'הועתק!') : t('Export JSON', 'ייצוא JSON')}
             </button>
           )}
           <Link
             href="/admin/new"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-200 text-black hover:bg-amber-100 transition-colors text-[11px] tracking-[0.25em] uppercase"
-            style={{ fontFamily: sans, fontWeight: 600 }}
+            className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-[13px] tracking-[0.16em] uppercase text-black transition-shadow"
+            style={{
+              fontFamily: sans,
+              fontWeight: 700,
+              background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
+              boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
+            }}
           >
-            {t('+ New Cocktail', '+ קוקטייל חדש')}
+            <span
+              aria-hidden
+              className="absolute inset-y-0 -start-1/2 w-1/3 -skew-x-12 opacity-0 transition-all duration-700 group-hover:start-[120%] group-hover:opacity-60"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent)' }}
+            />
+            <span className="relative z-10 inline-flex items-center gap-2">{t('+ New Cocktail', '+ קוקטייל חדש')}</span>
           </Link>
         </>
       }
@@ -197,7 +207,7 @@ export default function AdminPage() {
       )}
 
       {hydrated && drafts.length === 0 ? (
-        <div className="border border-white/10 rounded-2xl p-12 text-center mb-16">
+        <div className="glass-panel rounded-2xl p-12 text-center mb-16">
           <p className="text-white/55 text-lg mb-4" style={{ fontFamily: bodyFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>
             {t('No drafts yet.', 'אין טיוטות עדיין.')}
           </p>
@@ -233,7 +243,7 @@ export default function AdminPage() {
                 <GlassImage
                   src={draft.heroImage}
                   accent={getAccent(draft.slug)}
-                  className="w-full h-40 mb-4 transition-transform duration-300 group-hover:scale-[1.04]"
+                  className="w-full h-48 mb-4 transition-transform duration-300 group-hover:scale-[1.04]"
                 />
               )}
               <h3 className="text-white text-xl mb-1" style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>
@@ -247,11 +257,19 @@ export default function AdminPage() {
                   {draft.tagline[lang]}
                 </p>
               )}
-              <div className="flex items-center gap-3 pt-3 border-t border-white/[0.08] flex-wrap">
-                <Link href={`/drafts/${draft.slug}`} className="text-amber-200/80 hover:text-amber-100 transition-colors text-[10px] tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+              <div className="flex items-center gap-2 pt-3 border-t border-white/[0.08] flex-wrap">
+                <Link
+                  href={`/drafts/${draft.slug}`}
+                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-[10px] tracking-[0.3em] uppercase"
+                  style={{ fontFamily: sans }}
+                >
                   {t('Preview', 'תצוגה')}
                 </Link>
-                <Link href={`/admin/${draft.slug}/edit`} className="text-amber-200/80 hover:text-amber-100 transition-colors text-[10px] tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+                <Link
+                  href={`/admin/${draft.slug}/edit`}
+                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-[10px] tracking-[0.3em] uppercase"
+                  style={{ fontFamily: sans }}
+                >
                   {t('Edit', 'עריכה')}
                 </Link>
                 <button
@@ -266,7 +284,7 @@ export default function AdminPage() {
                       alert(t('Clipboard copy failed.', 'העתקה ללוח נכשלה.'));
                     }
                   }}
-                  className="text-amber-200/80 hover:text-amber-100 transition-colors text-[10px] tracking-[0.3em] uppercase"
+                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-[10px] tracking-[0.3em] uppercase"
                   style={{ fontFamily: sans }}
                 >
                   {copiedSlug === draft.slug ? t('Copied!', 'הועתק!') : t('Copy JSON', 'העתק JSON')}
@@ -277,7 +295,7 @@ export default function AdminPage() {
                     if (confirm(t(`Delete draft "${draft.title[lang] || draft.title.en}"?`, `למחוק את הטיוטה "${draft.title[lang] || draft.title.en}"?`)))
                       remove(draft.slug);
                   }}
-                  className="text-rose-300/60 hover:text-rose-300 transition-colors text-[10px] tracking-[0.3em] uppercase ms-auto"
+                  className="inline-flex items-center rounded-full border border-rose-300/20 px-3.5 py-1.5 text-rose-300/70 hover:text-rose-300 hover:border-rose-300/40 transition-colors text-[10px] tracking-[0.3em] uppercase ms-auto"
                   style={{ fontFamily: sans }}
                 >
                   {t('Delete', 'מחיקה')}
@@ -330,7 +348,7 @@ export default function AdminPage() {
               <GlassImage
                 src={cocktail.heroImage}
                 accent={getAccent(cocktail.slug)}
-                className="w-full h-40 mb-4 transition-transform duration-300 group-hover:scale-[1.04]"
+                className="w-full h-48 mb-4 transition-transform duration-300 group-hover:scale-[1.04]"
               />
             )}
             <h3 className="text-white text-xl mb-1" style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>

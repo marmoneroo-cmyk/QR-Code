@@ -4,6 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { Trophy, ArrowUpRight, ArrowDownRight, FlaskConical, Hourglass } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Skeleton, LiveDot } from '@/components/ui/dataviz';
+import { GlassCard } from '@/components/ui/premium';
+import { Stagger, staggerItem } from '@/components/ui/motion';
+import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import type { ExperimentResult, VariantResult, ExperimentsResponse } from '@/lib/experiments/results-types';
@@ -71,7 +74,7 @@ export default function ExperimentsPage() {
       {loading && experiments.length === 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" dir={isHebrew ? 'rtl' : 'ltr'}>
           {Array.from({ length: 2 }).map((_, i) => (
-            <section key={i} className="rounded-3xl border border-white/10 bg-zinc-900/60 p-6">
+            <GlassCard key={i} static className="p-6">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <Skeleton className="h-5 w-40" />
                 <Skeleton className="h-6 w-28 rounded-full" />
@@ -90,23 +93,25 @@ export default function ExperimentsPage() {
                 <Skeleton className="h-3 w-24" />
                 <Skeleton className="h-8 w-16" />
               </div>
-            </section>
+            </GlassCard>
           ))}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" dir={isHebrew ? 'rtl' : 'ltr'}>
+      <div dir={isHebrew ? 'rtl' : 'ltr'}>
+      <Stagger className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {experiments.map((exp) => {
           const slug = experimentSlug(exp);
           const cocktail = slug ? findCocktailBySlug(slug) : undefined;
-          const accent = slug ? getAccent(slug) : '#fbbf24';
+          const accent = slug ? getAccent(slug) : '#e8c987';
           const challenger = challengerOf(exp);
           const up = (challenger?.upliftPct ?? 0) >= 0;
 
           return (
-            <section
-              key={exp.id}
-              className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/60 p-6 flex flex-col"
+            <motion.div key={exp.id} variants={staggerItem}>
+            <GlassCard
+              accent={accent}
+              className="p-6 flex flex-col h-full"
               style={{ boxShadow: exp.significant ? '0 30px 90px -50px rgba(52,211,153,0.6)' : undefined }}
             >
               {/* tested cocktail — only when a real drink is mapped */}
@@ -158,7 +163,7 @@ export default function ExperimentsPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-2xl font-mono" style={{ color: v.isWinner ? '#6ee7b7' : '#fde68a' }}>
+                    <p className="text-2xl tabular-nums" style={{ fontFamily: serif, fontWeight: 700, color: v.isWinner ? '#6ee7b7' : '#fde68a' }}>
                       {v.conversionPct.toFixed(1)}<span className="text-base text-white/40">%</span>
                     </p>
                     <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden my-2">
@@ -172,7 +177,7 @@ export default function ExperimentsPage() {
                         }}
                       />
                     </div>
-                    <p className="text-white/45 text-[11px] font-mono" style={{ fontFamily: sans }}>
+                    <p className="text-white/45 text-[11px] tabular-nums" style={{ fontFamily: sans }}>
                       {v.conversions}/{v.exposures} {t('converted', 'המירו')}
                     </p>
                   </div>
@@ -185,7 +190,7 @@ export default function ExperimentsPage() {
                   <span className="text-white/40 text-[10px] tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
                     {t('Lift vs control', 'שיפור מול בקרה')}
                   </span>
-                  <span className={`inline-flex items-center gap-1 text-3xl leading-none ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: serif, fontWeight: 700 }}>
+                  <span className={`inline-flex items-center gap-1 text-3xl leading-none tabular-nums ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: serif, fontWeight: 700 }}>
                     {up ? <ArrowUpRight size={26} strokeWidth={2.2} /> : <ArrowDownRight size={26} strokeWidth={2.2} />}
                     {up ? '+' : '−'}{Math.abs(challenger.upliftPct).toFixed(0)}%
                   </span>
@@ -200,9 +205,11 @@ export default function ExperimentsPage() {
                   )}
                 </p>
               )}
-            </section>
+            </GlassCard>
+            </motion.div>
           );
         })}
+      </Stagger>
       </div>
 
       <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-8 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>

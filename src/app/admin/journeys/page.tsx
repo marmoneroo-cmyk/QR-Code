@@ -27,6 +27,7 @@ import { motion } from 'framer-motion';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { CountUpText, GlassImage, KpiCard, LiveDot, SectionLabel, Skeleton } from '@/components/ui/dataviz';
+import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { useLang } from '@/lib/useLang';
@@ -251,7 +252,7 @@ function FunnelStepper({ nodes, total, isHebrew, t }: FunnelStepperProps) {
     <section className="mb-8" dir={isHebrew ? 'rtl' : 'ltr'}>
       <SectionLabel icon={Filter}>{t('Journey funnel', 'משפך מסע')}</SectionLabel>
 
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.035] to-transparent p-5 sm:p-6">
+      <GlassCard className="p-5 sm:p-6" static>
         {/* flex-wrap = wraps to rows; no overflow-x anywhere */}
         <div className="flex flex-wrap items-stretch justify-center gap-y-4">
           {nodes.map((node, idx) => {
@@ -330,7 +331,7 @@ function FunnelStepper({ nodes, total, isHebrew, t }: FunnelStepperProps) {
             `${total.toLocaleString()} ביקורים · אירועים אמיתיים`,
           )}
         </p>
-      </div>
+      </GlassCard>
     </section>
   );
 }
@@ -442,9 +443,7 @@ export function JourneysPanel() {
       )}
 
       {sessions.length === 0 && !loading && (
-        <p className="text-white/40 text-sm italic" style={{ fontFamily: sans }}>
-          {t('No sessions captured yet.', 'עדיין לא נקלטו ביקורים.')}
-        </p>
+        <EmptyState title={t('No sessions captured yet.', 'עדיין לא נקלטו ביקורים.')} />
       )}
 
       {sessions.length > 0 && topSlugs.length > 0 && (
@@ -493,7 +492,7 @@ export function JourneysPanel() {
             <motion.div key={s.sessionId} variants={staggerItem}>
             <HoverLift accent={dominantAccent} className="rounded-3xl">
             <div
-              className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.035] to-transparent"
+              className="glass-panel relative overflow-hidden rounded-3xl"
               style={open ? { borderColor: `${dominantAccent}55` } : undefined}
             >
               {singleDrink && <AccentWash accent={dominantAccent} opacity={0.12} />}

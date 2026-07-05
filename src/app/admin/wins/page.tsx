@@ -16,13 +16,13 @@ import {
   Share2,
   type LucideIcon,
 } from 'lucide-react';
-import Link from 'next/link';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { CountUpText, LiveDot, SectionLabel } from '@/components/ui/dataviz';
 import { FrameBreakImage, GlassSheen, AccentWash, HoverLift, Tilt } from '@/components/ui/visual';
 import { Confetti, VictoryRing } from '@/components/ui/celebrate';
 import { Reveal, Stagger, staggerItem } from '@/components/ui/motion';
+import { GlassCard, EmptyState as PremiumEmptyState, CtaPill } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import type { MetricKey, Confidence } from '@/lib/closedloop/types';
 import type { ClosedLoopItem, ClosedLoopReport } from '@/lib/closedloop/server';
@@ -92,7 +92,7 @@ function relativeDate(iso: string, isHe: boolean): string {
   return isHe ? `לפני ${m} חוד׳` : `${m}mo ago`;
 }
 
-export default function HallOfWinsPage() {
+export function WinsPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const t = useCallback((en: string, he: string) => (isHe ? he : en), [isHe]);
@@ -153,15 +153,7 @@ export default function HallOfWinsPage() {
   const hasAnyWinEver = allWins.length > 0;
 
   return (
-    <AdminShell
-      title="Hall of Wins"
-      titleHe="אולם ההצלחות"
-      eyebrow="What the platform already did"
-      eyebrowHe="מה שהמערכת כבר עשתה"
-      active="/admin/wins"
-      subtitle="Every change that measurably worked — celebrated."
-      subtitleHe="כל שינוי שעבד באמת — בחגיגיות."
-    >
+    <>
       <div className="flex flex-col gap-10" dir={isHe ? 'rtl' : 'ltr'}>
         {/* ── Header: live counter + real avg uplift + tabs ───────────────── */}
         {loaded && hasAnyWinEver && (
@@ -245,22 +237,17 @@ export default function HallOfWinsPage() {
         {/* ── Empty within the active tab (but wins exist elsewhere) ──────── */}
         {loaded && hasAnyWinEver && wins.length === 0 && (
           <Reveal>
-            <div
-              className="rounded-3xl border border-white/10 bg-white/[0.02] px-6 py-10 text-center"
-              style={{ fontFamily: sans }}
-            >
-              <p className="text-white/70 text-[15px]">
-                {t('No wins in this window — yet.', 'אין ניצחונות בחלון הזה — עדיין.')}
-              </p>
+            <GlassCard static className="px-6 py-10 text-center">
+              <PremiumEmptyState title={t('No wins in this window — yet.', 'אין ניצחונות בחלון הזה — עדיין.')} />
               <button
                 type="button"
                 onClick={() => setTab('all')}
-                className="mt-3 text-[12px] uppercase tracking-[0.2em]"
-                style={{ color: GOLD, fontWeight: 600 }}
+                className="mt-1 text-[12px] uppercase tracking-[0.2em]"
+                style={{ fontFamily: sans, color: GOLD, fontWeight: 600 }}
               >
                 {t('See all wins →', 'הצג את כל הניצחונות →')}
               </button>
-            </div>
+            </GlassCard>
           </Reveal>
         )}
 
@@ -287,6 +274,22 @@ export default function HallOfWinsPage() {
           </Stagger>
         )}
       </div>
+    </>
+  );
+}
+
+export default function HallOfWinsPage() {
+  return (
+    <AdminShell
+      title="Hall of Wins"
+      titleHe="אולם ההצלחות"
+      eyebrow="What the platform already did"
+      eyebrowHe="מה שהמערכת כבר עשתה"
+      active="/admin/wins"
+      subtitle="Every change that measurably worked — celebrated."
+      subtitleHe="כל שינוי שעבד באמת — בחגיגיות."
+    >
+      <WinsPanel />
     </AdminShell>
   );
 }
@@ -435,13 +438,10 @@ interface EmptyStateProps {
 function EmptyState({ isHe, t }: EmptyStateProps) {
   return (
     <Reveal>
-      <div
-        className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.02] px-8 py-16 text-center"
-        dir={isHe ? 'rtl' : 'ltr'}
-      >
+      <GlassCard static accent={GOLD} className="rounded-[32px] px-8 py-16 text-center">
         <AccentWash accent={GOLD} opacity={0.2} />
         <GlassSheen />
-        <div className="relative mx-auto flex max-w-md flex-col items-center gap-4">
+        <div className="relative mx-auto flex max-w-md flex-col items-center gap-4" dir={isHe ? 'rtl' : 'ltr'}>
           <span
             className="grid h-16 w-16 place-items-center rounded-2xl"
             style={{ color: GOLD, background: `${GOLD}1a`, boxShadow: `0 0 40px ${GOLD}33` }}
@@ -460,16 +460,12 @@ function EmptyState({ isHe, t }: EmptyStateProps) {
               'בצעו צעד והמערכת תמדוד אותו — כששינוי עובד, הוא ינחת כאן באורות.'
             )}
           </p>
-          <Link
-            href="/admin/actions"
-            className="mt-2 inline-flex items-center gap-2 rounded-full bg-amber-300 px-7 py-3 text-[11px] uppercase tracking-[0.25em] text-black transition-transform hover:scale-[1.04]"
-            style={{ fontFamily: sans, fontWeight: 700 }}
-          >
+          <CtaPill href="/admin/actions" className="mt-2">
             <Rocket size={14} strokeWidth={2.2} />
             {t('Make your first move', 'בצע את המהלך הראשון')}
-          </Link>
+          </CtaPill>
         </div>
-      </div>
+      </GlassCard>
     </Reveal>
   );
 }

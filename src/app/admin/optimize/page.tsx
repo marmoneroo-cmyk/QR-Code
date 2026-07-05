@@ -9,6 +9,7 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Pill, Skeleton } from '@/components/ui/dataviz';
 import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
+import { EmptyState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import type { MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
@@ -186,11 +187,13 @@ export function OptimizePanel() {
       )}
 
       {!loading && !error && recommendations.length === 0 && (
-        <p className="text-white/40 text-sm italic" style={{ fontFamily: sans }}>
-          {isHebrew
-            ? 'אין עדיין מספיק נתונים להמלצות. אספו עוד ביקורי אורחים וחזרו.'
-            : 'Not enough data for recommendations yet. Collect more guest visits and come back.'}
-        </p>
+        <EmptyState
+          title={
+            isHebrew
+              ? 'אין עדיין מספיק נתונים להמלצות. אספו עוד ביקורי אורחים וחזרו.'
+              : 'Not enough data for recommendations yet. Collect more guest visits and come back.'
+          }
+        />
       )}
 
       {!loading && !error && recommendations.length > 0 && (

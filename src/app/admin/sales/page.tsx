@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } fro
 import { Coins, Boxes, UploadCloud, AlertTriangle, LayoutGrid } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
+import { GlassCard, EmptyState } from '@/components/ui/premium';
+import { Stagger, staggerItem } from '@/components/ui/motion';
+import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import type { SaleInput, SalesByItem } from '@/lib/sales/repository';
@@ -90,10 +93,10 @@ function RevenueTreemap({
                     {d.title}
                   </p>
                   <div className="relative mt-1 flex items-baseline justify-between gap-1.5">
-                    <span className="text-[15px] font-bold leading-none" style={{ color: d.accent, fontFamily: serif }}>
+                    <span className="text-[15px] font-bold leading-none tabular-nums" style={{ color: d.accent, fontFamily: serif }}>
                       {formatIls(d.revenue)}
                     </span>
-                    <span className="shrink-0 text-[10px] text-white/40" style={{ fontFamily: sans }}>
+                    <span className="shrink-0 text-[10px] text-white/40 tabular-nums" style={{ fontFamily: sans }}>
                       {sharePct}%
                     </span>
                   </div>
@@ -107,7 +110,7 @@ function RevenueTreemap({
   );
 }
 
-export default function SalesPage() {
+export function SalesPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const t = (en: string, he: string) => (isHe ? he : en);
@@ -244,30 +247,22 @@ export default function SalesPage() {
   );
 
   return (
-    <AdminShell
-      title="Sales Ingestion"
-      titleHe="קליטת מכירות"
-      eyebrow="Read-only · what actually sold"
-      eyebrowHe="קריאה בלבד · נתוני המכירות"
-      active="/admin/sales"
-      subtitle="Import what actually sold (from your POS). We only read sales — we never place orders. This turns interest into proven sales."
-      subtitleHe="ייבאו מה שבאמת נמכר (מה-POS). אנחנו רק קוראים מכירות — לא מבצעים הזמנות. זה הופך עניין למכירות מוכחות."
-    >
+    <>
       <div className="flex flex-col gap-10" dir={isHe ? 'rtl' : 'ltr'}>
         {/* KPI strip */}
         {sales.length > 0 ? (
-          <section className="grid grid-cols-3 gap-3">
-            <KpiCard label={t('Revenue', 'הכנסה')} value={ils(totals.revenue)} accent="#fbbf24" icon={Coins} />
-            <KpiCard label={t('Units sold', 'יחידות שנמכרו')} value={totals.units.toLocaleString()} accent="#34d399" icon={Boxes} />
-            <KpiCard label={t('Items', 'פריטים')} value={sales.length.toLocaleString()} accent="#7dd3fc" icon={Boxes} />
-          </section>
+          <Stagger className="grid grid-cols-3 gap-3">
+            <motion.div variants={staggerItem}><KpiCard label={t('Revenue', 'הכנסה')} value={ils(totals.revenue)} accent="#e8c987" icon={Coins} /></motion.div>
+            <motion.div variants={staggerItem}><KpiCard label={t('Units sold', 'יחידות שנמכרו')} value={totals.units.toLocaleString()} accent="#34d399" icon={Boxes} /></motion.div>
+            <motion.div variants={staggerItem}><KpiCard label={t('Items', 'פריטים')} value={sales.length.toLocaleString()} accent="#7dd3fc" icon={Boxes} /></motion.div>
+          </Stagger>
         ) : loading ? (
           <SkeletonGrid count={3} className="grid grid-cols-3 gap-3" />
         ) : null}
 
         <div className="grid gap-8 lg:grid-cols-5">
           {/* CSV import form */}
-          <section className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/[0.02] p-6 flex flex-col gap-4 h-fit">
+          <GlassCard static className="lg:col-span-2 p-6 flex flex-col gap-4 h-fit">
             <SectionLabel icon={UploadCloud}>{t('Import CSV', 'ייבוא CSV')}</SectionLabel>
             <p className="text-white/45 text-[12px] -mt-2" style={{ fontFamily: sans }}>
               {t('One row per item:', 'שורה לכל פריט:')}{' '}
@@ -288,17 +283,17 @@ export default function SalesPage() {
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
               onDrop={onDrop}
-              className={`relative rounded-xl transition-colors ${dragging ? 'ring-2 ring-amber-300/70' : ''}`}
+              className={`relative rounded-2xl border border-dashed transition-colors ${dragging ? 'border-amber-200/60 ring-2 ring-amber-300/70' : 'border-amber-200/25 bg-white/[0.02]'}`}
             >
               <textarea
-                className={`${inputCls} w-full h-44 font-mono text-[12px] resize-none leading-relaxed ${dragging ? 'border-amber-300/60' : ''}`}
+                className={`${inputCls} w-full h-44 font-mono text-[12px] resize-none leading-relaxed !border-0 !bg-transparent`}
                 placeholder={'diner-aperol-spritz,42,2520\ndiner-negroni,8,464'}
                 value={csv}
                 onChange={(e) => setCsv(e.target.value)}
                 dir="ltr"
               />
               {dragging && (
-                <div className="pointer-events-none absolute inset-0 grid place-items-center rounded-xl bg-amber-300/10 backdrop-blur-[1px]">
+                <div className="pointer-events-none absolute inset-0 grid place-items-center rounded-2xl bg-amber-300/10 backdrop-blur-[1px]">
                   <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/50 bg-black/60 px-4 py-2 text-amber-200 text-[11px] tracking-[0.18em] uppercase" style={{ fontFamily: sans }}>
                     <UploadCloud size={14} strokeWidth={2.2} />
                     {t('Drop CSV to load', 'שחררו CSV לטעינה')}
@@ -330,7 +325,7 @@ export default function SalesPage() {
               {saving ? t('Importing…', 'מייבא…') : t('Import sales', 'ייבא מכירות')}
             </button>
             {msg && <p className="text-amber-200/80 text-xs text-center" style={{ fontFamily: sans }}>{msg}</p>}
-          </section>
+          </GlassCard>
 
           {/* Aggregated sales cards */}
           <section className="lg:col-span-3 flex flex-col gap-4">
@@ -338,7 +333,7 @@ export default function SalesPage() {
             {sales.length === 0 && loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 flex flex-col">
+                  <GlassCard key={i} static className="p-4 flex flex-col">
                     <Skeleton className="h-32 w-full mb-3 rounded-xl" />
                     <Skeleton className="h-4 w-32 mx-auto" />
                     <div className="mt-3 flex items-baseline justify-between">
@@ -346,33 +341,32 @@ export default function SalesPage() {
                       <Skeleton className="h-5 w-16" />
                     </div>
                     <Skeleton className="mt-2 h-1.5 w-full rounded-full" />
-                  </div>
+                  </GlassCard>
                 ))}
               </div>
             ) : sales.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-10 text-center">
-                <p className="text-white/40 text-sm italic" style={{ fontFamily: sans }}>
-                  {t('No sales yet — import a CSV to begin.', 'אין מכירות עדיין — ייבאו CSV כדי להתחיל.')}
-                </p>
-              </div>
+              <GlassCard static className="p-10">
+                <EmptyState title={t('No sales yet — import a CSV to begin.', 'אין מכירות עדיין — ייבאו CSV כדי להתחיל.')} />
+              </GlassCard>
             ) : (
               <div className="flex flex-col gap-5">
                 {treemap.length > 0 && (
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                  <GlassCard static className="p-4">
                     <SectionLabel icon={LayoutGrid}>{t('Revenue treemap', 'מפת הכנסות')}</SectionLabel>
                     <RevenueTreemap data={treemap} totalRevenue={totals.revenue} formatIls={ils} isHe={isHe} />
-                  </div>
+                  </GlassCard>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Stagger className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {ranked.map((s) => {
                   const c = findCocktailBySlug(s.slug);
                   const accent = getAccent(s.slug);
                   const title = c ? c.title[lang] : s.slug;
                   const pct = Math.max(4, Math.round((s.revenue / maxRevenue) * 100));
                   return (
-                    <article
-                      key={s.slug}
-                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-4 flex flex-col"
+                    <motion.div key={s.slug} variants={staggerItem}>
+                    <GlassCard
+                      accent={accent}
+                      className="group relative p-4 flex flex-col"
                     >
                       {c ? (
                         <GlassImage src={c.heroImage} accent={accent} className="w-full h-32 mb-3 transition-transform duration-300 group-hover:scale-105" />
@@ -386,20 +380,37 @@ export default function SalesPage() {
                       </p>
                       <div className="mt-3 flex items-baseline justify-between gap-2" style={{ fontFamily: sans }}>
                         <span className="text-white/45 text-[11px]">{s.units} {t('units', 'יח׳')}</span>
-                        <span className="text-[17px]" style={{ color: accent, fontFamily: serif, fontWeight: 700 }}>{ils(s.revenue)}</span>
+                        <span className="text-[17px] tabular-nums" style={{ color: accent, fontFamily: serif, fontWeight: 700 }}>{ils(s.revenue)}</span>
                       </div>
                       <div className="mt-2 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                         <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct}%`, background: accent, opacity: 0.85 }} />
                       </div>
-                    </article>
+                    </GlassCard>
+                    </motion.div>
                   );
                 })}
-                </div>
+                </Stagger>
               </div>
             )}
           </section>
         </div>
       </div>
+    </>
+  );
+}
+
+export default function SalesPage() {
+  return (
+    <AdminShell
+      title="Sales Ingestion"
+      titleHe="קליטת מכירות"
+      eyebrow="Read-only · what actually sold"
+      eyebrowHe="קריאה בלבד · נתוני המכירות"
+      active="/admin/sales"
+      subtitle="Import what actually sold (from your POS). We only read sales — we never place orders. This turns interest into proven sales."
+      subtitleHe="ייבאו מה שבאמת נמכר (מה-POS). אנחנו רק קוראים מכירות — לא מבצעים הזמנות. זה הופך עניין למכירות מוכחות."
+    >
+      <SalesPanel />
     </AdminShell>
   );
 }

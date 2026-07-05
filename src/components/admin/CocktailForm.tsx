@@ -15,6 +15,7 @@ import {
   Upload,
   Check,
   ClipboardCopy,
+  LibraryBig,
 } from 'lucide-react';
 import {
   CATEGORY_LABEL,
@@ -27,6 +28,7 @@ import {
   type LayerConfig,
 } from '@/data/cocktail';
 import { GlassImage, SectionLabel } from '@/components/ui/dataviz';
+import { MediaLibrary } from '@/components/admin/MediaLibrary';
 import { useDrafts } from '@/lib/useDrafts';
 import { useLang } from '@/lib/useLang';
 import { buildHeroPrompt, buildPollinationsUrl, buildGptImagePrompt, slugify } from '@/lib/heroPrompts';
@@ -78,6 +80,7 @@ export function CocktailForm({
   const [heroPrompt, setHeroPrompt] = useState(initialHeroPrompt ?? initial?.heroPrompt ?? '');
   const [heroUrl, setHeroUrl] = useState(initial?.heroImage ?? '');
   const [gptCopied, setGptCopied] = useState(false);
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false);
   const [priceText, setPriceText] = useState(initial?.priceILS != null ? String(initial.priceILS) : '');
   // 'drink' (cocktail) vs 'food' — chooses which fields show. Trusts the stored
   // kind (code cocktails have none ⇒ 'drink'; imports set it); the owner can flip.
@@ -546,6 +549,17 @@ export function CocktailForm({
               }}
             />
           </label>
+          <span className="text-white/30 text-xs italic">{t('— or —', '— או —')}</span>
+          <motion.button
+            type="button"
+            onClick={() => setMediaLibraryOpen(true)}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/30 text-amber-100/80 hover:text-amber-100 hover:border-amber-200/60 transition-colors text-[11px] tracking-[0.3em] uppercase"
+            style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          >
+            <LibraryBig size={13} strokeWidth={2} />
+            {t('Library', 'ספרייה')}
+          </motion.button>
         </div>
         {heroUrl && (
           <div className="mt-6 flex flex-col sm:flex-row items-start gap-6">
@@ -674,6 +688,13 @@ export function CocktailForm({
           {t('Cancel', 'ביטול')}
         </Link>
       </div>
+
+      <MediaLibrary
+        open={mediaLibraryOpen}
+        onClose={() => setMediaLibraryOpen(false)}
+        onSelect={(url) => setHeroUrl(url)}
+        lang={lang}
+      />
     </form>
   );
 }

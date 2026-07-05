@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Users, Repeat, CalendarCheck, Activity, Flame, Eye, ShoppingBag, Languages, Smartphone } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { KpiCard, SectionLabel, Pill, Skeleton, SkeletonGrid, LiveDot } from '@/components/ui/dataviz';
+import { KpiCard, Pill, Skeleton, SkeletonGrid, LiveDot } from '@/components/ui/dataviz';
+import { GlassCard, PanelHeader, EmptyState } from '@/components/ui/premium';
+import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import type { CrmSignals } from '@/lib/analytics/crm-types';
 
@@ -53,7 +56,7 @@ interface SegmentCardProps {
 function SegmentCard({ icon: Icon, accent, title, count, total, meaning }: SegmentCardProps) {
   const share = total > 0 ? (count / total) * 100 : 0;
   return (
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-6 flex flex-col gap-4">
+    <GlassCard accent={accent} className="p-6 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <span className="grid place-items-center w-9 h-9 rounded-xl" style={{ color: accent, background: `${accent}1a` }}>
           <Icon size={17} strokeWidth={1.8} />
@@ -66,11 +69,11 @@ function SegmentCard({ icon: Icon, accent, title, count, total, meaning }: Segme
         </p>
         <p className="text-white/55 text-[12px] mt-2 tracking-wide" style={{ fontFamily: sans }}>{title}</p>
       </div>
-      <div className="h-1.5 w-full rounded-full bg-white/[0.05] overflow-hidden" dir="ltr">
+      <div className="h-1.5 w-full rounded-full bg-white/[0.06] overflow-hidden" dir="ltr">
         <div className="h-full rounded-full" style={{ width: `${Math.max(2, share)}%`, background: accent }} />
       </div>
       <p className="text-white/45 text-[12px] leading-relaxed" style={{ fontFamily: sans }}>{meaning}</p>
-    </div>
+    </GlassCard>
   );
 }
 
@@ -292,91 +295,110 @@ export default function CrmPage() {
 
       {/* Empty state */}
       {!loading && data && !data.hasData && (
-        <p className="text-center text-white/40 text-sm italic mb-12" style={{ fontFamily: sans }}>
-          {t('No guests captured yet — interact with the menu to populate audience signals.', 'עדיין לא נקלטו אורחים — פעל בתפריט כדי למלא את אותות הקהל.')}
-        </p>
+        <EmptyState
+          className="mb-12"
+          title={t('No guests captured yet — interact with the menu to populate audience signals.', 'עדיין לא נקלטו אורחים — פעל בתפריט כדי למלא את אותות הקהל.')}
+        />
       )}
 
       {/* Behavior segments */}
       <section className="mb-12">
-        <SectionLabel icon={Users}>{t('Guest segments', 'מקטעי אורחים')}</SectionLabel>
-        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-6 mb-3">
+        <PanelHeader label={t('Guest segments', 'מקטעי אורחים')} isHe={isHebrew} />
+        <GlassCard className="p-6 mb-3 mt-3" static sheen>
           <DonutChart
             segments={donutSegments}
             centerValue={sessions.toLocaleString()}
             centerLabel={t('Guests', 'אורחים')}
           />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <SegmentCard
-            icon={ShoppingBag}
-            accent="#34d399"
-            title={t('Ordering guests', 'אורחים מזמינים')}
-            count={ordering}
-            total={sessions}
-            meaning={t('Reached checkout and completed an order — your most valuable visitors.', 'הגיעו לקופה והשלימו הזמנה — המבקרים היקרים ביותר.')}
-          />
-          <SegmentCard
-            icon={Eye}
-            accent="#fbbf24"
-            title={t('Browsing guests', 'אורחים מתעניינים')}
-            count={browsing}
-            total={sessions}
-            meaning={t('Explored the menu but did not order — the guests worth winning over next.', 'עיינו בתפריט אך לא הזמינו — האורחים ששווה לשכנע להזמין בהמשך.')}
-          />
-          <SegmentCard
-            icon={Flame}
-            accent="#f87171"
-            title={t('Engaged guests', 'אורחים מעורבים')}
-            count={engaged}
-            total={sessions}
-            meaning={t(`Averaged ${avgEvents.toFixed(1)} actions per visit — deep, attentive sessions.`, `ממוצע ${avgEvents.toFixed(1)} פעולות לביקור — מושבים עמוקים וקשובים.`)}
-          />
-        </div>
+        </GlassCard>
+        <Stagger className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <motion.div variants={staggerItem}>
+            <SegmentCard
+              icon={ShoppingBag}
+              accent="#34d399"
+              title={t('Ordering guests', 'אורחים מזמינים')}
+              count={ordering}
+              total={sessions}
+              meaning={t('Reached checkout and completed an order — your most valuable visitors.', 'הגיעו לקופה והשלימו הזמנה — המבקרים היקרים ביותר.')}
+            />
+          </motion.div>
+          <motion.div variants={staggerItem}>
+            <SegmentCard
+              icon={Eye}
+              accent="#fbbf24"
+              title={t('Browsing guests', 'אורחים מתעניינים')}
+              count={browsing}
+              total={sessions}
+              meaning={t('Explored the menu but did not order — the guests worth winning over next.', 'עיינו בתפריט אך לא הזמינו — האורחים ששווה לשכנע להזמין בהמשך.')}
+            />
+          </motion.div>
+          <motion.div variants={staggerItem}>
+            <SegmentCard
+              icon={Flame}
+              accent="#f87171"
+              title={t('Engaged guests', 'אורחים מעורבים')}
+              count={engaged}
+              total={sessions}
+              meaning={t(`Averaged ${avgEvents.toFixed(1)} actions per visit — deep, attentive sessions.`, `ממוצע ${avgEvents.toFixed(1)} פעולות לביקור — מושבים עמוקים וקשובים.`)}
+            />
+          </motion.div>
+        </Stagger>
       </section>
 
       {/* Language + device split */}
       <section className="mb-12 grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-          <SectionLabel icon={Languages}>{t('Language', 'שפה')}</SectionLabel>
-          <ShareBar
-            rows={[
-              { label: 'EN', count: data?.languageSplit.en ?? 0, color: '#fcd34d' },
-              { label: 'עברית', count: data?.languageSplit.he ?? 0, color: '#34d399' },
-            ]}
-          />
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-          <SectionLabel icon={Smartphone}>{t('Device', 'מכשיר')}</SectionLabel>
-          <ShareBar
-            rows={[
-              { label: t('Mobile', 'נייד'), count: data?.deviceSplit.mobile ?? 0, color: '#fcd34d' },
-              { label: t('Tablet', 'טאבלט'), count: data?.deviceSplit.tablet ?? 0, color: '#38bdf8' },
-              { label: t('Desktop', 'שולחני'), count: data?.deviceSplit.desktop ?? 0, color: '#34d399' },
-            ]}
-          />
-        </div>
+        <GlassCard className="p-6">
+          <div className="flex items-center gap-2 mb-1">
+            <Languages size={13} strokeWidth={1.8} className="text-amber-200/70 shrink-0" />
+            <PanelHeader label={t('Language', 'שפה')} isHe={isHebrew} />
+          </div>
+          <div className="mt-4">
+            <ShareBar
+              rows={[
+                { label: 'EN', count: data?.languageSplit.en ?? 0, color: '#fcd34d' },
+                { label: 'עברית', count: data?.languageSplit.he ?? 0, color: '#34d399' },
+              ]}
+            />
+          </div>
+        </GlassCard>
+        <GlassCard className="p-6">
+          <div className="flex items-center gap-2 mb-1">
+            <Smartphone size={13} strokeWidth={1.8} className="text-amber-200/70 shrink-0" />
+            <PanelHeader label={t('Device', 'מכשיר')} isHe={isHebrew} />
+          </div>
+          <div className="mt-4">
+            <ShareBar
+              rows={[
+                { label: t('Mobile', 'נייד'), count: data?.deviceSplit.mobile ?? 0, color: '#fcd34d' },
+                { label: t('Tablet', 'טאבלט'), count: data?.deviceSplit.tablet ?? 0, color: '#38bdf8' },
+                { label: t('Desktop', 'שולחני'), count: data?.deviceSplit.desktop ?? 0, color: '#34d399' },
+              ]}
+            />
+          </div>
+        </GlassCard>
       </section>
 
       {/* Hour histogram */}
-      <section className="mb-12 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+      <GlassCard className="mb-12 p-6" static>
         <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-          <SectionLabel>{t('Active guests by hour (UTC)', 'אורחים פעילים לפי שעה (UTC)')}</SectionLabel>
-          {data?.hasData && <Pill icon={Flame} text={t(`Peak ${peakHour.toString().padStart(2, '0')}:00`, `שיא ${peakHour.toString().padStart(2, '0')}:00`)} accent="#fbbf24" />}
+          <PanelHeader label={t('Active guests by hour (UTC)', 'אורחים פעילים לפי שעה (UTC)')} isHe={isHebrew} />
+          {data?.hasData && <Pill icon={Flame} text={t(`Peak ${peakHour.toString().padStart(2, '0')}:00`, `שיא ${peakHour.toString().padStart(2, '0')}:00`)} accent="#e8c987" />}
         </div>
-        <RadialHourClock histogram={histogram} peakHour={peakHour} peakAccent="#fbbf24" />
-      </section>
+        <RadialHourClock histogram={histogram} peakHour={peakHour} peakAccent="#e8c987" />
+      </GlassCard>
 
       {/* Returning-visitor caveat */}
-      <section className="mb-12 rounded-2xl border border-amber-300/25 bg-amber-950/10 p-6" dir={isHebrew ? 'rtl' : 'ltr'}>
-        <SectionLabel>{t('On returning guests', 'לגבי אורחים חוזרים')}</SectionLabel>
-        <p className="text-white/55 text-sm leading-relaxed" style={{ fontFamily: sans }}>
-          {t(
-            'Every signal here is scoped to a single session. Events carry no persistent visitor id, so cross-visit "returning guest" profiles await a future visitor-id migration.',
-            'כל אות כאן מתייחס למושב בודד. לאירועים אין מזהה מבקר קבוע, ולכן פרופילי "אורח חוזר" בין ביקורים ממתינים למיגרציה עתידית של מזהה-מבקר.',
-          )}
-        </p>
-      </section>
+      <GlassCard className="mb-12 p-6" accent="#e8c987" static style={{ borderColor: 'rgba(232,201,135,0.25)' }}>
+        <div dir={isHebrew ? 'rtl' : 'ltr'}>
+          <PanelHeader label={t('On returning guests', 'לגבי אורחים חוזרים')} isHe={isHebrew} />
+          <p className="text-white/55 text-sm leading-relaxed mt-3" style={{ fontFamily: sans }}>
+            {t(
+              'Every signal here is scoped to a single session. Events carry no persistent visitor id, so cross-visit "returning guest" profiles await a future visitor-id migration.',
+              'כל אות כאן מתייחס למושב בודד. לאירועים אין מזהה מבקר קבוע, ולכן פרופילי "אורח חוזר" בין ביקורים ממתינים למיגרציה עתידית של מזהה-מבקר.',
+            )}
+          </p>
+        </div>
+      </GlassCard>
 
       <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
         {t('Anonymous session signals · no PII · refreshes automatically', 'אותות מושב אנונימיים · ללא מידע אישי · מתעדכן אוטומטית')}

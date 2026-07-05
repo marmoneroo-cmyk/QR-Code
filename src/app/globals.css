@@ -26,6 +26,80 @@ canvas {
   touch-action: none;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * Phase-5 design tokens — "Obsidian & Champagne"
+ * Deep layered blacks, hairline borders, warm champagne accent, glass panels.
+ * Presentation-only: consumed by src/components/ui/premium.tsx + screens.
+ * ──────────────────────────────────────────────────────────────────────── */
+:root {
+  --bg-0: #030304;
+  --bg-1: #0a0a0c;
+  --bg-2: #121215;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --champagne: #e8c987;
+  --champagne-bright: #f5dfae;
+  --champagne-deep: #c9a35c;
+  --ink-hi: rgba(255, 255, 255, 0.92);
+  --ink-mid: rgba(255, 255, 255, 0.55);
+  --ink-low: rgba(255, 255, 255, 0.34);
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The standard premium surface: layered glass with a lit top edge. */
+.glass-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
+  border: 1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 50px -24px rgba(0, 0, 0, 0.8);
+}
+
+/* Floating chrome (nav capsule, overlays) — pair with Tailwind's `backdrop-blur-2xl`
+ * on the element (raw backdrop-filter here gets stripped by the CSS pipeline). */
+.glass-chrome {
+  background: rgba(8, 8, 10, 0.62);
+  border: 1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 12px 44px -12px rgba(0, 0, 0, 0.65);
+}
+
+/* Champagne gradient text for hero emphasis. */
+.text-champagne-gradient {
+  background: linear-gradient(105deg, var(--champagne-bright) 10%, var(--champagne) 45%, var(--champagne-deep) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Slow ambient drift for background glows (transform-only — cheap). */
+@keyframes drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(4%, -3%, 0) scale(1.08); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* Slow border-light sweep for cinematic hero frames. */
+@keyframes border-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Luxury selection + thin dark scrollbar + visible focus (a11y). */
+::selection { background: rgba(232, 201, 135, 0.28); color: #fff; }
+* { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.14) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track { background: transparent; }
+:focus-visible { outline: 2px solid rgba(232, 201, 135, 0.55); outline-offset: 2px; }
+
 /* Skeleton shimmer sweep (used by <Skeleton/> in dataviz). */
 @keyframes shimmer {
   100% {

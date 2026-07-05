@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Loader2, Lock } from 'lucide-react';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { useLang } from '@/lib/useLang';
+import { GlassSheen } from '@/components/ui/visual';
 
 const sans = 'var(--font-inter, sans-serif)';
 
@@ -49,14 +50,15 @@ function LoginForm() {
   };
 
   const inputClass =
-    'w-full rounded-xl border border-white/12 bg-black/40 px-4 py-3 text-white text-[15px] outline-none transition-colors duration-300 placeholder:text-white/30 focus:border-amber-200/50 focus:bg-black/55';
+    'w-full rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3 text-white text-[15px] outline-none transition-colors duration-300 placeholder:text-white/30 focus:border-amber-200/50 focus:bg-white/[0.06]';
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-black px-6 text-white" dir={isHe ? 'rtl' : 'ltr'} lang={lang}>
       <div aria-hidden className="pointer-events-none fixed inset-0" style={{ background: 'radial-gradient(80% 50% at 50% 20%, rgba(251,191,36,0.10), transparent 70%), linear-gradient(to bottom, #000, #0a0a0a)' }} />
 
-      <div className="relative z-10 w-full max-w-sm">
-        <div className="mb-8 text-center">
+      <div className="glass-panel relative z-10 w-full max-w-sm overflow-hidden rounded-3xl p-8">
+        <GlassSheen />
+        <div className="relative mb-8 text-center">
           <span className="mx-auto mb-5 grid h-12 w-12 place-items-center rounded-full border border-amber-200/30 bg-amber-200/10 text-amber-200">
             <Lock size={18} strokeWidth={1.8} />
           </span>
@@ -71,7 +73,7 @@ function LoginForm() {
           </h1>
         </div>
 
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <form onSubmit={onSubmit} className="relative flex flex-col gap-4">
           <div>
             <label className="mb-1.5 block text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
               {t('Email', 'אימייל')}
@@ -110,15 +112,26 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-amber-200 py-3 text-[12px] font-semibold tracking-[0.28em] uppercase text-black transition-transform hover:scale-[1.02] disabled:opacity-50"
-            style={{ fontFamily: sans }}
+            className="group relative mt-2 inline-flex items-center justify-center gap-2 overflow-hidden rounded-full py-3.5 text-[12px] font-bold tracking-[0.28em] uppercase text-black transition-shadow disabled:opacity-50"
+            style={{
+              fontFamily: sans,
+              background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
+              boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
+            }}
           >
-            {loading ? <Loader2 size={15} strokeWidth={2.2} className="animate-spin" /> : null}
-            {loading ? t('Signing in…', 'מתחבר…') : t('Sign in', 'התחבר')}
+            <span
+              aria-hidden
+              className="absolute inset-y-0 -start-1/2 w-1/3 -skew-x-12 opacity-0 transition-all duration-700 group-hover:start-[120%] group-hover:opacity-60"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent)' }}
+            />
+            <span className="relative z-10 inline-flex items-center gap-2">
+              {loading ? <Loader2 size={15} strokeWidth={2.2} className="animate-spin" /> : null}
+              {loading ? t('Signing in…', 'מתחבר…') : t('Sign in', 'התחבר')}
+            </span>
           </button>
         </form>
 
-        <div className="mt-8 text-center">
+        <div className="relative mt-8 text-center">
           <Link href="/" className="text-white/40 hover:text-white/70 text-[10px] tracking-[0.3em] uppercase transition-colors" style={{ fontFamily: sans }}>
             {t('← Back to menu', '→ חזרה לתפריט')}
           </Link>

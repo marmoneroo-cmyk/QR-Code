@@ -5,6 +5,9 @@ import type { LucideIcon } from 'lucide-react';
 import { Eye, Heart, Share2, ShoppingBag, MousePointerClick, Target, ShieldCheck, ShieldAlert, Activity, Fingerprint, Hash, Pause, Play, ListFilter } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { KpiCard, SectionLabel, GlassImage, Skeleton, LiveDot } from '@/components/ui/dataviz';
+import { GlassCard, EmptyState } from '@/components/ui/premium';
+import { Stagger, staggerItem } from '@/components/ui/motion';
+import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
 import { eventTypeLabel } from '@/lib/tracking/eventLabels';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
@@ -184,40 +187,48 @@ export default function EventInspectorPage() {
     >
       <div className="flex flex-col gap-10" dir={isHebrew ? 'rtl' : 'ltr'}>
         {/* KPI strip — event health at a glance */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <KpiCard
-            label={t('Total events', 'סך אירועים')}
-            value={(integrity?.totalEvents ?? events.length).toLocaleString()}
-            accent="#7dd3fc"
-            icon={Activity}
-            hint={t('captured all-time', 'נקלטו בסך הכל')}
-          />
-          <KpiCard
-            label={t('Unique sessions', 'סשנים ייחודיים')}
-            value={summary.uniqueSessions.toLocaleString()}
-            accent="#a78bfa"
-            icon={Fingerprint}
-            hint={t('in current view', 'בתצוגה הנוכחית')}
-          />
-          <KpiCard
-            label={t('Integrity', 'תקינות')}
-            value={validPct === null ? '—' : `${validPct}%`}
-            accent={allPassed ? '#34d399' : '#fb7185'}
-            icon={allPassed ? ShieldCheck : ShieldAlert}
-            hint={checks.length > 0 ? t(`${passedChecks}/${checks.length} checks pass`, `${passedChecks}/${checks.length} בדיקות עברו`) : t('checking…', 'בודק…')}
-          />
-          <KpiCard
-            label={t('Shown', 'מוצגים')}
-            value={visibleEvents.length.toLocaleString()}
-            accent="#fbbf24"
-            icon={Hash}
-            hint={
-              selectedTypes.size > 0
-                ? t(`filtered of ${events.length}`, `מסונן מתוך ${events.length}`)
-                : t('latest 200 events', '200 אירועים אחרונים')
-            }
-          />
-        </section>
+        <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <motion.div variants={staggerItem}>
+            <KpiCard
+              label={t('Total events', 'סך אירועים')}
+              value={(integrity?.totalEvents ?? events.length).toLocaleString()}
+              accent="#7dd3fc"
+              icon={Activity}
+              hint={t('captured all-time', 'נקלטו בסך הכל')}
+            />
+          </motion.div>
+          <motion.div variants={staggerItem}>
+            <KpiCard
+              label={t('Unique sessions', 'סשנים ייחודיים')}
+              value={summary.uniqueSessions.toLocaleString()}
+              accent="#a78bfa"
+              icon={Fingerprint}
+              hint={t('in current view', 'בתצוגה הנוכחית')}
+            />
+          </motion.div>
+          <motion.div variants={staggerItem}>
+            <KpiCard
+              label={t('Integrity', 'תקינות')}
+              value={validPct === null ? '—' : `${validPct}%`}
+              accent={allPassed ? '#34d399' : '#fb7185'}
+              icon={allPassed ? ShieldCheck : ShieldAlert}
+              hint={checks.length > 0 ? t(`${passedChecks}/${checks.length} checks pass`, `${passedChecks}/${checks.length} בדיקות עברו`) : t('checking…', 'בודק…')}
+            />
+          </motion.div>
+          <motion.div variants={staggerItem}>
+            <KpiCard
+              label={t('Shown', 'מוצגים')}
+              value={visibleEvents.length.toLocaleString()}
+              accent="#e8c987"
+              icon={Hash}
+              hint={
+                selectedTypes.size > 0
+                  ? t(`filtered of ${events.length}`, `מסונן מתוך ${events.length}`)
+                  : t('latest 200 events', '200 אירועים אחרונים')
+              }
+            />
+          </motion.div>
+        </Stagger>
 
         {/* Per-type breakdown — interactive toggle chips that filter the feed */}
         <section>
@@ -273,7 +284,11 @@ export default function EventInspectorPage() {
         {/* Data Integrity Validator */}
         <section>
           <SectionLabel icon={allPassed ? ShieldCheck : ShieldAlert}>{t('Data integrity validator', 'מאמת תקינות נתונים')}</SectionLabel>
-          <div className={`rounded-2xl border p-6 ${allPassed ? 'border-emerald-300/25 bg-emerald-950/10' : 'border-rose-400/30 bg-rose-950/15'}`}>
+          <GlassCard
+            static
+            accent={allPassed ? '#34d399' : '#fb7185'}
+            className={`p-6 ${allPassed ? 'border-emerald-300/25 bg-emerald-950/10' : 'border-rose-400/30 bg-rose-950/15'}`}
+          >
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <span
                 className="inline-flex items-center gap-1.5 text-[11px] tracking-wider uppercase"
@@ -310,7 +325,7 @@ export default function EventInspectorPage() {
                 ))}
               </div>
             )}
-          </div>
+          </GlassCard>
         </section>
 
         {/* Filters */}
@@ -349,6 +364,7 @@ export default function EventInspectorPage() {
         {/* Event stream — clean color-coded feed, no horizontal scroll */}
         <section>
           <SectionLabel icon={Activity}>{t('Live event stream', 'זרם אירועים חי')}</SectionLabel>
+          <GlassCard static className="overflow-x-auto p-3">
           <ul className="flex flex-col gap-1.5">
             {visibleEvents.map((e) => {
               const s = styleFor(e.event_name);
@@ -409,11 +425,12 @@ export default function EventInspectorPage() {
                   </li>
                 ))
               ) : (
-                <li className="rounded-xl border border-white/10 bg-zinc-900/40 p-6 text-center text-white/40 text-sm" style={{ fontFamily: sans }}>
-                  {t('No events match.', 'אין אירועים תואמים.')}
+                <li>
+                  <EmptyState title={t('No events match.', 'אין אירועים תואמים.')} />
                 </li>
               ))}
           </ul>
+          </GlassCard>
         </section>
 
         <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-6 mt-2 border-t border-white/10" style={{ fontFamily: sans }}>

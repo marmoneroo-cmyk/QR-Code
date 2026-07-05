@@ -10,6 +10,7 @@ import { LiveFunnel } from '@/components/admin/LiveFunnel';
 import { AreaChart, GlassImage, KpiCard, deltaPct, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
+import { GlassCard, PanelHeader, EmptyState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
@@ -59,7 +60,7 @@ function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, l
   const last = hasData ? data[data.length - 1] : 0;
   const up = (delta ?? 0) >= 0;
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+    <GlassCard className="p-6" static>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <span className="grid place-items-center w-8 h-8 rounded-lg shrink-0" style={{ color, background: `${color}1a` }}>
@@ -93,7 +94,7 @@ function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, l
         <span>{peakLabel} {peak.toLocaleString()}</span>
         <span>{lastLabel} {last.toLocaleString()}</span>
       </div>
-    </div>
+    </GlassCard>
   );
 }
 
@@ -231,12 +232,12 @@ export default function AnalyticsPage() {
         </motion.section>
 
         {!loading && overview && !overview.hasData && (
-          <p className="text-center text-white/40 text-sm italic" style={{ fontFamily: sans }}>
-            {t(
+          <EmptyState
+            title={t(
               'No views or orders captured yet — interact with the menu to populate these.',
               'עדיין אין צפיות או הזמנות — פעל בתפריט כדי למלא את הנתונים.',
             )}
-          </p>
+          />
         )}
 
         {/* Top performers with imagery */}
@@ -306,7 +307,7 @@ export default function AnalyticsPage() {
               title={t('Drink views', 'צפיות בקוקטיילים')}
               total={sum(viewsSlice)}
               data={viewsSlice}
-              color="#fbbf24"
+              color="#e8c987"
               delta={viewsDelta}
               icon={Eye}
               peakLabel={t('peak', 'שיא')}
@@ -326,10 +327,10 @@ export default function AnalyticsPage() {
         </section>
 
         {/* Top items table */}
-        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-          <SectionLabel>{t('Top items', 'פריטים מובילים')}</SectionLabel>
+        <GlassCard className="p-6" static>
+          <PanelHeader label={t('Top items', 'פריטים מובילים')} />
           {overview && overview.topItems.length > 0 ? (
-            <div className="overflow-hidden">
+            <div className="mt-4 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-white/40 text-[10px] tracking-[0.3em] uppercase">
@@ -343,7 +344,7 @@ export default function AnalyticsPage() {
                 </thead>
                 <tbody>
                   {overview.topItems.map((row) => (
-                    <tr key={row.slug} className="border-t border-white/[0.08]">
+                    <tr key={row.slug} className="border-t border-white/[0.06]">
                       <td className="py-3 text-white/90">
                         <span style={{ fontFamily: serif, fontStyle: isHebrew ? 'normal' : 'italic' }}>
                           {titleBySlug.get(row.slug) ?? row.slug}
@@ -360,25 +361,23 @@ export default function AnalyticsPage() {
               </table>
             </div>
           ) : loading ? (
-            <div className="flex flex-col gap-2.5">
+            <div className="mt-4 flex flex-col gap-2.5">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-7 w-full rounded-md" />
               ))}
             </div>
           ) : (
-            <p className="text-white/40 text-sm" style={{ fontFamily: sans }}>
-              {t('No items yet.', 'עדיין אין פריטים.')}
-            </p>
+            <EmptyState title={t('No items yet.', 'עדיין אין פריטים.')} />
           )}
-        </section>
+        </GlassCard>
 
         {/* Engagement by hour */}
-        <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-          <SectionLabel>{t('Engagement by hour (UTC)', 'מעורבות לפי שעה (UTC)')}</SectionLabel>
-          <div className="flex items-end gap-1.5 h-32" dir="ltr">
+        <GlassCard className="p-6" static>
+          <PanelHeader label={t('Engagement by hour (UTC)', 'מעורבות לפי שעה (UTC)')} />
+          <div className="mt-4 flex items-end gap-1.5 h-32" dir="ltr">
             {(overview?.hourHeatmap ?? new Array(24).fill(0)).map((v, h) => (
               <div key={h} className="flex-1 flex flex-col items-center gap-1" title={`${h}:00 — ${(v * 100).toFixed(0)}%`}>
-                <div className="w-full rounded-sm" style={{ height: `${Math.max(2, v * 100)}%`, background: `rgba(252, 211, 77, ${0.25 + v * 0.65})` }} />
+                <div className="w-full rounded-sm" style={{ height: `${Math.max(2, v * 100)}%`, background: `rgba(232, 201, 135, ${0.25 + v * 0.65})` }} />
                 {(h === 0 || h === 6 || h === 12 || h === 18 || h === 23) && (
                   <span className="text-white/40 text-[9px] font-mono" style={{ fontFamily: sans }}>
                     {h.toString().padStart(2, '0')}
@@ -387,7 +386,7 @@ export default function AnalyticsPage() {
               </div>
             ))}
           </div>
-        </section>
+        </GlassCard>
 
         <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
           {t('Live · anonymized events', 'בזמן אמת · אירועים אנונימיים')}

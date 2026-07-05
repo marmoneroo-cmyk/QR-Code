@@ -8,6 +8,7 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { Skeleton, SkeletonGrid, LiveDot, AreaChart } from '@/components/ui/dataviz';
 import { Stagger, staggerItem, Reveal } from '@/components/ui/motion';
 import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
+import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import { getAccent, findCocktailBySlug } from '@/data/cocktail';
 import { totalPotential } from '@/lib/value/potential';
@@ -231,11 +232,11 @@ export default function ExecutiveSummaryPage() {
       )}
 
       {!loading && !hasData && (
-        <section className="rounded-3xl border border-white/10 bg-zinc-900/60 p-12 text-center">
-          <p className="text-white/50 text-sm" style={{ fontFamily: sans }} dir={isHe ? 'rtl' : 'ltr'}>
-            {t('No activity yet. Once guests scan and order, your advisor appears here.', 'אין עדיין פעילות. כשאורחים יסרקו ויזמינו, היועץ יופיע כאן.')}
-          </p>
-        </section>
+        <div dir={isHe ? 'rtl' : 'ltr'}>
+          <GlassCard static className="p-12">
+            <EmptyState title={t('No activity yet. Once guests scan and order, your advisor appears here.', 'אין עדיין פעילות. כשאורחים יסרקו ויזמינו, היועץ יופיע כאן.')} />
+          </GlassCard>
+        </div>
       )}
 
       {hasData && hero && (
@@ -279,12 +280,12 @@ export default function ExecutiveSummaryPage() {
                     <div className="flex items-center gap-3 justify-center md:justify-start">
                       <div className="rounded-xl border border-white/10 bg-black/30 px-4 py-2.5">
                         <p className="text-[9px] tracking-[0.25em] uppercase text-white/40" style={{ fontFamily: sans }}>{t('Today', 'היום')}</p>
-                        <p className="text-white/80 text-lg" style={{ fontFamily: serif, fontWeight: 600 }}>{ils(p.beforeRev)}<span className="text-[11px] text-white/35">/{t('mo', 'חודש')}</span></p>
+                        <p className="text-white/80 text-lg tabular-nums" style={{ fontFamily: serif, fontWeight: 600 }}>{ils(p.beforeRev)}<span className="text-[11px] text-white/35">/{t('mo', 'חודש')}</span></p>
                       </div>
                       <ArrowRight size={20} className={`text-white/40 ${isHe ? 'rotate-180' : ''}`} strokeWidth={1.6} />
                       <div className="rounded-xl border px-4 py-2.5" style={{ borderColor: `${hero.accent}66`, background: `${hero.accent}14` }}>
                         <p className="text-[9px] tracking-[0.25em] uppercase" style={{ color: hero.accent, fontFamily: sans }}>{t('Projected', 'תחזית')}</p>
-                        <p className="text-xl" style={{ color: hero.accent, fontFamily: serif, fontWeight: 700 }}>{ils(p.afterRev)}<span className="text-[11px] text-white/35">/{t('mo', 'חודש')}</span></p>
+                        <p className="text-xl tabular-nums" style={{ color: hero.accent, fontFamily: serif, fontWeight: 700 }}>{ils(p.afterRev)}<span className="text-[11px] text-white/35">/{t('mo', 'חודש')}</span></p>
                       </div>
                     </div>
 
@@ -307,7 +308,7 @@ export default function ExecutiveSummaryPage() {
 
           {/* Real demand trend — last 14 days of actual views (no projection) */}
           {(ov?.viewsByDay?.length ?? 0) > 1 && (
-            <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <GlassCard static accent={hero.accent} className="p-5">
               <div className="flex items-center justify-between gap-3 mb-3">
                 <p className="inline-flex items-center gap-2 text-amber-200/70 text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
                   <TrendingUp size={13} strokeWidth={2} /> {t('Demand trend', 'מגמת ביקוש')}
@@ -315,7 +316,7 @@ export default function ExecutiveSummaryPage() {
                 <p className="text-white/40 text-[10px] tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>{t('last 14 days', '14 ימים אחרונים')}</p>
               </div>
               <AreaChart data={(ov?.viewsByDay ?? []).slice(-14)} color={hero.accent} height={120} />
-            </section>
+            </GlassCard>
           )}
 
           {/* Morning briefing — deterministic, real-data advisor callout */}
@@ -363,12 +364,12 @@ export default function ExecutiveSummaryPage() {
           </section>
 
           {/* KPI cards with real trend */}
-          <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <KpiTrend label={t('Demand', 'ביקוש')} value={(ov?.totalViews ?? 0).toLocaleString()} delta={viewsDelta} series={(ov?.viewsByDay ?? []).slice(-14)} color="#fbbf24" t={t} />
-            <KpiTrend label={t('Orders', 'הזמנות')} value={(ov?.totalOrders ?? 0).toLocaleString()} delta={ordersDelta} series={(ov?.ordersByDay ?? []).slice(-14)} color="#34d399" t={t} />
-            <KpiStat label={t('Revenue', 'הכנסה')} value={ils(ov?.totalRevenue ?? 0)} color="#7dd3fc" />
-            <KpiStat label={t('Conversion', 'המרה')} value={`${Math.round(ov?.conversionPct ?? 0)}%`} color="#f59e0b" />
-          </section>
+          <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <motion.div variants={staggerItem}><KpiTrend label={t('Demand', 'ביקוש')} value={(ov?.totalViews ?? 0).toLocaleString()} delta={viewsDelta} series={(ov?.viewsByDay ?? []).slice(-14)} color="#e8c987" t={t} /></motion.div>
+            <motion.div variants={staggerItem}><KpiTrend label={t('Orders', 'הזמנות')} value={(ov?.totalOrders ?? 0).toLocaleString()} delta={ordersDelta} series={(ov?.ordersByDay ?? []).slice(-14)} color="#34d399" t={t} /></motion.div>
+            <motion.div variants={staggerItem}><KpiStat label={t('Revenue', 'הכנסה')} value={ils(ov?.totalRevenue ?? 0)} color="#7dd3fc" /></motion.div>
+            <motion.div variants={staggerItem}><KpiStat label={t('Conversion', 'המרה')} value={`${Math.round(ov?.conversionPct ?? 0)}%`} color="#f59e0b" /></motion.div>
+          </Stagger>
 
           {/* More opportunities */}
           {more.length > 0 && (
@@ -406,21 +407,23 @@ export default function ExecutiveSummaryPage() {
             <p className="inline-flex items-center gap-2 text-amber-200/70 text-[10px] tracking-[0.4em] uppercase mb-4" style={{ fontFamily: sans }}>
               <Flame size={13} strokeWidth={2} className="text-rose-300" /> {t('Trending now', 'חם עכשיו')}
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <Stagger className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {trending.map((it, i) => (
-                <HoverLift key={it.slug} accent={it.accent} className="h-full">
-                  <Link href="/admin/menu-analysis" className="group relative block h-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5 hover:border-amber-200/40 transition-colors">
-                    <AccentWash accent={it.accent} opacity={0.16} />
-                    <span className="absolute top-3 left-4 z-10 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>{i + 1}</span>
-                    <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 mb-3 transition-transform duration-300 group-hover:scale-110" />
-                    <p className="relative text-white/90 text-[15px] text-center leading-tight" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
-                    <p className="relative text-amber-200/70 text-[11px] text-center mt-1" style={{ fontFamily: sans }}>
-                      <TrendingUp size={11} className="inline mb-0.5" strokeWidth={2} /> {it.views} {t('views', 'צפיות')} · {it.attentionScore}/100
-                    </p>
-                  </Link>
-                </HoverLift>
+                <motion.div key={it.slug} variants={staggerItem}>
+                  <HoverLift accent={it.accent} className="h-full">
+                    <Link href="/admin/menu-analysis" className="group relative block h-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5 hover:border-amber-200/40 transition-colors">
+                      <AccentWash accent={it.accent} opacity={0.16} />
+                      <span className="absolute top-3 left-4 z-10 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>{i + 1}</span>
+                      <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 mb-3 transition-transform duration-300 group-hover:scale-110" />
+                      <p className="relative text-white/90 text-[15px] text-center leading-tight" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
+                      <p className="relative text-amber-200/70 text-[11px] text-center mt-1 tabular-nums" style={{ fontFamily: sans }}>
+                        <TrendingUp size={11} className="inline mb-0.5" strokeWidth={2} /> {it.views} {t('views', 'צפיות')} · {it.attentionScore}/100
+                      </p>
+                    </Link>
+                  </HoverLift>
+                </motion.div>
               ))}
-            </div>
+            </Stagger>
           </section>
         </div>
       )}
@@ -444,7 +447,7 @@ function MoneyHero({ potential, t, isHe }: { potential: { revenueILS: number; co
               <Flame size={12} strokeWidth={2} /> {t('Open opportunity', 'הזדמנות פתוחה')}
             </p>
             {hasUpside ? (
-              <p className="mt-2 leading-[1] text-emerald-300" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,4rem)' }}>
+              <p className="mt-2 leading-[1] text-emerald-300 tabular-nums" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,4rem)' }}>
                 {ils(potential.revenueILS)}
               </p>
             ) : (
@@ -460,7 +463,7 @@ function MoneyHero({ potential, t, isHe }: { potential: { revenueILS: number; co
           </div>
           <div className="flex items-center gap-4 shrink-0">
             <div className="text-end">
-              <p className="text-emerald-300 leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.6rem,3vw,2.2rem)' }}>
+              <p className="text-emerald-300 leading-none tabular-nums" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.6rem,3vw,2.2rem)' }}>
                 {hasUpside ? potential.count : '—'}
               </p>
               <p className="mt-1 text-white/50 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
@@ -492,7 +495,7 @@ function Pill({ icon: Icon, text, accent }: { icon: typeof Users; text: string; 
 function Mini({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <div>
-      <p className="text-[14px]" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
+      <p className="text-[14px] tabular-nums" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
       <p className="text-white/40 text-[9px] tracking-wide" style={{ fontFamily: sans }}>{l}</p>
     </div>
   );
@@ -501,29 +504,29 @@ function Mini({ v, l, accent }: { v: string; l: string; accent?: string }) {
 function KpiTrend({ label, value, delta, series, color, t }: { label: string; value: string; delta: number | null; series: number[]; color: string; t: (en: string, he: string) => string }) {
   const up = (delta ?? 0) >= 0;
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+    <GlassCard accent={color} className="p-4">
       <div className="flex items-center justify-between mb-1.5">
         <p className="text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>{label}</p>
         {delta !== null && (
-          <span className={`inline-flex items-center gap-0.5 text-[11px] ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: sans }}>
+          <span className={`inline-flex items-center gap-0.5 text-[11px] tabular-nums ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: sans }}>
             {up ? <TrendingUp size={12} strokeWidth={2} /> : <TrendingDown size={12} strokeWidth={2} />}
             {up ? '+' : ''}{delta}%
           </span>
         )}
       </div>
-      <p className="text-white text-2xl mb-2" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
+      <p className="text-white text-2xl mb-2 tabular-nums" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
       <AreaChart data={series} color={color} height={36} showDot={false} strokeWidth={1.75} />
       <p className="text-white/30 text-[9px] mt-1.5 tracking-wide" style={{ fontFamily: sans }}>{t('vs last week', 'מול שבוע קודם')}</p>
-    </div>
+    </GlassCard>
   );
 }
 
 function KpiStat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 flex flex-col justify-center">
+    <GlassCard accent={color} className="p-4 flex flex-col justify-center">
       <span className="w-1.5 h-1.5 rounded-full mb-3" style={{ background: color }} />
-      <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
+      <p className="text-white text-2xl leading-tight tabular-nums" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
       <p className="text-white/45 text-[11px] mt-1 tracking-wide" style={{ fontFamily: sans }}>{label}</p>
-    </div>
+    </GlassCard>
   );
 }

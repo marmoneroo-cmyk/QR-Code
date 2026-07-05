@@ -97,7 +97,7 @@ function stateToConfig(s: ItemState): ExperienceConfig {
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 
-export default function ExperienceBuilderPage() {
+export function ExperiencePanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const [states, setStates] = useState<Record<string, ItemState>>({});
@@ -164,15 +164,7 @@ export default function ExperienceBuilderPage() {
   };
 
   return (
-    <AdminShell
-      title="Experience Builder"
-      titleHe="בונה החוויה"
-      eyebrow="Badges & modules per cocktail"
-      eyebrowHe="badges ומודולים לכל קוקטייל"
-      active="/admin/experience"
-      subtitle="Turn content modules and badges on or off per cocktail. Auto badges activate from analytics; manual badges you control."
-      subtitleHe="הפעילו/כבו מודולים ו-badges לכל קוקטייל. badges אוטומטיים נדלקים מהאנליטיקה; ידניים בשליטתכם."
-    >
+    <>
       {loading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" dir={isHe ? 'rtl' : 'ltr'} aria-hidden>
           {Array.from({ length: 4 }).map((_, i) => (
@@ -347,11 +339,23 @@ export default function ExperienceBuilderPage() {
                     type="button"
                     onClick={() => save(c.slug)}
                     disabled={isSaving}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-amber-300 px-5 py-2 text-[10px] uppercase tracking-[0.2em] text-black transition-transform hover:scale-[1.04] disabled:opacity-50"
-                    style={{ fontFamily: sans, fontWeight: 700 }}
+                    className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-full px-5 py-2 text-[10px] uppercase tracking-[0.2em] text-black transition-shadow disabled:opacity-50"
+                    style={{
+                      fontFamily: sans,
+                      fontWeight: 700,
+                      background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
+                      boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
+                    }}
                   >
-                    {isSaved && !isSaving && <Check size={12} strokeWidth={2.6} />}
-                    {isSaving ? (isHe ? 'שומר…' : 'Saving…') : isSaved ? (isHe ? 'נשמר' : 'Saved') : isHe ? 'שמור' : 'Save'}
+                    <span
+                      aria-hidden
+                      className="absolute inset-y-0 -start-1/2 w-1/3 -skew-x-12 opacity-0 transition-all duration-700 group-hover:start-[120%] group-hover:opacity-60"
+                      style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent)' }}
+                    />
+                    <span className="relative z-10 inline-flex items-center gap-1.5">
+                      {isSaved && !isSaving && <Check size={12} strokeWidth={2.6} />}
+                      {isSaving ? (isHe ? 'שומר…' : 'Saving…') : isSaved ? (isHe ? 'נשמר' : 'Saved') : isHe ? 'שמור' : 'Save'}
+                    </span>
                   </button>
                 </div>
 
@@ -411,6 +415,22 @@ export default function ExperienceBuilderPage() {
           })}
         </div>
       )}
+    </>
+  );
+}
+
+export default function ExperienceBuilderPage() {
+  return (
+    <AdminShell
+      title="Experience Builder"
+      titleHe="בונה החוויה"
+      eyebrow="Badges & modules per cocktail"
+      eyebrowHe="badges ומודולים לכל קוקטייל"
+      active="/admin/experience"
+      subtitle="Turn content modules and badges on or off per cocktail. Auto badges activate from analytics; manual badges you control."
+      subtitleHe="הפעילו/כבו מודולים ו-badges לכל קוקטייל. badges אוטומטיים נדלקים מהאנליטיקה; ידניים בשליטתכם."
+    >
+      <ExperiencePanel />
     </AdminShell>
   );
 }

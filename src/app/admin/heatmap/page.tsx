@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Flame, Moon, Clock } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { KpiCard, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
+import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import type { AttentionHeatmap, HeatmapSection } from '@/lib/analytics/heatmap';
 
@@ -113,11 +114,11 @@ export function HeatmapPanel() {
 
   if (!data?.hasData || !stats) {
     return (
-      <section className="rounded-3xl border border-white/10 bg-zinc-900/50 p-12 text-center" dir={isHe ? 'rtl' : 'ltr'}>
-        <p className="text-white/45 text-sm italic" style={{ fontFamily: sans }}>
-          {t('No attention data yet. Collect real guest visits.', 'אין עדיין נתוני תשומת לב. אספו עוד ביקורי אורחים.')}
-        </p>
-      </section>
+      <GlassCard className="p-12" static>
+        <div dir={isHe ? 'rtl' : 'ltr'}>
+          <EmptyState title={t('No attention data yet. Collect real guest visits.', 'אין עדיין נתוני תשומת לב. אספו עוד ביקורי אורחים.')} />
+        </div>
+      </GlassCard>
     );
   }
 
@@ -149,7 +150,7 @@ export function HeatmapPanel() {
       </section>
 
       {/* Page mockup with heat overlay */}
-      <section>
+      <GlassCard className="p-6 sm:p-7" static>
         <SectionLabel icon={Flame}>{t('The page, lit by attention', 'הדף, מואר לפי תשומת לב')}</SectionLabel>
 
         {/* Phone / page frame — centered, max ~360px, the cocktail page top-to-bottom */}
@@ -185,7 +186,7 @@ export function HeatmapPanel() {
             <Flame size={11} strokeWidth={2} /> {t('Hot', 'חם')}
           </span>
         </div>
-      </section>
+      </GlassCard>
     </div>
   );
 }

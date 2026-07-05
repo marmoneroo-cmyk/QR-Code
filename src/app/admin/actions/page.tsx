@@ -13,6 +13,7 @@ import { buildMenuBenchmark } from '@/lib/value/potential';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { HoverLift, AccentWash, Tilt } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
+import { GlassCard, EmptyState as PremiumEmptyState } from '@/components/ui/premium';
 import { Confetti } from '@/components/ui/celebrate';
 import { useLang } from '@/lib/useLang';
 import type { Opportunity } from '@/lib/opportunities/types';
@@ -110,7 +111,7 @@ function useOppStatuses() {
   return { statuses, markDone, clearStatus };
 }
 
-export default function ActionCenterPage() {
+export function ActionsPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const headFont = isHe ? serifHe : serif;
@@ -200,15 +201,7 @@ export default function ActionCenterPage() {
   const allDone = focusOpen.length === 0 && focusDone.length > 0;
 
   return (
-    <AdminShell
-      title="Action Center"
-      titleHe="מרכז הפעולות"
-      eyebrow="3 things to do today"
-      eyebrowHe="3 דברים לעשות היום"
-      active="/admin/actions"
-      subtitle="Do these and move on. Each shows its value, effort, and confidence."
-      subtitleHe="בצעו ותמשיכו הלאה. לכל פעולה ערך, מאמץ ורמת ביטחון."
-    >
+    <>
       <div className="flex flex-col gap-8" dir={isHe ? 'rtl' : 'ltr'}>
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <SectionLabel icon={Target}>{isHe ? 'הפוקוס של היום' : "Today's focus"}</SectionLabel>
@@ -269,6 +262,22 @@ export default function ActionCenterPage() {
           </>
         )}
       </div>
+    </>
+  );
+}
+
+export default function ActionCenterPage() {
+  return (
+    <AdminShell
+      title="Action Center"
+      titleHe="מרכז הפעולות"
+      eyebrow="3 things to do today"
+      eyebrowHe="3 דברים לעשות היום"
+      active="/admin/actions"
+      subtitle="Do these and move on. Each shows its value, effort, and confidence."
+      subtitleHe="בצעו ותמשיכו הלאה. לכל פעולה ערך, מאמץ ורמת ביטחון."
+    >
+      <ActionsPanel />
     </AdminShell>
   );
 }
@@ -405,7 +414,7 @@ function DoneTodaySection({ actions, lang, isHe, headFont, celebratingId, onUndo
   // list stays collapsed, so the win is felt without forcing the section open.
   const justDone = celebratingId ? actions.find((a) => a.id === celebratingId) ?? null : null;
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.02]">
+    <div className="glass-panel rounded-3xl">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -500,10 +509,10 @@ function AllDoneState({ isHe, headFont }: { isHe: boolean; headFont: string }) {
 
 function EmptyState({ isHe }: { isHe: boolean }) {
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center">
-      <p className="text-sm italic text-white/45" style={{ fontFamily: sans }}>
-        {isHe ? 'אין פעולות פתוחות — אספו עוד ביקורי אורחים.' : 'Nothing to do — collect more guest visits.'}
-      </p>
-    </section>
+    <GlassCard static className="p-12">
+      <PremiumEmptyState
+        title={isHe ? 'אין פעולות פתוחות — אספו עוד ביקורי אורחים.' : 'Nothing to do — collect more guest visits.'}
+      />
+    </GlassCard>
   );
 }

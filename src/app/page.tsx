@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SettingsToolbar } from '@/components/SettingsToolbar';
 import { BackgroundFX } from '@/components/BackgroundFX';
+import { GlowDivider } from '@/components/ui/premium';
 import { MenuRow, type MenuSection } from '@/components/MenuRow';
 import { useDrafts } from '@/lib/useDrafts';
 import { useMenuOrder } from '@/lib/useMenuOrder';
@@ -214,7 +215,9 @@ export default function Home() {
             {isHe ? `${orderedCocktails.length} מנות ומשקאות` : `${orderedCocktails.length} dishes & drinks`}
           </p>
 
-          <div className="relative mt-7 w-full max-w-sm">
+          <GlowDivider className="mt-5" />
+
+          <div className="relative mt-6 w-full max-w-sm">
             <span className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-amber-200/45 ${isHe ? 'right-4' : 'left-4'}`} aria-hidden>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <circle cx="11" cy="11" r="7" />
@@ -229,7 +232,7 @@ export default function Home() {
               placeholder={isHe ? 'חיפוש בתפריט…' : 'Search the menu…'}
               aria-label={isHe ? 'חיפוש בתפריט' : 'Search the menu'}
               dir={isHe ? 'rtl' : 'ltr'}
-              className={`w-full rounded-full border border-amber-200/20 bg-black/40 py-3 text-white placeholder:text-white/35 outline-none backdrop-blur-md transition-colors duration-300 focus:border-amber-200/55 focus:bg-black/55 ${
+              className={`glass-chrome w-full rounded-full py-3 text-white placeholder:text-white/35 outline-none backdrop-blur-xl transition-colors duration-300 focus:border-amber-200/55 ${
                 isHe ? 'pr-11 pl-5 text-right' : 'pl-11 pr-5'
               }`}
               style={{ fontFamily: sans, fontSize: '15px' }}

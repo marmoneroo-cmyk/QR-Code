@@ -9,6 +9,7 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, LiveDot, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
+import { GlassCard, PanelHeader } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import type { MenuClass, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
@@ -161,7 +162,7 @@ export function MenuEngineeringPanel() {
           const meta = CLASS_META[k];
           const Icon = meta.icon;
           return (
-            <div key={k} className="rounded-2xl border bg-white/[0.02] p-4" style={{ borderColor: `${meta.color}33` }}>
+            <GlassCard key={k} className="p-4" style={{ borderColor: `${meta.color}33` }}>
               <div className="flex items-center justify-between mb-2">
                 <span className="grid place-items-center w-8 h-8 rounded-lg" style={{ color: meta.color, background: `${meta.color}1a` }}>
                   <Icon size={15} strokeWidth={1.8} />
@@ -169,16 +170,16 @@ export function MenuEngineeringPanel() {
               </div>
               <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}>{counts[k]}</p>
               <p className="text-[11px] mt-1 tracking-wide" style={{ color: meta.color, fontFamily: sans }}>{meta.label[lang]}</p>
-            </div>
+            </GlassCard>
           );
         })}
       </section>
       )}
 
       {/* Premium 2×2 matrix with cocktail thumbnails */}
-      <section className="rounded-3xl border border-white/10 bg-zinc-900/50 p-6">
+      <GlassCard className="p-6" static>
         <div className="flex items-center justify-between mb-4">
-          <SectionLabel>{t('The matrix', 'המטריצה')}</SectionLabel>
+          <PanelHeader label={t('The matrix', 'המטריצה')} />
           <p className="text-white/30 text-[9px] tracking-wider" style={{ fontFamily: sans }}>
             {t('↑ margin · → demand', '↑ רווח · → ביקוש')}
           </p>
@@ -218,7 +219,7 @@ export function MenuEngineeringPanel() {
             <Skeleton className="absolute inset-0 h-full w-full rounded-2xl" />
           )}
         </div>
-      </section>
+      </GlassCard>
 
       {/* Per-item image cards */}
       {hasItems && (
@@ -246,15 +247,17 @@ export function MenuEngineeringPanel() {
           const meta = CLASS_META[k];
           const Icon = meta.icon;
           return (
-            <div key={k} className="rounded-2xl border bg-black/30 p-4 flex items-start gap-3" style={{ borderColor: `${meta.color}33` }} dir={isHebrew ? 'rtl' : 'ltr'}>
-              <span className="grid place-items-center w-8 h-8 rounded-lg shrink-0" style={{ color: meta.color, background: `${meta.color}1a` }}>
-                <Icon size={15} strokeWidth={1.8} />
-              </span>
-              <div>
-                <p className="text-[11px] tracking-[0.3em] uppercase mb-1" style={{ color: meta.color, fontFamily: sans }}>{meta.label[lang]}</p>
-                <p className="text-white/60 text-sm leading-relaxed" style={{ fontFamily: sans }}>{meta.rec[lang]}</p>
+            <GlassCard key={k} className="p-4" style={{ borderColor: `${meta.color}33` }} static>
+              <div dir={isHebrew ? 'rtl' : 'ltr'} className="flex items-start gap-3">
+                <span className="grid place-items-center w-8 h-8 rounded-lg shrink-0" style={{ color: meta.color, background: `${meta.color}1a` }}>
+                  <Icon size={15} strokeWidth={1.8} />
+                </span>
+                <div>
+                  <p className="text-[11px] tracking-[0.3em] uppercase mb-1" style={{ color: meta.color, fontFamily: sans }}>{meta.label[lang]}</p>
+                  <p className="text-white/60 text-sm leading-relaxed" style={{ fontFamily: sans }}>{meta.rec[lang]}</p>
+                </div>
               </div>
-            </div>
+            </GlassCard>
           );
         })}
       </section>
@@ -335,7 +338,7 @@ function MatrixThumb({ item, lang, t, pos, isHovered, isSelected, isDimmed, onHo
       {isHovered && (
         <span
           dir={lang === 'he' ? 'rtl' : 'ltr'}
-          className="pointer-events-none absolute bottom-full z-40 mb-2 w-44 rounded-xl border p-3 text-left backdrop-blur-md"
+          className="pointer-events-none absolute bottom-full z-40 mb-2 w-44 rounded-xl border p-3 text-start backdrop-blur-md"
           style={{
             [nearRight ? 'right' : 'left']: 0,
             background: 'rgba(0,0,0,0.82)',

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { QrCode, Eye, ShoppingBag, Target, Crown, Share2, LayoutGrid } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, LiveDot, Pill, SectionLabel, Skeleton } from '@/components/ui/dataviz';
+import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
@@ -123,7 +124,7 @@ export function TablesPanel() {
       </div>
 
       {/* QR generator — this is what makes attribution real */}
-      <section className="mb-10 rounded-2xl border border-amber-200/20 bg-zinc-900/60 p-6 no-print">
+      <GlassCard className="mb-10 p-6 no-print" static>
         <SectionLabel icon={QrCode}>{t('Generate table QR codes', 'ייצר קודי QR לשולחנות')}</SectionLabel>
         <div className="flex flex-wrap items-center gap-3 mb-2" dir={isHebrew ? 'rtl' : 'ltr'}>
           <label className="text-white/60 text-sm" style={{ fontFamily: sans }}>
@@ -143,7 +144,7 @@ export function TablesPanel() {
             onClick={generateQrs}
             disabled={generating || !origin}
             className="px-5 py-2 rounded-full text-[10px] tracking-[0.25em] uppercase text-black disabled:opacity-50"
-            style={{ fontFamily: sans, backgroundColor: '#fcd34d' }}
+            style={{ fontFamily: sans, background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))' }}
           >
             {generating ? t('Generating…', 'מייצר…') : t('Generate', 'ייצר')}
           </button>
@@ -161,7 +162,7 @@ export function TablesPanel() {
         <p className="text-white/35 text-[11px]" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
           {t('Every scan, view and order is attributed to its table.', 'כל סריקה, צפייה והזמנה מיוחסות לשולחן.')}
         </p>
-      </section>
+      </GlassCard>
 
       {qrs.length > 0 && (
         <section className="mb-12 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 print:grid-cols-3">
@@ -246,7 +247,7 @@ export function TablesPanel() {
                 <motion.div key={row.tableId} variants={staggerItem}>
                   <HoverLift accent={accent}>
                     <article
-                      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-white/[0.05] to-transparent transition-colors"
+                      className="glass-panel group relative flex h-full flex-col overflow-hidden rounded-3xl transition-colors"
                       style={{ borderColor: isBest ? `${accent}66` : `${accent}26`, boxShadow: isBest ? `0 30px 90px -50px ${accent}` : undefined }}
                     >
                       <AccentWash accent={accent} opacity={isBest ? 0.24 : 0.16} />
@@ -307,12 +308,14 @@ export function TablesPanel() {
             ))}
           </div>
         ) : (
-          <p className="text-white/40 text-sm leading-relaxed" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
-            {t(
-              'No table data yet. Print a QR per table — scans attribute here automatically.',
-              'עדיין אין נתוני שולחנות. הדפס QR לכל שולחן — סריקות ייוחסו כאן אוטומטית.',
-            )}
-          </p>
+          <div dir={isHebrew ? 'rtl' : 'ltr'}>
+            <EmptyState
+              title={t(
+                'No table data yet. Print a QR per table — scans attribute here automatically.',
+                'עדיין אין נתוני שולחנות. הדפס QR לכל שולחן — סריקות ייוחסו כאן אוטומטית.',
+              )}
+            />
+          </div>
         )}
       </section>
     </>

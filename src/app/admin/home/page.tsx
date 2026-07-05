@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { MENU } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { AdminLauncher } from '@/components/ui/AdminLauncher';
 import { Skeleton, AreaChart, CountUpText } from '@/components/ui/dataviz';
+import { GlassCard, PanelHeader, CtaPill, EmptyState, StatBlock, LUX_EASE } from '@/components/ui/premium';
+import { GlassSheen } from '@/components/ui/visual';
+import { staggerContainer, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { totalPotential } from '@/lib/value/potential';
 import type { Opportunity, OpportunityType } from '@/lib/opportunities/types';
@@ -14,7 +17,6 @@ import type { Promotion } from '@/lib/promotions/types';
 import type { ClosedLoopReport } from '@/lib/closedloop/server';
 
 const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
 
 const OPP_LABEL: Record<OpportunityType, { en: string; he: string }> = {
   fix_offer: { en: 'Review offer', he: 'בדקו הצעה' },
@@ -118,7 +120,7 @@ export default function HomeDashboardPage() {
           {Array.from({ length: 7 }).map((_, i) => (
             <div
               key={i}
-              className={`rounded-2xl border border-white/10 bg-white/[0.02] p-5 flex flex-col gap-3 ${i === 0 ? 'md:col-span-2' : ''}`}
+              className={`glass-panel rounded-3xl p-5 flex flex-col gap-3 ${i === 0 ? 'md:col-span-2' : ''}`}
             >
               <div className="flex items-center justify-between gap-2">
                 <Skeleton className="h-2.5 w-28" />
@@ -131,15 +133,24 @@ export default function HomeDashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-3" dir={isHe ? 'rtl' : 'ltr'}>
+        <motion.div
+          className="grid gap-4 md:grid-cols-3"
+          dir={isHe ? 'rtl' : 'ltr'}
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+        >
           {/* Top Opportunities — wide */}
-          <Widget title={isHe ? 'הזדמנויות מובילות' : 'Top Opportunities'} href="/admin/opportunities" cta={isHe ? 'הכול' : 'All'} className="md:col-span-2" lang={lang}>
+          <Widget title={isHe ? 'הזדמנויות מובילות' : 'Top Opportunities'} href="/admin/opportunities" cta={isHe ? 'הכול' : 'All'} className="md:col-span-2" isHe={isHe}>
             {opps.length === 0 ? (
-              <Empty isHe={isHe} />
+              <EmptyState
+                title={isHe ? 'אין עדיין נתונים.' : 'No data yet.'}
+                hint={isHe ? 'ככל שיגיעו עוד אורחים, הזדמנויות יופיעו כאן.' : 'As more guests arrive, opportunities appear here.'}
+              />
             ) : (
               <ul className="flex flex-col gap-2.5">
                 {opps.slice(0, 3).map((o, i) => (
-                  <li key={`${o.slug}:${o.type}:${i}`} className="flex items-start gap-3">
+                  <li key={`${o.slug}:${o.type}:${i}`} className="flex items-start gap-3 rounded-xl border border-transparent px-2 py-1.5 -mx-2 transition-colors hover:border-white/[0.06] hover:bg-white/[0.02]">
                     <span className="mt-0.5 shrink-0 text-[9px] tracking-[0.18em] uppercase px-2 py-1 rounded-full border border-amber-200/30 text-amber-200/90" style={{ fontFamily: sans }}>
                       {OPP_LABEL[o.type][lang]}
                     </span>
@@ -154,11 +165,9 @@ export default function HomeDashboardPage() {
           </Widget>
 
           {/* Impact Tracker */}
-          <Widget title={isHe ? 'מד השפעה' : 'Impact Tracker'} href="/admin/closed-loop" cta={isHe ? 'לולאה' : 'Loop'} lang={lang}>
+          <Widget title={isHe ? 'מד השפעה' : 'Impact Tracker'} href="/admin/closed-loop" cta={isHe ? 'לולאה' : 'Loop'} isHe={isHe}>
             {wins.length === 0 ? (
-              <p className="text-white/40 text-[12px] italic" style={{ fontFamily: sans }}>
-                {isHe ? 'אין עדיין תוצאות נמדדות.' : 'No measured results yet.'}
-              </p>
+              <EmptyState title={isHe ? 'אין עדיין תוצאות נמדדות.' : 'No measured results yet.'} />
             ) : (
               <ul className="flex flex-col gap-2">
                 {wins.map((m) => (
@@ -175,9 +184,11 @@ export default function HomeDashboardPage() {
           </Widget>
 
           {/* Business Health */}
-          <Widget title={isHe ? 'בריאות העסק' : 'Business Health'} href="/admin/analytics" cta={isHe ? 'אנליטיקה' : 'Analytics'} lang={lang}>
-            {!overview ? <Empty isHe={isHe} /> : (
-              <div className="grid grid-cols-2 gap-3">
+          <Widget title={isHe ? 'בריאות העסק' : 'Business Health'} href="/admin/analytics" cta={isHe ? 'אנליטיקה' : 'Analytics'} isHe={isHe}>
+            {!overview ? (
+              <EmptyState title={isHe ? 'אין עדיין נתונים.' : 'No data yet.'} />
+            ) : (
+              <div className="grid grid-cols-2 gap-x-3 gap-y-4">
                 <Kpi label={isHe ? 'צפיות' : 'Views'} value={String(overview.totalViews)} />
                 <Kpi label={isHe ? 'אחוז הזמנה' : 'Order rate'} value={`${Math.round(overview.conversionPct)}%`} />
                 <Kpi label={isHe ? 'הכנסה' : 'Revenue'} value={`₪${Math.round(overview.totalRevenue).toLocaleString()}`} />
@@ -187,10 +198,12 @@ export default function HomeDashboardPage() {
           </Widget>
 
           {/* Traffic Trends */}
-          <Widget title={isHe ? 'מגמת תנועה' : 'Traffic Trends'} href="/admin/analytics" cta={isHe ? '14 ימים' : '14 days'} lang={lang}>
-            {traffic.series.length === 0 ? <Empty isHe={isHe} /> : (
+          <Widget title={isHe ? 'מגמת תנועה' : 'Traffic Trends'} href="/admin/analytics" cta={isHe ? '14 ימים' : '14 days'} isHe={isHe}>
+            {traffic.series.length === 0 ? (
+              <EmptyState title={isHe ? 'אין עדיין נתונים.' : 'No data yet.'} />
+            ) : (
               <div className="flex flex-col gap-2">
-                <AreaChart data={traffic.series} color="#fbbf24" height={64} />
+                <AreaChart data={traffic.series} color="#e8c987" height={64} />
                 <p className="text-[12px]" style={{ fontFamily: sans }}>
                   {traffic.deltaPct === null ? (
                     <span className="text-white/40">{isHe ? 'אין מספיק היסטוריה' : 'Not enough history'}</span>
@@ -205,11 +218,9 @@ export default function HomeDashboardPage() {
           </Widget>
 
           {/* Promotion Status */}
-          <Widget title={isHe ? 'מבצעים פעילים' : 'Promotion Status'} href="/admin/promotions" cta={isHe ? 'נהל' : 'Manage'} lang={lang}>
+          <Widget title={isHe ? 'מבצעים פעילים' : 'Promotion Status'} href="/admin/promotions" cta={isHe ? 'נהל' : 'Manage'} isHe={isHe}>
             {promos.length === 0 ? (
-              <p className="text-white/40 text-[12px] italic" style={{ fontFamily: sans }}>
-                {isHe ? 'אין מבצעים פעילים.' : 'No active promotions.'}
-              </p>
+              <EmptyState title={isHe ? 'אין מבצעים פעילים.' : 'No active promotions.'} />
             ) : (
               <ul className="flex flex-col gap-1.5 text-[12px]" style={{ fontFamily: sans }}>
                 {promos.slice(0, 4).map((p) => (
@@ -222,8 +233,10 @@ export default function HomeDashboardPage() {
           </Widget>
 
           {/* Menu Performance */}
-          <Widget title={isHe ? 'ביצועי תפריט' : 'Menu Performance'} href="/admin/menu-engineering" cta={isHe ? 'הנדסה' : 'Detail'} lang={lang}>
-            {!menuTop ? <Empty isHe={isHe} /> : (
+          <Widget title={isHe ? 'ביצועי תפריט' : 'Menu Performance'} href="/admin/menu-engineering" cta={isHe ? 'הנדסה' : 'Detail'} isHe={isHe}>
+            {!menuTop ? (
+              <EmptyState title={isHe ? 'אין עדיין נתונים.' : 'No data yet.'} />
+            ) : (
               <div className="flex flex-col gap-2 text-[12px]" style={{ fontFamily: sans }}>
                 <p><span className="text-emerald-200/90">★ {isHe ? 'מוביל: ' : 'Best: '}</span><span className="text-white/85">{t(menuTop.slug)}</span></p>
                 {menuWeak && menuWeak.slug !== menuTop.slug && (
@@ -234,11 +247,9 @@ export default function HomeDashboardPage() {
           </Widget>
 
           {/* Recent Changes */}
-          <Widget title={isHe ? 'שינויים אחרונים' : 'Recent Changes'} href="/admin/closed-loop" cta={isHe ? 'הכול' : 'All'} lang={lang}>
+          <Widget title={isHe ? 'שינויים אחרונים' : 'Recent Changes'} href="/admin/closed-loop" cta={isHe ? 'הכול' : 'All'} isHe={isHe}>
             {!loop || loop.timeline.length === 0 ? (
-              <p className="text-white/40 text-[12px] italic" style={{ fontFamily: sans }}>
-                {isHe ? 'אין שינויים שתועדו.' : 'No changes logged.'}
-              </p>
+              <EmptyState title={isHe ? 'אין שינויים שתועדו.' : 'No changes logged.'} />
             ) : (
               <ul className="flex flex-col gap-1.5 text-[12px]" style={{ fontFamily: sans }}>
                 {loop.timeline.slice(0, 4).map((c) => (
@@ -250,108 +261,109 @@ export default function HomeDashboardPage() {
               </ul>
             )}
           </Widget>
-        </div>
+        </motion.div>
       )}
     </AdminShell>
   );
 }
 
 /**
- * Dominant, honest money hero (Bloomberg/Tesla feel): three stacked/inline stats
- * (recommended actions · available-now estimate · realized) + a big amber "Act now"
- * CTA → opportunities. Realized is honestly ₪0 — we have no measured attribution yet.
+ * Dominant, honest money hero — the "growth engine" panel. Emerald stays the
+ * money/growth semantic; the frame is a slow flowing gradient border with a
+ * glass sheen. Realized is honestly ₪0 — no measured attribution yet.
  */
 function MoneyHero({ potential, isHe }: { potential: { revenueILS: number; count: number }; isHe: boolean }) {
   const t = (en: string, he: string) => (isHe ? he : en);
   const hasUpside = potential.count > 0;
   const availableText = `₪${Math.round(potential.revenueILS).toLocaleString()}`;
   return (
-    <section
-      className="relative mb-8 overflow-hidden rounded-2xl p-[1px]"
-      style={{ background: 'linear-gradient(120deg, rgba(52,211,153,0.55), rgba(16,185,129,0.12) 55%, rgba(52,211,153,0.45))' }}
+    <motion.section
+      className="relative mb-8 overflow-hidden rounded-[28px] p-[1px]"
+      style={{
+        background: 'linear-gradient(120deg, rgba(52,211,153,0.5), rgba(232,201,135,0.16) 38%, rgba(16,185,129,0.1) 62%, rgba(52,211,153,0.42))',
+        backgroundSize: '220% 220%',
+        animation: 'border-flow 14s ease-in-out infinite',
+      }}
       dir={isHe ? 'rtl' : 'ltr'}
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: LUX_EASE }}
     >
-      <div className="rounded-[calc(1rem-1px)] bg-zinc-950/90 backdrop-blur-xl px-6 py-7 sm:px-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="relative rounded-[27px] bg-zinc-950/92 backdrop-blur-xl px-6 py-8 sm:px-9">
+        <GlassSheen />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -top-24 start-1/4 h-64 w-1/2 rounded-full opacity-[0.09]"
+          style={{ background: 'radial-gradient(ellipse at center, #34d399, transparent 65%)', filter: 'blur(30px)' }}
+        />
+        <div className="relative flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
           {/* Three stats */}
-          <div className="flex flex-wrap items-end gap-x-10 gap-y-5">
-            {/* Recommended actions */}
-            <div className="min-w-0">
-              <p className="text-emerald-300 leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.6rem,3.5vw,2.4rem)' }}>
-                {potential.count}
-              </p>
-              <p className="mt-1.5 text-white/50 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
-                {t('recommended actions', 'פעולות מומלצות')}
-              </p>
-            </div>
+          <motion.div
+            className="flex flex-wrap items-end gap-x-12 gap-y-6"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.div variants={staggerItem}>
+              <StatBlock value={potential.count} label={t('recommended actions', 'פעולות מומלצות')} tone="emerald" />
+            </motion.div>
 
-            {/* Available now · estimate (hero number) */}
-            <div className="min-w-0">
+            <motion.div variants={staggerItem}>
               {hasUpside ? (
-                <CountUpText
-                  text={availableText}
-                  className="block text-emerald-300 leading-none"
-                  style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2rem,5vw,3.2rem)' }}
+                <StatBlock
+                  value={
+                    <CountUpText
+                      text={availableText}
+                      className="block leading-none"
+                      style={{ fontFamily: 'var(--font-playfair, serif)', fontWeight: 700 }}
+                    />
+                  }
+                  label={t('available now · est.', 'זמין כעת · צפי')}
+                  size="hero"
+                  tone="emerald"
                 />
               ) : (
-                <p className="text-white/85 leading-tight" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.3rem,3vw,1.8rem)' }}>
-                  {t('collect more guest visits', 'אספו עוד ביקורי אורחים')}
-                </p>
+                <StatBlock
+                  value={<span className="leading-tight text-white/85" style={{ fontSize: 'clamp(1.3rem,3vw,1.8rem)' }}>{t('collect more guest visits', 'אספו עוד ביקורי אורחים')}</span>}
+                  label={t('available now · est.', 'זמין כעת · צפי')}
+                  size="hero"
+                  tone="white"
+                />
               )}
-              <p className="mt-1.5 text-white/50 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
-                {t('available now · est.', 'זמין כעת · צפי')}
-              </p>
-            </div>
+            </motion.div>
 
-            {/* Realized — honestly ₪0 (no measured attribution yet) */}
-            <div className="min-w-0">
-              <p className="text-white/40 leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.6rem,3.5vw,2.4rem)' }}>
-                ₪0
-              </p>
-              <p className="mt-1.5 text-white/40 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
-                {t('realized', 'מומשו')}
-              </p>
-            </div>
-          </div>
+            <motion.div variants={staggerItem}>
+              <StatBlock value="₪0" label={t('realized', 'מומשו')} tone="muted" />
+            </motion.div>
+          </motion.div>
 
-          {/* Act now CTA — big amber pill */}
-          <Link
-            href="/admin/actions"
-            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-300 to-amber-400 px-7 py-3.5 text-[13px] tracking-[0.16em] uppercase text-black shadow-[0_10px_30px_rgba(252,211,77,0.28)] transition-all hover:from-amber-200 hover:to-amber-300 hover:shadow-[0_12px_38px_rgba(252,211,77,0.4)]"
-            style={{ fontFamily: sans, fontWeight: 700 }}
-          >
+          {/* Act now CTA */}
+          <CtaPill href="/admin/actions">
             {t('Act now', 'בצע עכשיו')}
             <span className="transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5">{isHe ? '↩' : '→'}</span>
-          </Link>
+          </CtaPill>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 
-function Widget({ title, href, cta, children, className, lang }: { title: string; href: string; cta: string; children: ReactNode; className?: string; lang: string }) {
+function Widget({ title, href, cta, children, className, isHe }: { title: string; href: string; cta: string; children: ReactNode; className?: string; isHe: boolean }) {
   return (
-    <section className={`rounded-2xl border border-white/10 bg-white/[0.02] p-5 flex flex-col gap-3 ${className ?? ''}`}>
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-amber-200/90 text-[10px] tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>{title}</h3>
-        <Link href={href} className="text-amber-200/60 hover:text-amber-100 text-[10px] tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>
-          {cta} {lang === 'he' ? '↩' : '→'}
-        </Link>
-      </div>
-      {children}
-    </section>
+    <motion.div variants={staggerItem} className={className}>
+      <GlassCard className="h-full p-5 flex flex-col gap-3.5">
+        <PanelHeader label={title} href={href} cta={cta} isHe={isHe} />
+        {children}
+      </GlassCard>
+    </motion.div>
   );
 }
 
 function Kpi({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-white text-xl" style={{ fontFamily: serif, fontWeight: 600 }}>{value}</p>
-      <p className="text-white/45 text-[11px]" style={{ fontFamily: sans }}>{label}</p>
+      <p className="text-white text-xl leading-none" style={{ fontFamily: 'var(--font-playfair, serif)', fontWeight: 600 }}>{value}</p>
+      <p className="mt-1.5 text-[10px] tracking-[0.12em] uppercase text-white/40" style={{ fontFamily: sans }}>{label}</p>
     </div>
   );
-}
-
-function Empty({ isHe }: { isHe: boolean }) {
-  return <p className="text-white/40 text-[12px] italic" style={{ fontFamily: sans }}>{isHe ? 'אין עדיין נתונים.' : 'No data yet.'}</p>;
 }

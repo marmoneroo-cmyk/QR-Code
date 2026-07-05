@@ -14,6 +14,11 @@ import type { ExperienceConfig } from '@/lib/experience/types';
  * A menu SECTION: a section title + a responsive grid of image-forward cards
  * (2 per row on phones, 3–4 on wider screens). One section per food course or
  * "Cocktails" (drinks). Vertical scroll — no horizontal rail.
+ *
+ * Phase-5 "Obsidian & Champagne": in large sections the FIRST item becomes a
+ * double-size featured tile (the photography leads), card footers are glass,
+ * and hover reveals a per-drink accent ring. Presentation only — impression
+ * tracking, badge/price resolution and hover-video behavior are unchanged.
  */
 
 const serif = 'var(--font-playfair, serif)';
@@ -47,33 +52,43 @@ export function MenuRow({ section, lang, currency, promotions, experience, index
       transition={{ duration: 0.7, delay: Math.min(index * 0.05, 0.25), ease: [0.16, 1, 0.3, 1] }}
       dir={isHe ? 'rtl' : 'ltr'}
     >
-      <div className="mx-auto mb-4 flex max-w-[1500px] items-baseline gap-3 px-6 md:px-10">
+      <div className="mx-auto mb-5 flex max-w-[1500px] items-baseline gap-4 px-6 md:px-10">
         <h2
-          className="text-white text-xl md:text-2xl"
+          className="shrink-0 text-white text-xl md:text-2xl"
           style={{ fontFamily: isHe ? serifHe : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
         >
           {section.title}
         </h2>
-        <span className="text-amber-200/40 text-[11px] tracking-[0.25em]" style={{ fontFamily: sans }}>
+        <span aria-hidden className="h-px flex-1 self-center" style={{ background: 'linear-gradient(90deg, rgba(232,201,135,0.22), rgba(255,255,255,0.06) 55%, transparent)' }} />
+        <span className="shrink-0 text-[11px] tracking-[0.25em] tabular-nums" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.55)' }}>
           {section.items.length}
         </span>
       </div>
 
-      {/* Responsive grid — 2 per row on phones, 3–4 on wider screens */}
+      {/* Responsive grid — 2 per row on phones, 3–4 on wider screens.
+          Large sections lead with a double-size featured tile. */}
       <div className="mx-auto grid max-w-[1500px] grid-cols-2 gap-3 px-6 pb-2 md:grid-cols-3 md:gap-5 md:px-10 lg:grid-cols-4">
-        {section.items.map(({ cocktail, isDraft }, i) => (
-          <ImpressionTracker key={cocktail.slug} slug={cocktail.slug} className="min-w-0">
-            <RowCard
-              cocktail={cocktail}
-              isDraft={isDraft}
-              lang={lang}
-              currency={currency}
-              promotions={promotions}
-              experienceConfig={experience[cocktail.slug]}
-              delay={i}
-            />
-          </ImpressionTracker>
-        ))}
+        {section.items.map(({ cocktail, isDraft }, i) => {
+          const featured = section.items.length >= 5 && i === 0;
+          return (
+            <ImpressionTracker
+              key={cocktail.slug}
+              slug={cocktail.slug}
+              className={`min-w-0 ${featured ? 'md:col-span-2 md:row-span-2' : ''}`}
+            >
+              <RowCard
+                cocktail={cocktail}
+                isDraft={isDraft}
+                lang={lang}
+                currency={currency}
+                promotions={promotions}
+                experienceConfig={experience[cocktail.slug]}
+                delay={i}
+                featured={featured}
+              />
+            </ImpressionTracker>
+          );
+        })}
       </div>
     </motion.section>
   );
@@ -87,9 +102,11 @@ interface RowCardProps {
   promotions?: Promotion[];
   experienceConfig?: ExperienceConfig;
   delay: number;
+  /** Double-size lead tile — bigger type/padding; same behavior. */
+  featured?: boolean;
 }
 
-function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConfig, delay }: RowCardProps) {
+function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConfig, delay, featured }: RowCardProps) {
   const isHe = lang === 'he';
   const accent = getAccent(cocktail.slug);
   const href = isDraft ? `/drafts/${cocktail.slug}` : `/cocktails/${cocktail.slug}`;
@@ -118,7 +135,7 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
 
   return (
     <motion.div
-      className="relative w-full"
+      className="relative h-full w-full"
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, delay: Math.min(delay * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
@@ -128,22 +145,36 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
           <MenuBadges badges={badges} lang={lang} />
         </div>
       )}
+      {hoverVideo && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute top-2.5 end-2.5 z-20 grid place-items-center w-7 h-7 rounded-full border border-white/15 bg-black/45 backdrop-blur-md text-amber-100/80"
+        >
+          <svg width="9" height="10" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0l9 5-9 5z" /></svg>
+        </span>
+      )}
       <Link
         href={href}
-        className="group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+        className="group block h-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
       >
         <div
-          className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-900/80 via-black to-zinc-950/80 transition-all duration-500 group-hover:-translate-y-1.5"
-          style={{ boxShadow: '0 30px 60px -24px rgba(0,0,0,0.8)' }}
+          className="relative h-full min-h-0 aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-900/80 via-black to-zinc-950/80 transition-all duration-500 group-hover:-translate-y-1.5"
+          style={{ boxShadow: '0 30px 60px -24px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05)' }}
         >
+          {/* per-drink accent: soft wash + hairline ring, both hover-revealed */}
           <span
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
             style={{ background: `radial-gradient(120% 80% at 50% 30%, ${accent}24, transparent 70%)` }}
           />
-          {/* Image fills the card; name + price sit on a scrim. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-2xl border opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            style={{ borderColor: `${accent}55` }}
+          />
+          {/* Image fills the card; name + price sit on a glass footer. */}
           <div className="absolute inset-0 flex flex-col">
             <div className="relative flex-1 min-h-0">
               <span aria-hidden className="absolute inset-x-6 bottom-3 h-12 rounded-full blur-2xl" style={{ background: `radial-gradient(ellipse at center, ${accent}40, transparent 70%)` }} />
@@ -151,7 +182,9 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
               <img
                 src={cocktail.heroImage}
                 alt={cocktail.title[lang]}
-                className="absolute inset-0 h-full w-full object-contain px-3 pt-5 pb-1 md:px-5 md:pt-7 drop-shadow-[0_22px_38px_rgba(0,0,0,0.75)] transition-transform duration-500 group-hover:scale-[1.05]"
+                className={`absolute inset-0 h-full w-full object-contain drop-shadow-[0_22px_38px_rgba(0,0,0,0.75)] transition-transform duration-500 group-hover:scale-[1.05] ${
+                  featured ? 'px-5 pt-7 pb-1 md:px-10 md:pt-12' : 'px-3 pt-5 pb-1 md:px-5 md:pt-7'
+                }`}
                 style={{ opacity: hoverVideo && playing ? 0 : 1 }}
               />
               {hoverVideo && (
@@ -163,26 +196,38 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
                   loop
                   playsInline
                   preload="none"
-                  className="absolute inset-0 h-full w-full object-contain px-3 pt-5 pb-1 md:px-5 md:pt-7 transition-opacity duration-500"
+                  className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-500 ${
+                    featured ? 'px-5 pt-7 pb-1 md:px-10 md:pt-12' : 'px-3 pt-5 pb-1 md:px-5 md:pt-7'
+                  }`}
                   style={{ opacity: playing ? 1 : 0 }}
                 />
               )}
             </div>
-            <div className="relative shrink-0 px-3 pb-3 pt-2 md:px-4 md:pb-4" dir={isHe ? 'rtl' : 'ltr'}>
-              <div className="pointer-events-none absolute inset-x-0 -top-8 bottom-0 -z-10" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 40%, transparent)' }} />
+            <div
+              className={`relative shrink-0 border-t border-white/[0.07] bg-black/35 backdrop-blur-md ${
+                featured ? 'px-4 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4' : 'px-3 pb-3 pt-2.5 md:px-4 md:pb-4'
+              }`}
+              dir={isHe ? 'rtl' : 'ltr'}
+            >
+              <div className="pointer-events-none absolute inset-x-0 -top-10 bottom-0 -z-10" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 45%, transparent)' }} />
               <h3
-                className="line-clamp-2 text-white text-[16px] leading-tight"
+                className={`line-clamp-2 text-white leading-tight ${featured ? 'text-[17px] md:text-[24px]' : 'text-[16px]'}`}
                 style={{ fontFamily: isHe ? serifHe : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
               >
                 {cocktail.title[lang]}
               </h3>
+              {featured && cocktail.tagline && (
+                <p className="mt-1 hidden md:block text-white/50 text-[12.5px] leading-snug line-clamp-1" style={{ fontFamily: sans }}>
+                  {cocktail.tagline[lang]}
+                </p>
+              )}
               {priced && priced.discounted ? (
                 <p className="mt-1 inline-flex items-baseline gap-1.5" style={{ fontFamily: sans }} dir="ltr">
                   <span className="text-[12px] line-through opacity-40">{formatPrice(priced.original, currency)}</span>
-                  <span className="text-amber-300 text-[15px] font-semibold">{formatPrice(priced.price, currency)}</span>
+                  <span className={`text-amber-300 font-semibold ${featured ? 'text-[15px] md:text-[18px]' : 'text-[15px]'}`}>{formatPrice(priced.price, currency)}</span>
                 </p>
               ) : cocktail.priceILS !== undefined ? (
-                <p className="mt-1 text-amber-100/90 text-[15px]" style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
+                <p className={`mt-1 text-amber-100/90 ${featured ? 'text-[15px] md:text-[18px]' : 'text-[15px]'}`} style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
                   {formatPrice(cocktail.priceILS, currency)}
                 </p>
               ) : null}

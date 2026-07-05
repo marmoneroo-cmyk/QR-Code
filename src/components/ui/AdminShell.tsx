@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutGrid, Home, X } from 'lucide-react';
 import { useLang } from '@/lib/useLang';
 import { AdminLauncher } from './AdminLauncher';
 import { AuthStatus } from '@/components/admin/AuthStatus';
+import { AmbientBackdrop, GlowDivider, LUX_EASE } from './premium';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -28,10 +29,11 @@ interface AdminShellProps {
 }
 
 /**
- * Shared shell for every admin-section page. The top bar is intentionally tiny:
- * back-to-menu, a Home link, and a single "Sections" button that opens an
- * icon-tile launcher (the whole admin is one click away from anywhere). RTL-aware
- * and bilingual, driven by the global persisted language.
+ * Shared shell for every admin-section page — the Phase-5 premium chrome.
+ * A floating glass capsule nav (back-to-menu · Home · Sections launcher · lang ·
+ * auth), a cinematic full-screen launcher, and an animated editorial page header.
+ * RTL-aware and bilingual, driven by the global persisted language. The public
+ * API is unchanged — every admin page inherits this look with zero edits.
  */
 export function AdminShell({
   title,
@@ -55,7 +57,7 @@ export function AdminShell({
   const shownSubtitle = isHebrew ? subtitleHe ?? subtitle : subtitle;
 
   const pill =
-    'inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.03] px-3 py-1.5 text-[10px] tracking-[0.2em] uppercase text-white/70 hover:text-amber-100 hover:border-amber-200/40 transition-colors';
+    'inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-2 text-[10px] tracking-[0.2em] uppercase text-white/65 hover:text-amber-100 hover:border-amber-200/40 hover:bg-white/[0.05] transition-all';
 
   return (
     <div
@@ -63,26 +65,32 @@ export function AdminShell({
       dir={isHebrew ? 'rtl' : 'ltr'}
       lang={lang}
     >
-      <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-black via-zinc-950 to-black print:hidden" />
+      <AmbientBackdrop />
 
-      {/* Top bar — minimal */}
-      <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-black/60 backdrop-blur-xl print:hidden">
-        <div className="mx-auto max-w-6xl px-6 md:px-10 min-h-16 py-3 flex items-center justify-between gap-4">
+      {/* Floating glass capsule nav */}
+      <header className="sticky top-0 z-30 px-4 pt-3 pb-2 print:hidden">
+        <div className="glass-chrome backdrop-blur-2xl mx-auto max-w-6xl rounded-2xl px-4 sm:px-5 min-h-14 py-2.5 flex items-center justify-between gap-3">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-amber-200/80 hover:text-amber-100 transition-colors text-[10px] tracking-[0.3em] uppercase shrink-0"
             style={{ fontFamily: sans }}
           >
-            <span>{isHebrew ? '→' : '←'}</span>
+            <span className="transition-transform group-hover:-translate-x-0.5">{isHebrew ? '→' : '←'}</span>
             <span>{isHebrew ? 'תפריט' : 'Menu'}</span>
           </Link>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <Link href="/admin/home" className={pill} style={{ fontFamily: sans }}>
               <Home size={13} strokeWidth={1.6} />
               <span className="hidden sm:inline">{isHebrew ? 'בית' : 'Home'}</span>
             </Link>
-            <button type="button" onClick={() => setLauncherOpen(true)} className={pill} style={{ fontFamily: sans }} aria-haspopup="dialog">
+            <button
+              type="button"
+              onClick={() => setLauncherOpen(true)}
+              className={pill}
+              style={{ fontFamily: sans }}
+              aria-haspopup="dialog"
+            >
               <LayoutGrid size={13} strokeWidth={1.6} />
               <span>{isHebrew ? 'מסכים' : 'Sections'}</span>
             </button>
@@ -92,10 +100,13 @@ export function AdminShell({
                   key={l}
                   type="button"
                   onClick={() => setLang(l)}
-                  className={`px-2.5 py-1 rounded-full text-[9px] tracking-[0.15em] uppercase transition-colors ${
-                    lang === l ? 'bg-amber-100 text-black' : 'text-white/55 hover:text-white/90'
+                  className={`px-2.5 py-1 rounded-full text-[9px] tracking-[0.15em] uppercase transition-all ${
+                    lang === l ? 'text-black' : 'text-white/50 hover:text-white/90'
                   }`}
-                  style={{ fontFamily: sans }}
+                  style={{
+                    fontFamily: sans,
+                    background: lang === l ? 'linear-gradient(105deg, var(--champagne-bright), var(--champagne))' : undefined,
+                  }}
                 >
                   {l === 'en' ? 'EN' : 'עב'}
                 </button>
@@ -106,69 +117,104 @@ export function AdminShell({
         </div>
       </header>
 
-      {/* Launcher overlay */}
-      {launcherOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md overflow-y-auto print:hidden"
-          onClick={() => setLauncherOpen(false)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="min-h-full px-6 md:px-10 py-14" onClick={(e) => e.stopPropagation()} dir={isHebrew ? 'rtl' : 'ltr'}>
-            <div className="mx-auto max-w-5xl">
-              <div className="flex items-center justify-between mb-8">
-                <h2
-                  className="text-white tracking-[0.02em]"
-                  style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500, fontSize: 'clamp(1.6rem,4vw,2.4rem)' }}
-                >
-                  {isHebrew ? 'כל המסכים' : 'All Sections'}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setLauncherOpen(false)}
-                  className="grid place-items-center w-10 h-10 rounded-full border border-white/15 text-white/70 hover:text-amber-100 hover:border-amber-200/40 transition-colors"
-                  aria-label={isHebrew ? 'סגור' : 'Close'}
-                >
-                  <X size={18} strokeWidth={1.6} />
-                </button>
+      {/* Cinematic launcher overlay */}
+      <AnimatePresence>
+        {launcherOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 overflow-y-auto print:hidden"
+            style={{ background: 'rgba(3,3,4,0.88)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+            onClick={() => setLauncherOpen(false)}
+            role="dialog"
+            aria-modal="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.28, ease: LUX_EASE }}
+          >
+            <motion.div
+              className="min-h-full px-6 md:px-10 py-14"
+              onClick={(e) => e.stopPropagation()}
+              dir={isHebrew ? 'rtl' : 'ltr'}
+              initial={{ opacity: 0, y: 26, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 14, scale: 0.99 }}
+              transition={{ duration: 0.4, ease: LUX_EASE }}
+            >
+              <div className="mx-auto max-w-5xl">
+                <div className="flex items-center justify-between mb-10">
+                  <div>
+                    <p className="text-[10px] tracking-[0.42em] uppercase mb-3" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.7)' }}>
+                      {isHebrew ? 'ניווט' : 'Navigate'}
+                    </p>
+                    <h2
+                      className="text-white tracking-[0.02em]"
+                      style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500, fontSize: 'clamp(1.8rem,4.5vw,2.8rem)' }}
+                    >
+                      {isHebrew ? 'כל המסכים' : 'All Sections'}
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setLauncherOpen(false)}
+                    className="grid place-items-center w-11 h-11 rounded-full border border-white/15 text-white/70 hover:text-amber-100 hover:border-amber-200/50 hover:rotate-90 transition-all duration-300"
+                    aria-label={isHebrew ? 'סגור' : 'Close'}
+                  >
+                    <X size={18} strokeWidth={1.6} />
+                  </button>
+                </div>
+                <AdminLauncher lang={lang} active={active} onNavigate={() => setLauncherOpen(false)} />
               </div>
-              <AdminLauncher lang={lang} active={active} onNavigate={() => setLauncherOpen(false)} />
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Page header */}
+      {/* Editorial page header */}
       <div className="relative z-10 mx-auto max-w-6xl px-6 md:px-10 pt-12 md:pt-16 pb-8">
-        <p className="text-amber-200/70 text-[10px] tracking-[0.45em] uppercase mb-4" style={{ fontFamily: sans }}>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: LUX_EASE }}
+          className="text-[10px] tracking-[0.45em] uppercase mb-4"
+          style={{ fontFamily: sans, color: 'rgba(232,201,135,0.72)' }}
+        >
           {shownEyebrow}
-        </p>
+        </motion.p>
         <div className="flex flex-wrap items-end justify-between gap-6">
-          <h1
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.06, ease: LUX_EASE }}
             className="text-white leading-[1.05] tracking-[0.02em]"
             style={{
               fontFamily: titleFont,
               fontStyle: isHebrew ? 'normal' : 'italic',
               fontWeight: 500,
-              fontSize: 'clamp(2.2rem, 5.5vw, 3.6rem)',
+              fontSize: 'clamp(2.4rem, 6vw, 4rem)',
             }}
           >
             {shownTitle}
-          </h1>
+          </motion.h1>
           {actions && <div className="flex items-center gap-3 flex-wrap">{actions}</div>}
         </div>
-        <div className="flex items-center gap-3 mt-5">
-          <div className="w-14 h-px bg-amber-200/35" />
-          <div className="w-1.5 h-1.5 border border-amber-200/55 rotate-45" />
-          <div className="w-14 h-px bg-amber-200/35" />
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scaleX: 0.6 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ duration: 0.7, delay: 0.14, ease: LUX_EASE }}
+          style={{ transformOrigin: isHebrew ? 'right' : 'left' }}
+        >
+          <GlowDivider className="mt-5" />
+        </motion.div>
         {shownSubtitle && (
-          <p
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.2, ease: LUX_EASE }}
             className="text-white/45 text-[15px] mt-5 max-w-2xl leading-relaxed"
             style={{ fontFamily: bodyFont, fontStyle: isHebrew ? 'normal' : 'italic' }}
           >
             {shownSubtitle}
-          </p>
+          </motion.p>
         )}
       </div>
 

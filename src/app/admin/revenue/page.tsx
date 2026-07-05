@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { ArrowRight, ShieldCheck, Target, Eye, Receipt } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AdminShell } from '@/components/ui/AdminShell';
@@ -16,6 +15,7 @@ import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { HoverLift, Tilt, AccentWash, FrameBreakImage, GlassSheen } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
+import { GlassCard, EmptyState, CtaPill } from '@/components/ui/premium';
 import type { AnalyticsOverview, MenuEngineeringItem } from '@/lib/analytics/types';
 
 const sans = 'var(--font-inter, sans-serif)';
@@ -223,14 +223,10 @@ export default function RevenueCenterPage() {
                   </p>
                 )}
 
-                <Link
-                  href="/admin/actions"
-                  className="group mt-1 inline-flex items-center gap-2 rounded-full bg-amber-300 px-8 py-3.5 text-[12px] tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]"
-                  style={{ fontFamily: sans, fontWeight: 700 }}
-                >
+                <CtaPill href="/admin/actions" className="mt-1">
                   {t('Act now', 'בצע עכשיו')}
                   <ArrowRight size={15} strokeWidth={2.4} className={isHe ? 'rotate-180' : ''} />
-                </Link>
+                </CtaPill>
               </div>
             </div>
           </section>
@@ -239,11 +235,9 @@ export default function RevenueCenterPage() {
           <section>
             <SectionLabel icon={ShieldCheck}>{t('Proven · measured', 'מוכח · נמדד')}</SectionLabel>
             {proven.total === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-7 text-center">
-                <p className="text-white/45 text-[13px]" style={{ fontFamily: sans }}>
-                  {t('0 — act to generate measurable wins', '0 — בצעו פעולות כדי לייצר תוצאות מדידות')}
-                </p>
-              </div>
+              <GlassCard static className="px-6 py-7">
+                <EmptyState title={t('0 — act to generate measurable wins', '0 — בצעו פעולות כדי לייצר תוצאות מדידות')} />
+              </GlassCard>
             ) : (
               <div className="grid grid-cols-3 gap-3">
                 <ProvenStat value={proven.total} label={t('measured', 'נמדדו')} accent="#7dd3fc" />
@@ -263,11 +257,9 @@ export default function RevenueCenterPage() {
                 <ActualStat value={(overview?.totalOrders ?? 0).toLocaleString()} label={t('orders', 'הזמנות')} accent="#fbbf24" />
               </div>
             ) : (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-7 text-center">
-                <p className="text-white/45 text-[13px]" style={{ fontFamily: sans }}>
-                  {t('No measured sales yet.', 'אין עדיין מכירות שנמדדו.')}
-                </p>
-              </div>
+              <GlassCard static className="px-6 py-7">
+                <EmptyState title={t('No measured sales yet.', 'אין עדיין מכירות שנמדדו.')} />
+              </GlassCard>
             )}
             <p className="mt-2.5 text-white/30 text-[10px] tracking-wide" style={{ fontFamily: sans }}>
               {t('Real measured revenue. Not attributed to the platform.', 'הכנסה אמיתית שנמדדה. לא מיוחסת לפלטפורמה.')}
@@ -286,7 +278,7 @@ export default function RevenueCenterPage() {
                   <motion.div key={it.slug} variants={staggerItem}>
                     <HoverLift accent={it.accent}>
                       <div
-                        className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-3.5 md:p-4"
+                        className="glass-panel relative flex items-center gap-4 overflow-hidden rounded-2xl p-3.5 md:p-4"
                         dir={isHe ? 'rtl' : 'ltr'}
                       >
                         <AccentWash accent={it.accent} opacity={0.16} />
@@ -350,14 +342,10 @@ export default function RevenueCenterPage() {
 
           {/* 5 — CTA */}
           <section className="flex flex-col items-center gap-4 text-center">
-            <Link
-              href="/admin/actions"
-              className="group inline-flex items-center gap-2 rounded-full bg-amber-300 px-10 py-4 text-[12px] tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]"
-              style={{ fontFamily: sans, fontWeight: 700 }}
-            >
+            <CtaPill href="/admin/actions">
               {t('Act now', 'בצע עכשיו')}
               <ArrowRight size={15} strokeWidth={2.4} className={isHe ? 'rotate-180' : ''} />
-            </Link>
+            </CtaPill>
             <LiveDot label={t('Updating live', 'מתעדכן בזמן אמת')} />
           </section>
         </div>
@@ -369,27 +357,25 @@ export default function RevenueCenterPage() {
 /** Big trust stat — real measured closed-loop count (not an estimate). */
 function ProvenStat({ value, label, accent }: { value: number | string; label: string; accent: string }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 text-center">
-      <GlassSheen />
+    <GlassCard accent={accent} sheen className="p-5 text-center">
       <p className="relative leading-none" style={{ color: accent, fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.8rem, 5vw, 2.8rem)' }}>
         <CountUpText text={String(value)} />
       </p>
       <p className="relative mt-2 text-white/45 text-[11px] tracking-[0.1em] uppercase" style={{ fontFamily: sans }}>{label}</p>
-    </div>
+    </GlassCard>
   );
 }
 
 /** Real actual-sales stat (measured revenue — not attributed to the platform). */
 function ActualStat({ value, label, accent }: { value: string; label: string; accent: string }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-      <GlassSheen />
+    <GlassCard accent={accent} sheen className="p-4">
       <span className="relative mb-3 block h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
       <p className="relative leading-tight text-white text-2xl" style={{ fontFamily: serif, fontWeight: 700 }}>
         <CountUpText text={value} />
       </p>
       <p className="relative mt-1 text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>{label}</p>
-    </div>
+    </GlassCard>
   );
 }
 
@@ -409,7 +395,7 @@ function LeverBar({
 }) {
   const pct = Math.max(3, Math.round((value / max) * 100));
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+    <GlassCard accent={accent} static className="p-5">
       <div className="mb-3 flex items-center justify-between gap-3">
         <span className="inline-flex items-center gap-2 text-white/70 text-[12px] tracking-[0.05em]" style={{ fontFamily: sans }}>
           <span className="grid h-7 w-7 place-items-center rounded-lg" style={{ color: accent, background: `${accent}1a` }}>
@@ -424,6 +410,6 @@ function LeverBar({
       <span className="relative block h-2.5 overflow-hidden rounded-full bg-white/[0.06]">
         <span className="absolute inset-y-0 start-0 rounded-full transition-[width] duration-700" style={{ width: `${pct}%`, background: accent }} />
       </span>
-    </div>
+    </GlassCard>
   );
 }

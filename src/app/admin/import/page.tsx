@@ -24,6 +24,7 @@ import { useRestaurant } from '@/lib/useRestaurant';
 import { useLang } from '@/lib/useLang';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { SectionLabel } from '@/components/ui/dataviz';
+import { GlassCard } from '@/components/ui/premium';
 import { buildGptImagePrompt } from '@/lib/heroPrompts';
 import type { CocktailConfig, Category } from '@/data/cocktail';
 import type { ParsedItem, ParsedMenu } from '@/lib/restaurant-scraper';
@@ -31,7 +32,7 @@ import type { ParsedItem, ParsedMenu } from '@/lib/restaurant-scraper';
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-garamond, serif)';
 const inputClass =
-  'w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white text-[15px] outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-amber-200/50 focus:bg-black/40';
+  'w-full rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3 text-white text-[15px] outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-amber-200/50 focus:bg-white/[0.06]';
 
 type ItemStatus = 'pending' | 'in_progress' | 'done' | 'error';
 
@@ -349,7 +350,7 @@ export default function ImportRestaurantPage() {
         <ImportStepper phase={importPhase} isHebrew={isHebrew} />
 
         {/* ── Source ─────────────────────────────────────────────────────── */}
-        <section className="mb-12 rounded-[1.75rem] border border-white/10 bg-white/[0.02] p-6 md:p-8">
+        <GlassCard static className="mb-12 rounded-[1.75rem] p-6 md:p-8">
           <SectionLabel icon={Link2}>{t('Source', 'מקור')}</SectionLabel>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
@@ -400,8 +401,13 @@ export default function ImportRestaurantPage() {
 
           <div className="mt-7 pt-6 border-t border-white/8 flex flex-wrap items-center gap-x-5 gap-y-3">
             <motion.button type="button" onClick={handleScan} disabled={scanning || importing} whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-200 text-black hover:bg-amber-100 transition-colors text-[11px] tracking-[0.3em] uppercase disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ fontFamily: sans, fontWeight: 600 }}>
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-6 py-2.5 text-[11px] tracking-[0.3em] uppercase text-black transition-shadow disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                fontFamily: sans,
+                fontWeight: 600,
+                background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
+                boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
+              }}>
               {scanning ? <Loader2 size={14} strokeWidth={2.2} className="animate-spin" /> : <Search size={14} strokeWidth={2.2} />}
               {scanning ? t('Scanning…', 'סורק…') : menu ? t('Re-scan', 'סריקה מחדש') : t('Scan menu', 'סריקת תפריט')}
             </motion.button>
@@ -409,11 +415,11 @@ export default function ImportRestaurantPage() {
               {t('Supports: getmood.io · Wix Restaurants · Tabit (best-effort) · generic HTML', 'נתמך: getmood.io · Wix Restaurants · Tabit (מאמץ מיטבי) · HTML גנרי')}
             </span>
           </div>
-        </section>
+        </GlassCard>
 
         {/* ── Menu found + grouped selection ─────────────────────────────── */}
         {menu && !imported && (
-          <section className="mb-10">
+          <GlassCard static className="mb-10 rounded-[1.75rem] p-6 md:p-8">
             <SectionLabel icon={Store}>{t('Menu found', 'התפריט נמצא')}</SectionLabel>
             <div className="mb-6 flex flex-wrap items-center gap-2 text-[12px]" style={{ fontFamily: sans }}>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-emerald-200/90">
@@ -448,7 +454,7 @@ export default function ImportRestaurantPage() {
                   const allSelected = groupItems.every((it) => it.selected);
                   return (
                     <div key={cat.id} className="mb-7">
-                      <div className="mb-3 flex items-center justify-between gap-3 border-b border-white/8 pb-2">
+                      <div className="mb-3 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                         <h4 className="text-amber-200/85 text-[12px] tracking-[0.28em] uppercase" style={{ fontFamily: sans }}>
                           {cat.name} <span className="text-white/35">({groupItems.length})</span>
                         </h4>
@@ -459,7 +465,7 @@ export default function ImportRestaurantPage() {
                       </div>
                       <div className="space-y-2.5">
                         {groupItems.map((it) => (
-                          <div key={it.uid} className={`flex items-center gap-4 rounded-2xl border px-4 py-3.5 transition-colors ${it.selected ? 'border-amber-200/25 bg-white/[0.03]' : 'border-white/8 bg-transparent opacity-60'}`}>
+                          <div key={it.uid} className={`flex items-center gap-4 rounded-2xl border px-4 py-3.5 transition-colors ${it.selected ? 'border-amber-200/25 bg-white/[0.03]' : 'border-white/[0.08] bg-transparent opacity-60'}`}>
                             <input type="checkbox" checked={it.selected} onChange={() => toggleItem(it.uid)} disabled={importing} className="h-4 w-4 shrink-0 accent-amber-300" />
                             <div className="min-w-0 flex-1">
                               <div className="truncate text-white/90 text-[15px]">{it.name}</div>
@@ -486,7 +492,7 @@ export default function ImportRestaurantPage() {
                 })}
               </>
             )}
-          </section>
+          </GlassCard>
         )}
 
         {/* ── Import action ──────────────────────────────────────────────── */}
@@ -499,8 +505,13 @@ export default function ImportRestaurantPage() {
               )}
             </div>
             <motion.button type="button" onClick={handleImport} disabled={importing || selectedCount === 0} whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-amber-200 text-black text-[12px] tracking-[0.3em] uppercase hover:bg-amber-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ fontFamily: sans, fontWeight: 600 }}>
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-8 py-3 text-[12px] tracking-[0.3em] uppercase text-black transition-shadow disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                fontFamily: sans,
+                fontWeight: 600,
+                background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
+                boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
+              }}>
               {importing ? <Loader2 size={14} strokeWidth={2.4} className="animate-spin" /> : <Download size={14} strokeWidth={2.4} />}
               {importing
                 ? t(`Importing ${progress.done}/${progress.total}…`, `מייבא ${progress.done}/${progress.total}…`)
@@ -520,7 +531,7 @@ export default function ImportRestaurantPage() {
                 <button type="button" onClick={resetForMore} className="text-white/45 hover:text-white/80 text-[10px] tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
                   {t('Import more', 'ייבוא נוסף')}
                 </button>
-                <Link href="/admin" className="inline-flex items-center gap-2 rounded-full border border-amber-200/40 px-5 py-2 text-amber-100 hover:bg-amber-200/10 transition-colors text-[10px] tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+                <Link href="/admin" className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-5 py-2 text-[10px] tracking-[0.25em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100" style={{ fontFamily: sans, fontWeight: 600 }}>
                   {t('Open composer', 'פתח את העורך')}
                 </Link>
               </div>
@@ -535,7 +546,7 @@ export default function ImportRestaurantPage() {
                 const gpt = buildGptImagePrompt({ name: draft.title.en || draft.title.he, description: draft.tagline?.[lang] ?? draft.tagline?.en ?? null });
                 const needsImage = !draft.heroImage || draft.heroImage.startsWith('data:image/svg') || draft.heroImage.endsWith('/glass.png');
                 return (
-                  <div key={draft.slug} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 md:p-5">
+                  <GlassCard key={draft.slug} static className="rounded-2xl p-4 md:p-5">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="text-white/90 text-[15px]">{draft.title[lang] || draft.title.en}</div>
@@ -547,7 +558,12 @@ export default function ImportRestaurantPage() {
                           </span>
                         )}
                       </div>
-                      <Link href={`/admin/${draft.slug}/edit`} className="inline-flex shrink-0 items-center gap-2 rounded-full bg-amber-200 px-5 py-2 text-black hover:bg-amber-100 transition-colors text-[10px] tracking-[0.25em] uppercase" style={{ fontFamily: sans, fontWeight: 600 }}>
+                      <Link href={`/admin/${draft.slug}/edit`} className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-2 text-[10px] tracking-[0.25em] uppercase text-black transition-shadow" style={{
+                        fontFamily: sans,
+                        fontWeight: 700,
+                        background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
+                        boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
+                      }}>
                         <Pencil size={12} strokeWidth={2.2} /> {t('Edit · add image', 'ערוך · הוסף תמונה')}
                       </Link>
                     </div>
@@ -563,7 +579,7 @@ export default function ImportRestaurantPage() {
                         {copiedSlug === draft.slug ? t('Copied', 'הועתק') : t('Copy prompt', 'העתק פרומפט')}
                       </button>
                     </div>
-                  </div>
+                  </GlassCard>
                 );
               })}
             </div>
