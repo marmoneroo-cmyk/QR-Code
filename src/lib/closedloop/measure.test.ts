@@ -29,17 +29,31 @@ describe('measureImpact', () => {
     expect(r.direction).toBe('flat');
   });
 
-  it('scales a partial post-window fairly (per-day rates)', () => {
-    // before 14 over 7d = 2/day; after 10 over 3d = 3.33/day → +66%
-    const r = measureImpact({ before: 14, after: 10, daysSince: 3 });
-    expect(r.status).toBe('success');
-    expect(r.deltaPct).toBe(67);
+  it('refuses a verdict until the post window is complete (no partial-window false win)', () => {
+    // Regression: a volume DROP (14 → 10) used to read as "+67% success" because a
+    // partial 3-day post window was compared to a full 7-day pre window.
+    expect(measureImpact({ before: 14, after: 10, daysSince: 3 }).status).toBe('too_early');
   });
 
-  it('treats a zero baseline with real post-activity as success (no fabricated %)', () => {
-    const r = measureImpact({ before: 0, after: 12, daysSince: 7 });
-    expect(r.status).toBe('success');
-    expect(r.deltaPct).toBeNull();
-    expect(r.direction).toBe('up');
+  it('a small absolute drop (14 → 10) is no_effect, never a win', () => {
+    // Only 4 sessions of movement — below minAbsDelta; honest engine refuses a verdict either way.
+    expect(measureImpact({ before: 14, after: 10, daysSince: 7 }).status).toBe('no_effect');
+  });
+
+  it('reports a genuine decline once the full window elapses', () => {
+    const r = measureImpact({ before: 20, after: 12, daysSince: 7 });
+    expect(r.status).toBe('declined');
+    expect(r.deltaPct).toBe(-40);
+  });
+
+  it('refuses a zero/tiny baseline as a win (no fabricated success)', () => {
+    // Regression: before=0 with post activity used to be auto-"success".
+    expect(measureImpact({ before: 0, after: 12, daysSince: 7 }).status).toBe('insufficient_data');
+    expect(measureImpact({ before: 3, after: 12, daysSince: 7 }).status).toBe('insufficient_data');
+  });
+
+  it('treats a tiny absolute change as no_effect even if the % looks large', () => {
+    // 6 → 9 is +50% but only 3 sessions of movement — noise, not a win.
+    expect(measureImpact({ before: 6, after: 9, daysSince: 7 }).status).toBe('no_effect');
   });
 });

@@ -106,7 +106,7 @@ generated / implemented / verified / failed; new knowledge accrued) — not rest
 ## EPIC F — Analytics correctness (honest measurement)
 | # | Ticket | Owner | Evidence |
 |---|---|---|---|
-| **F1** | **Kill the false-win generator** in `measure.ts`: require full equal window; zero/tiny baseline → insufficient_data; min absolute delta | code+tests | **T5 CONFIRMED** — *started this turn* |
+| **F1** | **Kill the false-win generator** in `measure.ts`: full equal window else `too_early`; zero/tiny baseline → `insufficient_data`; min absolute delta — **✅ done + shipped**. 5-status engine wired end-to-end (types → server confidence → closed-loop UI labels); 10 tests. | code+tests ✅ | **T5 CONFIRMED → fixed** |
 | F2 | Freeze closed-loop result at window close (persist status/window/before/after/delta); first terminal result immutable; provisional vs final labels | code+migration | closedloop-1/3 |
 | F3 | Scheduled measurement job (cron) once window matures; UI reads stored result | **YOU**(cron)/code | closedloop-2 |
 | F4 | Hide any rate whose denominator < ~25 distinct sessions → "Not enough data yet" | code | statistical-3 |
@@ -228,7 +228,7 @@ AI reasons over data you cannot trust.
 - **4 — J4.5** Outcome Ledger — what the restaurant *actually did* + the measured result (recommended-but-ignored vs recommended-and-done).
 - **5 — J4.6** Recommendation Lifecycle — created→…→verified→archived state machine.
 - **6 — J5** Menu Versioning — `menu_version` bumped on dish image/price/description/position change, stamped on events. *Can't-backfill: wire the stamp first.*
-- **7 — F** Honest measurement *(F1 done + tested, parked — ships here)* + **B5** (tenant-scope analytics reads before tenant #2).
+- **7 — F** Honest measurement — **F1 ✅ shipped** (false-win killer live in prod); F2–F6 remain + **B5** (tenant-scope analytics reads before tenant #2).
 - **8 — H-B + I** Wire & score the ladder on trusted data + AI Recommendation Validation. Each verdict persists to the J4 ledger with its J2/J3.5 lineage and accrues a J4.5 outcome.
 - **9 — G (last)** Vocabulary rename. Renaming adds zero customers; security, reliability and AI accuracy do.
 > **Why this whole J-block precedes H-B (owner):** the risk has shifted from *"will the product work"* to *"will the data be good enough in 6 months to be a moat."* The moment the engine runs on real data, anything not captured today is unrecoverable — lineage, outcomes, lifecycle and menu_version are the metadata that turns a nice product into a system that *learns* over years.
