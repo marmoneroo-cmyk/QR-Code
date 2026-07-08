@@ -5,6 +5,33 @@
 
 ---
 
+## [2026-07-06] — תשתית מרובת-דיירים + עיצוב פרימיום (חי בפרודקשן)
+
+### אבטחה — תשתית מרובת-דיירים (Epics A+B+C+D)
+- **אימות נאכף.** `requireSession()` שומר על כל `/api/*` של הניהול; `/admin/*` חסום מאחורי כניסה (`AUTH_ENFORCED=true`, חי). נתיבי הסועד הציבוריים (`promotions`/`experience`/`analytics-recommendations` GET, `/api/track`) נשארים פתוחים בכוונה.
+- **בידוד דיירים.** ה-tenant נגזר עכשיו מה-session — נסגרה דליפת הכתיבה החוצה-דייר של `?restaurant=`; כתיבות ניהול עוברות דרך client מוגבל-משתמש כך ש-**RLS של Supabase הוא הגבול החי**. מיגרציות `0007`/`0008`/`0011` הוחלו.
+- **צינור נתונים אמין.** תור אירועים at-least-once (localStorage + retry + `sendBeacon`) + idempotency בשרת (`event_id` upsert `ON CONFLICT DO NOTHING`) = אפקט exactly-once; חותמות מקור (`eventVersion`/`eventSource`/`uiVersion` + `restaurantType`/`menuCategory`) על כל אירוע; מעטפת מקור להמלצה.
+
+### נוסף — עיצוב פרימיום "Obsidian & Champagne" (שכבת תצוגה, אפס שינוי לוגיקה)
+- מערכת עיצוב + ספריית פרימיטיבים (`src/components/ui/premium.tsx`): `GlassCard`, `CtaPill`, `StatBlock`, `EmptyState`, `AmbientBackdrop`, `GlowDivider` — שחורים אובסידיאן, מבטא שמפניה, משטחי זכוכית, תנועה קולנועית.
+- ניווט קפסולת-זכוכית + launcher קולנועי (`AdminShell`/`AdminLauncher`); מסך בית flagship; תפריט אורחים תמונה-קדימה (אריחים מובילים כפולים + פוטרי זכוכית ב-`MenuRow`); מסכי AI קולנועיים; סוויפ מלא של ~24 מסכי ניהול.
+- **ספריית מדיה** (`MediaLibrary`) — בורר תמונת-hero בסגנון Figma/Lightroom (תפריט · טיוטות · העלאה · אחרונים, חיפוש חי, גרירה, מגבלת 4MB), משולב ב-`CocktailForm` דרך ה-`setHeroUrl` הקיים.
+- תיקון RTL גלובלי (`DirectionSync`) — `<html dir/lang>` עוקב אחר שפת הממשק בכל עמוד.
+
+### שונה — איחוד IA של הניהול (23 פריטי launcher → 6 יעדים + מתקדם)
+- אורגן מחדש ל-6 יעדים ראשיים + מתג **מתקדם** (נשמר): **פעולה** (בית · היום · תוצאות), **תפריט וקידום**, **תובנות**, **כלים**, וקבוצת **מתקדם** מוסתרת.
+- יעדים חדשים עם טאבים (`AdminTabs`, טעינה עצלה לטאב הפעיל): `/admin/today` · `/admin/results` · `/admin/promote` · `/admin/tools`. התוכן הפנימי חולץ כ-`*Panel` — **כל route מקורי עדיין עובד** (סימניות לא נשברו).
+
+### תוקן — מדידת לולאה-סגורה כנה (F1)
+- `measureImpact` כבר לא ממציא ניצחונות: `too_early` עד שחלון post שלם ושווה-אורך חולף; `insufficient_data` על בסיס אפסי/זעיר; `no_effect` מתחת לרצועת הרעש / דלתא מוחלטת מינימלית. מנוע 5-סטטוסים מחווט מקצה-לקצה; 10 בדיקות.
+
+### נוסף — סקריפטי פיתוח / אימות
+- `scripts/audit/` — הרנסי אימות חיים (גבול auth 401, idempotency, membership, segments). קוראים סודות מ-`.env.local` (ב-gitignore); אף אחד לא מקובע בקוד.
+
+**אימות:** `tsc` + **167 בדיקות** + `next build` (57 עמודים) ירוק; פרודקשן נבדק (ציבורי 200 · APIs חסומים 401 · `/admin/*` → כניסה). פרוק: F2–F6 של Epic F, המשך B5 (בידוד קריאות אנליטיקה לפני דייר #2).
+
+---
+
 ## [Unreleased] — 2026-06-08
 
 ### נוסף — השלמת בקלוג (ליטוש עורך · סידור CMS · תנועה ציבורית · בדיקות)

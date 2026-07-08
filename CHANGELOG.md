@@ -5,6 +5,33 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2026-07-06] — Multi-tenant foundation + premium redesign (LIVE in production)
+
+### Security — Multi-tenant foundation (Epics A+B+C+D)
+- **Authentication enforced.** `requireSession()` guards every admin `/api/*`; `/admin/*` is gated behind login (`AUTH_ENFORCED=true`, live). Public diner paths (`promotions`/`experience`/`analytics-recommendations` GET, `/api/track`) stay open by design.
+- **Tenant isolation.** Tenant is now session-derived — killed the `?restaurant=` cross-tenant write leak; admin writes run through a user-scoped client so **Supabase RLS is the live boundary**. Migrations `0007`/`0008`/`0011` applied (restaurant_type, event idempotency index, owner→diner membership seed).
+- **Reliable data pipeline.** At-least-once event queue (localStorage persist + retry/backoff + `sendBeacon`) + server idempotency (`event_id` upsert `ON CONFLICT DO NOTHING`) = exactly-once effect; provenance stamps (`eventVersion`/`eventSource`/`uiVersion` + `restaurantType`/`menuCategory`) on every event; content-addressed recommendation provenance envelope.
+
+### Added — Premium redesign "Obsidian & Champagne" (presentation layer, zero logic change)
+- Design system + primitive library (`src/components/ui/premium.tsx`): `GlassCard`, `CtaPill`, `StatBlock`, `EmptyState`, `AmbientBackdrop`, `GlowDivider` — obsidian neutrals, champagne accent, glass surfaces, cinematic motion.
+- Glass capsule nav + cinematic launcher (`AdminShell`/`AdminLauncher`); flagship `/admin/home`; image-forward public menu (double-size featured tiles + glass footers in `MenuRow`); cinematic AI screens; full restyle of ~24 admin screens.
+- **Media library** (`MediaLibrary`) — Figma/Lightroom-style hero-image picker (Menu · Drafts · Upload · Recent, live search, drag-drop, 4 MB cap), wired into `CocktailForm` via the existing `setHeroUrl`.
+- Global RTL fix (`DirectionSync`) — `<html dir/lang>` follows the UI language on every page.
+
+### Changed — Admin IA consolidation (23 launcher entries → 6 destinations + Advanced)
+- Reorganised into 6 primary destinations + a persisted **Advanced** toggle: **Act** (Home · Today · Results), **Menu & Promotion**, **Insights**, **Tools**, and a hidden **Advanced** group (Executive · A/B · Inspector · Signals · Build Log).
+- New tabbed destinations (`AdminTabs`, lazy per-tab mount): `/admin/today` (briefing · actions · opportunities), `/admin/results` (closed-loop · wins), `/admin/promote` (promotions · experience · pairings), `/admin/tools` (QR · sales + print/kiosk links). Inner content extracted as `*Panel` named exports — **every original route still resolves** (no bookmarks broken).
+
+### Fixed — Honest closed-loop measurement (F1)
+- `measureImpact` no longer fabricates wins: `too_early` until a COMPLETE equal-length post window elapses (a partial post vs full pre window is what let a volume drop read as a "+% win"); `insufficient_data` on a zero/tiny baseline; `no_effect` below the noise band / minimum absolute delta. 5-status engine wired end-to-end (types → server confidence → closed-loop UI labels); 10 tests.
+
+### Added — Dev / verification scripts
+- `scripts/audit/` — live verification harnesses (auth-boundary 401 probe, idempotency, membership seed, segment stamping). They read secrets from the gitignored `.env.local`; none are hardcoded.
+
+**Verification:** `tsc` + **167 tests** + `next build` (57 pages) green; production probed (public 200 · gated APIs 401 · `/admin/*` → login). Parked: Epic F F2–F6, follow-up B5 (tenant-scope analytics reads before tenant #2).
+
+---
+
 ## [Unreleased] — 2026-06-09
 
 ### Added — Netflix-style sectioned menu (the public landing)
