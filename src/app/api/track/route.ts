@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminSupabase } from '@/lib/supabase/server';
+import { log } from '@/lib/log';
 import type { Json } from '@/lib/supabase/types';
 import { isTrackEvent, type TrackBatch, type TrackRecord } from '@/lib/tracking/taxonomy';
 import { findCocktailBySlug, menuCategoryOf } from '@/data/cocktail';
@@ -131,11 +132,16 @@ export async function POST(request: Request): Promise<NextResponse> {
       }
     }
     if (error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+      // Ingest failure = data-pipeline incident: log the real cause server-side;
+      // the client only needs a non-2xx to keep the batch persisted and retry.
+      log.error('track', error.message, { slug, batch: rows.length });
+      return NextResponse.json({ success: false, error: 'ingest failed' }, { status: 500 });
     }
     return NextResponse.json({ success: true, inserted: rows.length });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'unexpected error';
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    log.error('track', error instanceof Error ? error.message : 'unexpected error', {
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return NextResponse.json({ success: false, error: 'ingest failed' }, { status: 500 });
   }
 }

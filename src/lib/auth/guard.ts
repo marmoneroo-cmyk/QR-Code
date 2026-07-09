@@ -1,6 +1,7 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
 import { getSessionContext, type SessionContext } from './session';
+import { log } from '@/lib/log';
 
 /**
  * The single API auth boundary. Every admin/tenant API route calls requireSession()
@@ -27,12 +28,17 @@ export async function requireSession(): Promise<SessionContext> {
 
 /**
  * Uniform error → JSON response for guarded routes. An UnauthorizedError becomes a 401
- * (so the client can redirect to login); anything else is a 500 with its message.
+ * (so the client can redirect to login). Anything else is an UNEXPECTED failure: it is
+ * logged in full server-side (this one seam observes every guarded route) and the
+ * client gets a GENERIC message — internal error details (SQL/table/constraint names)
+ * must never leak into a response body.
  */
 export function unauthorized(error: unknown): NextResponse {
   if (error instanceof UnauthorizedError) {
     return NextResponse.json({ success: false, error: 'unauthorized' }, { status: 401 });
   }
-  const message = error instanceof Error ? error.message : 'unexpected error';
-  return NextResponse.json({ success: false, error: message }, { status: 500 });
+  log.error('api', error instanceof Error ? error.message : 'unexpected error', {
+    stack: error instanceof Error ? error.stack : undefined,
+  });
+  return NextResponse.json({ success: false, error: 'internal error' }, { status: 500 });
 }
