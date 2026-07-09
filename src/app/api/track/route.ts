@@ -9,6 +9,8 @@ import { restaurantTypeFor, type RestaurantType } from '@/lib/segments';
 export const runtime = 'nodejs';
 
 const MAX_EVENTS = 50;
+/** Reject oversized bodies before parsing — 50 events fit comfortably under this. */
+const MAX_BODY_BYTES = 64_000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // Cache restaurant slug → uuid (resolved once per server instance).
@@ -82,6 +84,20 @@ function toRow(restaurantId: string, restaurantType: RestaurantType, e: TrackRec
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
+  // Abuse guards for this PUBLIC, unauthenticated ingest (see follow-up: durable per-IP
+  // rate limiting needs Vercel KV / Upstash — these are the infra-free first line):
+  // (1) reject oversized bodies before parsing.
+  const contentLength = Number(request.headers.get('content-length') ?? '0');
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    return NextResponse.json({ success: false, error: 'payload too large' }, { status: 413 });
+  }
+  // (2) reject clear third-party abuse: a real diner request is same-origin; only an
+  //     explicit cross-site fetch is refused (same-origin/same-site/none stay allowed,
+  //     so fetch + sendBeacon from the menu are never blocked).
+  if (request.headers.get('sec-fetch-site') === 'cross-site') {
+    return NextResponse.json({ success: false, error: 'forbidden' }, { status: 403 });
+  }
+
   let batch: TrackBatch;
   try {
     batch = (await request.json()) as TrackBatch;

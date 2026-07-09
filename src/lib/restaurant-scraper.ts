@@ -1,3 +1,5 @@
+import { safeFetch } from '@/lib/net/ssrf';
+
 export type Platform = 'getmood.io' | 'wix' | 'tabit' | 'generic' | 'unknown';
 
 export interface ParsedItem {
@@ -261,7 +263,8 @@ export async function scrapeRestaurant(url: string): Promise<ParsedMenu> {
     target = `https://${target}`;
   }
 
-  const res = await fetch(target, {
+  // SSRF guard: refuse internal/metadata/private hosts and re-validate every redirect hop.
+  const res = await safeFetch(target, {
     headers: { 'User-Agent': 'Mozilla/5.0 cocktail-demo-importer' },
   });
   if (!res.ok) {

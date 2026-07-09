@@ -82,7 +82,12 @@ function buildHeroPrompt(name: string, desc: string | null | undefined): string 
  */
 function placeholderHero(name: string): string {
   const esc = (s: string) =>
-    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   const trimmed = name.trim();
   const initial = esc(trimmed.charAt(0).toUpperCase() || '·');
   const label = esc(trimmed.length > 24 ? `${trimmed.slice(0, 23)}…` : trimmed);
@@ -104,7 +109,9 @@ const POLLINATIONS_MODEL = process.env.POLLINATIONS_MODEL || 'turbo';
 
 /** Server-only secret first; NEXT_PUBLIC_ kept only for back-compat. */
 function pollinationsToken(): string | undefined {
-  return process.env.POLLINATIONS_TOKEN || process.env.NEXT_PUBLIC_POLLINATIONS_TOKEN;
+  // Server-only secret — do NOT fall back to the NEXT_PUBLIC_ variant, which would be
+  // bundled into client JS and hand the bearer token to anyone who views source.
+  return process.env.POLLINATIONS_TOKEN;
 }
 
 function buildPollinationsUrl(prompt: string, seed: number): string {

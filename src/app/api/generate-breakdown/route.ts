@@ -4,6 +4,7 @@ import { removeBackground } from '@imgly/background-removal-node';
 import { SHARED_LAYERS, type LayerConfig } from '@/data/cocktail';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
 import { log } from '@/lib/log';
+import { slugify } from '@/lib/heroPrompts';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -114,7 +115,9 @@ export async function POST(req: Request): Promise<Response> {
           const transparentBlob = await removeBackground(rawBlob);
           const transparentBuffer = Buffer.from(await transparentBlob.arrayBuffer());
 
-          const filename = `${body.slug}-${template.id}.png`;
+          // Path-traversal guard: body.slug is user-controlled and flows into a filename.
+          // slugify() strips everything outside [a-z0-9-], so `../../etc` can't escape outputDir.
+          const filename = `${slugify(body.slug) || 'draft'}-${template.id}.png`;
           const filepath = path.join(outputDir, filename);
           await fs.writeFile(filepath, transparentBuffer);
 
