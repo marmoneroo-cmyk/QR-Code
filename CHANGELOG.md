@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2026-07-10] — Tenant-isolation gate + measurement honesty + observability (LIVE in production)
+
+### Security — Tenant-scoped analytics reads (B5 · sec-review H3, the gate before tenant #2)
+- The analytics lib functions were already restaurant-parameterized and `restaurant_id`-filtered, but **every guarded read route discarded the session and fell back to the `'diner'` default** — a second tenant's logged-in user would have seen diner's data. Every guarded read route now passes `session.restaurantSlug`: overview, menu-engineering, crm, executive, heatmap, opportunities, sessions, `events/raw`, `events/integrity`, `signals/verify`, `experiments/results` (funnel · tables · closed-loop already did). `getExecutiveSummary` threads the slug into its internal calls. Verified: **zero unscoped `events` reads** across analytics libs; only the 3 non-tenant admin writes keep a bare guard. Gate for onboarding tenant #2 is cleared.
+
+### Security — No internal-error leakage + structured server logging (sec-review M2)
+- New `src/lib/log.ts`: minimal structured JSON logger (`level`/`scope`/`ts`) on stdout/stderr — what Vercel log drains ingest. Wired at the two seams that observe the whole API surface: `guard.unauthorized()` now logs every guarded route's unexpected 500 **in full server-side** while returning a **generic `internal error`** to the client (raw SQL/table/constraint messages no longer leak in response bodies); `/api/track` logs ingest failures with slug + batch size and returns a generic `ingest failed`. Auth 401 path unchanged; the tracking client only inspects status codes, so keep-and-retry still works.
+
+### Fixed — Honest confidence, derived from real sample (F6)
+- Deleted the fixed `{low:58, medium:74, high:91}` confidence lookup that powered the AI Coach / Action Center. `confidencePct` now derives from the **real observed sample** (the item's drink-page views) via the funnel engine's saturating curve `n/(n+60)`, shaped by qualitative separation and capped at 95 — 100 views can no longer claim 91% certainty, and no data honestly reads as 0%. Tests updated + monotonicity test.
+
+### Fixed — Low-sample rate gate (F4)
+- A conversion/order-rate % computed from a tiny denominator ("100% ordered" from 2 views) fabricates confidence. New `src/lib/analytics/rate.ts` (`hasConfidentSample`/`confidentRate`, gate = 25 distinct views — the display twin of closed-loop `insufficient_data`). Applied uniformly to every order-rate display (House Performance KPI, Menu Analysis item cards, Analytics KPI + table): the exact stored percentage still shows once the sample clears the gate, otherwise a muted `—`. Stored/aggregate math is unchanged. 7 tests.
+
+**Verification:** `tsc` + **175 tests** + `next build` (57 pages) green; deployed to production. Parked: A5 secret rotation (needs dashboard access), Epic F F2–F3/F5, H-B (wire AI to real data).
+
+---
+
 ## [2026-07-06] — Multi-tenant foundation + premium redesign (LIVE in production)
 
 ### Security — Multi-tenant foundation (Epics A+B+C+D)

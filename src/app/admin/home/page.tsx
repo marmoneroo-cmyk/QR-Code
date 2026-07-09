@@ -10,6 +10,7 @@ import { GlassCard, PanelHeader, CtaPill, EmptyState, StatBlock, LUX_EASE } from
 import { GlassSheen } from '@/components/ui/visual';
 import { staggerContainer, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
+import { hasConfidentSample } from '@/lib/analytics/rate';
 import { totalPotential } from '@/lib/value/potential';
 import type { Opportunity, OpportunityType } from '@/lib/opportunities/types';
 import type { AnalyticsOverview, MenuEngineering } from '@/lib/analytics/types';
@@ -190,7 +191,7 @@ export default function HomeDashboardPage() {
             ) : (
               <div className="grid grid-cols-2 gap-x-3 gap-y-4">
                 <Kpi label={isHe ? 'צפיות' : 'Views'} value={String(overview.totalViews)} />
-                <Kpi label={isHe ? 'אחוז הזמנה' : 'Order rate'} value={`${Math.round(overview.conversionPct)}%`} />
+                <Kpi label={isHe ? 'אחוז הזמנה' : 'Order rate'} value={hasConfidentSample(overview.totalViews) ? `${Math.round(overview.conversionPct)}%` : '—'} />
                 <Kpi label={isHe ? 'הכנסה' : 'Revenue'} value={`₪${Math.round(overview.totalRevenue).toLocaleString()}`} />
                 <Kpi label={isHe ? 'רווח' : 'Profit'} value={`₪${Math.round(overview.totalProfit).toLocaleString()}`} />
               </div>

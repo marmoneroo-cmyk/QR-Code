@@ -12,6 +12,7 @@ import { Stagger, staggerItem } from '@/components/ui/motion';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { GlassCard, PanelHeader, EmptyState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
+import { hasConfidentSample } from '@/lib/analytics/rate';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
 const sans = 'var(--font-inter, sans-serif)';
@@ -217,7 +218,7 @@ export default function AnalyticsPage() {
           />
           <KpiCard
             label={t('Conversion', 'המרה')}
-            value={`${Math.round(overview?.conversionPct ?? 0)}%`}
+            value={hasConfidentSample(overview?.totalViews ?? 0) ? `${Math.round(overview?.conversionPct ?? 0)}%` : '—'}
             accent="#f59e0b"
             icon={Percent}
             hint={t('ordered / viewed', 'הזמינו / צפו')}
@@ -354,7 +355,7 @@ export default function AnalyticsPage() {
                       <td className="py-3 text-end text-white/70 font-mono">{row.orders.toLocaleString()}</td>
                       <td className="py-3 text-end text-white/70 font-mono hidden sm:table-cell">{row.units.toLocaleString()}</td>
                       <td className="py-3 text-end text-emerald-200/90 font-mono">{ils(row.revenue)}</td>
-                      <td className="py-3 text-end text-amber-100 font-mono">{Math.round(row.conversionPct)}%</td>
+                      <td className="py-3 text-end text-amber-100 font-mono" title={t('Not enough data yet to trust this rate', 'עדיין אין מספיק נתונים כדי לסמוך על האחוז')}>{hasConfidentSample(row.views) ? `${Math.round(row.conversionPct)}%` : '—'}</td>
                     </tr>
                   ))}
                 </tbody>

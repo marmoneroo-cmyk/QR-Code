@@ -11,6 +11,7 @@ import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { GlassCard, PanelHeader } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
+import { hasConfidentSample } from '@/lib/analytics/rate';
 import type { MenuClass, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
 const sans = 'var(--font-inter, sans-serif)';
@@ -360,7 +361,7 @@ function MatrixThumb({ item, lang, t, pos, isHovered, isSelected, isDimmed, onHo
           </span>
           <span className="grid grid-cols-3 gap-1 text-center">
             <PopStat v={`${Math.round(item.marginPct)}%`} l={t('margin', 'רווח')} accent={meta.color} />
-            <PopStat v={`${Math.round(item.conversionPct)}%`} l={t('order rate', 'אחוז הזמנה')} />
+            <PopStat v={hasConfidentSample(item.views) ? `${Math.round(item.conversionPct)}%` : '—'} l={t('order rate', 'אחוז הזמנה')} />
             <PopStat v={`${item.views}`} l={t('views', 'צפיות')} />
           </span>
         </span>
@@ -414,7 +415,7 @@ function ItemCard({ item, lang, t, registerCard, isSelected, isFlashed }: ItemCa
           </p>
           <div className="relative grid grid-cols-3 gap-1 text-center">
             <Stat v={`${Math.round(item.marginPct)}%`} l={t('margin', 'רווח')} accent={meta.color} />
-            <Stat v={`${Math.round(item.conversionPct)}%`} l={t('order rate', 'אחוז הזמנה')} />
+            <Stat v={hasConfidentSample(item.views) ? `${Math.round(item.conversionPct)}%` : '—'} l={t('order rate', 'אחוז הזמנה')} />
             <Stat v={`${item.views}`} l={t('views', 'צפיות')} />
           </div>
         </div>

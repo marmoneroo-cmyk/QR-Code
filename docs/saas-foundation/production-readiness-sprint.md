@@ -109,7 +109,7 @@ generated / implemented / verified / failed; new knowledge accrued) — not rest
 | **F1** | **Kill the false-win generator** in `measure.ts`: full equal window else `too_early`; zero/tiny baseline → `insufficient_data`; min absolute delta — **✅ done + shipped**. 5-status engine wired end-to-end (types → server confidence → closed-loop UI labels); 10 tests. | code+tests ✅ | **T5 CONFIRMED → fixed** |
 | F2 | Freeze closed-loop result at window close (persist status/window/before/after/delta); first terminal result immutable; provisional vs final labels | code+migration | closedloop-1/3 |
 | F3 | Scheduled measurement job (cron) once window matures; UI reads stored result | **YOU**(cron)/code | closedloop-2 |
-| F4 | Hide any rate whose denominator < ~25 distinct sessions → "Not enough data yet" | code | statistical-3 |
+| F4 | Hide any rate whose denominator < ~25 distinct sessions → "Not enough data yet" — **✅ done**: `src/lib/analytics/rate.ts` (`hasConfidentSample`/`confidentRate`, gate = 25 views); applied uniformly to every order-rate display (home KPI, menu-engineering item cards ×2, analytics KPI + table cell) — exact stored % shows once the sample clears, else a muted `—`. 7 tests. | code ✅ | statistical-3 → fixed |
 | F5 | Apply the existing `signals.ts` readiness gate (n≥500, 95% coverage, 7 ready days) as a precondition for owner-facing engine claims | code | statistical-6 |
 | F6 | One confidence derived from sample size; delete the fixed `{58,74,91}` lookup — **✅ done**: `confidencePctOf(confidence, views)` = saturating sample curve `n/(n+60)` × qualitative separation (mirrors the funnel engine); 100 views can no longer claim 91%, no data = 0%. Tests updated (+ monotonicity). | code ✅ | briefing-5 → fixed |
 
