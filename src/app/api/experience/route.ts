@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { listExperience, upsertExperience } from '@/lib/experience/repository';
 import { logChange } from '@/lib/changes/repository';
 import type { ExperienceConfig } from '@/lib/experience/types';
-import { requireSession, unauthorized } from '@/lib/auth/guard';
+import { requireSession, unauthorized, apiError } from '@/lib/auth/guard';
 import { createServerSupabase } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const data = await listExperience(restaurant);
     return NextResponse.json({ success: true, data });
   } catch (error: unknown) {
-    return err(error instanceof Error ? error.message : 'unexpected error', 500);
+    return apiError(error);
   }
 }
 

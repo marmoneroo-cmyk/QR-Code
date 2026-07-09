@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import { removeBackground } from '@imgly/background-removal-node';
 import { SHARED_LAYERS, type LayerConfig } from '@/data/cocktail';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -76,8 +77,8 @@ export async function POST(req: Request): Promise<Response> {
   try {
     await fs.mkdir(outputDir, { recursive: true });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'mkdir failed';
-    return new Response(JSON.stringify({ error: message }), {
+    log.error('generate-breakdown', err instanceof Error ? err.message : 'mkdir failed', { stage: 'mkdir', dir: outputDir });
+    return new Response(JSON.stringify({ error: 'internal error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -124,9 +125,9 @@ export async function POST(req: Request): Promise<Response> {
           generatedLayers.push(newLayer);
           send({ event: 'layer-done', index: i, id: template.id, image: newLayer.image });
         } catch (err: unknown) {
-          const message = err instanceof Error ? err.message : String(err);
+          log.error('generate-breakdown', err instanceof Error ? err.message : String(err), { stage: 'layer', index: i, id: template.id });
           generatedLayers.push(template);
-          send({ event: 'layer-error', index: i, id: template.id, message });
+          send({ event: 'layer-error', index: i, id: template.id, message: 'layer generation failed' });
         }
       }
 

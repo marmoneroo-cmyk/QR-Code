@@ -42,3 +42,12 @@ export function unauthorized(error: unknown): NextResponse {
   });
   return NextResponse.json({ success: false, error: 'internal error' }, { status: 500 });
 }
+
+/**
+ * Canonical error responder for ANY route — public or guarded. Same behavior as
+ * `unauthorized`: 401 for an UnauthorizedError, otherwise the real failure is logged
+ * in full server-side and the client gets a generic message (never raw SQL/table/
+ * exception text). PUBLIC routes import THIS name — they never throw UnauthorizedError,
+ * so it is purely "log + generic 500". One seam for all route error hygiene.
+ */
+export const apiError = unauthorized;

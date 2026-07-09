@@ -7,7 +7,7 @@ import {
   type PromotionInput,
 } from '@/lib/promotions/repository';
 import { logChange } from '@/lib/changes/repository';
-import { requireSession, unauthorized } from '@/lib/auth/guard';
+import { requireSession, unauthorized, apiError } from '@/lib/auth/guard';
 import { createServerSupabase } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const data = await listPromotions(restaurant, { activeOnly });
     return NextResponse.json({ success: true, data });
   } catch (error: unknown) {
-    return err(error instanceof Error ? error.message : 'unexpected error', 500);
+    return apiError(error);
   }
 }
 

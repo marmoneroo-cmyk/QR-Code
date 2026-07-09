@@ -1,16 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getCoViews } from '@/lib/analytics/recommendations';
+import { apiError } from '@/lib/auth/guard';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// NOTE (Phase 2): gate behind restaurant-member auth once login is wired.
+// PUBLIC by design: powers the diner menu's "also viewed" (AlsoViewed / CocktailExperience),
+// so it stays open — but errors are logged + genericized, never echoed to the client.
 export async function GET(): Promise<NextResponse> {
   try {
     const data = await getCoViews();
     return NextResponse.json({ success: true, data });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'unexpected error';
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    return apiError(error);
   }
 }
