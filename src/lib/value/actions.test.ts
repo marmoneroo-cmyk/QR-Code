@@ -38,7 +38,7 @@ describe('buildActions', () => {
     expect(action.id).toBe('a:fix_offer');
     expect(action.valueILS).toBe(500); // +10 orders × ₪50
     expect(action.effortMin).toBe(5); // fix_offer
-    expect(action.confidencePct).toBe(91); // high
+    expect(action.confidencePct).toBe(59); // high @ 100 views — sample-driven (100/160 × 0.95), not a fixed lookup
     expect(action.executeHref).toBe('/admin/a/edit');
     expect(action.why[0].value).toBe('42');
   });
@@ -68,5 +68,18 @@ describe('buildActions', () => {
     const [action] = buildActions([opp('ghost')], new Map(), bench);
     expect(action.valueILS).toBeNull();
     expect(action.potential).toBeNull();
+  });
+
+  it('derives confidence from the real sample — more views ⇒ more confidence; no data ⇒ 0', () => {
+    const small = buildActions([opp('a')], new Map([['a', item('a', { views: 30 })]]), bench)[0];
+    const big = buildActions([opp('a')], new Map([['a', item('a', { views: 2000 })]]), bench)[0];
+    expect(big.confidencePct).toBeGreaterThan(small.confidencePct);
+    expect(big.confidencePct).toBeLessThanOrEqual(95); // honest ceiling — never certainty
+    // Same sample, weaker qualitative separation ⇒ lower confidence.
+    const low = buildActions([opp('a', { confidence: 'low' })], new Map([['a', item('a', { views: 2000 })]]), bench)[0];
+    expect(low.confidencePct).toBeLessThan(big.confidencePct);
+    // No menu-engineering row at all ⇒ zero observed sample ⇒ 0% (never fake certainty).
+    const ghost = buildActions([opp('ghost')], new Map(), bench)[0];
+    expect(ghost.confidencePct).toBe(0);
   });
 });

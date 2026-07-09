@@ -93,11 +93,11 @@ function topStar(items: MenuEngineeringItem[]): MenuEngineeringItem | null {
  * divide-by-zero everywhere; returns hasData:false with empty arrays if there
  * are no events.
  */
-export async function getExecutiveSummary(): Promise<ExecutiveSummary> {
+export async function getExecutiveSummary(restaurantSlug: string = 'diner'): Promise<ExecutiveSummary> {
   const [engineering, funnels, overview] = await Promise.all([
-    getMenuEngineering(),
-    getCocktailFunnels(),
-    getAnalyticsOverview(),
+    getMenuEngineering(restaurantSlug),
+    getCocktailFunnels(restaurantSlug),
+    getAnalyticsOverview(restaurantSlug),
   ]);
 
   const hasData = engineering.hasData || overview.hasData || funnels.length > 0;

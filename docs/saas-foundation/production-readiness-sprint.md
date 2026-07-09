@@ -76,7 +76,7 @@ generated / implemented / verified / failed; new knowledge accrued) — not rest
 | B2 | Migration **`0011_membership_seed.sql`** — seeds owner→`diner` membership (prod `restaurant_members` was **EMPTY**, verified) + re-asserts RLS on 8 tables. **Mandatory before A2 or lockout.** | code ✅ · **⏳ YOU apply** | 0011 |
 | B3 | Close cross-tenant authz leak on `/api/{promotions,sales,changes,experience}` (`?restaurant=` write, no auth) — **✅ done + live-verified** | code ✅ | T8 leak → **closed** |
 | B4 | `/api/track` stays public + service-role by design (anonymous diners); per-tenant write token = later hardening | defer | — |
-| **B5** | **HARD GATE before tenant #2:** session-scope the analytics **READ** functions that still default `'diner'` (`getCrmSignals`/`getExecutiveSummary`/`getMenuSignals`/overview/heatmap/journeys/integrity/raw/signals/experiments). They are **auth-gated now** (no anonymous read) but **not yet tenant-isolated** — *single-tenant-safe today*, would serve `diner`'s data to a 2nd tenant's user. Must land before onboarding tenant #2. | code (follow-up) | sec-review **H3** |
+| **B5** | **Tenant-scope analytics READS — ✅ done.** Root cause: the lib functions were already parameterized+filtered (A+B work); **all 11 routes discarded the session** and fell to the `'diner'` default. Every guarded read route now passes `session.restaurantSlug` (overview/menu-engineering/crm/executive/heatmap/opportunities/funnel/tables/closed-loop/sessions/events-raw/events-integrity/signals-verify/experiments). Verified: zero unscoped `events` reads in analytics libs; only the 3 non-tenant admin writes keep a bare guard. **Gate for tenant #2 cleared** (full 2-tenant e2e when tenant #2 exists). | code ✅ | sec-review **H3 → fixed** |
 
 ## EPIC C — Event integrity (idempotency)
 | # | Ticket | Owner | Evidence |
@@ -111,7 +111,7 @@ generated / implemented / verified / failed; new knowledge accrued) — not rest
 | F3 | Scheduled measurement job (cron) once window matures; UI reads stored result | **YOU**(cron)/code | closedloop-2 |
 | F4 | Hide any rate whose denominator < ~25 distinct sessions → "Not enough data yet" | code | statistical-3 |
 | F5 | Apply the existing `signals.ts` readiness gate (n≥500, 95% coverage, 7 ready days) as a precondition for owner-facing engine claims | code | statistical-6 |
-| F6 | One confidence derived from sample size; delete the fixed `{58,74,91}` lookup | code | briefing-5 |
+| F6 | One confidence derived from sample size; delete the fixed `{58,74,91}` lookup — **✅ done**: `confidencePctOf(confidence, views)` = saturating sample curve `n/(n+60)` × qualitative separation (mirrors the funnel engine); 100 views can no longer claim 91%, no data = 0%. Tests updated (+ monotonicity). | code ✅ | briefing-5 → fixed |
 
 ## EPIC G — Menu-Optimization vocabulary (RENAME, not delete) *(LAST — after Security + Measurement)*
 **Do not delete any screen.** Keep Revenue Center, House Performance, AI Coach, Hall of Wins — rename them

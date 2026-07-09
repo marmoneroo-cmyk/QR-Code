@@ -7,8 +7,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(): Promise<NextResponse> {
   try {
-    await requireSession();
-    const data = await getIntegrityReport();
+    const session = await requireSession();
+    const data = await getIntegrityReport(session.restaurantSlug);
     return NextResponse.json({ success: true, data });
   } catch (error: unknown) {
     return unauthorized(error);

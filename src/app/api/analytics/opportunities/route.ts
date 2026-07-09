@@ -8,8 +8,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(): Promise<NextResponse> {
   try {
-    await requireSession();
-    const signals = await getMenuSignals();
+    const session = await requireSession();
+    const signals = await getMenuSignals(session.restaurantSlug);
     const opportunities = buildOpportunities(signals);
     return NextResponse.json({ success: true, data: { opportunities, layout: signals.layout } });
   } catch (error: unknown) {

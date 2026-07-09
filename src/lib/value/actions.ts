@@ -9,8 +9,9 @@ import { estimatePotential, type MenuBenchmark, type RevenuePotential } from './
  * the AI Coach (the #1 action) and the Action Center (the top few).
  *
  * INTEGRITY: value comes from the honest estimator (null when not estimable). Why is
- * real evidence counts. Confidence is mapped from the opportunity's own confidence.
- * Effort is a UX time estimate (clearly an estimate, never presented as measured data).
+ * real evidence counts. Confidence is DERIVED from the observed sample (item views,
+ * saturating curve) shaped by the opportunity's qualitative confidence — never a
+ * fixed presentational number. Effort is a UX time estimate (clearly an estimate).
  */
 
 export interface CoachAction {
@@ -44,8 +45,18 @@ const EFFORT_MIN: Record<OpportunityType, number> = {
   reengage_returning: 3,
 };
 
-/** Map the opportunity's qualitative confidence to a presentational %. */
-const CONFIDENCE_PCT: Record<Confidence, number> = { low: 58, medium: 74, high: 91 };
+/**
+ * Confidence % derived from the REAL observed sample (the item's drink-page views),
+ * shaped by the opportunity's qualitative separation. Mirrors the funnel engine's
+ * saturating sample curve (n / (n + 60)) — 100 views can no longer claim 91%
+ * certainty, and no data honestly reads as 0.
+ */
+const QUAL_SEPARATION: Record<Confidence, number> = { low: 0.55, medium: 0.75, high: 0.95 };
+
+function confidencePctOf(confidence: Confidence, sampleN: number): number {
+  const sample = sampleN <= 0 ? 0 : sampleN / (sampleN + 60);
+  return Math.round(Math.min(0.95, sample * QUAL_SEPARATION[confidence]) * 100);
+}
 
 function executeFor(type: OpportunityType, slug: string): { href: string; label: Bilingual } {
   const s = encodeURIComponent(slug);
@@ -83,7 +94,7 @@ export function buildActions(
       valueILS: potential ? potential.revenueILS : null,
       potential,
       effortMin: EFFORT_MIN[o.type],
-      confidencePct: CONFIDENCE_PCT[o.confidence],
+      confidencePct: confidencePctOf(o.confidence, item?.views ?? 0),
       priority: o.priority,
       executeHref: ex.href,
       executeLabel: ex.label,
