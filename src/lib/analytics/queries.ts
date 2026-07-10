@@ -58,11 +58,17 @@ export async function getCocktailFunnels(restaurantSlug: string = TENANT_SLUG): 
     // Total ordered UNITS per cocktail = sum of order_completed quantities.
     // (The funnel's `ordered` counts distinct sessions; this counts drinks.)
     const unitsBySlug = new Map<string, number>();
+    // Capped + ordered like every other event read (was relying on PostgREST's default
+    // 1000-row limit → silent unit undercount past 1000 orders, a 50× lower cliff than
+    // elsewhere). The real scale fix is a SQL `sum(value_num) filter (...)` in the
+    // cocktail_funnel view (filed migration); this raises the safety margin meanwhile.
     const { data: orders } = await supabase
       .from('events')
       .select('cocktail_slug, value_num')
       .eq('restaurant_id', restaurant.id)
-      .eq('event_name', 'order_completed');
+      .eq('event_name', 'order_completed')
+      .order('created_at', { ascending: false })
+      .limit(50000);
     for (const order of orders ?? []) {
       if (!order.cocktail_slug) continue;
       const qty = typeof order.value_num === 'number' ? order.value_num : 1;
