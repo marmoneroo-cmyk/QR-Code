@@ -11,7 +11,9 @@ export function isValidSaleInput(row: unknown): row is SaleInput {
     r.slug.trim().length > 0 &&
     typeof r.units === 'number' &&
     Number.isFinite(r.units) &&
+    r.units >= 0 &&
     typeof r.revenue === 'number' &&
-    Number.isFinite(r.revenue)
+    Number.isFinite(r.revenue) &&
+    r.revenue >= 0
   );
 }

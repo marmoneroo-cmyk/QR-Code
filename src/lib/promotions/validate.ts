@@ -15,10 +15,17 @@ export const BADGE_KINDS = [
   'custom',
 ];
 
+// Length/size caps — a promotion is persisted and re-served to anonymous diners,
+// so bound these fields to guard against stored oversized payloads.
+export const MAX_NAME_LEN = 120;
+export const MAX_TARGET_SLUGS = 200;
+export const MAX_SLUG_LEN = 120;
+
 // Per-field checks shared by POST's validateInput (all required) and PATCH
 // (only the fields actually present in the body are checked).
 export function checkName(value: unknown): string | undefined {
   if (typeof value !== 'string' || !value.trim()) return 'name is required';
+  if (value.length > MAX_NAME_LEN) return `name must be at most ${MAX_NAME_LEN} characters`;
   return undefined;
 }
 export function checkType(value: unknown): string | undefined {
@@ -44,6 +51,10 @@ export function checkActive(value: unknown): string | undefined {
 export function checkTargetSlugs(value: unknown): string | undefined {
   if (!Array.isArray(value) || !value.every((s) => typeof s === 'string')) {
     return 'targetSlugs must be an array of strings';
+  }
+  if (value.length > MAX_TARGET_SLUGS) return `targetSlugs must have at most ${MAX_TARGET_SLUGS} entries`;
+  if ((value as string[]).some((s) => s.length > MAX_SLUG_LEN)) {
+    return `each targetSlug must be at most ${MAX_SLUG_LEN} characters`;
   }
   return undefined;
 }

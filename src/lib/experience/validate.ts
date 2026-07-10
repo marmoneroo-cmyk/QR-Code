@@ -30,10 +30,20 @@ export const BADGE_KINDS: BadgeKind[] = [
   'custom',
 ];
 
+// Size/length caps — this config is persisted and re-served as-is to anonymous
+// diners via GET, so bound it to guard against stored oversized payloads.
+export const MAX_BADGES = 50;
+export const MAX_LABEL_LEN = 80;
+
 export function isBadgeLabel(value: unknown): value is BadgeLabel {
   if (typeof value !== 'object' || value === null) return false;
   const label = value as Record<string, unknown>;
-  return typeof label.en === 'string' && typeof label.he === 'string';
+  return (
+    typeof label.en === 'string' &&
+    label.en.length <= MAX_LABEL_LEN &&
+    typeof label.he === 'string' &&
+    label.he.length <= MAX_LABEL_LEN
+  );
 }
 
 export function isScheduledToggle(value: unknown): value is ScheduledToggle {
@@ -76,6 +86,7 @@ export function isValidExperienceConfig(value: unknown): value is ExperienceConf
   }
   if (config.badges !== undefined) {
     if (!Array.isArray(config.badges)) return false;
+    if (config.badges.length > MAX_BADGES) return false;
     if (!config.badges.every(isBadgeConfig)) return false;
   }
   return true;

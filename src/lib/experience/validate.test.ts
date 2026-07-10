@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { isValidExperienceConfig, isScheduledToggle, isBadgeConfig, isBadgeLabel } from './validate';
+import {
+  isValidExperienceConfig,
+  isScheduledToggle,
+  isBadgeConfig,
+  isBadgeLabel,
+  MAX_BADGES,
+  MAX_LABEL_LEN,
+} from './validate';
 
 describe('isValidExperienceConfig', () => {
   it('accepts an empty config', () => {
@@ -71,6 +78,16 @@ describe('isValidExperienceConfig', () => {
 
   it('accepts an empty badges array', () => {
     expect(isValidExperienceConfig({ badges: [] })).toBe(true);
+  });
+
+  it('accepts a badges array at the max size', () => {
+    const badges = Array.from({ length: MAX_BADGES }, () => ({ kind: 'signature', mode: 'manual', enabled: true }));
+    expect(isValidExperienceConfig({ badges })).toBe(true);
+  });
+
+  it('rejects a badges array larger than the max size', () => {
+    const badges = Array.from({ length: MAX_BADGES + 1 }, () => ({ kind: 'signature', mode: 'manual', enabled: true }));
+    expect(isValidExperienceConfig({ badges })).toBe(false);
   });
 });
 
@@ -148,6 +165,18 @@ describe('isBadgeConfig', () => {
 describe('isBadgeLabel', () => {
   it('accepts a bilingual label', () => {
     expect(isBadgeLabel({ en: 'New', he: 'חדש' })).toBe(true);
+  });
+
+  it('accepts labels at the max length', () => {
+    expect(isBadgeLabel({ en: 'a'.repeat(MAX_LABEL_LEN), he: 'ב'.repeat(MAX_LABEL_LEN) })).toBe(true);
+  });
+
+  it('rejects a label whose en exceeds the max length', () => {
+    expect(isBadgeLabel({ en: 'a'.repeat(MAX_LABEL_LEN + 1), he: 'חדש' })).toBe(false);
+  });
+
+  it('rejects a label whose he exceeds the max length', () => {
+    expect(isBadgeLabel({ en: 'New', he: 'ב'.repeat(MAX_LABEL_LEN + 1) })).toBe(false);
   });
 
   it('rejects a label missing "he"', () => {

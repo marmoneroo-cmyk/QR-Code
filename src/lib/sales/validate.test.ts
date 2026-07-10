@@ -10,9 +10,16 @@ describe('isValidSaleInput', () => {
     expect(isValidSaleInput({ slug: 'margarita', units: 10, revenue: 250, category: 'cocktails' })).toBe(true);
   });
 
-  it('accepts zero and negative finite numbers (no range check at this layer)', () => {
+  it('accepts zero units and revenue (the lower bound is inclusive)', () => {
     expect(isValidSaleInput({ slug: 'margarita', units: 0, revenue: 0 })).toBe(true);
-    expect(isValidSaleInput({ slug: 'margarita', units: -1, revenue: -5 })).toBe(true);
+  });
+
+  it('rejects negative units (would corrupt revenue analytics)', () => {
+    expect(isValidSaleInput({ slug: 'margarita', units: -1, revenue: 250 })).toBe(false);
+  });
+
+  it('rejects negative revenue (would corrupt revenue analytics)', () => {
+    expect(isValidSaleInput({ slug: 'margarita', units: 10, revenue: -5 })).toBe(false);
   });
 
   it('rejects non-object rows', () => {

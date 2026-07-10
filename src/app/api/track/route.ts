@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminSupabase } from '@/lib/supabase/server';
 import { log } from '@/lib/log';
+import { readCappedText } from '@/lib/net/bounded';
 import type { Json } from '@/lib/supabase/types';
 import { isTrackEvent, type TrackBatch, type TrackRecord } from '@/lib/tracking/taxonomy';
 import { findCocktailBySlug, menuCategoryOf } from '@/data/cocktail';
@@ -86,21 +87,23 @@ function toRow(restaurantId: string, restaurantType: RestaurantType, e: TrackRec
 export async function POST(request: Request): Promise<NextResponse> {
   // Abuse guards for this PUBLIC, unauthenticated ingest (see follow-up: durable per-IP
   // rate limiting needs Vercel KV / Upstash — these are the infra-free first line):
-  // (1) reject oversized bodies before parsing.
-  const contentLength = Number(request.headers.get('content-length') ?? '0');
-  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
-    return NextResponse.json({ success: false, error: 'payload too large' }, { status: 413 });
-  }
-  // (2) reject clear third-party abuse: a real diner request is same-origin; only an
+  // (1) reject clear third-party abuse: a real diner request is same-origin; only an
   //     explicit cross-site fetch is refused (same-origin/same-site/none stay allowed,
-  //     so fetch + sendBeacon from the menu are never blocked).
+  //     so fetch + sendBeacon from the menu are never blocked). Non-browser clients omit
+  //     the header — the durable defense is the rate limiter above.
   if (request.headers.get('sec-fetch-site') === 'cross-site') {
     return NextResponse.json({ success: false, error: 'forbidden' }, { status: 403 });
+  }
+  // (2) enforce the payload cap WHILE READING — a chunked request omits Content-Length, so
+  //     the header can't be trusted; refuse before parsing an unbounded body.
+  const raw = await readCappedText(request.body, MAX_BODY_BYTES);
+  if (raw === null) {
+    return NextResponse.json({ success: false, error: 'payload too large' }, { status: 413 });
   }
 
   let batch: TrackBatch;
   try {
-    batch = (await request.json()) as TrackBatch;
+    batch = JSON.parse(raw) as TrackBatch;
   } catch {
     return NextResponse.json({ success: false, error: 'invalid json' }, { status: 400 });
   }

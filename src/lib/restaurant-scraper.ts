@@ -1,4 +1,5 @@
 import { safeFetch } from '@/lib/net/ssrf';
+import { readCappedText } from '@/lib/net/bounded';
 
 export type Platform = 'getmood.io' | 'wix' | 'tabit' | 'generic' | 'unknown';
 
@@ -270,7 +271,12 @@ export async function scrapeRestaurant(url: string): Promise<ParsedMenu> {
   if (!res.ok) {
     throw new Error(`HTTP ${res.status} for ${target}`);
   }
-  const html = await res.text();
+  // Cap the response body: a passing (public) host can still stream a huge/slow body to
+  // exhaust memory. 8 MB is generous for any real menu page.
+  const html = await readCappedText(res.body, 8_000_000);
+  if (html === null) {
+    throw new Error(`response too large for ${target}`);
+  }
   const platform = detectPlatform(html, target);
 
   let parsed: { categories: ParsedCategory[]; hasPhotos: boolean };

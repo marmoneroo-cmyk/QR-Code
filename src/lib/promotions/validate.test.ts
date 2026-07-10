@@ -8,6 +8,9 @@ import {
   checkTargetSlugs,
   checkBadgeKind,
   validateInput,
+  MAX_NAME_LEN,
+  MAX_TARGET_SLUGS,
+  MAX_SLUG_LEN,
 } from './validate';
 
 describe('checkName', () => {
@@ -24,6 +27,14 @@ describe('checkName', () => {
     expect(checkName(5)).toBe('name is required');
     expect(checkName(null)).toBe('name is required');
     expect(checkName(undefined)).toBe('name is required');
+  });
+
+  it('accepts a name at the max length', () => {
+    expect(checkName('x'.repeat(MAX_NAME_LEN))).toBeUndefined();
+  });
+
+  it('rejects a name longer than the max length', () => {
+    expect(checkName('x'.repeat(MAX_NAME_LEN + 1))).toBe(`name must be at most ${MAX_NAME_LEN} characters`);
   });
 });
 
@@ -100,6 +111,26 @@ describe('checkTargetSlugs', () => {
 
   it('rejects an array containing a non-string element', () => {
     expect(checkTargetSlugs(['margarita', 5])).toBe('targetSlugs must be an array of strings');
+  });
+
+  it('accepts an array at the max size', () => {
+    expect(checkTargetSlugs(Array.from({ length: MAX_TARGET_SLUGS }, () => 'slug'))).toBeUndefined();
+  });
+
+  it('rejects an array larger than the max size', () => {
+    expect(checkTargetSlugs(Array.from({ length: MAX_TARGET_SLUGS + 1 }, () => 'slug'))).toBe(
+      `targetSlugs must have at most ${MAX_TARGET_SLUGS} entries`,
+    );
+  });
+
+  it('accepts a slug at the max length', () => {
+    expect(checkTargetSlugs(['x'.repeat(MAX_SLUG_LEN)])).toBeUndefined();
+  });
+
+  it('rejects a slug longer than the max length', () => {
+    expect(checkTargetSlugs(['x'.repeat(MAX_SLUG_LEN + 1)])).toBe(
+      `each targetSlug must be at most ${MAX_SLUG_LEN} characters`,
+    );
   });
 });
 
