@@ -5,9 +5,12 @@ import { SHARED_LAYERS, type LayerConfig } from '@/data/cocktail';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
 import { log } from '@/lib/log';
 import { slugify } from '@/lib/heroPrompts';
+import { readJsonCapped } from '@/lib/net/bounded';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
+
+const MAX_BODY = 256_000;
 
 interface GenerateBreakdownBody {
   slug: string;
@@ -57,15 +60,19 @@ export async function POST(req: Request): Promise<Response> {
     return unauthorized(error);
   }
 
-  let body: GenerateBreakdownBody;
-  try {
-    body = await req.json();
-  } catch {
-    return new Response(JSON.stringify({ success: false, error: 'Invalid JSON body' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  const parsed = await readJsonCapped<GenerateBreakdownBody>(req, MAX_BODY);
+  if (!parsed.ok) {
+    return parsed.reason === 'too_large'
+      ? new Response(JSON.stringify({ success: false, error: 'payload too large' }), {
+          status: 413,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      : new Response(JSON.stringify({ success: false, error: 'Invalid JSON body' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
   }
+  const body = parsed.data;
 
   if (!body.slug || !body.name) {
     return new Response(JSON.stringify({ success: false, error: 'slug and name are required' }), {

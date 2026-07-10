@@ -2,9 +2,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { listChanges, logChange, type EntityType } from '@/lib/changes/repository';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
 import { createServerSupabase } from '@/lib/supabase/server';
+import { readJsonCapped } from '@/lib/net/bounded';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+const MAX_BODY = 256_000;
 
 function err(message: string, status = 400): NextResponse {
   return NextResponse.json({ success: false, error: message }, { status });
@@ -27,12 +30,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await requireSession();
     const db = await createServerSupabase();
-    const body = (await req.json()) as {
+    const parsed = await readJsonCapped<{
       summary?: string;
       entityId?: string | null;
       changeType?: string;
       date?: string; // YYYY-MM-DD
-    };
+    }>(req, MAX_BODY);
+    if (!parsed.ok) {
+      return parsed.reason === 'too_large' ? err('payload too large', 413) : err('invalid json');
+    }
+    const body = parsed.data;
     if (!body.summary || !body.summary.trim()) return err('summary is required');
     if (body.date && !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) return err('date must be YYYY-MM-DD');
     const createdAt = body.date ? new Date(`${body.date}T12:00:00Z`).toISOString() : undefined;

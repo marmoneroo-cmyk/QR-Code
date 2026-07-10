@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import { scrapeRestaurant } from '@/lib/restaurant-scraper';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
+import { readJsonCapped } from '@/lib/net/bounded';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
+
+const MAX_BODY = 256_000;
 
 interface Body {
   url: string;
@@ -18,12 +21,13 @@ export async function POST(req: Request): Promise<Response> {
     return unauthorized(error);
   }
 
-  let body: Body;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
+  const parsed = await readJsonCapped<Body>(req, MAX_BODY);
+  if (!parsed.ok) {
+    return parsed.reason === 'too_large'
+      ? NextResponse.json({ success: false, error: 'payload too large' }, { status: 413 })
+      : NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
   }
+  const body = parsed.data;
 
   if (!body.url || typeof body.url !== 'string') {
     return NextResponse.json({ success: false, error: 'url is required' }, { status: 400 });

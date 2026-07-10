@@ -5,9 +5,12 @@ import type { ExperienceConfig } from '@/lib/experience/types';
 import { isValidExperienceConfig } from '@/lib/experience/validate';
 import { requireSession, unauthorized, apiError } from '@/lib/auth/guard';
 import { createServerSupabase } from '@/lib/supabase/server';
+import { readJsonCapped } from '@/lib/net/bounded';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+const MAX_BODY = 256_000;
 
 function err(message: string, status = 400): NextResponse {
   return NextResponse.json({ success: false, error: message }, { status });
@@ -33,7 +36,11 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await requireSession();
     const db = await createServerSupabase();
-    const body = (await req.json()) as { slug?: string; config?: ExperienceConfig };
+    const parsed = await readJsonCapped<{ slug?: string; config?: ExperienceConfig }>(req, MAX_BODY);
+    if (!parsed.ok) {
+      return parsed.reason === 'too_large' ? err('payload too large', 413) : err('invalid json');
+    }
+    const body = parsed.data;
     if (typeof body.slug !== 'string' || !body.slug) return err('slug is required');
     if (typeof body.config !== 'object' || body.config === null) return err('config is required');
     if (!isValidExperienceConfig(body.config)) return err('invalid config', 400);

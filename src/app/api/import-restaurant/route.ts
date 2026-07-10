@@ -4,6 +4,7 @@ import { SHARED_LAYERS, type Category, type CocktailConfig } from '@/data/cockta
 import { inferKind } from '@/lib/menu/classify';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
 import { log } from '@/lib/log';
+import { readJsonCapped } from '@/lib/net/bounded';
 
 export const runtime = 'nodejs';
 // Vercel Hobby plan caps serverless maxDuration at 300s. Bulk imports that
@@ -16,6 +17,8 @@ export const maxDuration = 300;
  * There we return the hero as an inline data URL (the drafts store keeps it
  * in localStorage); locally we keep writing real files to public/drafts.
  */
+const MAX_BODY = 256_000;
+
 const IS_SERVERLESS = Boolean(process.env.VERCEL);
 
 interface ItemInput {
@@ -155,15 +158,19 @@ export async function POST(req: Request): Promise<Response> {
     return unauthorized(error);
   }
 
-  let body: ImportBody;
-  try {
-    body = await req.json();
-  } catch {
-    return new Response(JSON.stringify({ success: false, error: 'Invalid JSON body' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  const parsed = await readJsonCapped<ImportBody>(req, MAX_BODY);
+  if (!parsed.ok) {
+    return parsed.reason === 'too_large'
+      ? new Response(JSON.stringify({ success: false, error: 'payload too large' }), {
+          status: 413,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      : new Response(JSON.stringify({ success: false, error: 'Invalid JSON body' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
   }
+  const body = parsed.data;
 
   if (!body.restaurantSlug || !body.restaurantName || !Array.isArray(body.items)) {
     return new Response(

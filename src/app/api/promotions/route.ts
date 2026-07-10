@@ -18,9 +18,12 @@ import {
 } from '@/lib/promotions/validate';
 import { requireSession, unauthorized, apiError } from '@/lib/auth/guard';
 import { createServerSupabase } from '@/lib/supabase/server';
+import { readJsonCapped } from '@/lib/net/bounded';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+const MAX_BODY = 256_000;
 
 function err(message: string, status = 400): NextResponse {
   return NextResponse.json({ success: false, error: message }, { status });
@@ -48,7 +51,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await requireSession();
     const db = await createServerSupabase();
-    const body = (await req.json()) as Record<string, unknown>;
+    const parsed = await readJsonCapped<Record<string, unknown>>(req, MAX_BODY);
+    if (!parsed.ok) {
+      return parsed.reason === 'too_large' ? err('payload too large', 413) : err('invalid json');
+    }
+    const body = parsed.data;
     const input = validateInput(body);
     if (typeof input === 'string') return err(input);
     const data = await createPromotion(session.restaurantSlug, input, db);
@@ -74,7 +81,11 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await requireSession();
     const db = await createServerSupabase();
-    const body = (await req.json()) as Record<string, unknown>;
+    const parsed = await readJsonCapped<Record<string, unknown>>(req, MAX_BODY);
+    if (!parsed.ok) {
+      return parsed.reason === 'too_large' ? err('payload too large', 413) : err('invalid json');
+    }
+    const body = parsed.data;
     if (typeof body.id !== 'string') return err('id is required');
     const { id, restaurant: _ignoredTenant, ...patch } = body;
     // Only fields actually present in the PATCH body are checked, using the

@@ -43,3 +43,21 @@ export async function readCappedText(
   }
   return new TextDecoder().decode(merged);
 }
+
+export type CappedJson<T> = { ok: true; data: T } | { ok: false; reason: 'too_large' | 'invalid_json' };
+
+/**
+ * Read + JSON-parse a request body with a size ceiling. The standard replacement for a bare
+ * `await request.json()` on any route that accepts a body — that never trusts the declared
+ * length and refuses an oversized payload before parsing. Callers map the `reason` to their
+ * own error response (413 for `too_large`, 400 for `invalid_json`).
+ */
+export async function readJsonCapped<T>(request: Request, maxBytes: number): Promise<CappedJson<T>> {
+  const raw = await readCappedText(request.body, maxBytes);
+  if (raw === null) return { ok: false, reason: 'too_large' };
+  try {
+    return { ok: true, data: JSON.parse(raw) as T };
+  } catch {
+    return { ok: false, reason: 'invalid_json' };
+  }
+}

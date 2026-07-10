@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { readCappedText } from './bounded';
+import { readCappedText, readJsonCapped } from './bounded';
+
+function postOf(body: string): Request {
+  return new Request('http://localhost/x', { method: 'POST', body });
+}
 
 function streamOf(...parts: string[]): ReadableStream<Uint8Array> {
   const enc = new TextEncoder();
@@ -32,5 +36,22 @@ describe('readCappedText', () => {
 
   it('decodes multi-byte UTF-8 correctly', async () => {
     expect(await readCappedText(streamOf('₪ שלום'), 100)).toBe('₪ שלום');
+  });
+});
+
+describe('readJsonCapped', () => {
+  it('parses a valid JSON body under the cap', async () => {
+    const r = await readJsonCapped<{ a: number }>(postOf('{"a":1}'), 100);
+    expect(r).toEqual({ ok: true, data: { a: 1 } });
+  });
+
+  it('refuses an oversized body before parsing', async () => {
+    const r = await readJsonCapped(postOf(JSON.stringify({ x: 'a'.repeat(200) })), 50);
+    expect(r).toEqual({ ok: false, reason: 'too_large' });
+  });
+
+  it('reports invalid JSON distinctly', async () => {
+    const r = await readJsonCapped(postOf('not json'), 100);
+    expect(r).toEqual({ ok: false, reason: 'invalid_json' });
   });
 });
