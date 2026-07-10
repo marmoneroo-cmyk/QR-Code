@@ -10,6 +10,8 @@ export default defineConfig({
   test: {
     alias: {
       'server-only': fileURLToPath(new URL('./test/setup/server-only-stub.ts', import.meta.url)),
+      // Mirror the tsconfig `@/*` path so UI components (which import via `@/…`) resolve in tests.
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
 });

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { EmptyState, ErrorState } from './premium';
+import { EmptyState, ErrorState, StatBlock, PanelHeader } from './premium';
 
 // Unmount between tests so queries don't see a previous test's DOM (no vitest globals set,
 // so Testing Library's automatic afterEach-cleanup isn't registered — do it explicitly).
@@ -39,5 +39,21 @@ describe('EmptyState', () => {
     render(<EmptyState title="No data yet" hint="It appears once guests arrive" />);
     expect(screen.getByText('No data yet')).toBeTruthy();
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+});
+
+describe('StatBlock', () => {
+  it('renders the display value and the tracked label', () => {
+    render(<StatBlock value="1,240" label="Orders" />);
+    expect(screen.getByText('1,240')).toBeTruthy();
+    expect(screen.getByText('Orders')).toBeTruthy();
+  });
+});
+
+describe('PanelHeader', () => {
+  it('renders the label as a heading, with no action link when href/cta are omitted', () => {
+    render(<PanelHeader label="Top items" />);
+    expect(screen.getByRole('heading', { name: 'Top items' })).toBeTruthy();
+    expect(screen.queryByRole('link')).toBeNull();
   });
 });
