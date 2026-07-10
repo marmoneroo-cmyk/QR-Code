@@ -9,6 +9,8 @@ import { Skeleton, SkeletonGrid, LiveDot, AreaChart } from '@/components/ui/data
 import { Stagger, staggerItem, Reveal } from '@/components/ui/motion';
 import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
 import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
+import { ReadinessNote } from '@/components/ui/value';
+import { useReadiness } from '@/lib/useReadiness';
 import { useLang } from '@/lib/useLang';
 import { getAccent, findCocktailBySlug } from '@/data/cocktail';
 import { totalPotential } from '@/lib/value/potential';
@@ -104,6 +106,7 @@ export default function ExecutiveSummaryPage() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const readiness = useReadiness();
 
   const load = useCallback(async () => {
     try {
@@ -261,6 +264,10 @@ export default function ExecutiveSummaryPage() {
 
       {hasData && hero && (
         <div className="flex flex-col gap-12" dir={isHe ? 'rtl' : 'ltr'}>
+          {/* Honesty caveat: while the dataset is still thin, say engine findings are
+              provisional rather than presenting them as settled. Only shown alongside real content. */}
+          <ReadinessNote readiness={readiness} lang={lang} tone="expert" />
+
           {/* MONEY HERO — open opportunity value + actions today (honest: quantified upside only) */}
           <MoneyHero potential={potential} t={t} isHe={isHe} />
 

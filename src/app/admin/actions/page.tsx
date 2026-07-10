@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { Target, Martini, Clock, Check, ChevronDown, RotateCcw, CheckCircle2, ArrowRight, ArrowLeft, PartyPopper } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
-import { PotentialValue, ConfidenceMeter } from '@/components/ui/value';
+import { PotentialValue, ConfidenceMeter, ReadinessNote } from '@/components/ui/value';
+import { useReadiness } from '@/lib/useReadiness';
 import { buildActions, type CoachAction } from '@/lib/value/actions';
 import { splitFocusActions, type OppStatusMap } from '@/lib/value/focus';
 import { buildMenuBenchmark } from '@/lib/value/potential';
@@ -120,6 +121,7 @@ export function ActionsPanel() {
   const [items, setItems] = useState<MenuEngineeringItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const readiness = useReadiness();
 
   const load = useCallback(async (initial: boolean) => {
     if (initial) setLoading(true);
@@ -224,6 +226,10 @@ export function ActionsPanel() {
 
         {!loading && !error && (
           <>
+            {/* Honesty caveat: while the dataset is still thin, say these picks are
+                preliminary rather than presenting them as settled. Only shown alongside real content. */}
+            <ReadinessNote readiness={readiness} lang={lang} />
+
             {!hasAnyFocus && <EmptyState isHe={isHe} />}
 
             {allDone && <AllDoneState isHe={isHe} headFont={headFont} />}

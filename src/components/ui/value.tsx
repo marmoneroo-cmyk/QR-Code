@@ -1,11 +1,58 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { TrendingUp, Sunrise } from 'lucide-react';
 import type { RevenuePotential } from '@/lib/value/potential';
+import type { Readiness } from '@/lib/useReadiness';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
+
+/**
+ * Honesty caveat for engine-claim surfaces. When the dataset isn't ready yet, it says
+ * the findings are preliminary rather than presenting them as settled — self-hiding when
+ * the data is ready (or unknown). `tone` picks the voice: `owner` (hospitality) for the
+ * Act group, `expert` for the Advanced/Analytics layer. Shared so every surface tells the
+ * same honest story (one Business Brain, no per-screen copy drift).
+ */
+export function ReadinessNote({
+  readiness,
+  lang,
+  tone = 'owner',
+}: {
+  readiness: Readiness | null;
+  lang: 'en' | 'he';
+  tone?: 'owner' | 'expert';
+}) {
+  if (!readiness || readiness.ready) return null;
+  const d = readiness.consecutiveReadyDays;
+  const r = readiness.requiredDays;
+  const copy =
+    tone === 'expert'
+      ? {
+          en: `Signal readiness ${d}/${r} ready days — engine findings are still provisional.`,
+          he: `מוכנות אות ${d}/${r} ימים — ממצאי המנוע עדיין ראשוניים.`,
+        }
+      : {
+          en: `Still learning your guests — these picks sharpen as more orders come in (day ${d} of ${r}).`,
+          he: `עדיין לומדים את האורחים שלכם — ההמלצות יתחדדו ככל שיצטברו עוד הזמנות (יום ${d} מתוך ${r}).`,
+        };
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      dir={lang === 'he' ? 'rtl' : 'ltr'}
+      className="mb-6 flex items-center gap-3 rounded-2xl border border-amber-200/15 bg-amber-100/[0.03] px-4 py-3"
+    >
+      <Sunrise size={15} className="shrink-0 text-amber-200/70" strokeWidth={1.6} />
+      <p className="text-[12px] leading-relaxed text-amber-100/70" style={{ fontFamily: sans }}>
+        {copy[lang]}
+      </p>
+    </motion.div>
+  );
+}
 
 /**
  * Prominent, HONEST revenue-upside block. Headlines the estimated extra revenue,
