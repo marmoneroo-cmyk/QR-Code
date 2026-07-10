@@ -71,10 +71,10 @@ export async function getSignalVerification(restaurantSlug: string = TENANT_SLUG
 
     let hasVisitorColumn = true;
     let rows: Row[];
-    const withCol = await supabase.from('events').select(`${SELECT}, visitor_id`).eq('restaurant_id', restaurant.id).limit(50000);
+    const withCol = await supabase.from('events').select(`${SELECT}, visitor_id`).eq('restaurant_id', restaurant.id).order('created_at', { ascending: false }).limit(50000);
     if (withCol.error) {
       hasVisitorColumn = false;
-      const without = await supabase.from('events').select(SELECT).eq('restaurant_id', restaurant.id).limit(50000);
+      const without = await supabase.from('events').select(SELECT).eq('restaurant_id', restaurant.id).order('created_at', { ascending: false }).limit(50000);
       rows = (without.data ?? []) as Row[];
     } else {
       rows = (withCol.data ?? []) as Row[];

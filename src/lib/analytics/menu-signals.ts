@@ -53,6 +53,7 @@ export async function getMenuSignals(restaurantSlug = 'diner'): Promise<MenuSign
       .select('event_name, cocktail_slug, session_id, visitor_id, value_num, metadata')
       .eq('restaurant_id', restId)
       .in('event_name', EVENT_NAMES)
+      .order('created_at', { ascending: false })
       .limit(20000),
     listSalesByItem(restaurantSlug),
   ]);

@@ -74,6 +74,7 @@ export async function getTableIntelligence(
       .from('events')
       .select('event_name, table_id, session_id, cocktail_slug, value_num, metadata')
       .eq('restaurant_id', restaurant.id)
+      .order('created_at', { ascending: false })
       .limit(EVENT_LIMIT);
     if (error || !data) return EMPTY;
 

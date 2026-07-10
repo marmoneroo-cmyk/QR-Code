@@ -70,6 +70,7 @@ export async function getExperimentResults(
       .from('events')
       .select('event_name, session_id, metadata')
       .eq('restaurant_id', restaurant.id)
+      .order('created_at', { ascending: false })
       .limit(50000);
     if (!data) return fallback;
 

@@ -43,6 +43,7 @@ export async function getCoViews(
       .select('event_name, cocktail_slug, session_id')
       .eq('restaurant_id', restaurant.id)
       .eq('event_name', 'cocktail_opened')
+      .order('created_at', { ascending: false })
       .limit(50000);
     if (error || !data || data.length === 0) return emptyRecommendations();
 

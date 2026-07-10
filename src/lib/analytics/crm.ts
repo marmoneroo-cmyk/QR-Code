@@ -52,6 +52,7 @@ export async function getCrmSignals(
       .from('events')
       .select('event_name, language, device_type, session_id, occurred_at, created_at')
       .eq('restaurant_id', restaurant.id)
+      .order('created_at', { ascending: false })
       .limit(EVENT_LIMIT);
     if (error || !events) return emptySignals();
 

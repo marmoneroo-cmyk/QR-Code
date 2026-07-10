@@ -80,6 +80,7 @@ export async function getClosedLoop(restaurantSlug = 'diner'): Promise<ClosedLoo
     .eq('restaurant_id', restId)
     .in('cocktail_slug', slugs)
     .in('event_name', eventNames)
+    .order('created_at', { ascending: false })
     .limit(20000);
   if (error) throw new Error(error.message);
   const events = (data ?? []) as EvRow[];

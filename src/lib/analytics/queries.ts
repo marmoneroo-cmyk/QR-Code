@@ -155,6 +155,7 @@ export async function getAnalyticsOverview(
       .from('events')
       .select('event_name, cocktail_slug, value_num, metadata, session_id, occurred_at, created_at')
       .eq('restaurant_id', restaurant.id)
+      .order('created_at', { ascending: false })
       .limit(50000);
     if (error || !data || data.length === 0) return emptyOverview();
 
@@ -432,6 +433,7 @@ export async function getMenuEngineering(
       .from('events')
       .select('event_name, cocktail_slug, value_num, session_id')
       .eq('restaurant_id', restaurant.id)
+      .order('created_at', { ascending: false })
       .limit(50000);
 
     const agg = new Map<string, EngagementSets>();

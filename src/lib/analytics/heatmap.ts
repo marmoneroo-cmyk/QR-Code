@@ -29,6 +29,7 @@ export async function getAttentionHeatmap(restaurantSlug = 'diner'): Promise<Att
     .select('metadata, value_num')
     .eq('restaurant_id', restId)
     .eq('event_name', 'section_attention')
+    .order('created_at', { ascending: false })
     .limit(10000);
   if (error) throw new Error(error.message);
 
