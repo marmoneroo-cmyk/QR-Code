@@ -3,6 +3,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
+import { useReducedMotion } from 'framer-motion';
 import * as THREE from 'three';
 import type { LayerConfig } from '@/data/cocktail';
 
@@ -87,6 +88,8 @@ function CocktailLayer({ config, index, isActive, isDimmed, onHover, tiltRef }: 
     return 1;
   }, [texture]);
 
+  const reduce = useReducedMotion();
+
   useFrame(({ pointer, clock }) => {
     if (!meshRef.current) return;
 
@@ -103,7 +106,8 @@ function CocktailLayer({ config, index, isActive, isDimmed, onHover, tiltRef }: 
     mouseCurrent.current.y += (swayY - mouseCurrent.current.y) * lerpFactor;
 
     // Vertical-only float bob (no horizontal drift) keeps items on a straight line.
-    const floatY = Math.sin(t * config.floatSpeed + index * 0.8) * config.floatAmp;
+    // Stilled for reduced-motion guests — pointer/tilt sway stays (it's user-controlled).
+    const floatY = reduce ? 0 : Math.sin(t * config.floatSpeed + index * 0.8) * config.floatAmp;
 
     meshRef.current.position.x = mouseCurrent.current.x;
     meshRef.current.position.y = config.y + mouseCurrent.current.y + floatY;

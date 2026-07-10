@@ -2,14 +2,17 @@
 
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { useReducedMotion } from 'framer-motion';
 import * as THREE from 'three';
 
 export function LuxuryLighting() {
   const keyLightRef = useRef<THREE.DirectionalLight>(null);
+  const reduce = useReducedMotion();
 
   useFrame(({ clock }) => {
     if (keyLightRef.current) {
-      const t = clock.getElapsedTime();
+      // Freeze the light's cinematic drift for reduced-motion guests (t=0 → static base).
+      const t = reduce ? 0 : clock.getElapsedTime();
       keyLightRef.current.position.x = 3 + Math.sin(t * 0.15) * 0.5;
       keyLightRef.current.position.y = 4 + Math.cos(t * 0.1) * 0.3;
       keyLightRef.current.intensity = 1.8 + Math.sin(t * 0.2) * 0.1;
