@@ -25,6 +25,9 @@ const serifHe = 'var(--font-frank-ruhl, serif)';
 /** Auto-refresh cadence — the coach is a live surface that re-reads on each tick. */
 const POLL_MS = 20_000;
 
+/** Dataset-readiness slice from /api/signals/verify — drives the honesty caveat. */
+type Readiness = { ready: boolean; consecutiveReadyDays: number; requiredDays: number; blockedBy: string[] };
+
 /** The amber "do it" pill — the single most important affordance on the screen. */
 const primaryBtn =
   'group inline-flex items-center gap-2.5 rounded-full bg-amber-100 px-7 py-3.5 text-[13px] font-semibold tracking-[0.08em] text-black transition-all duration-300 hover:bg-amber-200 hover:gap-3.5 hover:shadow-[0_0_40px_rgba(251,191,36,0.35)]';
@@ -39,6 +42,7 @@ export function CoachPanel() {
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState(false);
+  const [readiness, setReadiness] = useState<Readiness | null>(null);
 
   const load = useCallback(async () => {
     setError(false);
@@ -78,6 +82,25 @@ export function CoachPanel() {
     };
   }, [load]);
 
+  // Dataset readiness is slow-changing (daily) — fetch it ONCE, off the 20s poll, so
+  // the signal-verification scan never blocks the primary coach content. Best-effort:
+  // a failure just hides the honesty caveat.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch('/api/signals/verify', { cache: 'no-store' });
+        const json: { success: boolean; data?: { readiness?: Readiness } } = await res.json();
+        if (!cancelled) setReadiness(json.success && json.data?.readiness ? json.data.readiness : null);
+      } catch {
+        /* best-effort context — hide the caveat on failure */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Achievable benchmark from the menu's OWN medians (never fabricated) + slug lookup,
   // so each action carries its real, honest revenue estimate.
   const bench = useMemo(() => buildMenuBenchmark(items), [items]);
@@ -98,6 +121,11 @@ export function CoachPanel() {
       <div className="mb-6 flex justify-end flex-wrap gap-3" dir={isHe ? 'rtl' : 'ltr'}>
         <LiveDot label={isHe ? 'חי' : 'Live'} />
       </div>
+      {/* Honesty caveat: while the dataset is still thin, say the picks are preliminary
+          rather than presenting them as settled. Only shown alongside real content. */}
+      {!showInitialLoading && top && readiness && !readiness.ready && (
+        <ReadinessNote days={readiness.consecutiveReadyDays} required={readiness.requiredDays} isHe={isHe} />
+      )}
       {showInitialLoading ? (
         <CoachSkeleton />
       ) : top ? (
@@ -125,6 +153,27 @@ export default function CoachPage() {
     >
       <CoachPanel />
     </AdminShell>
+  );
+}
+
+/* ── Honesty caveat — a quiet, non-blocking "still learning" note in hospitality voice ── */
+
+function ReadinessNote({ days, required, isHe }: { days: number; required: number; isHe: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      dir={isHe ? 'rtl' : 'ltr'}
+      className="mb-6 flex items-center gap-3 rounded-2xl border border-amber-200/15 bg-amber-100/[0.03] px-4 py-3"
+    >
+      <Sunrise size={15} className="shrink-0 text-amber-200/70" strokeWidth={1.6} />
+      <p className="text-[12px] leading-relaxed text-amber-100/70" style={{ fontFamily: sans }}>
+        {isHe
+          ? `עדיין לומדים את האורחים שלכם — ההמלצות יתחדדו ככל שיצטברו עוד הזמנות (יום ${days} מתוך ${required}).`
+          : `Still learning your guests — these picks sharpen as more orders come in (day ${days} of ${required}).`}
+      </p>
+    </motion.div>
   );
 }
 
