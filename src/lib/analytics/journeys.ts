@@ -1,5 +1,6 @@
 import 'server-only';
 import { createAdminSupabase } from '@/lib/supabase/server';
+import { log } from '@/lib/log';
 import { MENU } from '@/data/cocktail';
 import type { JourneyStep, SessionJourney, SessionJourneys } from './journey-types';
 
@@ -128,7 +129,11 @@ export async function getSessionJourneys(limit = 40, restaurantSlug: string = TE
 
     sessions.sort((a, b) => new Date(b.end).getTime() - new Date(a.end).getTime());
     return { sessions: sessions.slice(0, limit), hasData: true };
-  } catch {
+  } catch (e) {
+    log.error('analytics', 'getSessionJourneys failed', {
+      scope: 'getSessionJourneys',
+      error: e instanceof Error ? e.message : String(e),
+    });
     return { sessions: [], hasData: false };
   }
 }

@@ -1,5 +1,6 @@
 import 'server-only';
 import { createAdminSupabase } from '@/lib/supabase/server';
+import { log } from '@/lib/log';
 import { MENU } from '@/data/cocktail';
 import type { TableIntelligence, TableRow } from './tables-types';
 
@@ -169,7 +170,11 @@ export async function getTableIntelligence(
       },
       hasData,
     };
-  } catch {
+  } catch (e) {
+    log.error('analytics', 'getTableIntelligence failed', {
+      scope: 'getTableIntelligence',
+      error: e instanceof Error ? e.message : String(e),
+    });
     return EMPTY;
   }
 }

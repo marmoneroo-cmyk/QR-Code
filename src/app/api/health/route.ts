@@ -23,7 +23,32 @@ export async function GET(): Promise<NextResponse> {
     db = 'down'; // network/DNS failure (paused project) or missing env
   }
 
-  const body = { status: db === 'ok' ? 'ok' : 'degraded', checks: { db }, ms: Date.now() - started };
+  // Best-effort freshness signal: seconds since the newest event landed. Independent of
+  // the `db` check above and never throws — a missing table or transient error just
+  // leaves this null instead of failing the whole health check.
+  let lastEventAgeSeconds: number | null = null;
+  try {
+    const sb = createAdminSupabase();
+    const { data, error } = await sb
+      .from('events')
+      .select('created_at')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    const latest = data?.[0]?.created_at;
+    if (!error && latest) {
+      const t = new Date(latest).getTime();
+      if (Number.isFinite(t)) lastEventAgeSeconds = Math.round((Date.now() - t) / 1000);
+    }
+  } catch {
+    lastEventAgeSeconds = null;
+  }
+
+  const body = {
+    status: db === 'ok' ? 'ok' : 'degraded',
+    checks: { db },
+    lastEventAgeSeconds,
+    ms: Date.now() - started,
+  };
   if (db === 'down') {
     log.error('health', 'db connectivity check failed');
     return NextResponse.json(body, { status: 503 });

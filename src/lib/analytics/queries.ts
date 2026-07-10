@@ -1,6 +1,7 @@
 import 'server-only';
 import { median } from '../math';
 import { createAdminSupabase } from '@/lib/supabase/server';
+import { log } from '@/lib/log';
 import { MENU, getEconomics } from '@/data/cocktail';
 import type {
   AnalyticsOverview,
@@ -104,7 +105,11 @@ export async function getCocktailFunnels(restaurantSlug: string = TENANT_SLUG): 
     return base
       .map((r) => ({ ...r, flag: flagOf(r) }))
       .sort((a, b) => b.seen - a.seen);
-  } catch {
+  } catch (e) {
+    log.error('analytics', 'getCocktailFunnels failed', {
+      scope: 'getCocktailFunnels',
+      error: e instanceof Error ? e.message : String(e),
+    });
     return [];
   }
 }
@@ -258,7 +263,11 @@ export async function getAnalyticsOverview(
       topItems,
       hasData: totalViews > 0 || totalOrders > 0,
     };
-  } catch {
+  } catch (e) {
+    log.error('analytics', 'getAnalyticsOverview failed', {
+      scope: 'getAnalyticsOverview',
+      error: e instanceof Error ? e.message : String(e),
+    });
     return emptyOverview();
   }
 }
@@ -318,7 +327,11 @@ export async function getRawEvents(
     const eventNames = [...new Set((names ?? []).map((n) => n.event_name).filter((x): x is string => Boolean(x)))].sort();
 
     return { events, eventNames, total: events.length };
-  } catch {
+  } catch (e) {
+    log.error('analytics', 'getRawEvents failed', {
+      scope: 'getRawEvents',
+      error: e instanceof Error ? e.message : String(e),
+    });
     return empty;
   }
 }
@@ -377,7 +390,11 @@ export async function getIntegrityReport(restaurantSlug: string = TENANT_SLUG): 
       issues,
       allPassed: checks.every((c) => c.passed),
     };
-  } catch {
+  } catch (e) {
+    log.error('analytics', 'getIntegrityReport failed', {
+      scope: 'getIntegrityReport',
+      error: e instanceof Error ? e.message : String(e),
+    });
     return empty;
   }
 }
@@ -496,7 +513,11 @@ export async function getMenuEngineering(
       medianMargin: medMargin,
       hasData: (data ?? []).length > 0,
     };
-  } catch {
+  } catch (e) {
+    log.error('analytics', 'getMenuEngineering failed', {
+      scope: 'getMenuEngineering',
+      error: e instanceof Error ? e.message : String(e),
+    });
     return empty;
   }
 }

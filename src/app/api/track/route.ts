@@ -114,7 +114,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     const restaurantId = await resolveRestaurantId(slug);
     if (!restaurantId) {
-      // Unknown tenant — accept silently so the client never retries/errors.
+      // Unknown tenant — accept silently so the client never retries/errors,
+      // but log so a real drop (typo'd slug, bad deploy) is still visible.
+      log.warn('track', 'unknown restaurant slug', { slug });
       return NextResponse.json({ success: true, inserted: 0 });
     }
     const restaurantType = restaurantTypeFor(slug);

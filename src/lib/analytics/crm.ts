@@ -1,5 +1,6 @@
 import 'server-only';
 import { createAdminSupabase } from '@/lib/supabase/server';
+import { log } from '@/lib/log';
 import type { CrmSignals } from './crm-types';
 
 const TENANT_SLUG = 'diner';
@@ -114,7 +115,11 @@ export async function getCrmSignals(
       orderingSessions,
       hasData: totalSessions > 0,
     };
-  } catch {
+  } catch (e) {
+    log.error('analytics', 'getCrmSignals failed', {
+      scope: 'getCrmSignals',
+      error: e instanceof Error ? e.message : String(e),
+    });
     return emptySignals();
   }
 }

@@ -1,5 +1,6 @@
 import 'server-only';
 import { createAdminSupabase } from '@/lib/supabase/server';
+import { log } from '@/lib/log';
 import type {
   HealthItem, HealthStatus, PercentileStats, QualityCheck, SignalBlock, SignalVerification,
 } from './signals-types';
@@ -290,7 +291,11 @@ export async function getSignalVerification(restaurantSlug: string = TENANT_SLUG
       instrumentationHealth: health,
       quality,
     };
-  } catch {
+  } catch (e) {
+    log.error('analytics', 'getSignalVerification failed', {
+      scope: 'getSignalVerification',
+      error: e instanceof Error ? e.message : String(e),
+    });
     return empty;
   }
 }
