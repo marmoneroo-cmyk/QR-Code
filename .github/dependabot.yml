@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # npm dependencies — weekly, grouped so routine minor/patch bumps arrive as ONE PR
+  # (security advisories still open their own PRs immediately regardless of grouping).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+
+  # Keep the CI workflow's actions (checkout, setup-node) current + patched.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
