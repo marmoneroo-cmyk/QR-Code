@@ -1,4 +1,5 @@
 import type { MenuEngineeringItem } from '../analytics/types';
+import { median } from '../math';
 
 /**
  * Honest revenue-potential estimation.
@@ -36,13 +37,6 @@ export interface RevenuePotential {
   basisHe: string;
   /** Tied to sample size, not to the size of the number. */
   confidence: 'low' | 'medium' | 'high';
-}
-
-function median(nums: number[]): number {
-  if (nums.length === 0) return 0;
-  const s = [...nums].sort((a, b) => a - b);
-  const mid = Math.floor(s.length / 2);
-  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 }
 
 /** Build the benchmark (achievable targets) from the menu's own real data. */

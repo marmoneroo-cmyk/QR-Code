@@ -8,6 +8,7 @@ import type {
   Bilingual,
   OpportunityOptions,
 } from './types';
+import { clamp01, median } from '../math';
 
 const TYPE_WEIGHT: Record<OpportunityType, number> = {
   fix_offer: 100,
@@ -16,13 +17,6 @@ const TYPE_WEIGHT: Record<OpportunityType, number> = {
   promotion_candidate: 70,
   reengage_returning: 60,
 };
-
-function median(nums: number[]): number {
-  if (nums.length === 0) return 0;
-  const s = [...nums].sort((a, b) => a - b);
-  const m = Math.floor(s.length / 2);
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
-}
 
 function confidenceFrom(sample: number, minSample: number): Confidence {
   if (sample >= minSample * 3) return 'high';
@@ -33,14 +27,6 @@ function confidenceFrom(sample: number, minSample: number): Confidence {
 function factor(c: Confidence): number {
   return c === 'high' ? 3 : c === 'medium' ? 2 : 1;
 }
-
-/**
- * Clamp a rate to [0,1]. Rates can legitimately exceed 1 because impressions
- * (menu scroll-into-view) undercount: guests reach a drink via direct QR/links
- * or "also viewed", and favorite/share from the card without opening the detail.
- * We never display a >100% rate.
- */
-const clamp01 = (x: number): number => Math.min(1, Math.max(0, x));
 
 const ev = (en: string, he: string, value: string | number): Evidence => ({
   label: { en, he },

@@ -10,6 +10,7 @@
  */
 import { DEFAULT_THRESHOLDS, type FunnelThresholds } from './thresholds';
 import { sampleConfidence } from './sample';
+import { clamp01 } from '../math';
 
 /** Version of the diagnosis engine itself (the v3 intent-ladder brain). Bump when the
  *  LOGIC changes, so an old verdict says which engine produced it — and you can tell
@@ -87,7 +88,6 @@ export interface Recommendation {
 
 const rate = (a: number, b: number): number => (b > 0 ? a / b : 0);
 const round2 = (n: number): number => Math.round(n * 100) / 100;
-const clamp01 = (n: number): number => Math.max(0, Math.min(1, n));
 const pct = (r: number): string => `${Math.round(r * 100)}%`;
 
 export function diagnoseFunnel(f: FunnelShape, t: FunnelThresholds = DEFAULT_THRESHOLDS): Recommendation {
