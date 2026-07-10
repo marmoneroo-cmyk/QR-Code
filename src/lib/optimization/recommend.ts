@@ -1,3 +1,5 @@
+import { formatILS } from '../format';
+import { confidenceBucket } from '../menu-intel/thresholds';
 import type { MenuEngineeringItem } from '../analytics/types';
 import type { Recommendation, RecAction, Confidence, Bilingual, RecommendOptions } from './types';
 
@@ -14,13 +16,7 @@ const ACTION_WEIGHT: Record<RecAction, number> = {
   keep_position: 20,
 };
 
-const ils = (n: number): string => `₪${Math.round(n)}`;
-
-function confidenceFromViews(views: number, minSample: number): Confidence {
-  if (views >= minSample * 3) return 'high';
-  if (views >= minSample) return 'medium';
-  return 'low';
-}
+const ils = formatILS;
 
 function confidenceFactor(c: Confidence): number {
   return c === 'high' ? 3 : c === 'medium' ? 2 : 1;
@@ -40,7 +36,7 @@ export function buildRecommendations(
   const recs: Recommendation[] = [];
 
   for (const it of items) {
-    const confidence = confidenceFromViews(it.views, minSample);
+    const confidence = confidenceBucket(it.views, minSample);
     const lowData = confidence === 'low';
 
     const make = (

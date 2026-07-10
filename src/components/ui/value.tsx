@@ -2,12 +2,13 @@
 
 import { motion } from 'framer-motion';
 import { TrendingUp, Sunrise } from 'lucide-react';
+import { formatILS } from '@/lib/format';
 import type { RevenuePotential } from '@/lib/value/potential';
 import type { Readiness } from '@/lib/useReadiness';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
-const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
+const ils = formatILS;
 
 /**
  * Honesty caveat for engine-claim surfaces. When the dataset isn't ready yet, it says

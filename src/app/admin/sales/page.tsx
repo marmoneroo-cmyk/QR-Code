@@ -9,12 +9,13 @@ import { Stagger, staggerItem } from '@/components/ui/motion';
 import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
+import { formatILS } from '@/lib/format';
 import type { SaleInput, SalesByItem } from '@/lib/sales/repository';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 const inputCls = 'bg-black/40 border border-white/12 rounded-xl px-3.5 py-2.5 text-white text-sm outline-none focus:border-amber-200/40 transition-colors';
-const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
+const ils = formatILS;
 
 function parseCsv(text: string): SaleInput[] {
   return text

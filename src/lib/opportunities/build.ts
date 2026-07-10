@@ -9,6 +9,7 @@ import type {
   OpportunityOptions,
 } from './types';
 import { clamp01, median } from '../math';
+import { confidenceBucket } from '../menu-intel/thresholds';
 
 const TYPE_WEIGHT: Record<OpportunityType, number> = {
   fix_offer: 100,
@@ -17,12 +18,6 @@ const TYPE_WEIGHT: Record<OpportunityType, number> = {
   promotion_candidate: 70,
   reengage_returning: 60,
 };
-
-function confidenceFrom(sample: number, minSample: number): Confidence {
-  if (sample >= minSample * 3) return 'high';
-  if (sample >= minSample) return 'medium';
-  return 'low';
-}
 
 function factor(c: Confidence): number {
   return c === 'high' ? 3 : c === 'medium' ? 2 : 1;
@@ -50,7 +45,7 @@ export function buildOpportunities(signals: MenuSignals, opts: OpportunityOption
     action: Bilingual,
     sample: number,
   ): void => {
-    const confidence = confidenceFrom(sample, minSample);
+    const confidence = confidenceBucket(sample, minSample);
     out.push({
       slug: it.slug,
       type,

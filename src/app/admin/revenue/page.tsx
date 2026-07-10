@@ -16,12 +16,13 @@ import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { HoverLift, Tilt, AccentWash, FrameBreakImage, GlassSheen } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { GlassCard, EmptyState, CtaPill } from '@/components/ui/premium';
+import { formatILS } from '@/lib/format';
 import type { AnalyticsOverview, MenuEngineeringItem } from '@/lib/analytics/types';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 const heSerif = 'var(--font-frank-ruhl, serif)';
-const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
+const ils = formatILS;
 
 /** Presentation-only: a drink's bar width as its share of the hero total (min 6% so it reads). */
 const shareOfTotal = (value: number, total: number): number =>

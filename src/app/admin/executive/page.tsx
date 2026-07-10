@@ -14,11 +14,12 @@ import { useReadiness } from '@/lib/useReadiness';
 import { useLang } from '@/lib/useLang';
 import { getAccent, findCocktailBySlug } from '@/data/cocktail';
 import { totalPotential } from '@/lib/value/potential';
+import { formatILS } from '@/lib/format';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
 const serif = 'var(--font-playfair, serif)';
 const sans = 'var(--font-inter, sans-serif)';
-const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
+const ils = formatILS;
 
 interface Enriched extends MenuEngineeringItem {
   title: { en: string; he: string };

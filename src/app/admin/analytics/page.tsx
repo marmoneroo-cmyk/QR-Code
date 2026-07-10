@@ -13,11 +13,12 @@ import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { GlassCard, PanelHeader, EmptyState, ErrorState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import { hasConfidentSample } from '@/lib/analytics/rate';
+import { formatILS } from '@/lib/format';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
-const ils = (n: number): string => `₪${Math.round(n).toLocaleString()}`;
+const ils = formatILS;
 
 interface PerformerCard extends MenuEngineeringItem {
   title: { en: string; he: string };

@@ -47,3 +47,16 @@ export function thresholdsFor(category?: string): FunnelThresholds {
   // so the recommendation records the category-specific bars that decided it.
   return { ...DEFAULT_THRESHOLDS, profile: `${category}_v1`, ...override };
 }
+
+/**
+ * Shared sample-size → confidence bucket, so "low/medium/high" means the same thing
+ * everywhere. Was previously copy-pasted byte-identical in `opportunities/build`
+ * (`confidenceFrom`) and `optimization/recommend` (`confidenceFromViews`) with
+ * DIFFERENT default `minSample` values — callers pass their own `minSample` explicitly
+ * so each engine's existing behavior is unchanged; this only unifies the bucketing math.
+ */
+export function confidenceBucket(sample: number, minSample: number): 'low' | 'medium' | 'high' {
+  if (sample >= minSample * 3) return 'high';
+  if (sample >= minSample) return 'medium';
+  return 'low';
+}

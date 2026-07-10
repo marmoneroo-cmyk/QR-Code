@@ -11,12 +11,13 @@ import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
+import { formatILS } from '@/lib/format';
 import type { TableIntelligence, TableRow } from '@/lib/analytics/tables-types';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 
-const ils = (n: number) => `₪${Math.round(n).toLocaleString()}`;
+const ils = formatILS;
 
 const QR_OPTIONS: QRCode.QRCodeToDataURLOptions = {
   width: 600,
