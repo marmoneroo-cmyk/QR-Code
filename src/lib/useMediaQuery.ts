@@ -1,24 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 /**
- * SSR-safe media query hook. Returns false on the server and first client
- * render, then updates after mount — so layouts that depend on it must
- * tolerate a one-frame desktop-first render (avoids hydration mismatch).
+ * SSR-safe media query hook via useSyncExternalStore (React's canonical pattern for
+ * external browser state). Returns false on the server and first client render, then the
+ * real match after mount — layouts that depend on it must tolerate a one-frame
+ * desktop-first render (avoids hydration mismatch). The boolean snapshot is a stable
+ * primitive, so there is no re-render loop.
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const mql = window.matchMedia(query);
-    setMatches(mql.matches);
-    const onChange = (e: MediaQueryListEvent) => setMatches(e.matches);
-    mql.addEventListener('change', onChange);
-    return () => mql.removeEventListener('change', onChange);
-  }, [query]);
-
-  return matches;
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      const mql = window.matchMedia(query);
+      mql.addEventListener('change', onStoreChange);
+      return () => mql.removeEventListener('change', onStoreChange);
+    },
+    [query],
+  );
+  const getSnapshot = useCallback(() => window.matchMedia(query).matches, [query]);
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
 }
 
 /** True on phones / small tablets (< 1024px), where the immersive 3-zone
