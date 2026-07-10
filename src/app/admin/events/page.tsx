@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Eye, Heart, Share2, ShoppingBag, MousePointerClick, Target, ShieldCheck, ShieldAlert, Activity, Fingerprint, Hash, Pause, Play, ListFilter } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
@@ -12,6 +12,7 @@ import { useLang } from '@/lib/useLang';
 import { eventTypeLabel } from '@/lib/tracking/eventLabels';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import type { IntegrityReport, RawEvent, RawEventsResult } from '@/lib/analytics/types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const mono = 'ui-monospace, SFMono-Regular, Menlo, monospace';
@@ -74,42 +75,33 @@ export default function EventInspectorPage() {
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
 
-  const [raw, setRaw] = useState<RawEventsResult | null>(null);
-  const [integrity, setIntegrity] = useState<IntegrityReport | null>(null);
   const [eventFilter, setEventFilter] = useState('');
   const [sessionFilter, setSessionFilter] = useState('');
-  const [loading, setLoading] = useState(true);
   /** Client-side feed filter: which event types are toggled on (empty = show all). */
   const [selectedTypes, setSelectedTypes] = useState<ReadonlySet<string>>(() => new Set());
-  /** Live-tail: when true, the auto-refresh interval is suspended. */
+  /** Live-tail: when true, the auto-refresh poll AND focus revalidation are suspended. */
   const [paused, setPaused] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      const params = new URLSearchParams();
-      if (eventFilter) params.set('event', eventFilter);
-      if (sessionFilter) params.set('session', sessionFilter.trim());
-      params.set('limit', '200');
-      const [rawRes, intRes] = await Promise.all([
-        fetch(`/api/events/raw?${params.toString()}`, { cache: 'no-store' }).then((r) => r.json()),
-        fetch('/api/events/integrity', { cache: 'no-store' }).then((r) => r.json()),
-      ]);
-      if (rawRes.success) setRaw(rawRes.data);
-      if (intRes.success) setIntegrity(intRes.data);
-    } catch {
-      /* keep last good */
-    } finally {
-      setLoading(false);
-    }
-  }, [eventFilter, sessionFilter]);
+  // The raw-events key carries the filters, so SWR refetches whenever they change — no effect.
+  // Pause gates both the 12s poll and focus revalidation; both endpoints share that cadence.
+  const params = new URLSearchParams();
+  if (eventFilter) params.set('event', eventFilter);
+  if (sessionFilter) params.set('session', sessionFilter.trim());
+  params.set('limit', '200');
+  const swrOpts = { refreshInterval: paused ? 0 : 12000, revalidateOnFocus: !paused };
 
-  useEffect(() => {
-    load();
-    // Live-tail toggle gates the polling: when paused, no interval is scheduled.
-    if (paused) return;
-    const id = window.setInterval(load, 12000);
-    return () => window.clearInterval(id);
-  }, [load, paused]);
+  const { data: raw, loading, reload: reloadRaw } = useApiData<RawEventsResult>(
+    `/api/events/raw?${params.toString()}`,
+    swrOpts,
+  );
+  const { data: integrity, reload: reloadIntegrity } = useApiData<IntegrityReport>(
+    '/api/events/integrity',
+    swrOpts,
+  );
+  const load = useCallback(() => {
+    reloadRaw();
+    reloadIntegrity();
+  }, [reloadRaw, reloadIntegrity]);
 
   const events: RawEvent[] = useMemo(() => raw?.events ?? [], [raw]);
 
