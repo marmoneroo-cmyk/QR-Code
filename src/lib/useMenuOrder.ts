@@ -1,20 +1,22 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { useLocalStorageState } from './useLocalStorageState';
 
 const KEY = 'cocktail-demo:menuOrder';
+const EMPTY: string[] = [];
 
-function readOrder(): string[] {
-  if (typeof window === 'undefined') return [];
+function parseOrder(raw: string | null): string[] {
+  if (!raw) return EMPTY;
   try {
-    const raw = window.localStorage.getItem(KEY);
-    if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((s): s is string => typeof s === 'string') : [];
+    return Array.isArray(parsed) ? parsed.filter((s): s is string => typeof s === 'string') : EMPTY;
   } catch {
-    return [];
+    return EMPTY;
   }
 }
+
+const serializeOrder = (slugs: string[]): string => JSON.stringify(slugs);
 
 /**
  * Stable reorder by a list of slugs: items whose slug appears in `order` come
@@ -39,31 +41,17 @@ export function applyOrder<T extends { slug: string }>(items: readonly T[], orde
 }
 
 /**
- * Custom published-menu order, persisted to localStorage (per-device, like the
- * drafts store). `apply` reorders any {slug}[] by the saved order with a safe
- * identity fallback when no custom order exists.
+ * Custom published-menu order, persisted to localStorage (per-device). `apply` reorders any
+ * {slug}[] by the saved order with a safe identity fallback when no custom order exists.
+ * Backed by the shared SSR-safe localStorage store (useLocalStorageState).
  */
 export function useMenuOrder() {
-  const [order, setOrderState] = useState<string[]>([]);
-
-  useEffect(() => {
-    setOrderState(readOrder());
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === KEY) setOrderState(readOrder());
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
-
-  const setOrder = useCallback((slugs: string[]) => {
-    setOrderState(slugs);
-    if (typeof window === 'undefined') return;
-    try {
-      window.localStorage.setItem(KEY, JSON.stringify(slugs));
-    } catch {
-      // ignore quota / private-mode
-    }
-  }, []);
+  const { value: order, set: setOrder } = useLocalStorageState<string[]>(
+    KEY,
+    parseOrder,
+    serializeOrder,
+    EMPTY,
+  );
 
   const apply = useCallback(
     <T extends { slug: string }>(items: readonly T[]): T[] => applyOrder(items, order),
