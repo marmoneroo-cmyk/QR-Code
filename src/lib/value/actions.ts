@@ -1,6 +1,7 @@
 import type { Opportunity, OpportunityType, Confidence, Bilingual, Evidence } from '../opportunities/types';
 import type { MenuEngineeringItem } from '../analytics/types';
 import { estimatePotential, type MenuBenchmark, type RevenuePotential } from './potential';
+import { sampleConfidence } from '../menu-intel/sample';
 
 /**
  * The unified ACTION model — every recommendation in the platform flows into ONE
@@ -54,7 +55,7 @@ const EFFORT_MIN: Record<OpportunityType, number> = {
 const QUAL_SEPARATION: Record<Confidence, number> = { low: 0.55, medium: 0.75, high: 0.95 };
 
 function confidencePctOf(confidence: Confidence, sampleN: number): number {
-  const sample = sampleN <= 0 ? 0 : sampleN / (sampleN + 60);
+  const sample = sampleConfidence(sampleN); // ONE shared curve with the funnel engine (see menu-intel/sample)
   return Math.round(Math.min(0.95, sample * QUAL_SEPARATION[confidence]) * 100);
 }
 

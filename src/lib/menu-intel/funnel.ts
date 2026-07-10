@@ -9,6 +9,7 @@
  * Cut-points live in thresholds.ts (per-category, tunable) — NOT a weighted score.
  */
 import { DEFAULT_THRESHOLDS, type FunnelThresholds } from './thresholds';
+import { sampleConfidence } from './sample';
 
 /** Version of the diagnosis engine itself (the v3 intent-ladder brain). Bump when the
  *  LOGIC changes, so an old verdict says which engine produced it — and you can tell
@@ -163,7 +164,7 @@ export function diagnoseFunnel(f: FunnelShape, t: FunnelThresholds = DEFAULT_THR
  */
 function confidenceOf(diagnosis: Diagnosis, sampleN: number, observed: number, threshold: number): number {
   if (diagnosis === 'insufficient_data') return 0;
-  const sample = sampleN <= 0 ? 0 : sampleN / (sampleN + 60);
+  const sample = sampleConfidence(sampleN); // shared Business-Brain curve (see ./sample)
   const separation =
     diagnosis === 'performing'
       ? clamp01((observed - threshold) / threshold) // how clearly ABOVE healthy
