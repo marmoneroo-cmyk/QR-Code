@@ -15,6 +15,7 @@ import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual'
 import { estimatePotential, buildMenuBenchmark, type MenuBenchmark } from '@/lib/value/potential';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
 import type { Opportunity, OpportunityType, Confidence, LayoutInsight } from '@/lib/opportunities/types';
+import { useNow } from '@/lib/useNow';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -214,9 +215,9 @@ export function OpportunitiesPanel() {
   const headFont = isHe ? serifHe : serif;
 
   const { statuses, setStatus, clearStatus } = useOppStatuses();
-  // Re-evaluates snooze expiry on each render; a fresh `now` per render is enough
-  // for this surface (no live ticking required — list refreshes on load/visibility).
-  const now = Date.now();
+  // Re-evaluates snooze expiry; `now` is seeded once after mount (render-pure), and the
+  // list refreshes on load/visibility, so no live ticking is required here.
+  const now = useNow();
 
   const { active, handled } = useMemo(() => {
     const list = data?.opportunities ?? [];

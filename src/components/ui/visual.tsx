@@ -83,24 +83,28 @@ export function AccentWash({ accent, className, opacity = 0.16 }: { accent: stri
   );
 }
 
-/** Visual Before → After: two drink images (the "after" wears a glowing badge). Images, not numbers. */
-export function BeforeAfterImage({
+/** One image column of BeforeAfterImage. Module-scoped (not created during the parent's
+ * render) so it never remounts — its own image state/animation is preserved across re-renders. */
+function CompareCol({
+  label,
+  badge,
+  dim,
+  badgeAccent,
   src,
   accent,
-  lang,
-  beforeBadge,
-  afterBadge,
-  imageClass = 'h-32',
+  imageClass,
+  isHe,
 }: {
+  label: string;
+  badge?: string;
+  dim?: boolean;
+  badgeAccent?: string;
   src: string;
   accent: string;
-  lang: 'en' | 'he';
-  beforeBadge?: string;
-  afterBadge: string;
   imageClass?: string;
+  isHe: boolean;
 }) {
-  const isHe = lang === 'he';
-  const Col = ({ label, badge, dim, badgeAccent }: { label: string; badge?: string; dim?: boolean; badgeAccent?: string }) => (
+  return (
     <div className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
       <span className="text-[9px] uppercase tracking-[0.22em] text-white/40" style={{ fontFamily: sans }}>
         {label}
@@ -125,11 +129,30 @@ export function BeforeAfterImage({
       </span>
     </div>
   );
+}
+
+/** Visual Before → After: two drink images (the "after" wears a glowing badge). Images, not numbers. */
+export function BeforeAfterImage({
+  src,
+  accent,
+  lang,
+  beforeBadge,
+  afterBadge,
+  imageClass = 'h-32',
+}: {
+  src: string;
+  accent: string;
+  lang: 'en' | 'he';
+  beforeBadge?: string;
+  afterBadge: string;
+  imageClass?: string;
+}) {
+  const isHe = lang === 'he';
   return (
     <div className="flex items-stretch gap-2">
-      <Col label={isHe ? 'לפני' : 'Before'} badge={beforeBadge} dim />
+      <CompareCol label={isHe ? 'לפני' : 'Before'} badge={beforeBadge} dim src={src} accent={accent} imageClass={imageClass} isHe={isHe} />
       <span className="self-center text-lg text-white/30">{isHe ? '←' : '→'}</span>
-      <Col label={isHe ? 'אחרי' : 'After'} badge={afterBadge} badgeAccent={accent} />
+      <CompareCol label={isHe ? 'אחרי' : 'After'} badge={afterBadge} badgeAccent={accent} src={src} accent={accent} imageClass={imageClass} isHe={isHe} />
     </div>
   );
 }

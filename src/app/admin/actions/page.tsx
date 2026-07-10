@@ -18,6 +18,7 @@ import { GlassCard, EmptyState as PremiumEmptyState } from '@/components/ui/prem
 import { Confetti } from '@/components/ui/celebrate';
 import { useLang } from '@/lib/useLang';
 import { formatILS } from '@/lib/format';
+import { useNow } from '@/lib/useNow';
 import type { Opportunity } from '@/lib/opportunities/types';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
 
@@ -170,7 +171,7 @@ export function ActionsPanel() {
   );
 
   const { statuses, markDone, clearStatus } = useOppStatuses();
-  const now = Date.now();
+  const now = useNow();
 
   // The id whose row is mid-celebration (confetti + reinforcement line). Cleared by an
   // effect timeout — never set synchronously during render (React 19 would throw).

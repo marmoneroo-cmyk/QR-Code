@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MENU, type Lang } from '@/data/cocktail';
+import { useNow } from '@/lib/useNow';
 
 /**
  * LiveFunnel — the first REAL (non-demo) analytics surface. Fetches the
@@ -87,9 +88,10 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
     };
   }, [load]);
 
+  const now = useNow(1000);
   const agoLabel = (() => {
     if (updatedAt === null) return '';
-    const secs = Math.max(0, Math.round((Date.now() - updatedAt) / 1000));
+    const secs = Math.max(0, Math.round((now - updatedAt) / 1000));
     if (secs < 5) return t('updated just now', 'עודכן הרגע');
     return t(`updated ${secs}s ago`, `עודכן לפני ${secs} ש׳`);
   })();

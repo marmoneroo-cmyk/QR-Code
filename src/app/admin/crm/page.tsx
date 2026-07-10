@@ -115,12 +115,11 @@ function DonutChart({ segments, centerValue, centerLabel }: { segments: DonutSeg
   const rInner = 70;
   const GAP = total > 0 ? 2 : 0; // degrees of breathing room between slices
 
-  let cursor = 0;
-  const slices = segments.map((s) => {
-    const sweep = total > 0 ? (s.count / total) * 360 : 0;
-    const start = cursor + GAP / 2;
-    const end = cursor + sweep - GAP / 2;
-    cursor += sweep;
+  const sweeps = segments.map((s) => (total > 0 ? (s.count / total) * 360 : 0));
+  const slices = segments.map((s, i) => {
+    const priorSweep = sweeps.slice(0, i).reduce((sum, w) => sum + w, 0);
+    const start = priorSweep + GAP / 2;
+    const end = priorSweep + sweeps[i]! - GAP / 2;
     return { ...s, start, end, drawable: end > start };
   });
 

@@ -52,7 +52,7 @@ function buildParticles(): ParticleSpec[] {
 export function BackgroundFX() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
-  const particles = useMemo(buildParticles, []);
+  const particles = useMemo(() => buildParticles(), []);
 
   useEffect(() => {
     let frame = 0;

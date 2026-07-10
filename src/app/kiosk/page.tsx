@@ -28,7 +28,9 @@ export default function KioskPage() {
   const [progress, setProgress] = useState(0);
   const [paused, setPaused] = useState(false);
   const [scheduleEnabled, setScheduleEnabled] = useState(true);
-  const startedAt = useRef<number>(Date.now());
+  // Seeded to 0, then set to the real clock in the rotation effect below (which runs before
+  // the interval ever reads it) — avoids calling Date.now() during render.
+  const startedAt = useRef<number>(0);
 
   useEffect(() => {
     setNow(new Date());

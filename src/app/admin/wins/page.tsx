@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
+import { useNow } from '@/lib/useNow';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { CountUpText, LiveDot, SectionLabel } from '@/components/ui/dataviz';
 import { FrameBreakImage, GlassSheen, AccentWash, HoverLift, Tilt } from '@/components/ui/visual';
@@ -125,6 +126,9 @@ export function WinsPanel() {
     return () => window.clearInterval(id);
   }, [load]);
 
+  // Seeded-once clock (render-pure) for the time-window cutoffs below.
+  const now = useNow();
+
   // All real wins, newest first (the #1 / freshest gets the larger treatment).
   const allWins = useMemo<ClosedLoopItem[]>(() => {
     const wins = (data?.measured ?? []).filter(isWin);
@@ -134,9 +138,9 @@ export function WinsPanel() {
   const wins = useMemo<ClosedLoopItem[]>(() => {
     const cfg = TABS.find((x) => x.key === tab);
     if (!cfg || cfg.days === null) return allWins;
-    const cutoff = Date.now() - cfg.days * DAY_MS;
+    const cutoff = now - cfg.days * DAY_MS;
     return allWins.filter((w) => new Date(w.change.createdAt).getTime() >= cutoff);
-  }, [allWins, tab]);
+  }, [allWins, tab, now]);
 
   // Real average uplift across the currently-shown wins (no fabrication).
   const avgUplift = useMemo<number | null>(() => {
