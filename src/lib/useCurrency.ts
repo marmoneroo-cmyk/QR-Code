@@ -1,32 +1,20 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import type { Currency } from '@/data/cocktail';
+import { useLocalStorageState } from './useLocalStorageState';
 
-const STORAGE_KEY = 'cocktail-demo:currency';
+const KEY = 'cocktail-demo:currency';
+
+const parseCurrency = (raw: string | null): Currency =>
+  raw === 'ILS' || raw === 'USD' || raw === 'EUR' ? raw : 'ILS';
+const serializeCurrency = (c: Currency): string => c;
 
 export function useCurrency() {
-  const [currency, setCurrencyState] = useState<Currency>('ILS');
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw === 'ILS' || raw === 'USD' || raw === 'EUR') {
-        setCurrencyState(raw);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const setCurrency = useCallback((next: Currency) => {
-    setCurrencyState(next);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      // ignore
-    }
-  }, []);
-
+  const { value: currency, set: setCurrency } = useLocalStorageState<Currency>(
+    KEY,
+    parseCurrency,
+    serializeCurrency,
+    'ILS',
+  );
   return { currency, setCurrency };
 }

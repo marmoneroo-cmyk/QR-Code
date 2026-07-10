@@ -41,8 +41,8 @@ describe('useLang', () => {
     expect(a.result.current.lang).toBe('en');
     expect(b.result.current.lang).toBe('en');
 
-    // setLang dispatches a 'cocktail-lang' CustomEvent that the OTHER instance listens for
-    // (the native 'storage' event only fires cross-tab, never in the same document).
+    // setLang dispatches the shared store's same-tab CustomEvent that the OTHER instance
+    // listens for (the native 'storage' event only fires cross-tab, never in the same document).
     act(() => a.result.current.setLang('he'));
 
     expect(a.result.current.lang).toBe('he');
@@ -52,6 +52,9 @@ describe('useLang', () => {
   it('reacts to a cross-tab storage event for the lang key', () => {
     const { result } = renderHook(() => useLang());
     act(() => {
+      // A real cross-tab storage event fires AFTER the (shared) localStorage is written —
+      // set it first, then dispatch. The hook re-reads the store as the source of truth.
+      localStorage.setItem(KEY, 'he');
       window.dispatchEvent(new StorageEvent('storage', { key: KEY, newValue: 'he' }));
     });
     expect(result.current.lang).toBe('he');
