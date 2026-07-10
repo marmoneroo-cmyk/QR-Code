@@ -9,7 +9,7 @@ import type {
   OpportunityOptions,
 } from './types';
 import { clamp01, median } from '../math';
-import { confidenceBucket } from '../menu-intel/thresholds';
+import { confidenceBucket, OPPORTUNITY_THRESHOLDS as T } from '../menu-intel/thresholds';
 
 const TYPE_WEIGHT: Record<OpportunityType, number> = {
   fix_offer: 100,
@@ -63,7 +63,7 @@ export function buildOpportunities(signals: MenuSignals, opts: OpportunityOption
     const pct = (n: number): string => `${Math.round(n * 100)}%`;
 
     // 1) High engagement + low intent  → review the offer.  (mutually exclusive with #2)
-    if (it.opens >= 3 && openRate >= 0.4 && intentRate < 0.15) {
+    if (it.opens >= T.minOpens && openRate >= T.strongOpenRate && intentRate < T.weakIntentRate) {
       add(
         it,
         'fix_offer',
@@ -78,7 +78,7 @@ export function buildOpportunities(signals: MenuSignals, opts: OpportunityOption
         },
         it.opens,
       );
-    } else if (it.impressions > 0 && it.impressions <= medImpr && openRate >= 0.5 && it.position >= items.length / 2) {
+    } else if (it.impressions > 0 && it.impressions <= medImpr && openRate >= T.lovedOpenRate && it.position >= items.length / 2) {
       // 2) Low visibility + high engagement (buried but loved) → move it up. Uses POSITION.
       add(
         it,
@@ -97,7 +97,7 @@ export function buildOpportunities(signals: MenuSignals, opts: OpportunityOption
     }
 
     // 3) High sharing + low sales → promote more aggressively.
-    if (it.shares >= 2 && shareRate >= 0.1 && it.salesUnits === 0) {
+    if (it.shares >= T.minShares && shareRate >= T.strongShareRate && it.salesUnits === 0) {
       add(
         it,
         'promote_marketing',
@@ -115,7 +115,7 @@ export function buildOpportunities(signals: MenuSignals, opts: OpportunityOption
     }
 
     // 4) Strong engagement from returning visitors → promotion candidate.
-    if (it.returningOpens >= 3 && intentRate < 0.2) {
+    if (it.returningOpens >= T.minReturningOpens && intentRate < T.returningWeakIntentRate) {
       add(
         it,
         'promotion_candidate',
@@ -132,7 +132,7 @@ export function buildOpportunities(signals: MenuSignals, opts: OpportunityOption
     }
 
     // 5) Returning without committing → re-engage.
-    if (it.repeatNoCommit >= 2) {
+    if (it.repeatNoCommit >= T.minRepeatNoCommit) {
       add(
         it,
         'reengage_returning',

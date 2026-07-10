@@ -60,3 +60,27 @@ export function confidenceBucket(sample: number, minSample: number): 'low' | 'me
   if (sample >= minSample) return 'medium';
   return 'low';
 }
+
+/**
+ * Decision cut-points for the OPPORTUNITY engine (`opportunities/build.ts`, the live
+ * Coach / Action-Center rules). Centralized here in the Business Brain rather than left as
+ * magic numbers inside the engine, so every AI surface reads one source and the values are
+ * visible for future per-category calibration. Values are verbatim from the original inline
+ * ladder — this is organization, not a behavior change. Each field maps to one rule:
+ */
+export const OPPORTUNITY_THRESHOLDS = {
+  /** Rule 1 — interested but not ordering → review the offer. */
+  minOpens: 3,
+  strongOpenRate: 0.4,
+  weakIntentRate: 0.15,
+  /** Rule 2 — buried but loved (high open-rate when seen) → move up. */
+  lovedOpenRate: 0.5,
+  /** Rule 3 — shared a lot but not selling → promote harder. */
+  minShares: 2,
+  strongShareRate: 0.1,
+  /** Rule 4 — returning-visitor engagement → promotion candidate. */
+  minReturningOpens: 3,
+  returningWeakIntentRate: 0.2,
+  /** Rule 5 — returns repeatedly without ordering → re-engage. */
+  minRepeatNoCommit: 2,
+} as const;
