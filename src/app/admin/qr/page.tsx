@@ -8,6 +8,7 @@ import { useDrafts } from '@/lib/useDrafts';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel, Pill } from '@/components/ui/dataviz';
 import { useLang } from '@/lib/useLang';
+import { useOrigin } from '@/lib/useOrigin';
 
 interface QrCard {
   cocktail: CocktailConfig;
@@ -31,14 +32,10 @@ export function QrPanel() {
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
   const { drafts, hydrated } = useDrafts();
-  const [origin, setOrigin] = useState('');
+  const origin = useOrigin();
   const [cards, setCards] = useState<QrCard[]>([]);
   const [generating, setGenerating] = useState(false);
   const [arMode, setArMode] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') setOrigin(window.location.origin);
-  }, []);
 
   const allCocktails = useMemo(
     () => [

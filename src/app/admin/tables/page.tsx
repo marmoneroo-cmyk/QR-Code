@@ -10,6 +10,7 @@ import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
+import { useOrigin } from '@/lib/useOrigin';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { formatILS } from '@/lib/format';
 import type { TableIntelligence, TableRow } from '@/lib/analytics/tables-types';
@@ -59,11 +60,7 @@ export function TablesPanel() {
   const [tableCount, setTableCount] = useState(12);
   const [qrs, setQrs] = useState<TableQr[]>([]);
   const [generating, setGenerating] = useState(false);
-  const [origin, setOrigin] = useState('');
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
+  const origin = useOrigin();
 
   const load = useCallback(async () => {
     try {

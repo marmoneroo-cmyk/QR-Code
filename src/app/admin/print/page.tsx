@@ -16,6 +16,7 @@ import { useDrafts } from '@/lib/useDrafts';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel } from '@/components/ui/dataviz';
 import { useLang } from '@/lib/useLang';
+import { useOrigin } from '@/lib/useOrigin';
 
 type Density = 1 | 2 | 4;
 type CardTheme = 'gold' | 'minimal';
@@ -43,7 +44,7 @@ export default function PrintPage() {
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
   const { drafts, hydrated } = useDrafts();
-  const [origin, setOrigin] = useState('');
+  const origin = useOrigin();
   const [density, setDensity] = useState<Density>(2);
   const [linkTarget, setLinkTarget] = useState<'breakdown' | 'ar'>('breakdown');
   const [currency, setCurrency] = useState<Currency>('ILS');
@@ -51,10 +52,6 @@ export default function PrintPage() {
   const [cardTheme, setCardTheme] = useState<CardTheme>('gold');
   const [cards, setCards] = useState<PrintCard[]>([]);
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') setOrigin(window.location.origin);
-  }, []);
 
   const allCocktails = useMemo(
     () => [
