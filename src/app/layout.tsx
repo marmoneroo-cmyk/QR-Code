@@ -8,6 +8,7 @@ import {
 } from 'next/font/google';
 import './globals.css';
 import { DirectionSync } from '@/components/DirectionSync';
+import { MotionProvider } from '@/components/MotionProvider';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -78,7 +79,7 @@ export default function RootLayout({
     >
       <body className="bg-black text-white font-sans">
         <DirectionSync />
-        {children}
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );

@@ -19,7 +19,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed — Low-sample rate gate (F4)
 - A conversion/order-rate % computed from a tiny denominator ("100% ordered" from 2 views) fabricates confidence. New `src/lib/analytics/rate.ts` (`hasConfidentSample`/`confidentRate`, gate = 25 distinct views — the display twin of closed-loop `insufficient_data`). Applied uniformly to every order-rate display (House Performance KPI, Menu Analysis item cards, Analytics KPI + table): the exact stored percentage still shows once the sample clears the gate, otherwise a muted `—`. Stored/aggregate math is unchanged. 7 tests.
 
-**Verification:** `tsc` + **175 tests** + `next build` (57 pages) green; deployed to production. Parked: A5 secret rotation (needs dashboard access), Epic F F2–F3/F5, H-B (wire AI to real data).
+### Security — Hardening pass (audit-driven)
+- **SSRF guard.** The restaurant scraper fetched a user-supplied URL with default redirect-following and no IP filtering — an authenticated caller could reach `169.254.169.254` (cloud metadata → credential theft) or any internal/RFC-1918 host. New `src/lib/net/ip.ts` (pure, tested classifier: RFC-1918/6890 + metadata + IPv6 ULA/link-local/mapped) and `src/lib/net/ssrf.ts` (`safeFetch`: resolves the host, refuses blocked addresses, follows redirects **manually re-validating every hop**, 10 s timeout). 8 classifier tests.
+- **Path traversal.** `generate-breakdown` interpolated `body.slug` straight into a server filename; `slugify()` now confines it to `[a-z0-9-]` so `../../` can't escape the output dir.
+- **Ingest abuse caps.** The public, unauthenticated `/api/track` now rejects oversized bodies (64 KB → 413) before parsing and refuses explicit cross-site fetches (403), without blocking same-origin `fetch`/`sendBeacon`. (Durable per-IP rate limiting needs KV — tracked as follow-up.)
+- **Secret + headers.** Server route no longer falls back to the browser-bundled `NEXT_PUBLIC_POLLINATIONS_TOKEN`; `esc()` now escapes single quotes; baseline security headers added in `next.config.ts` (nosniff · referrer-policy · permissions-policy globally; `X-Frame-Options: DENY` + noindex on `/admin/*`).
+
+### Accessibility — WCAG pass on the premium surfaces
+- **Reduced motion (root cause).** `<MotionConfig reducedMotion="user">` now wraps the whole app, so **every** Framer Motion component honours the OS "reduce motion" setting (including screens applying the shared `staggerContainer`/`staggerItem` variants); `Reveal`/`Stagger`/`AdminShell`/`MenuRow` also gate locally.
+- **Focus & keyboard.** The launcher and Media Library overlays now move focus into the dialog on open, trap Tab, restore focus on close, and close on Escape. `AdminTabs` implements the full ARIA Tabs pattern (`role="tablist"/tab/tabpanel`, `aria-controls`, roving `tabindex`, Arrow/Home/End nav) — verified live. Language toggle gains `aria-pressed`; Media Library source chips become a labelled `tablist`; the Settings restaurant-name input gets a real associated `<label>`.
+
+### Fixed — Resilient async states (error ≠ empty)
+- Every admin data screen conflated fetch failure with "no data yet", so an outage looked identical to a brand-new restaurant — and two screens had unhandled promise rejections. New shared `ErrorState` primitive (distinct rose alert + retry); wired across **10 screens** (promotions, closed-loop, experience, sales, recommendations, wins, executive, menu-engineering, experiments, analytics) so a failure now shows a retryable error, never a misleading empty/zeroed state. `promotions.load()` and `closed-loop.submitManual()`/`experience.save()` gained the missing try/catch.
+
+**Verification:** `tsc` + **183 tests** + `next build` (57 pages) green; shipped in five verified deploys. Live checks: public menu 200 + no console errors, auth works, AdminTabs ARIA correct in-browser, launcher focus+Escape confirmed, security headers present, same-origin tracking still 200. Parked: A5 secret rotation + durable `/api/track` rate limiting + Pollinations server-proxy (need dashboard/KV — filed as a follow-up task), a global text-contrast bump (aesthetic review), Epic F F2–F3/F5, H-B (wire AI to real data).
 
 ---
 

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Tag, CalendarClock, Power, Percent, Plus, X, Eye, Check, Pencil } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, Pill, SectionLabel, Skeleton } from '@/components/ui/dataviz';
-import { GlassCard, EmptyState } from '@/components/ui/premium';
+import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
@@ -263,6 +263,7 @@ export function PromotionsPanel() {
   const t = (en: string, he: string) => (isHe ? he : en);
   const [items, setItems] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -276,7 +277,16 @@ export function PromotionsPanel() {
     try {
       const res = await fetch('/api/promotions?restaurant=diner', { cache: 'no-store' });
       const json: { success: boolean; data?: Promotion[] } = await res.json();
-      setItems(json.success && json.data ? json.data : []);
+      if (json.success) {
+        setItems(json.data ?? []);
+        setError(false);
+      } else {
+        setItems([]);
+        setError(true);
+      }
+    } catch {
+      setItems([]);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -620,7 +630,16 @@ export function PromotionsPanel() {
                 ))}
               </div>
             )}
-            {!loading && items.length === 0 && (
+            {!loading && error && (
+              <GlassCard static className="p-10">
+                <ErrorState
+                  title={t('Couldn’t load — check your connection', 'טעינה נכשלה — בדקו את החיבור')}
+                  onRetry={load}
+                  retryLabel={t('Try again', 'נסו שוב')}
+                />
+              </GlassCard>
+            )}
+            {!loading && !error && items.length === 0 && (
               <GlassCard static className="p-10">
                 <EmptyState title={t('No promotions yet. Create one →', 'אין מבצעים עדיין. צרו אחד →')} />
               </GlassCard>

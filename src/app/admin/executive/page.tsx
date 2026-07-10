@@ -8,7 +8,7 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { Skeleton, SkeletonGrid, LiveDot, AreaChart } from '@/components/ui/dataviz';
 import { Stagger, staggerItem, Reveal } from '@/components/ui/motion';
 import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
-import { GlassCard, EmptyState } from '@/components/ui/premium';
+import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import { getAccent, findCocktailBySlug } from '@/data/cocktail';
 import { totalPotential } from '@/lib/value/potential';
@@ -102,6 +102,8 @@ export default function ExecutiveSummaryPage() {
   const [ov, setOv] = useState<AnalyticsOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -111,10 +113,16 @@ export default function ExecutiveSummaryPage() {
       ]);
       const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
       const ovJson: { success: boolean; data?: AnalyticsOverview } = await ovRes.json();
-      if (meJson.success && meJson.data) setMe(meJson.data);
-      if (ovJson.success && ovJson.data) setOv(ovJson.data);
+      if (!meJson.success || !ovJson.success) {
+        setError(true);
+      } else {
+        if (meJson.data) setMe(meJson.data);
+        if (ovJson.data) setOv(ovJson.data);
+        setError(false);
+        setHasLoadedOnce(true);
+      }
     } catch {
-      /* keep last good */
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -231,7 +239,19 @@ export default function ExecutiveSummaryPage() {
         </div>
       )}
 
-      {!loading && !hasData && (
+      {!loading && !hasData && error && !hasLoadedOnce && (
+        <div dir={isHe ? 'rtl' : 'ltr'}>
+          <GlassCard static className="p-12">
+            <ErrorState
+              title={t('Couldn’t load — check your connection', 'טעינה נכשלה — בדקו את החיבור')}
+              onRetry={load}
+              retryLabel={t('Try again', 'נסו שוב')}
+            />
+          </GlassCard>
+        </div>
+      )}
+
+      {!loading && !hasData && !(error && !hasLoadedOnce) && (
         <div dir={isHe ? 'rtl' : 'ltr'}>
           <GlassCard static className="p-12">
             <EmptyState title={t('No activity yet. Once guests scan and order, your advisor appears here.', 'אין עדיין פעילות. כשאורחים יסרקו ויזמינו, היועץ יופיע כאן.')} />

@@ -91,6 +91,9 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
   const [isDragActive, setIsDragActive] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   // Refresh recent list + reset transient state whenever the modal opens.
   useEffect(() => {
@@ -110,6 +113,46 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [open, onClose]);
+
+  // Focus management: move focus into the dialog on open, restore it on close.
+  useEffect(() => {
+    if (open) {
+      previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
+      closeButtonRef.current?.focus();
+    } else {
+      previouslyFocusedRef.current?.focus();
+      previouslyFocusedRef.current = null;
+    }
+  }, [open]);
+
+  // Trap Tab focus within the dialog while open.
+  useEffect(() => {
+    if (!open) return;
+    const handleTabTrap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const container = dialogRef.current;
+      if (!container) return;
+      const focusable = container.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const activeEl = document.activeElement;
+
+      if (e.shiftKey) {
+        if (activeEl === first || !container.contains(activeEl)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (activeEl === last || !container.contains(activeEl)) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener('keydown', handleTabTrap);
+    return () => window.removeEventListener('keydown', handleTabTrap);
+  }, [open]);
 
   const menuItems: MediaItem[] = useMemo(
     () =>
@@ -211,6 +254,10 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
         >
           <motion.div
             key="media-library-panel"
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('Media Library', 'ספריית מדיה')}
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
@@ -232,6 +279,7 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
                   {t('Media Library', 'ספריית מדיה')}
                 </h2>
                 <button
+                  ref={closeButtonRef}
                   type="button"
                   onClick={onClose}
                   aria-label={t('Close', 'סגירה')}
@@ -243,11 +291,17 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
 
               <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
                 {/* Filter chips */}
-                <div className="inline-flex flex-wrap gap-2">
+                <div
+                  className="inline-flex flex-wrap gap-2"
+                  role="tablist"
+                  aria-label={t('Media source', 'מקור מדיה')}
+                >
                   {TAB_ORDER.map((tabKey) => (
                     <button
                       key={tabKey}
                       type="button"
+                      role="tab"
+                      aria-selected={tab === tabKey}
                       onClick={() => setTab(tabKey)}
                       className={`px-4 py-1.5 rounded-full text-[11px] tracking-[0.2em] uppercase border transition-colors ${
                         tab === tabKey

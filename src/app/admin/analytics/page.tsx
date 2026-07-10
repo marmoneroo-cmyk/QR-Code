@@ -10,7 +10,7 @@ import { LiveFunnel } from '@/components/admin/LiveFunnel';
 import { AreaChart, GlassImage, KpiCard, deltaPct, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
-import { GlassCard, PanelHeader, EmptyState } from '@/components/ui/premium';
+import { GlassCard, PanelHeader, EmptyState, ErrorState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import { hasConfidentSample } from '@/lib/analytics/rate';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
@@ -107,6 +107,7 @@ export default function AnalyticsPage() {
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
   const [me, setMe] = useState<MenuEngineering | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const titleBySlug = useMemo(() => {
     const map = new Map<string, string>();
@@ -124,8 +125,9 @@ export default function AnalyticsPage() {
       const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
       if (ovJson.success && ovJson.data) setOverview(ovJson.data);
       if (meJson.success && meJson.data) setMe(meJson.data);
+      setError(!ovJson.success); // overview is the KPI source; false-success ⇒ error
     } catch {
-      /* keep last good data */
+      setError(true); // network / parse failure — keep last good data, but flag it
     } finally {
       setLoading(false);
     }
@@ -183,6 +185,16 @@ export default function AnalyticsPage() {
     >
       <div dir={isHebrew ? 'rtl' : 'ltr'} className="flex flex-col gap-12">
         <LiveFunnel lang={lang} />
+
+        {/* First-load failure: say so with a retry, so zeroed KPIs are never mistaken for real no-engagement data. */}
+        {error && !overview && !loading && (
+          <ErrorState
+            title={t('Couldn’t load analytics — check your connection', 'טעינת הנתונים נכשלה — בדקו את החיבור')}
+            hint={t('This is a loading problem, not a lack of activity.', 'זו תקלת טעינה, לא היעדר פעילות.')}
+            onRetry={load}
+            retryLabel={t('Try again', 'נסו שוב')}
+          />
+        )}
 
         {/* Premium KPI row */}
         <motion.section

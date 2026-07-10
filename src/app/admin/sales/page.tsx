@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } fro
 import { Coins, Boxes, UploadCloud, AlertTriangle, LayoutGrid } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
-import { GlassCard, EmptyState } from '@/components/ui/premium';
+import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
@@ -122,6 +122,7 @@ export function SalesPanel() {
   const [msg, setMsg] = useState<string | null>(null);
   const [sales, setSales] = useState<SalesByItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
 
@@ -178,9 +179,16 @@ export function SalesPanel() {
     try {
       const res = await fetch('/api/sales?restaurant=diner', { cache: 'no-store' });
       const json: { success: boolean; data?: SalesByItem[] } = await res.json();
-      setSales(json.success && json.data ? json.data : []);
+      if (json.success) {
+        setSales(json.data ?? []);
+        setError(false);
+      } else {
+        setSales([]);
+        setError(true);
+      }
     } catch {
       setSales([]);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -344,6 +352,14 @@ export function SalesPanel() {
                   </GlassCard>
                 ))}
               </div>
+            ) : error ? (
+              <GlassCard static className="p-10">
+                <ErrorState
+                  title={t('Couldn’t load — check your connection', 'טעינה נכשלה — בדקו את החיבור')}
+                  onRetry={load}
+                  retryLabel={t('Try again', 'נסו שוב')}
+                />
+              </GlassCard>
             ) : sales.length === 0 ? (
               <GlassCard static className="p-10">
                 <EmptyState title={t('No sales yet — import a CSV to begin.', 'אין מכירות עדיין — ייבאו CSV כדי להתחיל.')} />

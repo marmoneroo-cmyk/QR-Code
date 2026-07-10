@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { formatPrice, getAccent, getHoverVideo, type CocktailConfig, type Currency, type Lang } from '@/data/cocktail';
 import { resolveDinerBadges, resolveDinerPrice } from '@/data/experience';
@@ -43,13 +43,14 @@ interface MenuRowProps {
 
 export function MenuRow({ section, lang, currency, promotions, experience, index }: MenuRowProps) {
   const isHe = lang === 'he';
+  const reduce = useReducedMotion();
   return (
     <motion.section
       className="w-full"
-      initial={{ opacity: 0, y: 24 }}
+      initial={reduce ? false : { opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.7, delay: Math.min(index * 0.05, 0.25), ease: [0.16, 1, 0.3, 1] }}
+      transition={reduce ? { duration: 0 } : { duration: 0.7, delay: Math.min(index * 0.05, 0.25), ease: [0.16, 1, 0.3, 1] }}
       dir={isHe ? 'rtl' : 'ltr'}
     >
       <div className="mx-auto mb-5 flex max-w-[1500px] items-baseline gap-4 px-6 md:px-10">
@@ -108,6 +109,7 @@ interface RowCardProps {
 
 function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConfig, delay, featured }: RowCardProps) {
   const isHe = lang === 'he';
+  const reduce = useReducedMotion();
   const accent = getAccent(cocktail.slug);
   const href = isDraft ? `/drafts/${cocktail.slug}` : `/cocktails/${cocktail.slug}`;
   const hoverVideo = getHoverVideo(cocktail.slug);
@@ -136,9 +138,9 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
   return (
     <motion.div
       className="relative h-full w-full"
-      initial={{ opacity: 0, scale: 0.96 }}
+      initial={reduce ? false : { opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6, delay: Math.min(delay * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
+      transition={reduce ? { duration: 0 } : { duration: 0.6, delay: Math.min(delay * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
     >
       {badges.length > 0 && (
         <div className="pointer-events-none absolute top-2.5 start-2.5 z-20">

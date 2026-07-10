@@ -6,7 +6,7 @@ import { Link2, Lightbulb, ArrowRight, ArrowLeft, Crown } from 'lucide-react';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Skeleton, LiveDot } from '@/components/ui/dataviz';
-import { GlassCard, EmptyState } from '@/components/ui/premium';
+import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
 import { PotentialValue } from '@/components/ui/value';
 import { buildMenuBenchmark, estimatePotential } from '@/lib/value/potential';
 import type { MenuBenchmark, RevenuePotential } from '@/lib/value/potential';
@@ -35,6 +35,7 @@ export function RecommendationsPanel() {
   const [data, setData] = useState<Recommendations | null>(null);
   const [menuItems, setMenuItems] = useState<MenuEngineeringItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const titleBySlug = useMemo(() => {
     const map = new Map<string, string>();
@@ -54,11 +55,16 @@ export function RecommendationsPanel() {
         fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
       ]);
       const recJson: { success: boolean; data?: Recommendations } = await recRes.json();
-      if (recJson.success && recJson.data) setData(recJson.data);
       const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
-      if (meJson.success && meJson.data) setMenuItems(meJson.data.items);
+      if (!recJson.success || !meJson.success) {
+        setError(true);
+      } else {
+        if (recJson.data) setData(recJson.data);
+        if (meJson.data) setMenuItems(meJson.data.items);
+        setError(false);
+      }
     } catch {
-      /* keep last good */
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -121,7 +127,19 @@ export function RecommendationsPanel() {
         </section>
       )}
 
-      {!loading && !hasData && (
+      {!loading && !hasData && error && (
+        <GlassCard className="p-10" static>
+          <div dir={isHebrew ? 'rtl' : 'ltr'}>
+            <ErrorState
+              title={t('Couldn’t load — check your connection', 'טעינה נכשלה — בדקו את החיבור')}
+              onRetry={load}
+              retryLabel={t('Try again', 'נסו שוב')}
+            />
+          </div>
+        </GlassCard>
+      )}
+
+      {!loading && !hasData && !error && (
         <GlassCard className="p-10" static>
           <div dir={isHebrew ? 'rtl' : 'ltr'}>
             <EmptyState

@@ -9,7 +9,7 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, LiveDot, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { Stagger, staggerItem } from '@/components/ui/motion';
-import { GlassCard, PanelHeader } from '@/components/ui/premium';
+import { GlassCard, PanelHeader, ErrorState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import { hasConfidentSample } from '@/lib/analytics/rate';
 import type { MenuClass, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
@@ -71,6 +71,7 @@ export function MenuEngineeringPanel() {
   const t = (en: string, he: string): string => (isHebrew ? he : en);
   const [data, setData] = useState<MenuEngineering | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   /** Slug currently hovered in the matrix (drives popover + scale). */
   const [hovered, setHovered] = useState<string | null>(null);
@@ -109,9 +110,14 @@ export function MenuEngineeringPanel() {
     try {
       const res = await fetch('/api/analytics/menu-engineering', { cache: 'no-store' });
       const json: { success: boolean; data?: MenuEngineering } = await res.json();
-      if (json.success && json.data) setData(json.data);
+      if (json.success && json.data) {
+        setData(json.data);
+        setError(false);
+      } else {
+        setError(true);
+      }
     } catch {
-      /* keep last good */
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -154,30 +160,44 @@ export function MenuEngineeringPanel() {
         <LiveDot label={isHebrew ? 'חי' : 'Live'} />
       </div>
 
+      {/* Error state: load failed and we have no prior successful data — replaces the zeroed KPI strip + empty matrix */}
+      {!loading && error && !hasItems && (
+        <GlassCard className="p-10" static>
+          <ErrorState
+            title={t('Couldn’t load — check your connection', 'טעינה נכשלה — בדקו את החיבור')}
+            onRetry={load}
+            retryLabel={t('Try again', 'נסו שוב')}
+          />
+        </GlassCard>
+      )}
+
       {/* Class summary KPI strip */}
-      {loading && !hasItems ? (
-        <SkeletonGrid count={4} className="grid grid-cols-2 lg:grid-cols-4 gap-3" />
-      ) : (
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {CLASS_ORDER.map((k) => {
-          const meta = CLASS_META[k];
-          const Icon = meta.icon;
-          return (
-            <GlassCard key={k} className="p-4" style={{ borderColor: `${meta.color}33` }}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="grid place-items-center w-8 h-8 rounded-lg" style={{ color: meta.color, background: `${meta.color}1a` }}>
-                  <Icon size={15} strokeWidth={1.8} />
-                </span>
-              </div>
-              <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}>{counts[k]}</p>
-              <p className="text-[11px] mt-1 tracking-wide" style={{ color: meta.color, fontFamily: sans }}>{meta.label[lang]}</p>
-            </GlassCard>
-          );
-        })}
-      </section>
+      {!(error && !hasItems) && (
+        loading && !hasItems ? (
+          <SkeletonGrid count={4} className="grid grid-cols-2 lg:grid-cols-4 gap-3" />
+        ) : (
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {CLASS_ORDER.map((k) => {
+            const meta = CLASS_META[k];
+            const Icon = meta.icon;
+            return (
+              <GlassCard key={k} className="p-4" style={{ borderColor: `${meta.color}33` }}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="grid place-items-center w-8 h-8 rounded-lg" style={{ color: meta.color, background: `${meta.color}1a` }}>
+                    <Icon size={15} strokeWidth={1.8} />
+                  </span>
+                </div>
+                <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}>{counts[k]}</p>
+                <p className="text-[11px] mt-1 tracking-wide" style={{ color: meta.color, fontFamily: sans }}>{meta.label[lang]}</p>
+              </GlassCard>
+            );
+          })}
+        </section>
+        )
       )}
 
       {/* Premium 2×2 matrix with cocktail thumbnails */}
+      {!(error && !hasItems) && (
       <GlassCard className="p-6" static>
         <div className="flex items-center justify-between mb-4">
           <PanelHeader label={t('The matrix', 'המטריצה')} />
@@ -221,6 +241,7 @@ export function MenuEngineeringPanel() {
           )}
         </div>
       </GlassCard>
+      )}
 
       {/* Per-item image cards */}
       {hasItems && (

@@ -22,7 +22,7 @@ import { CountUpText, LiveDot, SectionLabel } from '@/components/ui/dataviz';
 import { FrameBreakImage, GlassSheen, AccentWash, HoverLift, Tilt } from '@/components/ui/visual';
 import { Confetti, VictoryRing } from '@/components/ui/celebrate';
 import { Reveal, Stagger, staggerItem } from '@/components/ui/motion';
-import { GlassCard, EmptyState as PremiumEmptyState, CtaPill } from '@/components/ui/premium';
+import { GlassCard, EmptyState as PremiumEmptyState, ErrorState, CtaPill } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import type { MetricKey, Confidence } from '@/lib/closedloop/types';
 import type { ClosedLoopItem, ClosedLoopReport } from '@/lib/closedloop/server';
@@ -99,15 +99,21 @@ export function WinsPanel() {
 
   const [data, setData] = useState<ClosedLoopReport | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
   const [tab, setTab] = useState<TabKey>('all');
 
   const load = useCallback(async () => {
     try {
       const res = await fetch('/api/closed-loop', { cache: 'no-store' });
       const json: { success: boolean; data?: ClosedLoopReport } = await res.json();
-      setData(json.success && json.data ? json.data : { measured: [], timeline: [], hasData: false });
+      if (json.success && json.data) {
+        setData(json.data);
+        setError(false);
+      } else {
+        setError(true);
+      }
     } catch {
-      setData({ measured: [], timeline: [], hasData: false });
+      setError(true);
     } finally {
       setLoaded(true);
     }
@@ -231,8 +237,21 @@ export function WinsPanel() {
           </div>
         )}
 
+        {/* ── Error state: load failed and we have no prior successful data ─ */}
+        {loaded && error && !hasAnyWinEver && (
+          <Reveal>
+            <GlassCard static className="px-6 py-10 text-center">
+              <ErrorState
+                title={t('Couldn’t load — check your connection', 'טעינה נכשלה — בדקו את החיבור')}
+                onRetry={load}
+                retryLabel={t('Try again', 'נסו שוב')}
+              />
+            </GlassCard>
+          </Reveal>
+        )}
+
         {/* ── Empty state: no wins EVER → premium, motivating ─────────────── */}
-        {loaded && !hasAnyWinEver && <EmptyState lang={lang} isHe={isHe} t={t} />}
+        {loaded && !error && !hasAnyWinEver && <EmptyState lang={lang} isHe={isHe} t={t} />}
 
         {/* ── Empty within the active tab (but wins exist elsewhere) ──────── */}
         {loaded && hasAnyWinEver && wins.length === 0 && (

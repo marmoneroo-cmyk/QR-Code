@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Trophy, ArrowUpRight, ArrowDownRight, FlaskConical, Hourglass } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Skeleton, LiveDot } from '@/components/ui/dataviz';
-import { GlassCard } from '@/components/ui/premium';
+import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
@@ -39,14 +39,20 @@ export default function ExperimentsPage() {
   const t = (en: string, he: string): string => (isHebrew ? he : en);
   const [data, setData] = useState<ExperimentsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const load = useCallback(async () => {
     try {
       const res = await fetch('/api/experiments/results', { cache: 'no-store' });
       const json: { success: boolean; data?: ExperimentsResponse } = await res.json();
-      if (json.success && json.data) setData(json.data);
+      if (json.success && json.data) {
+        setData(json.data);
+        setError(false);
+      } else {
+        setError(true);
+      }
     } catch {
-      /* keep last good */
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -98,6 +104,33 @@ export default function ExperimentsPage() {
         </div>
       )}
 
+      {!loading && error && experiments.length === 0 && (
+        <GlassCard static className="p-10">
+          <div dir={isHebrew ? 'rtl' : 'ltr'}>
+            <ErrorState
+              title={t('Couldn’t load — check your connection', 'טעינה נכשלה — בדקו את החיבור')}
+              onRetry={load}
+              retryLabel={t('Try again', 'נסו שוב')}
+            />
+          </div>
+        </GlassCard>
+      )}
+
+      {!loading && !error && experiments.length === 0 && (
+        <GlassCard static className="p-10">
+          <div dir={isHebrew ? 'rtl' : 'ltr'}>
+            <EmptyState
+              title={t('No experiments yet', 'אין ניסויים עדיין')}
+              hint={t(
+                'Once an A/B test is running, live results appear here — conversion uplift and statistical significance per variant.',
+                'ברגע שבדיקת A/B פועלת, התוצאות החיות יופיעו כאן — שיפור המרה ומובהקות סטטיסטית לכל וריאציה.',
+              )}
+            />
+          </div>
+        </GlassCard>
+      )}
+
+      {experiments.length > 0 && (
       <div dir={isHebrew ? 'rtl' : 'ltr'}>
       <Stagger className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {experiments.map((exp) => {
@@ -211,6 +244,7 @@ export default function ExperimentsPage() {
         })}
       </Stagger>
       </div>
+      )}
 
       <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-8 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
         {t('Sessions split deterministically · winner declared at 95% significance', 'פיצול דטרמיניסטי · מנצח נקבע ב-95% מובהקות')}

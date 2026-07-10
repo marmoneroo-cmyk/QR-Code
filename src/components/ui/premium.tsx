@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, AlertTriangle, RotateCw } from 'lucide-react';
 import { GlassSheen } from './visual';
 
 /**
@@ -192,6 +192,46 @@ export function EmptyState({ title, hint, icon, className }: EmptyStateProps) {
       </span>
       <p className="text-white/55 text-[12.5px]" style={{ fontFamily: sans }}>{title}</p>
       {hint && <p className="text-white/30 text-[11px] max-w-[26ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
+    </div>
+  );
+}
+
+interface ErrorStateProps {
+  /** What failed, in owner-friendly language (NOT the raw error). */
+  title: string;
+  hint?: string;
+  /** Optional retry handler — renders a "Try again" button when provided. */
+  onRetry?: () => void;
+  /** Retry button label (bilingual caller supplies the right language). */
+  retryLabel?: string;
+  className?: string;
+}
+
+/**
+ * Distinct error state — visually separate from EmptyState so a backend failure never
+ * masquerades as "no data yet". Rose-tinted alert ring + an optional retry action.
+ */
+export function ErrorState({ title, hint, onRetry, retryLabel = 'Try again', className }: ErrorStateProps) {
+  return (
+    <div
+      role="alert"
+      className={`flex flex-col items-center justify-center gap-2.5 py-6 text-center ${className ?? ''}`}
+    >
+      <span className="grid place-items-center w-10 h-10 rounded-full border border-rose-400/25 text-rose-300/70">
+        <AlertTriangle size={16} strokeWidth={1.5} />
+      </span>
+      <p className="text-rose-200/80 text-[12.5px]" style={{ fontFamily: sans }}>{title}</p>
+      {hint && <p className="text-white/30 text-[11px] max-w-[28ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-[11px] text-white/70 transition-colors hover:border-white/30 hover:text-white/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+          style={{ fontFamily: sans }}
+        >
+          <RotateCw size={12} strokeWidth={2} /> {retryLabel}
+        </button>
+      )}
     </div>
   );
 }

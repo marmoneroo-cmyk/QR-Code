@@ -104,6 +104,7 @@ export function ExperiencePanel() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -150,6 +151,7 @@ export function ExperiencePanel() {
     if (!s) return;
     setSaving(slug);
     setSaved(null);
+    setSaveError(null);
     try {
       const res = await fetch('/api/experience', {
         method: 'PUT',
@@ -157,7 +159,13 @@ export function ExperiencePanel() {
         body: JSON.stringify({ restaurant: 'diner', slug, config: stateToConfig(s) }),
       });
       const json: { success: boolean } = await res.json();
-      if (json.success) setSaved(slug);
+      if (json.success) {
+        setSaved(slug);
+      } else {
+        setSaveError(slug);
+      }
+    } catch {
+      setSaveError(slug);
     } finally {
       setSaving(null);
     }
@@ -208,6 +216,7 @@ export function ExperiencePanel() {
             const liveModules = MODULES.length - s.disabledModules.size;
             const isSaving = saving === c.slug;
             const isSaved = saved === c.slug;
+            const isSaveError = saveError === c.slug;
             // Derived LIVE from the in-memory toggle state `s` (same Sets the toggles mutate),
             // so the preview reflects unsaved changes instantly. Order = config order, auto last.
             const previewBadges: { kind: BadgeKind; auto: boolean }[] = [
@@ -354,10 +363,21 @@ export function ExperiencePanel() {
                     />
                     <span className="relative z-10 inline-flex items-center gap-1.5">
                       {isSaved && !isSaving && <Check size={12} strokeWidth={2.6} />}
-                      {isSaving ? (isHe ? 'שומר…' : 'Saving…') : isSaved ? (isHe ? 'נשמר' : 'Saved') : isHe ? 'שמור' : 'Save'}
+                      {isSaving
+                        ? isHe ? 'שומר…' : 'Saving…'
+                        : isSaveError
+                        ? isHe ? 'השמירה נכשלה' : 'Save failed'
+                        : isSaved
+                        ? isHe ? 'נשמר' : 'Saved'
+                        : isHe ? 'שמור' : 'Save'}
                     </span>
                   </button>
                 </div>
+                {isSaveError && (
+                  <p className="px-6 -mt-1 text-rose-300/80 text-[11px]" style={{ fontFamily: sans }}>
+                    {isHe ? 'לא ניתן היה לשמור — בדקו את החיבור ונסו שוב.' : 'Could not save — check your connection and try again.'}
+                  </p>
+                )}
 
                 {/* Badges */}
                 <div className="px-6 pt-5">

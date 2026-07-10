@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type ReactNode } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { LayoutGrid, Home, X } from 'lucide-react';
 import { useLang } from '@/lib/useLang';
 import { AdminLauncher } from './AdminLauncher';
@@ -48,6 +48,7 @@ export function AdminShell({
 }: AdminShellProps) {
   const { lang, setLang } = useLang();
   const [launcherOpen, setLauncherOpen] = useState(false);
+  const reduce = useReducedMotion();
   const isHebrew = lang === 'he';
   const titleFont = isHebrew ? heSerif : serif;
   const bodyFont = isHebrew ? heBody : body;
@@ -55,6 +56,49 @@ export function AdminShell({
   const shownTitle = isHebrew ? titleHe ?? title : title;
   const shownEyebrow = isHebrew ? eyebrowHe ?? eyebrow : eyebrow;
   const shownSubtitle = isHebrew ? subtitleHe ?? subtitle : subtitle;
+
+  const launcherTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const launcherDialogRef = useRef<HTMLDivElement | null>(null);
+
+  // Escape closes the launcher while open.
+  useEffect(() => {
+    if (!launcherOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLauncherOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [launcherOpen]);
+
+  // Move focus into the dialog on open, trap Tab within it, and restore
+  // focus to the trigger button on close.
+  useEffect(() => {
+    if (!launcherOpen) return;
+    const dialog = launcherDialogRef.current;
+    dialog?.focus();
+
+    const handleTabTrap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !dialog) return;
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener('keydown', handleTabTrap);
+    return () => {
+      window.removeEventListener('keydown', handleTabTrap);
+      launcherTriggerRef.current?.focus();
+    };
+  }, [launcherOpen]);
 
   const pill =
     'inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-2 text-[10px] tracking-[0.2em] uppercase text-white/65 hover:text-amber-100 hover:border-amber-200/40 hover:bg-white/[0.05] transition-all';
@@ -86,6 +130,7 @@ export function AdminShell({
             </Link>
             <button
               type="button"
+              ref={launcherTriggerRef}
               onClick={() => setLauncherOpen(true)}
               className={pill}
               style={{ fontFamily: sans }}
@@ -100,6 +145,7 @@ export function AdminShell({
                   key={l}
                   type="button"
                   onClick={() => setLang(l)}
+                  aria-pressed={lang === l}
                   className={`px-2.5 py-1 rounded-full text-[9px] tracking-[0.15em] uppercase transition-all ${
                     lang === l ? 'text-black' : 'text-white/50 hover:text-white/90'
                   }`}
@@ -121,24 +167,26 @@ export function AdminShell({
       <AnimatePresence>
         {launcherOpen && (
           <motion.div
-            className="fixed inset-0 z-50 overflow-y-auto print:hidden"
+            ref={launcherDialogRef}
+            tabIndex={-1}
+            className="fixed inset-0 z-50 overflow-y-auto print:hidden outline-none"
             style={{ background: 'rgba(3,3,4,0.88)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
             onClick={() => setLauncherOpen(false)}
             role="dialog"
             aria-modal="true"
-            initial={{ opacity: 0 }}
+            initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.28, ease: LUX_EASE }}
+            exit={reduce ? undefined : { opacity: 0 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.28, ease: LUX_EASE }}
           >
             <motion.div
               className="min-h-full px-6 md:px-10 py-14"
               onClick={(e) => e.stopPropagation()}
               dir={isHebrew ? 'rtl' : 'ltr'}
-              initial={{ opacity: 0, y: 26, scale: 0.985 }}
+              initial={reduce ? false : { opacity: 0, y: 26, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 14, scale: 0.99 }}
-              transition={{ duration: 0.4, ease: LUX_EASE }}
+              exit={reduce ? undefined : { opacity: 0, y: 14, scale: 0.99 }}
+              transition={reduce ? { duration: 0 } : { duration: 0.4, ease: LUX_EASE }}
             >
               <div className="mx-auto max-w-5xl">
                 <div className="flex items-center justify-between mb-10">
@@ -172,9 +220,9 @@ export function AdminShell({
       {/* Editorial page header */}
       <div className="relative z-10 mx-auto max-w-6xl px-6 md:px-10 pt-12 md:pt-16 pb-8">
         <motion.p
-          initial={{ opacity: 0, y: 8 }}
+          initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: LUX_EASE }}
+          transition={reduce ? { duration: 0 } : { duration: 0.5, ease: LUX_EASE }}
           className="text-[10px] tracking-[0.45em] uppercase mb-4"
           style={{ fontFamily: sans, color: 'rgba(232,201,135,0.72)' }}
         >
@@ -182,9 +230,9 @@ export function AdminShell({
         </motion.p>
         <div className="flex flex-wrap items-end justify-between gap-6">
           <motion.h1
-            initial={{ opacity: 0, y: 16 }}
+            initial={reduce ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.06, ease: LUX_EASE }}
+            transition={reduce ? { duration: 0 } : { duration: 0.6, delay: 0.06, ease: LUX_EASE }}
             className="text-white leading-[1.05] tracking-[0.02em]"
             style={{
               fontFamily: titleFont,
@@ -198,18 +246,18 @@ export function AdminShell({
           {actions && <div className="flex items-center gap-3 flex-wrap">{actions}</div>}
         </div>
         <motion.div
-          initial={{ opacity: 0, scaleX: 0.6 }}
+          initial={reduce ? false : { opacity: 0, scaleX: 0.6 }}
           animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ duration: 0.7, delay: 0.14, ease: LUX_EASE }}
+          transition={reduce ? { duration: 0 } : { duration: 0.7, delay: 0.14, ease: LUX_EASE }}
           style={{ transformOrigin: isHebrew ? 'right' : 'left' }}
         >
           <GlowDivider className="mt-5" />
         </motion.div>
         {shownSubtitle && (
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
+            initial={reduce ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.2, ease: LUX_EASE }}
+            transition={reduce ? { duration: 0 } : { duration: 0.55, delay: 0.2, ease: LUX_EASE }}
             className="text-white/45 text-[15px] mt-5 max-w-2xl leading-relaxed"
             style={{ fontFamily: bodyFont, fontStyle: isHebrew ? 'normal' : 'italic' }}
           >
@@ -220,7 +268,11 @@ export function AdminShell({
 
       {/* Page content */}
       <main className="relative z-10 mx-auto max-w-6xl px-6 md:px-10 pb-24">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, ease: 'easeOut' }}>
+        <motion.div
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={reduce ? { duration: 0 } : { duration: 0.4, ease: 'easeOut' }}
+        >
           {children}
         </motion.div>
       </main>

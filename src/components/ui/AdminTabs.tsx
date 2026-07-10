@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { ComponentType } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { useLang } from '@/lib/useLang';
@@ -34,13 +34,49 @@ export function AdminTabs({ tabs, initial }: AdminTabsProps) {
   const [tabId, setTabId] = useState<string>(initial ?? tabs[0]?.id ?? '');
   const active = tabs.find((t) => t.id === tabId) ?? tabs[0];
   const ActivePanel = active?.Panel;
+  const tablistRef = useRef<HTMLDivElement>(null);
+
+  const focusTabAt = (index: number) => {
+    const el = tablistRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[index];
+    el?.focus();
+  };
+
+  const handleTablistKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const count = tabs.length;
+    if (count === 0) return;
+    const currentIndex = tabs.findIndex((tb) => tb.id === active?.id);
+    // In RTL, the visual left/right arrows are swapped relative to DOM order.
+    const nextKey = isHe ? 'ArrowLeft' : 'ArrowRight';
+    const prevKey = isHe ? 'ArrowRight' : 'ArrowLeft';
+
+    let nextIndex: number | null = null;
+    if (e.key === nextKey) {
+      nextIndex = (currentIndex + 1) % count;
+    } else if (e.key === prevKey) {
+      nextIndex = (currentIndex - 1 + count) % count;
+    } else if (e.key === 'Home') {
+      nextIndex = 0;
+    } else if (e.key === 'End') {
+      nextIndex = count - 1;
+    }
+
+    if (nextIndex === null) return;
+    e.preventDefault();
+    const nextTab = tabs[nextIndex];
+    if (nextTab) {
+      setTabId(nextTab.id);
+      focusTabAt(nextIndex);
+    }
+  };
 
   return (
     <>
       <div
+        ref={tablistRef}
         className="glass-chrome backdrop-blur-xl inline-flex flex-wrap gap-1.5 mb-9 max-w-full rounded-full p-1.5"
         role="tablist"
         dir={isHe ? 'rtl' : 'ltr'}
+        onKeyDown={handleTablistKeyDown}
       >
         {tabs.map((tb) => {
           const isActive = tb.id === active?.id;
@@ -50,7 +86,10 @@ export function AdminTabs({ tabs, initial }: AdminTabsProps) {
               key={tb.id}
               type="button"
               role="tab"
+              id={`tab-${tb.id}`}
+              aria-controls={`panel-${tb.id}`}
               aria-selected={isActive}
+              tabIndex={isActive ? 0 : -1}
               onClick={() => setTabId(tb.id)}
               className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] tracking-[0.18em] uppercase transition-all duration-200 ${
                 isActive
@@ -69,7 +108,11 @@ export function AdminTabs({ tabs, initial }: AdminTabsProps) {
         })}
       </div>
 
-      {ActivePanel ? <ActivePanel /> : null}
+      {ActivePanel ? (
+        <div role="tabpanel" id={`panel-${active?.id}`} aria-labelledby={`tab-${active?.id}`} tabIndex={0}>
+          <ActivePanel />
+        </div>
+      ) : null}
     </>
   );
 }

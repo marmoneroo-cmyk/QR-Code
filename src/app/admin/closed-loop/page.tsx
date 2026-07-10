@@ -19,7 +19,7 @@ import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, SectionLabel, Skeleton } from '@/components/ui/dataviz';
 import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual';
-import { GlassCard, EmptyState } from '@/components/ui/premium';
+import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import type { ImpactStatus, MetricKey, Confidence } from '@/lib/closedloop/types';
@@ -69,6 +69,7 @@ export function ClosedLoopPanel() {
   const t = (en: string, he: string) => (isHe ? he : en);
   const [data, setData] = useState<ClosedLoopReport | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   // manual external-change form
   const [summary, setSummary] = useState('');
@@ -84,9 +85,16 @@ export function ClosedLoopPanel() {
     try {
       const res = await fetch('/api/closed-loop', { cache: 'no-store' });
       const json: { success: boolean; data?: ClosedLoopReport } = await res.json();
-      setData(json.success && json.data ? json.data : { measured: [], timeline: [], hasData: false });
+      if (json.success) {
+        setData(json.data ?? { measured: [], timeline: [], hasData: false });
+        setError(false);
+      } else {
+        setData(null);
+        setError(true);
+      }
     } catch {
-      setData({ measured: [], timeline: [], hasData: false });
+      setData(null);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -116,7 +124,11 @@ export function ClosedLoopPanel() {
         setDate('');
         setMsg(isHe ? 'נרשם ✓' : 'Logged ✓');
         await load();
+      } else {
+        setMsg(isHe ? 'השמירה נכשלה — נסו שוב' : 'Could not save — try again');
       }
+    } catch {
+      setMsg(isHe ? 'השמירה נכשלה — נסו שוב' : 'Could not save — try again');
     } finally {
       setSaving(false);
     }
@@ -143,7 +155,15 @@ export function ClosedLoopPanel() {
           <section>
             <SectionLabel icon={CheckCircle2}>{t('Measured results', 'תוצאות נמדדות')}</SectionLabel>
 
-            {(!data || data.measured.length === 0) && (
+            {error && (
+              <ErrorState
+                title={t('Couldn’t load — check your connection', 'טעינה נכשלה — בדקו את החיבור')}
+                onRetry={load}
+                retryLabel={t('Try again', 'נסו שוב')}
+              />
+            )}
+
+            {!error && (!data || data.measured.length === 0) && (
               <EmptyState
                 title={t(
                   'No measurable changes yet. Make a change (promotion/experience) or log an external one below.',

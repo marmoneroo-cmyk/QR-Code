@@ -189,8 +189,9 @@ export function SettingsToolbar({
 
                 {/* Restaurant name */}
                 <div>
-                  <p className={rowLabel} style={{ fontFamily: sans }}>{t.restaurant}</p>
+                  <label htmlFor="restaurant-name-input" className={rowLabel} style={{ fontFamily: sans }}>{t.restaurant}</label>
                   <input
+                    id="restaurant-name-input"
                     type="text"
                     value={restaurantName}
                     onChange={(e) => onRestaurantChange(e.target.value)}
