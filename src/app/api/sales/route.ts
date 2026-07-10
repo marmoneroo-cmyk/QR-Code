@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { importSales, listSalesByItem, type SaleInput } from '@/lib/sales/repository';
+import { isValidSaleInput, MAX_SALES_ROWS } from '@/lib/sales/validate';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
 import { createServerSupabase } from '@/lib/supabase/server';
 
@@ -8,22 +9,6 @@ export const dynamic = 'force-dynamic';
 
 function err(message: string, status = 400): NextResponse {
   return NextResponse.json({ success: false, error: message }, { status });
-}
-
-// Hard cap on a single import batch — guards against unbounded-payload abuse.
-const MAX_SALES_ROWS = 1000;
-
-function isValidSaleInput(row: unknown): row is SaleInput {
-  if (typeof row !== 'object' || row === null) return false;
-  const r = row as Record<string, unknown>;
-  return (
-    typeof r.slug === 'string' &&
-    r.slug.trim().length > 0 &&
-    typeof r.units === 'number' &&
-    Number.isFinite(r.units) &&
-    typeof r.revenue === 'number' &&
-    Number.isFinite(r.revenue)
-  );
 }
 
 export async function GET(): Promise<NextResponse> {
