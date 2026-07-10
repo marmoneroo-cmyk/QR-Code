@@ -25,7 +25,13 @@ Ran four read-only audits in parallel (database/scalability · API design · AI-
 ### Added — `perf(db)` migration (needs applying)
 - `supabase/migrations/0012_member_user_index.sql` — indexes `restaurant_members(user_id)`, the auth hot path (`getSessionContext()` on every authenticated request seeks `user_id` alone, but the only index is `UNIQUE(restaurant_id,user_id)` — trailing column, can't seek).
 
-**Filed for follow-up (need DB access / product decision):** aggregation views + RLS `(select auth.uid())` + sales uniqueness (9 analytics sites reduce ≤50k raw rows in JS per request); the orphaned `diagnoseFunnel` "brain" + 3 parallel recommendation engines; isomorphic-logger consolidation; promotions/experience session-scoped reads before tenant #2.
+### Fixed — Audit follow-through (pure-code slices shipped after the batch)
+- **Deterministic analytics** — 11 capped event reads did `.limit(N)` with **no `.order()`**, so which rows returned past the cap was undefined (a "last 30 days" could go stale/wrong at scale). All now `.order('created_at', desc)` before the cap → most-recently-ingested N. The `order_completed` units sub-query (which had silently defaulted to PostgREST's 1000-row cap — a 50× lower cliff) now uses the standard 50k + order.
+- **Killed a scan** — the Inspector filter dropdown scanned ≤50k rows just to dedupe event names; now reads the static `TRACK_EVENTS` taxonomy (always a superset — every event is whitelist-validated at ingest).
+- **Tenant isolation completed** — admin reads already used the guarded `/api/promotions/mine` + `/api/experience/mine`; removed every remaining **dead `restaurant:'diner'` literal** (writes derive tenant from session; the values were ignored) so no misleading hardcoded tenant survives.
+- **Dedup finished** — every `₪` amount now uses the shared `formatILS` (was 12 copies); `formatILS` + `confidenceBucket` locked with tests (213 total).
+
+**Filed for follow-up (genuinely need DB access / product decision):** the SQL scale fix — aggregation views/RPCs so the 9 analytics sites stop reducing ≤50k raw rows in JS per request — plus RLS `(select auth.uid())` and sales uniqueness (all need Supabase apply; index migration `0012` authored); the orphaned `diagnoseFunnel` "brain" + 3 parallel recommendation engines (product decision — reshapes owner output); isomorphic-logger consolidation.
 
 ---
 
