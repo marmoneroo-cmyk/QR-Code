@@ -1,0 +1,12 @@
+-- Index the AUTH HOT PATH. getSessionContext() — called via requireSession() on every
+-- authenticated API request — filters restaurant_members by user_id ALONE:
+--     select restaurant_id, role from restaurant_members where user_id = <uid> limit 1
+--
+-- The only index today is UNIQUE(restaurant_id, user_id). user_id is the TRAILING column,
+-- so Postgres cannot index-seek that predicate — it falls back to a scan. The same is true
+-- of the "Users see their own memberships" RLS policy, `using (user_id = auth.uid())`.
+--
+-- Invisible at one member, but this is the exact per-request lookup the multi-tenant
+-- rollout (AGENTS.md Foundation Freeze) depends on. Additive + idempotent: no code change,
+-- activates the moment it is applied.
+create index if not exists idx_restaurant_members_user on restaurant_members (user_id);
