@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { MENU } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { AdminLauncher } from '@/components/ui/AdminLauncher';
 import { Skeleton, AreaChart, CountUpText } from '@/components/ui/dataviz';
-import { GlassCard, PanelHeader, CtaPill, EmptyState, StatBlock, LUX_EASE } from '@/components/ui/premium';
+import { GlassCard, PanelHeader, CtaPill, EmptyState, ErrorState, StatBlock, LUX_EASE } from '@/components/ui/premium';
 import { GlassSheen } from '@/components/ui/visual';
 import { staggerContainer, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
@@ -51,29 +51,32 @@ export default function HomeDashboardPage() {
   const [promos, setPromos] = useState<Promotion[]>([]);
   const [loop, setLoop] = useState<ClosedLoopReport | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const load = useCallback(async () => {
+    setError(false);
+    const results = await Promise.all([
+      getJson<{ opportunities: Opportunity[] }>('/api/analytics/opportunities'),
+      getJson<AnalyticsOverview>('/api/analytics/overview'),
+      getJson<MenuEngineering>('/api/analytics/menu-engineering'),
+      getJson<Promotion[]>('/api/promotions?restaurant=diner&activeOnly=true'),
+      getJson<ClosedLoopReport>('/api/closed-loop'),
+    ]);
+    const [o, ov, me, pr, cl] = results;
+    setOpps(o?.opportunities ?? []);
+    setOverview(ov);
+    setMenu(me);
+    setPromos(pr ?? []);
+    setLoop(cl);
+    // A live backend returns zeroed data (not null) for a new restaurant, so ALL-null
+    // means an outage/auth failure — a real error, not "no data yet".
+    setError(results.every((r) => r === null));
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const [o, ov, me, pr, cl] = await Promise.all([
-        getJson<{ opportunities: Opportunity[] }>('/api/analytics/opportunities'),
-        getJson<AnalyticsOverview>('/api/analytics/overview'),
-        getJson<MenuEngineering>('/api/analytics/menu-engineering'),
-        getJson<Promotion[]>('/api/promotions?restaurant=diner&activeOnly=true'),
-        getJson<ClosedLoopReport>('/api/closed-loop'),
-      ]);
-      if (cancelled) return;
-      setOpps(o?.opportunities ?? []);
-      setOverview(ov);
-      setMenu(me);
-      setPromos(pr ?? []);
-      setLoop(cl);
-      setLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void load();
+  }, [load]);
 
   const titleBySlug = useMemo(() => new Map(MENU.map((c) => [c.slug, c.title])), []);
   const t = (slug: string | null | undefined) => (slug ? titleBySlug.get(slug)?.[lang] ?? slug : '—');
@@ -133,6 +136,13 @@ export default function HomeDashboardPage() {
             </div>
           ))}
         </div>
+      ) : error ? (
+        <ErrorState
+          title={isHe ? 'לא הצלחנו לטעון את הנתונים' : 'Couldn’t load your dashboard'}
+          hint={isHe ? 'בדקו את החיבור ונסו שוב — הנתונים שלכם בטוחים.' : 'Check your connection and try again — your data is safe.'}
+          onRetry={load}
+          retryLabel={isHe ? 'נסו שוב' : 'Try again'}
+        />
       ) : (
         <motion.div
           className="grid gap-4 md:grid-cols-3"
