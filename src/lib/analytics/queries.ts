@@ -2,6 +2,7 @@ import 'server-only';
 import { median } from '../math';
 import { createAdminSupabase } from '@/lib/supabase/server';
 import { log } from '@/lib/log';
+import { TRACK_EVENTS } from '@/lib/tracking/taxonomy';
 import { MENU, getEconomics } from '@/data/cocktail';
 import type {
   AnalyticsOverview,
@@ -319,13 +320,10 @@ export async function getRawEvents(
     const { data } = await query;
     const events = (data ?? []) as RawEvent[];
 
-    // Distinct event_name list for the filter dropdown (from a wide scan).
-    const { data: names } = await supabase
-      .from('events')
-      .select('event_name')
-      .eq('restaurant_id', restaurant.id)
-      .limit(50000);
-    const eventNames = [...new Set((names ?? []).map((n) => n.event_name).filter((x): x is string => Boolean(x)))].sort();
+    // Filter-dropdown options come from the static event taxonomy, NOT a table scan:
+    // every stored event_name is whitelist-validated against it at ingest, so the taxonomy
+    // is always a superset — this drops a second ≤50k-row scan on every Inspector load.
+    const eventNames = [...TRACK_EVENTS].sort();
 
     return { events, eventNames, total: events.length };
   } catch (e) {
