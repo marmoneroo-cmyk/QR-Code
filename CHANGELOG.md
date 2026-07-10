@@ -5,6 +5,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2026-07-10] — Full-system audit hardening (4 parallel audits → merged fix batch, LIVE)
+
+Ran four read-only audits in parallel (database/scalability · API design · AI-brain cohesion · automation/observability), merged findings into one plan, and shipped the safe-autonomous tier via three parallel executors. Verified: `tsc` + **205 tests** + `next build` (57 pages) green; live-checked (`/api/health` `db:ok lastEventAgeSeconds:6`, public read `Cache-Control: s-maxage=60`, envelope intact, menu 200, no console errors).
+
+### Fixed — Observability (silent failures were invisible)
+- **10 analytics reads** (queries.ts ×5, crm/journeys/recommendations/signals/tables) wrapped Supabase calls in bare `catch { return <empty> }` with **no log** — a DB/RLS/timeout failure returned fake-empty data as HTTP 200, unseen (even the Integrity + Signal-Verify endpoints masked their own failures). Each now `log.error`s before its unchanged empty return.
+- `/api/track` logs unknown-slug drops (`log.warn`); `/api/health` adds `lastEventAgeSeconds` (ingest-stall signal).
+- **NUL-byte cleanup:** `recommendations.ts` held 111 raw NUL bytes (a pairKey separator) → the file rendered as a *binary diff*, invisible to review/ripgrep. Replaced with `|` (join+split stay consistent; slugs are `[a-z0-9-]`).
+
+### Fixed — API hardening (9 routes, no new deps)
+- **Input validation:** `experience` PUT now whitelist-validates config before persisting (it re-serves to the public menu — highest blast radius); `promotions` PATCH runs present fields through the same checks POST enforces; `sales` POST validates each row + caps at 1000; `changes` validates `date` (YYYY-MM-DD) before `new Date()`.
+- **Caching:** `Cache-Control: public, s-maxage=…, stale-while-revalidate=…` on the 4 anonymous diner reads (promotions/experience/recommendations GET + poster) — was a live DB round-trip per menu view.
+- **Consistency:** generate-breakdown/import-restaurant/scrape-restaurant normalized to the `{success,data|error}` envelope; scrape-restaurant returns **502** (not 500) for an unreachable target; import-restaurant logs per-item image failures.
+
+### Changed — Business-Brain consistency (dedup)
+- New `src/lib/format.ts` (`formatILS`); **7** copies of the `₪` formatter unified (one had been missing `toLocaleString`). `confidenceFrom`/`confidenceFromViews` (byte-identical, **different defaults 10 vs 30** → a 25-view item read "medium" in Optimize but "high" in Opportunities) → one shared `confidenceBucket()`; each caller keeps its default (divergence filed for a product call).
+
+### Added — `perf(db)` migration (needs applying)
+- `supabase/migrations/0012_member_user_index.sql` — indexes `restaurant_members(user_id)`, the auth hot path (`getSessionContext()` on every authenticated request seeks `user_id` alone, but the only index is `UNIQUE(restaurant_id,user_id)` — trailing column, can't seek).
+
+**Filed for follow-up (need DB access / product decision):** aggregation views + RLS `(select auth.uid())` + sales uniqueness (9 analytics sites reduce ≤50k raw rows in JS per request); the orphaned `diagnoseFunnel` "brain" + 3 parallel recommendation engines; isomorphic-logger consolidation; promotions/experience session-scoped reads before tenant #2.
+
+---
+
 ## [2026-07-10] — Tenant-isolation gate + measurement honesty + observability (LIVE in production)
 
 ### Security — Tenant-scoped analytics reads (B5 · sec-review H3, the gate before tenant #2)

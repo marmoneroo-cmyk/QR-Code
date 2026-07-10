@@ -5,6 +5,30 @@
 
 ---
 
+## [2026-07-10] — הקשחה מבוססת אודיט מערכתי (4 אודיטים במקביל → אצווה ממוזגת, חי)
+
+4 אודיטים read-only במקביל (בסיס-נתונים/סקלביליות · עיצוב API · לכידות מוח-ה-AI · אוטומציה/תצפיתיות), מוזגו לתוכנית אחת, ובוצעו ע״י 3 executors במקביל. אומת: `tsc` + **205 בדיקות** + `next build` (57 עמודים) ירוקים; נבדק חי (`/api/health` `db:ok`, קריאה ציבורית `Cache-Control: s-maxage=60`, מעטפת תקינה, ללא שגיאות קונסול).
+
+### תוקן — תצפיתיות (כשלים שקטים היו בלתי-נראים)
+- **10 קריאות אנליטיקה** (queries×5, crm/journeys/recommendations/signals/tables) עטפו את Supabase ב-`catch { return ריק }` **בלי log** — כשל DB/RLS/timeout החזיר נתונים ריקים מזויפים כ-HTTP 200, בלתי-נראה (גם ה-Integrity + Signal-Verify הסתירו את הכשלים שלהם). כעת כל אחד רושם `log.error` לפני ההחזרה הריקה (ללא שינוי ערך).
+- `/api/track` רושם dropים של slug לא-מוכר; `/api/health` הוסיף `lastEventAgeSeconds`.
+- **ניקוי NUL:** ל-`recommendations.ts` היו 111 בייטים של NUL (מפריד pairKey) → הקובץ נראה כ-diff בינארי, בלתי-נראה לסקירה. הוחלף ב-`|`.
+
+### תוקן — הקשחת API (9 נתיבים, ללא תלויות חדשות)
+- **ולידציית קלט:** `experience` PUT מאמת עכשיו את ה-config לפני שמירה (הוא מוגש מחדש לתפריט הציבורי); `promotions` PATCH מריץ את השדות דרך אותן בדיקות כמו POST; `sales` POST מאמת כל שורה + תקרה 1000; `changes` מאמת `date` לפני `new Date()`.
+- **Caching:** `Cache-Control` על 4 הקריאות הציבוריות (promotions/experience/recommendations GET + poster) — שהיו round-trip ל-DB בכל צפייה בתפריט.
+- **עקביות:** 3 נתיבים אוחדו למעטפת `{success,data|error}`; scrape-restaurant מחזיר **502** ליעד לא-נגיש; import-restaurant רושם כשלי תמונה.
+
+### שונה — עקביות מוח-העסק (dedup)
+- קובץ חדש `src/lib/format.ts` (`formatILS`); **7** עותקים של פורמט ה-₪ אוחדו. `confidenceFrom`/`confidenceFromViews` (זהים, **defaults שונים 10 מול 30**) → `confidenceBucket()` משותף אחד; כל קורא שומר את ה-default שלו.
+
+### נוסף — מיגרציית `perf(db)` (צריך להחיל)
+- `supabase/migrations/0012_member_user_index.sql` — index על `restaurant_members(user_id)`, נתיב האימות החם.
+
+**תויק להמשך (צריך גישת-DB / החלטת-מוצר):** aggregation views + RLS `(select auth.uid())` + ייחודיות sales; ה-`diagnoseFunnel` היתום + 3 מנועי המלצה מקבילים; איחוד logger איזומורפי; scoping של promotions/experience לפני דייר #2.
+
+---
+
 ## [2026-07-10] — בידוד דיירים באנליטיקה + יושרת מדידה + תצפיתיות (חי בפרודקשן)
 
 ### אבטחה — קריאות אנליטיקה מוגבלות-דייר (B5 · סקירת אבטחה H3, השער לפני דייר #2)
