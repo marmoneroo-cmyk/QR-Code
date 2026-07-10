@@ -1,0 +1,51 @@
+name: CI
+
+# Gate every push to master and every PR on the checks that must always be green.
+# Vercel builds on deploy, but only runs `next build` — it does NOT typecheck or run tests.
+# This closes that gap so a type error or a failing test can never reach master unnoticed.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+# Cancel superseded runs on the same ref (don't waste CI minutes on stale commits).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          # Public, RLS-protected placeholders — the build only reads the hardcoded MENU
+          # (generateStaticParams) and all data routes are dynamic, so no real DB is touched.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+
+      # Non-blocking for now: the repo carries pre-existing lint debt (mostly the strict
+      # react-hooks/set-state-in-effect rule on intentional hydration patterns). Reported
+      # here so it's visible; gate it once the debt is triaged (fix real ones, downgrade
+      # the intentional-pattern rules to `warn`).
+      - name: Lint (report-only)
+        run: npm run lint
+        continue-on-error: true
