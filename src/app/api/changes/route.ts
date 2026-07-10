@@ -34,6 +34,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       date?: string; // YYYY-MM-DD
     };
     if (!body.summary || !body.summary.trim()) return err('summary is required');
+    if (body.date && !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) return err('date must be YYYY-MM-DD');
     const createdAt = body.date ? new Date(`${body.date}T12:00:00Z`).toISOString() : undefined;
     await logChange(
       session.restaurantSlug,

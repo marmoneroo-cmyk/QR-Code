@@ -14,6 +14,8 @@ export const runtime = 'nodejs';
 const WIDTH = 1200;
 const HEIGHT = 1500;
 const FLAVOR_AXES: Array<keyof FlavorProfile> = ['sweet', 'bitter', 'citrus', 'smoky', 'herbal'];
+// Public poster image — cached longer at the CDN edge than the JSON GETs since it's larger and changes rarely.
+const POSTER_CACHE_HEADERS = { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' } as const;
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
@@ -237,6 +239,11 @@ export async function GET(req: Request, context: RouteContext): Promise<Response
         </div>
       </div>
     ),
-    { width: WIDTH, height: HEIGHT, fonts: fonts.length ? fonts : undefined }
+    {
+      width: WIDTH,
+      height: HEIGHT,
+      fonts: fonts.length ? fonts : undefined,
+      headers: POSTER_CACHE_HEADERS,
+    }
   );
 }

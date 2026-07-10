@@ -22,17 +22,19 @@ export async function POST(req: Request): Promise<Response> {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
   }
 
   if (!body.url || typeof body.url !== 'string') {
-    return NextResponse.json({ error: 'url is required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'url is required' }, { status: 400 });
   }
 
   try {
     const menu = await scrapeRestaurant(body.url);
-    return NextResponse.json(menu);
-  } catch (error: unknown) {
-    return unauthorized(error);
+    return NextResponse.json({ success: true, data: menu });
+  } catch {
+    // Distinct from the requireSession() 401 above: a bad/unreachable target
+    // URL is a client-caused failure (bad gateway), not an internal error.
+    return NextResponse.json({ success: false, error: 'could not reach that site' }, { status: 502 });
   }
 }

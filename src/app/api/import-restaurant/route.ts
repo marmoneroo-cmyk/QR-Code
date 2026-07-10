@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import { SHARED_LAYERS, type Category, type CocktailConfig } from '@/data/cocktail';
 import { inferKind } from '@/lib/menu/classify';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
+import { log } from '@/lib/log';
 
 export const runtime = 'nodejs';
 // Vercel Hobby plan caps serverless maxDuration at 300s. Bulk imports that
@@ -158,7 +159,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+    return new Response(JSON.stringify({ success: false, error: 'Invalid JSON body' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -166,7 +167,7 @@ export async function POST(req: Request): Promise<Response> {
 
   if (!body.restaurantSlug || !body.restaurantName || !Array.isArray(body.items)) {
     return new Response(
-      JSON.stringify({ error: 'restaurantSlug, restaurantName, items are required' }),
+      JSON.stringify({ success: false, error: 'restaurantSlug, restaurantName, items are required' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -234,6 +235,7 @@ export async function POST(req: Request): Promise<Response> {
             }
           } catch (imgErr: unknown) {
             const why = imgErr instanceof Error ? imgErr.message : String(imgErr);
+            log.error('import-restaurant', 'image generation failed', { error: why });
             imageNote = `image unavailable (${why}) — add a photo in the editor`;
           }
 

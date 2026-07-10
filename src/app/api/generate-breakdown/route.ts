@@ -61,14 +61,14 @@ export async function POST(req: Request): Promise<Response> {
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+    return new Response(JSON.stringify({ success: false, error: 'Invalid JSON body' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
   if (!body.slug || !body.name) {
-    return new Response(JSON.stringify({ error: 'slug and name are required' }), {
+    return new Response(JSON.stringify({ success: false, error: 'slug and name are required' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -79,7 +79,7 @@ export async function POST(req: Request): Promise<Response> {
     await fs.mkdir(outputDir, { recursive: true });
   } catch (err: unknown) {
     log.error('generate-breakdown', err instanceof Error ? err.message : 'mkdir failed', { stage: 'mkdir', dir: outputDir });
-    return new Response(JSON.stringify({ error: 'internal error' }), {
+    return new Response(JSON.stringify({ success: false, error: 'internal error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
