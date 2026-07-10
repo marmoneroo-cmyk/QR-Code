@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Flame, Moon, Clock } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { KpiCard, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
 import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import type { AttentionHeatmap, HeatmapSection } from '@/lib/analytics/heatmap';
+import { useApiData } from '@/lib/data/useApiData';
 
 const SECTION_LABEL: Record<string, { en: string; he: string }> = {
   hero: { en: 'Hero image', he: 'תמונת הירו' },
@@ -57,25 +58,10 @@ export function HeatmapPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const t = (en: string, he: string) => (isHe ? he : en);
-  const [data, setData] = useState<AttentionHeatmap | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/analytics/heatmap', { cache: 'no-store' });
-      const json: { success: boolean; data?: AttentionHeatmap } = await res.json();
-      setData(json.success && json.data ? json.data : { sections: [], hasData: false });
-    } catch {
-      setData({ sections: [], hasData: false });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  // No poll in the original (fetch-once-on-mount) — options object omitted. SWR's default
+  // focus/reconnect revalidation now applies too (see useApiData JSDoc); the original never
+  // refetched after mount, so this is a silent (non-visual) behavior addition.
+  const { data, loading } = useApiData<AttentionHeatmap>('/api/analytics/heatmap');
 
   const sections = useMemo(() => data?.sections ?? [], [data]);
   const maxViews = useMemo(() => sections.reduce((m, s) => Math.max(m, s.views), 0), [sections]);

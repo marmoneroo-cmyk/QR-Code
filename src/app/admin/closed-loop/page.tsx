@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   CheckCircle2,
@@ -24,6 +24,7 @@ import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import type { ImpactStatus, MetricKey, Confidence } from '@/lib/closedloop/types';
 import type { ClosedLoopItem, ClosedLoopReport } from '@/lib/closedloop/server';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -67,9 +68,8 @@ export function ClosedLoopPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const t = (en: string, he: string) => (isHe ? he : en);
-  const [data, setData] = useState<ClosedLoopReport | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { data, loading, error, reload } = useApiData<ClosedLoopReport>('/api/closed-loop');
+  const load = reload;
 
   // manual external-change form
   const [summary, setSummary] = useState('');
@@ -79,30 +79,6 @@ export function ClosedLoopPanel() {
   const [msg, setMsg] = useState<string | null>(null);
 
   const titleBySlug = useMemo(() => new Map(MENU.map((c) => [c.slug, c.title])), []);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/closed-loop', { cache: 'no-store' });
-      const json: { success: boolean; data?: ClosedLoopReport } = await res.json();
-      if (json.success) {
-        setData(json.data ?? { measured: [], timeline: [], hasData: false });
-        setError(false);
-      } else {
-        setData(null);
-        setError(true);
-      }
-    } catch {
-      setData(null);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   const submitManual = async () => {
     if (!summary.trim()) {

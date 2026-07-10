@@ -13,6 +13,7 @@ import { GlassCard, PanelHeader, ErrorState } from '@/components/ui/premium';
 import { useLang } from '@/lib/useLang';
 import { hasConfidentSample } from '@/lib/analytics/rate';
 import type { MenuClass, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -69,9 +70,12 @@ export function MenuEngineeringPanel() {
   const { lang } = useLang();
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
-  const [data, setData] = useState<MenuEngineering | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { data, loading, error: fetchError, reload } = useApiData<MenuEngineering>(
+    '/api/analytics/menu-engineering',
+    { refreshInterval: 20000 },
+  );
+  const error = Boolean(fetchError);
+  const load = reload;
 
   /** Slug currently hovered in the matrix (drives popover + scale). */
   const [hovered, setHovered] = useState<string | null>(null);
@@ -105,29 +109,6 @@ export function MenuEngineeringPanel() {
     },
     [],
   );
-
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch('/api/analytics/menu-engineering', { cache: 'no-store' });
-      const json: { success: boolean; data?: MenuEngineering } = await res.json();
-      if (json.success && json.data) {
-        setData(json.data);
-        setError(false);
-      } else {
-        setError(true);
-      }
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 20000);
-    return () => window.clearInterval(id);
-  }, [load]);
 
   /** Enrich each item with its cocktail visuals; drop any without a matching cocktail. */
   const items: EnrichedItem[] = useMemo(() => {

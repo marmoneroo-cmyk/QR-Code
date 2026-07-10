@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { MENU } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
@@ -17,6 +17,7 @@ import type { Opportunity, OpportunityType } from '@/lib/opportunities/types';
 import type { AnalyticsOverview, MenuEngineering } from '@/lib/analytics/types';
 import type { Promotion } from '@/lib/promotions/types';
 import type { ClosedLoopReport } from '@/lib/closedloop/server';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 
@@ -28,56 +29,56 @@ const OPP_LABEL: Record<OpportunityType, { en: string; he: string }> = {
   reengage_returning: { en: 'Re-engage', he: 'החזירו' },
 };
 
-interface Json<T> {
-  success: boolean;
-  data?: T;
-}
-
-async function getJson<T>(url: string): Promise<T | null> {
-  try {
-    const res = await fetch(url, { cache: 'no-store' });
-    const json: Json<T> = await res.json();
-    return json.success && json.data !== undefined ? json.data : null;
-  } catch {
-    return null;
-  }
-}
-
 export default function HomeDashboardPage() {
   const { lang } = useLang();
   const isHe = lang === 'he';
-  const [opps, setOpps] = useState<Opportunity[]>([]);
-  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
-  const [menu, setMenu] = useState<MenuEngineering | null>(null);
-  const [promos, setPromos] = useState<Promotion[]>([]);
-  const [loop, setLoop] = useState<ClosedLoopReport | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
-  const load = useCallback(async () => {
-    setError(false);
-    const results = await Promise.all([
-      getJson<{ opportunities: Opportunity[] }>('/api/analytics/opportunities'),
-      getJson<AnalyticsOverview>('/api/analytics/overview'),
-      getJson<MenuEngineering>('/api/analytics/menu-engineering'),
-      getJson<Promotion[]>('/api/promotions/mine?activeOnly=true'),
-      getJson<ClosedLoopReport>('/api/closed-loop'),
-    ]);
-    const [o, ov, me, pr, cl] = results;
-    setOpps(o?.opportunities ?? []);
-    setOverview(ov);
-    setMenu(me);
-    setPromos(pr ?? []);
-    setLoop(cl);
-    // A live backend returns zeroed data (not null) for a new restaurant, so ALL-null
-    // means an outage/auth failure — a real error, not "no data yet".
-    setError(results.every((r) => r === null));
-    setLoading(false);
-  }, []);
+  const {
+    data: oppsData,
+    loading: oppsLoading,
+    error: oppsError,
+    reload: reloadOpps,
+  } = useApiData<{ opportunities: Opportunity[] }>('/api/analytics/opportunities');
+  const {
+    data: overview,
+    loading: overviewLoading,
+    error: overviewError,
+    reload: reloadOverview,
+  } = useApiData<AnalyticsOverview>('/api/analytics/overview');
+  const {
+    data: menu,
+    loading: menuLoading,
+    error: menuError,
+    reload: reloadMenu,
+  } = useApiData<MenuEngineering>('/api/analytics/menu-engineering');
+  const {
+    data: promosData,
+    loading: promosLoading,
+    error: promosError,
+    reload: reloadPromos,
+  } = useApiData<Promotion[]>('/api/promotions/mine?activeOnly=true');
+  const {
+    data: loop,
+    loading: loopLoading,
+    error: loopError,
+    reload: reloadLoop,
+  } = useApiData<ClosedLoopReport>('/api/closed-loop');
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const opps = oppsData?.opportunities ?? [];
+  const promos = promosData ?? [];
+  // Loading until every widget's endpoint has settled — matches the old Promise.all gate.
+  const loading = oppsLoading || overviewLoading || menuLoading || promosLoading || loopLoading;
+  // A live backend returns zeroed data (not null) for a new restaurant, so ALL-failed
+  // means an outage/auth failure — a real error, not "no data yet".
+  const error = !loading && [oppsError, overviewError, menuError, promosError, loopError].every((e) => e !== null);
+
+  const load = useCallback(() => {
+    reloadOpps();
+    reloadOverview();
+    reloadMenu();
+    reloadPromos();
+    reloadLoop();
+  }, [reloadOpps, reloadOverview, reloadMenu, reloadPromos, reloadLoop]);
 
   const titleBySlug = useMemo(() => new Map(MENU.map((c) => [c.slug, c.title])), []);
   const t = (slug: string | null | undefined) => (slug ? titleBySlug.get(slug)?.[lang] ?? slug : '—');

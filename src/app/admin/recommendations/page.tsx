@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Link2, Lightbulb, ArrowRight, ArrowLeft, Crown } from 'lucide-react';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
@@ -16,6 +16,7 @@ import { Stagger, staggerItem } from '@/components/ui/motion';
 import { motion } from 'framer-motion';
 import type { CoViewRow, Recommendations } from '@/lib/analytics/recommendations-types';
 import type { MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -32,11 +33,6 @@ export function RecommendationsPanel() {
   const { lang } = useLang();
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
-  const [data, setData] = useState<Recommendations | null>(null);
-  const [menuItems, setMenuItems] = useState<MenuEngineeringItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
   const titleBySlug = useMemo(() => {
     const map = new Map<string, string>();
     for (const c of MENU) map.set(c.slug, c.title[lang]);
@@ -48,35 +44,28 @@ export function RecommendationsPanel() {
     [titleBySlug],
   );
 
-  const load = useCallback(async () => {
-    try {
-      const [recRes, meRes] = await Promise.all([
-        fetch('/api/analytics/recommendations', { cache: 'no-store' }),
-        fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
-      ]);
-      const recJson: { success: boolean; data?: Recommendations } = await recRes.json();
-      const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
-      if (!recJson.success || !meJson.success) {
-        setError(true);
-      } else {
-        if (recJson.data) setData(recJson.data);
-        if (meJson.data) setMenuItems(meJson.data.items);
-        setError(false);
-      }
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Two independent endpoints, same shape as the events-page migration: `loading` drives off
+  // the primary (recommendations) fetch, menu-engineering only contributes `menuItems`, and
+  // both share the original 20s poll cadence.
+  const {
+    data,
+    loading,
+    error: recError,
+    reload: reloadRec,
+  } = useApiData<Recommendations>('/api/analytics/recommendations', { refreshInterval: 20000 });
+  const {
+    data: meData,
+    error: meError,
+    reload: reloadMenu,
+  } = useApiData<MenuEngineering>('/api/analytics/menu-engineering', { refreshInterval: 20000 });
+  const menuItems: MenuEngineeringItem[] = useMemo(() => meData?.items ?? [], [meData]);
+  const error = Boolean(recError || meError);
+  const load = useCallback(() => {
+    reloadRec();
+    reloadMenu();
+  }, [reloadRec, reloadMenu]);
 
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 20000);
-    return () => window.clearInterval(id);
-  }, [load]);
-
-  const rows: CoViewRow[] = data?.rows ?? [];
+  const rows: CoViewRow[] = useMemo(() => data?.rows ?? [], [data]);
   const hasData = data?.hasData ?? false;
 
   // Realistic, menu-own benchmark + a slug→item lookup for honest upside estimates.

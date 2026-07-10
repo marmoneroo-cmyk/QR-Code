@@ -1,6 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import { Trophy, ArrowUpRight, ArrowDownRight, FlaskConical, Hourglass } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Skeleton, LiveDot } from '@/components/ui/dataviz';
@@ -10,6 +9,7 @@ import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import type { ExperimentResult, VariantResult, ExperimentsResponse } from '@/lib/experiments/results-types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -37,32 +37,11 @@ export default function ExperimentsPage() {
   const { lang } = useLang();
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
-  const [data, setData] = useState<ExperimentsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch('/api/experiments/results', { cache: 'no-store' });
-      const json: { success: boolean; data?: ExperimentsResponse } = await res.json();
-      if (json.success && json.data) {
-        setData(json.data);
-        setError(false);
-      } else {
-        setError(true);
-      }
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 15000);
-    return () => window.clearInterval(id);
-  }, [load]);
+  const { data, loading, error, reload } = useApiData<ExperimentsResponse>(
+    '/api/experiments/results',
+    { refreshInterval: 15000 },
+  );
+  const load = reload;
 
   const experiments = data?.experiments ?? [];
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Sunrise, Flame, ArrowRight, Users, ShoppingBag, TrendingUp, TrendingDown, BadgeCheck, Share2, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -16,6 +16,7 @@ import { getAccent, findCocktailBySlug } from '@/data/cocktail';
 import { totalPotential } from '@/lib/value/potential';
 import { formatILS } from '@/lib/format';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const serif = 'var(--font-playfair, serif)';
 const sans = 'var(--font-inter, sans-serif)';
@@ -101,42 +102,31 @@ export default function ExecutiveSummaryPage() {
   const isHe = lang === 'he';
   const t = (en: string, he: string) => (isHe ? he : en);
 
-  const [me, setMe] = useState<MenuEngineering | null>(null);
-  const [ov, setOv] = useState<AnalyticsOverview | null>(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: me,
+    loading: meLoading,
+    error: meError,
+    reload: reloadMe,
+  } = useApiData<MenuEngineering>('/api/analytics/menu-engineering', { refreshInterval: 25000 });
+  const {
+    data: ov,
+    loading: ovLoading,
+    error: ovError,
+    reload: reloadOv,
+  } = useApiData<AnalyticsOverview>('/api/analytics/overview', { refreshInterval: 25000 });
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState(false);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const readiness = useReadiness();
 
-  const load = useCallback(async () => {
-    try {
-      const [meRes, ovRes] = await Promise.all([
-        fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
-        fetch('/api/analytics/overview', { cache: 'no-store' }),
-      ]);
-      const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
-      const ovJson: { success: boolean; data?: AnalyticsOverview } = await ovRes.json();
-      if (!meJson.success || !ovJson.success) {
-        setError(true);
-      } else {
-        if (meJson.data) setMe(meJson.data);
-        if (ovJson.data) setOv(ovJson.data);
-        setError(false);
-        setHasLoadedOnce(true);
-      }
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 25000);
-    return () => window.clearInterval(id);
-  }, [load]);
+  // Dual-endpoint page (mirrors events/page.tsx's two-hooks-plus-merged-load pattern).
+  // loading/error/hasLoadedOnce are now derived from two independent polls instead of the
+  // original single atomic try/catch that updated `me`/`ov` together only when both succeeded.
+  const loading = meLoading || ovLoading;
+  const error = Boolean(meError || ovError);
+  const hasLoadedOnce = me !== null && ov !== null;
+  const load = useCallback(() => {
+    reloadMe();
+    reloadOv();
+  }, [reloadMe, reloadOv]);
 
   const items: Enriched[] = useMemo(() => {
     return (me?.items ?? [])

@@ -32,8 +32,9 @@ export interface UseApiData<T> {
   loading: boolean;
   /** Set when the latest fetch failed; `data` retains the last good value. */
   error: Error | null;
-  /** Imperatively revalidate (replaces manual `load()` calls behind refresh buttons). */
-  reload: () => void;
+  /** Imperatively revalidate (replaces manual `load()` calls behind refresh buttons). Awaitable:
+   * resolves once the refetch settles, so callers that awaited the old `load()` still can. */
+  reload: () => Promise<void>;
 }
 
 /**
@@ -49,8 +50,8 @@ export interface UseApiData<T> {
 export function useApiData<T>(key: string | null, options?: SWRConfiguration<T>): UseApiData<T> {
   const { data, error, isLoading, mutate } = useSWR<T>(key, apiFetcher, options);
   // mutate is stable per key, so reload is stable — consumers can safely list it in deps.
-  const reload = useCallback(() => {
-    void mutate();
+  const reload = useCallback(async () => {
+    await mutate();
   }, [mutate]);
   return {
     data: data ?? null,
