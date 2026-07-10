@@ -338,7 +338,6 @@ export function PromotionsPanel() {
         await fetch(`/api/promotions?id=${editingId}`, { method: 'DELETE' });
       }
       const body = {
-        restaurant: 'diner',
         name: form.name.trim(),
         type: form.type,
         value: Number(form.value),

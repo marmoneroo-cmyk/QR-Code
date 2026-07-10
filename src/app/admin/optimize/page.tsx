@@ -129,7 +129,7 @@ export function OptimizePanel() {
     try {
       const [meRes, salesRes] = await Promise.all([
         fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
-        fetch('/api/sales?restaurant=diner', { cache: 'no-store' }),
+        fetch('/api/sales', { cache: 'no-store' }),
       ]);
       const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
       if (meJson.success && meJson.data) setData(meJson.data);

@@ -115,7 +115,7 @@ export function ClosedLoopPanel() {
       const res = await fetch('/api/changes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ restaurant: 'diner', summary: summary.trim(), entityId: slug || undefined, date: date || undefined }),
+        body: JSON.stringify({ summary: summary.trim(), entityId: slug || undefined, date: date || undefined }),
       });
       const json: { success: boolean } = await res.json();
       if (json.success) {

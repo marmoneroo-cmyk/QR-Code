@@ -156,7 +156,7 @@ export function ExperiencePanel() {
       const res = await fetch('/api/experience', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ restaurant: 'diner', slug, config: stateToConfig(s) }),
+        body: JSON.stringify({ slug, config: stateToConfig(s) }),
       });
       const json: { success: boolean } = await res.json();
       if (json.success) {

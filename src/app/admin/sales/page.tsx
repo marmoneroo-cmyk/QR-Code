@@ -178,7 +178,7 @@ export function SalesPanel() {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch('/api/sales?restaurant=diner', { cache: 'no-store' });
+      const res = await fetch('/api/sales', { cache: 'no-store' });
       const json: { success: boolean; data?: SalesByItem[] } = await res.json();
       if (json.success) {
         setSales(json.data ?? []);
@@ -214,7 +214,7 @@ export function SalesPanel() {
       const res = await fetch('/api/sales', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ restaurant: 'diner', periodStart: start, periodEnd: end, rows: parsed }),
+        body: JSON.stringify({ periodStart: start, periodEnd: end, rows: parsed }),
       });
       const json: { success: boolean; data?: { imported: number }; error?: string } = await res.json();
       if (json.success) {
