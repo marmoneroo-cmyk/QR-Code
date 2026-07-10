@@ -110,7 +110,7 @@ export function ExperiencePanel() {
     setLoading(true);
     let dbConfig: Record<string, ExperienceConfig> = {};
     try {
-      const res = await fetch('/api/experience?restaurant=diner', { cache: 'no-store' });
+      const res = await fetch('/api/experience/mine', { cache: 'no-store' });
       const json: { success: boolean; data?: Record<string, ExperienceConfig> } = await res.json();
       if (json.success && json.data) dbConfig = json.data;
     } catch {

@@ -59,7 +59,7 @@ export default function HomeDashboardPage() {
       getJson<{ opportunities: Opportunity[] }>('/api/analytics/opportunities'),
       getJson<AnalyticsOverview>('/api/analytics/overview'),
       getJson<MenuEngineering>('/api/analytics/menu-engineering'),
-      getJson<Promotion[]>('/api/promotions?restaurant=diner&activeOnly=true'),
+      getJson<Promotion[]>('/api/promotions/mine?activeOnly=true'),
       getJson<ClosedLoopReport>('/api/closed-loop'),
     ]);
     const [o, ov, me, pr, cl] = results;

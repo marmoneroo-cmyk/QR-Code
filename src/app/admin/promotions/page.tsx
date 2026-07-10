@@ -275,7 +275,7 @@ export function PromotionsPanel() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/promotions?restaurant=diner', { cache: 'no-store' });
+      const res = await fetch('/api/promotions/mine', { cache: 'no-store' });
       const json: { success: boolean; data?: Promotion[] } = await res.json();
       if (json.success) {
         setItems(json.data ?? []);
