@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, ShoppingBag, TrendingUp, TrendingDown, Coins, Percent } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -15,6 +15,7 @@ import { useLang } from '@/lib/useLang';
 import { hasConfidentSample } from '@/lib/analytics/rate';
 import { formatILS } from '@/lib/format';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -105,10 +106,20 @@ export default function AnalyticsPage() {
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
 
-  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
-  const [me, setMe] = useState<MenuEngineering | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  // Both endpoints share the old 15s poll cadence (a single setInterval used to fetch them
+  // together via Promise.all); SWR's default revalidateOnFocus replaces the old
+  // visibilitychange listener.
+  const {
+    data: overview,
+    loading: ovLoading,
+    error: ovError,
+    reload: reloadOverview,
+  } = useApiData<AnalyticsOverview>('/api/analytics/overview', { refreshInterval: 15000 });
+  const {
+    data: me,
+    loading: meLoading,
+    reload: reloadMe,
+  } = useApiData<MenuEngineering>('/api/analytics/menu-engineering', { refreshInterval: 15000 });
 
   const titleBySlug = useMemo(() => {
     const map = new Map<string, string>();
@@ -116,36 +127,15 @@ export default function AnalyticsPage() {
     return map;
   }, [lang]);
 
-  const load = useCallback(async () => {
-    try {
-      const [ovRes, meRes] = await Promise.all([
-        fetch('/api/analytics/overview', { cache: 'no-store' }),
-        fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
-      ]);
-      const ovJson: { success: boolean; data?: AnalyticsOverview } = await ovRes.json();
-      const meJson: { success: boolean; data?: MenuEngineering } = await meRes.json();
-      if (ovJson.success && ovJson.data) setOverview(ovJson.data);
-      if (meJson.success && meJson.data) setMe(meJson.data);
-      setError(!ovJson.success); // overview is the KPI source; false-success ⇒ error
-    } catch {
-      setError(true); // network / parse failure — keep last good data, but flag it
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 15000);
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') load();
-    };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => {
-      window.clearInterval(id);
-      document.removeEventListener('visibilitychange', onVisible);
-    };
-  }, [load]);
+  // loading matches the old useState(true) spinner: true until the first response lands.
+  const loading = ovLoading || meLoading;
+  // overview is the KPI source; its failure drives the error banner — menu-engineering
+  // failures don't, matching the original `setError(!ovJson.success)` design.
+  const error = Boolean(ovError);
+  const load = useCallback(() => {
+    reloadOverview();
+    reloadMe();
+  }, [reloadOverview, reloadMe]);
 
   const viewsDelta = deltaPct(overview?.viewsByDay);
   const ordersDelta = deltaPct(overview?.ordersByDay);

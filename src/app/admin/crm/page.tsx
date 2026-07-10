@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Users, Repeat, CalendarCheck, Activity, Flame, Eye, ShoppingBag, Languages, Smartphone } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -10,6 +10,7 @@ import { GlassCard, PanelHeader, EmptyState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import type { CrmSignals } from '@/lib/analytics/crm-types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -213,26 +214,7 @@ export default function CrmPage() {
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
 
-  const [data, setData] = useState<CrmSignals | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch('/api/analytics/crm', { cache: 'no-store' });
-      const json: { success: boolean; data?: CrmSignals } = await res.json();
-      if (json.success && json.data) setData(json.data);
-    } catch {
-      /* keep last good data */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 20000);
-    return () => window.clearInterval(id);
-  }, [load]);
+  const { data, loading } = useApiData<CrmSignals>('/api/analytics/crm', { refreshInterval: 20000 });
 
   const sessions = data?.totalSessions ?? 0;
   const ordering = data?.orderingSessions ?? 0;

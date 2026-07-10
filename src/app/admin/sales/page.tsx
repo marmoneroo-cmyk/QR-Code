@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
+import { useCallback, useMemo, useRef, useState, type DragEvent } from 'react';
 import { Coins, Boxes, UploadCloud, AlertTriangle, LayoutGrid } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, KpiCard, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
@@ -11,6 +11,7 @@ import { useLang } from '@/lib/useLang';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { formatILS } from '@/lib/format';
 import type { SaleInput, SalesByItem } from '@/lib/sales/repository';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -121,11 +122,12 @@ export function SalesPanel() {
   const [end, setEnd] = useState('');
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const [sales, setSales] = useState<SalesByItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
+
+  const { data: rawSales, loading, error: fetchError, reload } = useApiData<SalesByItem[]>('/api/sales');
+  const sales = rawSales ?? [];
+  const error = Boolean(fetchError);
 
   const readDroppedFile = useCallback((file: File) => {
     if (typeof window === 'undefined' || typeof FileReader === 'undefined') return;
@@ -176,28 +178,7 @@ export function SalesPanel() {
   const parsed = useMemo(() => parseCsv(csv), [csv]);
   const unknown = parsed.filter((r) => !knownSlugs.has(r.slug)).map((r) => r.slug);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch('/api/sales', { cache: 'no-store' });
-      const json: { success: boolean; data?: SalesByItem[] } = await res.json();
-      if (json.success) {
-        setSales(json.data ?? []);
-        setError(false);
-      } else {
-        setSales([]);
-        setError(true);
-      }
-    } catch {
-      setSales([]);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const load = reload;
 
   const submit = async () => {
     if (!start || !end) {

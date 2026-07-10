@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { MENU, type Lang } from '@/data/cocktail';
 import { useNow } from '@/lib/useNow';
+import { useApiData } from '@/lib/data/useApiData';
 
 /**
  * LiveFunnel — the first REAL (non-demo) analytics surface. Fetches the
@@ -37,10 +38,8 @@ const STAGES = [
 export function LiveFunnel({ lang }: { lang: Lang }) {
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
-  const [rows, setRows] = useState<FunnelRow[] | null>(null);
-  const [error, setError] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
+  const [manualRefreshing, setManualRefreshing] = useState(false);
 
   const titleBySlug = useMemo(() => {
     const map = new Map<string, string>();
@@ -48,45 +47,38 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
     return map;
   }, [lang]);
 
-  const load = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      const res = await fetch('/api/analytics/funnel', { cache: 'no-store' });
-      const json: { success: boolean; data?: FunnelRow[] } = await res.json();
-      if (json.success && json.data) {
-        // Keep any cocktail with activity in ANY stage (direct QR visits have
-        // seen=0 but opened>0 — they must still appear).
-        setRows(
-          json.data.filter(
-            (r) => r.seen + r.opened + r.ingredients + r.breakdown + r.called + r.ordered > 0,
-          ),
-        );
-        setError(false);
-        setUpdatedAt(Date.now());
-      } else {
-        setError(true);
-      }
-    } catch {
-      setError(true);
-    } finally {
-      setRefreshing(false);
-    }
-  }, []);
+  // Polls every 10s; SWR's default revalidateOnFocus replaces the old visibilitychange
+  // listener. onSuccess fires after every successful fetch (poll, focus, or manual reload),
+  // so updatedAt bumps exactly like the old `setUpdatedAt(Date.now())` did — without ever
+  // calling Date.now() during render.
+  const {
+    data: rawRows,
+    loading,
+    error: fetchError,
+    reload,
+  } = useApiData<FunnelRow[]>('/api/analytics/funnel', {
+    refreshInterval: 10000,
+    onSuccess: () => setUpdatedAt(Date.now()),
+  });
 
-  // Load on mount, poll every 10s, and refresh whenever the tab regains focus —
-  // so interacting in another tab shows up here without a manual reload.
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 10000);
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') load();
-    };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => {
-      window.clearInterval(id);
-      document.removeEventListener('visibilitychange', onVisible);
-    };
-  }, [load]);
+  const error = Boolean(fetchError);
+
+  // Keep any cocktail with activity in ANY stage (direct QR visits have seen=0 but
+  // opened>0 — they must still appear). Derived from the raw payload each render instead
+  // of being filtered once at fetch time.
+  const rows = useMemo(() => {
+    if (!rawRows) return null;
+    return rawRows.filter((r) => r.seen + r.opened + r.ingredients + r.breakdown + r.called + r.ordered > 0);
+  }, [rawRows]);
+
+  // Wraps reload so the refresh button's dot still pings on a manual click — useApiData's
+  // `loading` only covers the very first load, so background polls fall back to the idle
+  // pulse (useApiData doesn't surface SWR's isValidating).
+  const load = useCallback(() => {
+    setManualRefreshing(true);
+    reload().finally(() => setManualRefreshing(false));
+  }, [reload]);
+  const refreshing = loading || manualRefreshing;
 
   const now = useNow(1000);
   const agoLabel = (() => {

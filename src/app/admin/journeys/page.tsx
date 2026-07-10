@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   QrCode,
@@ -34,6 +34,7 @@ import { useLang } from '@/lib/useLang';
 import { deviceLabel } from '@/lib/tracking/eventLabels';
 import type { JourneyStep, SessionJourney, SessionJourneys } from '@/lib/analytics/journey-types';
 import { formatILS } from '@/lib/format';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -341,33 +342,14 @@ export function JourneysPanel() {
   const { lang } = useLang();
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
-  const [data, setData] = useState<SessionJourneys | null>(null);
-  const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<string | null>(null);
+  const { data, loading } = useApiData<SessionJourneys>('/api/sessions', { refreshInterval: 15000 });
 
   const titleBySlug = useMemo(() => {
     const m = new Map<string, string>();
     for (const c of MENU) m.set(c.slug, c.title[lang]);
     return m;
   }, [lang]);
-
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch('/api/sessions', { cache: 'no-store' });
-      const json: { success: boolean; data?: SessionJourneys } = await res.json();
-      if (json.success && json.data) setData(json.data);
-    } catch {
-      /* keep last good */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 15000);
-    return () => window.clearInterval(id);
-  }, [load]);
 
   const stepText = (s: JourneyStep): string => {
     const label = STEP_LABEL[s.event] ?? { en: s.event, he: s.event };

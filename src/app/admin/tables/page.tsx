@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
 import { motion } from 'framer-motion';
 import { QrCode, Eye, ShoppingBag, Target, Crown, Share2, LayoutGrid } from 'lucide-react';
@@ -14,6 +14,7 @@ import { useOrigin } from '@/lib/useOrigin';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { formatILS } from '@/lib/format';
 import type { TableIntelligence, TableRow } from '@/lib/analytics/tables-types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -55,30 +56,11 @@ export function TablesPanel() {
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
 
-  const [data, setData] = useState<TableIntelligence | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, loading } = useApiData<TableIntelligence>('/api/analytics/tables', { refreshInterval: 20000 });
   const [tableCount, setTableCount] = useState(12);
   const [qrs, setQrs] = useState<TableQr[]>([]);
   const [generating, setGenerating] = useState(false);
   const origin = useOrigin();
-
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch('/api/analytics/tables', { cache: 'no-store' });
-      const json: { success: boolean; data?: TableIntelligence } = await res.json();
-      if (json.success && json.data) setData(json.data);
-    } catch {
-      /* keep last good */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 20000);
-    return () => window.clearInterval(id);
-  }, [load]);
 
   const generateQrs = useCallback(async () => {
     if (!origin) return;

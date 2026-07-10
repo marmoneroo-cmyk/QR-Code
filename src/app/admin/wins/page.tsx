@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   PartyPopper,
@@ -27,6 +27,7 @@ import { GlassCard, EmptyState as PremiumEmptyState, ErrorState, CtaPill } from 
 import { useLang } from '@/lib/useLang';
 import type { MetricKey, Confidence } from '@/lib/closedloop/types';
 import type { ClosedLoopItem, ClosedLoopReport } from '@/lib/closedloop/server';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -98,33 +99,18 @@ export function WinsPanel() {
   const isHe = lang === 'he';
   const t = useCallback((en: string, he: string) => (isHe ? he : en), [isHe]);
 
-  const [data, setData] = useState<ClosedLoopReport | null>(null);
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
   const [tab, setTab] = useState<TabKey>('all');
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch('/api/closed-loop', { cache: 'no-store' });
-      const json: { success: boolean; data?: ClosedLoopReport } = await res.json();
-      if (json.success && json.data) {
-        setData(json.data);
-        setError(false);
-      } else {
-        setError(true);
-      }
-    } catch {
-      setError(true);
-    } finally {
-      setLoaded(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-    const id = window.setInterval(() => void load(), POLL_MS);
-    return () => window.clearInterval(id);
-  }, [load]);
+  // loaded/error are derived to match the page's original semantics: `loaded` used to mean
+  // "the first load attempt has settled" (success or failure) and `error` mirrored the latest
+  // fetch's outcome while `data` kept the last good payload — exactly what useApiData's
+  // loading/error already track, just under the old names so the JSX below stays untouched.
+  const { data, loading, error: fetchError, reload: load } = useApiData<ClosedLoopReport>(
+    '/api/closed-loop',
+    { refreshInterval: POLL_MS },
+  );
+  const loaded = !loading;
+  const error = Boolean(fetchError);
 
   // Seeded-once clock (render-pure) for the time-window cutoffs below.
   const now = useNow();
