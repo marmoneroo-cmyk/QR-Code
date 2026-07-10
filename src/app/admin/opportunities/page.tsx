@@ -13,9 +13,11 @@ import { useLang } from '@/lib/useLang';
 import { PotentialValue } from '@/components/ui/value';
 import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual';
 import { estimatePotential, buildMenuBenchmark, type MenuBenchmark } from '@/lib/value/potential';
+import { isStatusActive, type OppStatusKind, type OppStatusMap } from '@/lib/value/focus';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
 import type { Opportunity, OpportunityType, Confidence, LayoutInsight } from '@/lib/opportunities/types';
 import { useNow } from '@/lib/useNow';
+import { useOppStatuses } from '@/lib/useOppStatuses';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -69,86 +71,9 @@ interface BoardData {
 
 /* ── Per-opportunity action state, persisted to localStorage ───────────────── */
 
-const OPPS_STORAGE_KEY = 'cocktail-demo:opps';
-const SNOOZE_MS = 24 * 60 * 60 * 1000; // "remind me tomorrow" = now + 24h
-
-type OppStatusKind = 'done' | 'dismissed' | 'snoozed';
-
-interface OppStatusEntry {
-  status: OppStatusKind;
-  /** Epoch ms; only meaningful for `snoozed`. */
-  until?: number;
-}
-
-type OppStatusMap = Record<string, OppStatusEntry>;
-
 /** Stable id for an opportunity — same slug can appear under several types. */
 function oppId(o: Pick<Opportunity, 'slug' | 'type'>): string {
   return `${o.slug}:${o.type}`;
-}
-
-/** SSR-safe read. Never touches `window` on the server; tolerates corrupt JSON. */
-function readOppStatuses(): OppStatusMap {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = window.localStorage.getItem(OPPS_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return {};
-    return parsed as OppStatusMap;
-  } catch {
-    return {};
-  }
-}
-
-function writeOppStatuses(map: OppStatusMap): void {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(OPPS_STORAGE_KEY, JSON.stringify(map));
-  } catch {
-    /* quota / privacy mode — keep working from in-memory state */
-  }
-}
-
-/** A snooze is active only while its `until` is still in the future. */
-function isStatusActive(entry: OppStatusEntry, now: number): boolean {
-  if (entry.status === 'snoozed') return typeof entry.until === 'number' && entry.until > now;
-  return true;
-}
-
-/**
- * Mirrors the persisted status map in React state so clicks reflect instantly.
- * Reads localStorage once on mount (SSR-safe: empty map until then) and writes
- * back on every mutation.
- */
-function useOppStatuses() {
-  const [statuses, setStatuses] = useState<OppStatusMap>({});
-
-  useEffect(() => {
-    setStatuses(readOppStatuses());
-  }, []);
-
-  const setStatus = useCallback((id: string, status: OppStatusKind) => {
-    setStatuses((prev) => {
-      const entry: OppStatusEntry =
-        status === 'snoozed' ? { status, until: Date.now() + SNOOZE_MS } : { status };
-      const next: OppStatusMap = { ...prev, [id]: entry };
-      writeOppStatuses(next);
-      return next;
-    });
-  }, []);
-
-  const clearStatus = useCallback((id: string) => {
-    setStatuses((prev) => {
-      if (!(id in prev)) return prev;
-      const next: OppStatusMap = { ...prev };
-      delete next[id];
-      writeOppStatuses(next);
-      return next;
-    });
-  }, []);
-
-  return { statuses, setStatus, clearStatus };
 }
 
 /**

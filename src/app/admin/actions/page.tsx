@@ -8,8 +8,9 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
 import { PotentialValue, ConfidenceMeter, ReadinessNote } from '@/components/ui/value';
 import { useReadiness } from '@/lib/useReadiness';
+import { useOppStatuses } from '@/lib/useOppStatuses';
 import { buildActions, type CoachAction } from '@/lib/value/actions';
-import { splitFocusActions, type OppStatusMap } from '@/lib/value/focus';
+import { splitFocusActions } from '@/lib/value/focus';
 import { buildMenuBenchmark } from '@/lib/value/potential';
 import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { HoverLift, AccentWash, Tilt } from '@/components/ui/visual';
@@ -45,72 +46,6 @@ function celebrationMessage(valueILS: number | null, lang: 'en' | 'he'): string 
       : `Nice — that's about ${formatILS(valueILS)} of upside now in motion.`;
   }
   return lang === 'he' ? 'בוצע. דבר אחד פחות על הפס.' : 'Done. One less thing on the pass.';
-}
-
-/* ── Done state, persisted to the SAME key the Opportunity board uses so they sync ── */
-
-const OPPS_STORAGE_KEY = 'cocktail-demo:opps';
-
-/** SSR-safe read. Never touches `window` on the server; tolerates corrupt JSON. */
-function readOppStatuses(): OppStatusMap {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = window.localStorage.getItem(OPPS_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return {};
-    return parsed as OppStatusMap;
-  } catch {
-    return {};
-  }
-}
-
-function writeOppStatuses(map: OppStatusMap): void {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(OPPS_STORAGE_KEY, JSON.stringify(map));
-  } catch {
-    /* quota / privacy mode — keep working from in-memory state */
-  }
-}
-
-/**
- * Mirrors the persisted status map in React state so clicks reflect instantly.
- * Reads localStorage once on mount (SSR-safe: empty map until then), writes back
- * on every mutation, and listens for cross-tab/board changes so the two screens
- * stay in lock-step.
- */
-function useOppStatuses() {
-  const [statuses, setStatuses] = useState<OppStatusMap>({});
-
-  useEffect(() => {
-    setStatuses(readOppStatuses());
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === OPPS_STORAGE_KEY) setStatuses(readOppStatuses());
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
-
-  const markDone = useCallback((id: string) => {
-    setStatuses((prev) => {
-      const next: OppStatusMap = { ...prev, [id]: { status: 'done' } };
-      writeOppStatuses(next);
-      return next;
-    });
-  }, []);
-
-  const clearStatus = useCallback((id: string) => {
-    setStatuses((prev) => {
-      if (!(id in prev)) return prev;
-      const next: OppStatusMap = { ...prev };
-      delete next[id];
-      writeOppStatuses(next);
-      return next;
-    });
-  }, []);
-
-  return { statuses, markDone, clearStatus };
 }
 
 export function ActionsPanel() {
