@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { AlertTriangle, RotateCw } from 'lucide-react';
 
 const serif = 'var(--font-playfair, serif)';
@@ -62,13 +63,13 @@ export function ErrorScreen({
               <RotateCw size={14} strokeWidth={2} /> {isHe ? 'נסו שוב' : 'Try again'}
             </button>
           )}
-          <a
+          <Link
             href="/"
             className="rounded-full border border-white/15 px-6 py-3 text-[13px] text-white/70 transition-colors hover:border-white/30 hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             style={{ fontFamily: sans }}
           >
             {isHe ? 'חזרה לתפריט' : 'Back to menu'}
-          </a>
+          </Link>
         </div>
         {digest && (
           <p className="mt-2 font-mono text-[10px] text-white/25" style={{ fontFamily: sans }}>
