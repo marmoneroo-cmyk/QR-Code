@@ -12,6 +12,7 @@ import { staggerContainer, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
 import { hasConfidentSample } from '@/lib/analytics/rate';
 import { totalPotential } from '@/lib/value/potential';
+import { formatILS } from '@/lib/format';
 import type { Opportunity, OpportunityType } from '@/lib/opportunities/types';
 import type { AnalyticsOverview, MenuEngineering } from '@/lib/analytics/types';
 import type { Promotion } from '@/lib/promotions/types';
@@ -202,8 +203,8 @@ export default function HomeDashboardPage() {
               <div className="grid grid-cols-2 gap-x-3 gap-y-4">
                 <Kpi label={isHe ? 'צפיות' : 'Views'} value={String(overview.totalViews)} />
                 <Kpi label={isHe ? 'אחוז הזמנה' : 'Order rate'} value={hasConfidentSample(overview.totalViews) ? `${Math.round(overview.conversionPct)}%` : '—'} />
-                <Kpi label={isHe ? 'הכנסה' : 'Revenue'} value={`₪${Math.round(overview.totalRevenue).toLocaleString()}`} />
-                <Kpi label={isHe ? 'רווח' : 'Profit'} value={`₪${Math.round(overview.totalProfit).toLocaleString()}`} />
+                <Kpi label={isHe ? 'הכנסה' : 'Revenue'} value={formatILS(overview.totalRevenue)} />
+                <Kpi label={isHe ? 'רווח' : 'Profit'} value={formatILS(overview.totalProfit)} />
               </div>
             )}
           </Widget>
@@ -286,7 +287,7 @@ export default function HomeDashboardPage() {
 function MoneyHero({ potential, isHe }: { potential: { revenueILS: number; count: number }; isHe: boolean }) {
   const t = (en: string, he: string) => (isHe ? he : en);
   const hasUpside = potential.count > 0;
-  const availableText = `₪${Math.round(potential.revenueILS).toLocaleString()}`;
+  const availableText = formatILS(potential.revenueILS);
   return (
     <motion.section
       className="relative mb-8 overflow-hidden rounded-[28px] p-[1px]"

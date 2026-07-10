@@ -16,6 +16,7 @@ import type { MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types
 import { buildRecommendations, type Recommendation, type Confidence, type RecAction } from '@/lib/optimization';
 import { estimatePotential, buildMenuBenchmark } from '@/lib/value/potential';
 import { PotentialValue } from '@/components/ui/value';
+import { formatILS } from '@/lib/format';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -272,7 +273,7 @@ export function OptimizePanel() {
                           <Pill
                             icon={ShoppingBag}
                             accent="#7dd3fc"
-                            text={`${sale.units} ${isHebrew ? 'יח׳' : 'units'} · ₪${Math.round(sale.revenue).toLocaleString()}`}
+                            text={`${sale.units} ${isHebrew ? 'יח׳' : 'units'} · ${formatILS(sale.revenue)}`}
                           />
                         )}
 

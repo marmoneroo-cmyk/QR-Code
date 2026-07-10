@@ -17,6 +17,7 @@ import { Stagger, staggerItem } from '@/components/ui/motion';
 import { GlassCard, EmptyState as PremiumEmptyState } from '@/components/ui/premium';
 import { Confetti } from '@/components/ui/celebrate';
 import { useLang } from '@/lib/useLang';
+import { formatILS } from '@/lib/format';
 import type { Opportunity } from '@/lib/opportunities/types';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
 
@@ -38,10 +39,9 @@ const CELEBRATE_MS = 2_000;
  */
 function celebrationMessage(valueILS: number | null, lang: 'en' | 'he'): string {
   if (typeof valueILS === 'number') {
-    const rounded = Math.round(valueILS);
     return lang === 'he'
-      ? `יפה — בערך ₪${rounded} של פוטנציאל עכשיו בתנועה.`
-      : `Nice — that's about ₪${rounded} of upside now in motion.`;
+      ? `יפה — בערך ${formatILS(valueILS)} של פוטנציאל עכשיו בתנועה.`
+      : `Nice — that's about ${formatILS(valueILS)} of upside now in motion.`;
   }
   return lang === 'he' ? 'בוצע. דבר אחד פחות על הפס.' : 'Done. One less thing on the pass.';
 }

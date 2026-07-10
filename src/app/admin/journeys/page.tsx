@@ -33,6 +33,7 @@ import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { useLang } from '@/lib/useLang';
 import { deviceLabel } from '@/lib/tracking/eventLabels';
 import type { JourneyStep, SessionJourney, SessionJourneys } from '@/lib/analytics/journey-types';
+import { formatILS } from '@/lib/format';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -536,7 +537,7 @@ export function JourneysPanel() {
                     </span>
                     {s.ordered ? (
                       <span className="inline-flex items-center gap-1 text-emerald-300/90 text-[13px] font-mono">
-                        <ShoppingBag size={13} strokeWidth={1.8} /> ₪{s.revenue.toLocaleString()}
+                        <ShoppingBag size={13} strokeWidth={1.8} /> {formatILS(s.revenue)}
                       </span>
                     ) : (
                       <span className="text-white/20 text-[13px]" aria-label={t('no order', 'ללא הזמנה')}>—</span>
@@ -598,7 +599,7 @@ export function JourneysPanel() {
                       { label: t('Ingredients', 'מרכיבים'), value: s.ingredients },
                       { label: t('Shares', 'שיתופים'), value: s.shares },
                       { label: t('Orders', 'הזמנות'), value: s.orders },
-                      { label: t('Revenue', 'הכנסה'), value: `₪${s.revenue.toLocaleString()}`, accent: true },
+                      { label: t('Revenue', 'הכנסה'), value: formatILS(s.revenue), accent: true },
                     ].map((m) => (
                       <div key={m.label}>
                         <p className="text-white/35 text-[9px] tracking-[0.2em] uppercase mb-1" style={{ fontFamily: sans }}>
@@ -614,7 +615,7 @@ export function JourneysPanel() {
                         <p className="text-white/35 text-[9px] tracking-[0.2em] uppercase mb-1" style={{ fontFamily: sans }}>
                           {t('Profit', 'רווח')}
                         </p>
-                        <p className="text-sm font-mono text-emerald-300/90">₪{s.profit.toLocaleString()}</p>
+                        <p className="text-sm font-mono text-emerald-300/90">{formatILS(s.profit)}</p>
                       </div>
                     )}
                   </div>

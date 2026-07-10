@@ -4,6 +4,7 @@ import { getAnalyticsOverview, getCocktailFunnels, getMenuEngineering } from '@/
 import type { FunnelRow } from '@/lib/analytics/queries';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
 import type { ExecutiveSummary, Insight } from '@/lib/analytics/insights-types';
+import { formatILS } from '@/lib/format';
 
 /** Bilingual cocktail titles keyed by slug, for human-readable sentences. */
 const TITLES = new Map<string, { en: string; he: string }>(
@@ -114,16 +115,16 @@ export async function getExecutiveSummary(restaurantSlug: string = 'diner'): Pro
     .sort((a, b) => b.margin - a.margin);
   for (const i of puzzles) {
     summary.promote.push(
-      `Promote ${titleEn(i.slug)}: ₪${i.margin} margin but low demand — feature it / run a QR campaign.`,
+      `Promote ${titleEn(i.slug)}: ${formatILS(i.margin)} margin but low demand — feature it / run a QR campaign.`,
     );
     summary.promoteHe.push(
-      `קדם את ${titleHe(i.slug)}: רווח ₪${i.margin} אך ביקוש נמוך — הצג בבולטות / הפעל קמפיין QR.`,
+      `קדם את ${titleHe(i.slug)}: רווח ${formatILS(i.margin)} אך ביקוש נמוך — הצג בבולטות / הפעל קמפיין QR.`,
     );
     insights.push({
       tone: 'opportunity',
       slug: i.slug,
-      text: `Promote ${titleEn(i.slug)} — ₪${i.margin} margin, low demand.`,
-      textHe: `קדם את ${titleHe(i.slug)} — רווח ₪${i.margin}, ביקוש נמוך.`,
+      text: `Promote ${titleEn(i.slug)} — ${formatILS(i.margin)} margin, low demand.`,
+      textHe: `קדם את ${titleHe(i.slug)} — רווח ${formatILS(i.margin)}, ביקוש נמוך.`,
     });
   }
 
