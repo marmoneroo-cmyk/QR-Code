@@ -22,6 +22,7 @@ import { formatILS } from '@/lib/format';
 import { useNow } from '@/lib/useNow';
 import type { Opportunity } from '@/lib/opportunities/types';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -53,47 +54,21 @@ export function ActionsPanel() {
   const isHe = lang === 'he';
   const headFont = isHe ? serifHe : serif;
 
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  const [items, setItems] = useState<MenuEngineeringItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { data: oppsData, loading, error: oppsError } = useApiData<{ opportunities: Opportunity[] }>(
+    '/api/analytics/opportunities',
+    { refreshInterval: POLL_MS },
+  );
+  const { data: engData } = useApiData<{ items: MenuEngineeringItem[] }>(
+    '/api/analytics/menu-engineering',
+    { refreshInterval: POLL_MS },
+  );
+  const opportunities = oppsData?.opportunities ?? [];
+  const items = engData?.items ?? [];
+  // error only when the FIRST load never produced data (matches the old `initial`-gating: polls
+  // kept last-good and never flipped error); SWR keeps last-good data, so oppsData===null means
+  // "never loaded".
+  const error = Boolean(oppsError) && oppsData === null;
   const readiness = useReadiness();
-
-  const load = useCallback(async (initial: boolean) => {
-    if (initial) setLoading(true);
-    try {
-      const [oppsRes, engRes] = await Promise.all([
-        fetch('/api/analytics/opportunities', { cache: 'no-store' }),
-        fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
-      ]);
-
-      const oppsJson: { success: boolean; data?: { opportunities: Opportunity[] } } = await oppsRes.json();
-      if (oppsJson.success && oppsJson.data) {
-        setOpportunities(oppsJson.data.opportunities);
-        setError(false);
-      } else if (initial) {
-        setError(true);
-      }
-
-      // Menu-engineering powers the ₪ estimates; a failure here just drops upside numbers.
-      try {
-        const engJson: { success: boolean; data?: { items: MenuEngineeringItem[] } } = await engRes.json();
-        setItems(engJson.success && engJson.data ? engJson.data.items : []);
-      } catch {
-        setItems([]);
-      }
-    } catch {
-      if (initial) setError(true);
-    } finally {
-      if (initial) setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load(true);
-    const id = window.setInterval(() => void load(false), POLL_MS);
-    return () => window.clearInterval(id);
-  }, [load]);
 
   // Achievable target from the menu's OWN medians (never fabricated) + a slug→item lookup.
   const bench = useMemo(() => buildMenuBenchmark(items), [items]);

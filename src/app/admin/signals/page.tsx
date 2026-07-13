@@ -1,6 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import {
   Activity,
   ShieldCheck,
@@ -24,6 +23,7 @@ import { Stagger, staggerItem } from '@/components/ui/motion';
 import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
 import type { HealthStatus, SignalBlock, SignalVerification } from '@/lib/analytics/signals-types';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -442,26 +442,7 @@ export default function SignalsPage() {
   const { lang } = useLang();
   const isHebrew = lang === 'he';
   const t: Tr = (en, he) => (isHebrew ? he : en);
-  const [d, setD] = useState<SignalVerification | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch('/api/signals/verify', { cache: 'no-store' });
-      const json: { success: boolean; data?: SignalVerification } = await res.json();
-      if (json.success && json.data) setD(json.data);
-    } catch {
-      /* keep last good */
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const id = window.setInterval(load, 15000);
-    return () => window.clearInterval(id);
-  }, [load]);
+  const { data: d, loading } = useApiData<SignalVerification>('/api/signals/verify', { refreshInterval: 15000 });
 
   const id = d?.identity;
   const ready = d?.readiness.ready ?? false;

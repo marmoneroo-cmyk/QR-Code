@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { AlertTriangle, ArrowUp, Megaphone, Tag, Repeat, Layers, Lightbulb, EyeOff, Check, X, Clock, ChevronDown, RotateCcw, CheckCircle2 } from 'lucide-react';
@@ -18,6 +18,7 @@ import type { MenuEngineeringItem } from '@/lib/analytics/types';
 import type { Opportunity, OpportunityType, Confidence, LayoutInsight } from '@/lib/opportunities/types';
 import { useNow } from '@/lib/useNow';
 import { useOppStatuses } from '@/lib/useOppStatuses';
+import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
@@ -93,43 +94,10 @@ function localizeEvidenceValue(value: string, isHe: boolean): string {
 export function OpportunitiesPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
-  const [data, setData] = useState<BoardData | null>(null);
-  // Menu-engineering items power the honest revenue-potential estimates. They're
-  // additive: if this fetch fails, opportunities still render (just without ₪ upside).
-  const [items, setItems] = useState<MenuEngineeringItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const [oppsRes, engRes] = await Promise.all([
-        fetch('/api/analytics/opportunities', { cache: 'no-store' }),
-        fetch('/api/analytics/menu-engineering', { cache: 'no-store' }),
-      ]);
-
-      const oppsJson: { success: boolean; data?: BoardData } = await oppsRes.json();
-      if (oppsJson.success && oppsJson.data) setData(oppsJson.data);
-      else setError(true);
-
-      // Menu-engineering is best-effort — a failure here must not block the board.
-      try {
-        const engJson: { success: boolean; data?: { items: MenuEngineeringItem[] } } = await engRes.json();
-        setItems(engJson.success && engJson.data ? engJson.data.items : []);
-      } catch {
-        setItems([]);
-      }
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { data, loading, error: oppsError } = useApiData<BoardData>('/api/analytics/opportunities');
+  const { data: engData } = useApiData<{ items: MenuEngineeringItem[] }>('/api/analytics/menu-engineering');
+  const items = engData?.items ?? [];
+  const error = Boolean(oppsError);
 
   // Achievable target derived from the menu's OWN medians (never fabricated), plus a
   // slug→item lookup so each card can estimate its real upside.
