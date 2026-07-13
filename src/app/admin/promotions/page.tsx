@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useApiData } from '@/lib/data/useApiData';
 import { motion } from 'framer-motion';
 import { Tag, CalendarClock, Power, Percent, Plus, X, Eye, Check, Pencil } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
@@ -261,9 +262,12 @@ export function PromotionsPanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const t = (en: string, he: string) => (isHe ? he : en);
-  const [items, setItems] = useState<Promotion[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  // Promotions list via the shared SWR primitive. reload() (aliased `load`) refreshes after a
+  // create/update/delete; on a failed refresh SWR keeps the last-good list rather than blanking it.
+  const { data: itemsData, loading, error: fetchError, reload } = useApiData<Promotion[]>('/api/promotions/mine');
+  const items = itemsData ?? [];
+  const error = Boolean(fetchError);
+  const load = reload;
   const [form, setForm] = useState<FormState>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -271,30 +275,6 @@ export function PromotionsPanel() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingActive, setEditingActive] = useState(true);
   const formRef = useRef<HTMLElement | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/promotions/mine', { cache: 'no-store' });
-      const json: { success: boolean; data?: Promotion[] } = await res.json();
-      if (json.success) {
-        setItems(json.data ?? []);
-        setError(false);
-      } else {
-        setItems([]);
-        setError(true);
-      }
-    } catch {
-      setItems([]);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   // Prefill the form when arriving from a cocktail page via ?cocktail=<slug>.
   // Runs once on mount; ignores unknown / missing slugs so the page is unaffected.
