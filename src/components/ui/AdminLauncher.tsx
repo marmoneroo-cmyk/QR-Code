@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useLocalStorageState } from '@/lib/useLocalStorageState';
 import { motion } from 'framer-motion';
 import { ADMIN_GROUPS } from './adminNav';
 import { LUX_EASE } from './premium';
@@ -34,27 +34,15 @@ const tileVariants = {
  */
 export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) {
   const isHe = lang === 'he';
-  const [showAdvanced, setShowAdvanced] = useState(false);
-
-  useEffect(() => {
-    try {
-      setShowAdvanced(window.localStorage.getItem(ADV_KEY) === 'true');
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  const toggleAdvanced = () => {
-    setShowAdvanced((prev) => {
-      const next = !prev;
-      try {
-        window.localStorage.setItem(ADV_KEY, String(next));
-      } catch {
-        /* ignore */
-      }
-      return next;
-    });
-  };
+  // Advanced-mode flag on the shared SSR-safe localStorage store — hydrates without a
+  // set-state-in-effect and syncs across tabs (the store handles read/write + quota guarding).
+  const { value: showAdvanced, set: setShowAdvanced } = useLocalStorageState<boolean>(
+    ADV_KEY,
+    (raw) => raw === 'true',
+    String,
+    false,
+  );
+  const toggleAdvanced = () => setShowAdvanced(!showAdvanced);
 
   const groups = ADMIN_GROUPS.filter((g) => !g.advanced || showAdvanced);
 
