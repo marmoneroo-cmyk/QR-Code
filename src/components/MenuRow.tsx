@@ -86,9 +86,11 @@ export function MenuRow({ section, lang, currency, promotions, experience, index
           {section.title}
         </h2>
         <span aria-hidden className="h-px flex-1 self-center" style={{ background: 'linear-gradient(90deg, rgba(232,201,135,0.22), rgba(255,255,255,0.06) 55%, transparent)' }} />
-        <span className="shrink-0 text-[11px] tracking-[0.25em] tabular-nums" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.55)' }}>
-          {section.items.length}
-        </span>
+        {section.items.length > 1 && (
+          <span className="shrink-0 text-[11px] tracking-[0.25em] tabular-nums" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.55)' }}>
+            {section.items.length}
+          </span>
+        )}
       </div>
 
       {/* Responsive grid — 2 per row on phones, 3–4 on wider screens, capped to the
@@ -191,8 +193,8 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
         onMouseLeave={onLeave}
       >
         <div
-          className="relative h-full min-h-0 aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-900/80 via-black to-zinc-950/80 transition-all duration-500 group-hover:-translate-y-1.5"
-          style={{ boxShadow: '0 30px 60px -24px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05)' }}
+          className="relative h-full min-h-0 aspect-[3/4] overflow-hidden rounded-2xl border border-white/[0.14] bg-gradient-to-b from-zinc-800/60 via-zinc-950 to-black transition-all duration-500 group-hover:-translate-y-1.5"
+          style={{ boxShadow: '0 30px 60px -24px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.02), inset 0 1px 0 rgba(255,255,255,0.09)' }}
         >
           {/* per-drink accent: soft wash + hairline ring, both hover-revealed */}
           <span
