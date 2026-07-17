@@ -31,7 +31,8 @@ import { useIsMobile } from '@/lib/useMediaQuery';
 import { useMenuConfig } from '@/lib/useMenuConfig';
 import { resolveModules, type ActiveModules } from '@/lib/experience/resolve';
 import { getAccent, isEffervescent, getEconomics, getFeatureVideo } from '@/data/cocktail';
-import type { CocktailConfig, Lang } from '@/data/cocktail';
+import type { CocktailConfig } from '@/data/cocktail';
+import { useLang } from '@/lib/useLang';
 
 interface CocktailSceneProps {
   config: CocktailConfig;
@@ -39,7 +40,7 @@ interface CocktailSceneProps {
 
 export function CocktailScene({ config }: CocktailSceneProps) {
   const [activeLayerId, setActiveLayerId] = useState<string | null>(null);
-  const [lang, setLang] = useState<Lang>('en');
+  const { lang, setLang } = useLang();
   const [videoOpen, setVideoOpen] = useState(false);
   // Promotional feature video (e.g. Aperol Spritz) — replaces the old 360 view.
   const featureVideo = getFeatureVideo(config.slug);

@@ -85,7 +85,10 @@ export function CocktailForm({
   // 'drink' (cocktail) vs 'food' — chooses which fields show. Trusts the stored
   // kind (code cocktails have none ⇒ 'drink'; imports set it); the owner can flip.
   const [kind, setKind] = useState<ItemKind>(initial?.kind ?? 'drink');
-  const [course, setCourse] = useState(initial?.course ?? '');
+  const [course, setCourse] = useState({
+    en: initial?.course?.en ?? '',
+    he: initial?.course?.he ?? '',
+  });
   const [generating, setGenerating] = useState(false);
   const [breakdownLayers, setBreakdownLayers] = useState<LayerConfig[] | null>(
     initialLayers ?? (initial && initial.layers !== SHARED_LAYERS ? initial.layers : null)
@@ -247,7 +250,10 @@ export function CocktailForm({
           : undefined,
       category,
       kind,
-      course: kind === 'food' && course.trim() ? course.trim() : undefined,
+      course:
+        kind === 'food' && (course.en.trim() || course.he.trim())
+          ? { en: course.en.trim() || course.he.trim(), he: course.he.trim() || course.en.trim() }
+          : undefined,
       priceILS: priceText.trim() ? Number(priceText.replace(/[^\d.]/g, '')) || undefined : undefined,
       heroImage: heroUrl,
       heroPrompt,
@@ -372,14 +378,26 @@ export function CocktailForm({
             </select>
           </Field>
         ) : (
-          <Field label={t('Menu section / course', 'קטגוריה בתפריט')}>
-            <input
-              value={course}
-              onChange={(e) => setCourse(e.target.value)}
-              placeholder={t('e.g. Starters, Mains, Desserts', 'לדוגמה: ראשונות, עיקריות, קינוחים')}
-              className={inputClass}
-            />
-          </Field>
+          <>
+            <Field label={t('Menu section / course (English)', 'קטגוריה בתפריט (באנגלית)')}>
+              <input
+                value={course.en}
+                onChange={(e) => setCourse({ ...course, en: e.target.value })}
+                placeholder={t('e.g. Starters, Mains, Desserts', 'e.g. Starters, Mains, Desserts')}
+                dir="ltr"
+                className={inputClass}
+              />
+            </Field>
+            <Field label={t('Menu section / course (Hebrew)', 'קטגוריה בתפריט (בעברית)')}>
+              <input
+                value={course.he}
+                onChange={(e) => setCourse({ ...course, he: e.target.value })}
+                placeholder={t('e.g. ראשונות, עיקריות, קינוחים', 'לדוגמה: ראשונות, עיקריות, קינוחים')}
+                dir="rtl"
+                className={inputClass}
+              />
+            </Field>
+          </>
         )}
         {/* Not using <Field> here: it wraps THREE checkboxes (each already has its
             own correctly-associated <label>), and Field is now a <label> itself —

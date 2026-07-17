@@ -255,7 +255,7 @@ export async function POST(req: Request): Promise<Response> {
               : undefined,
             category: item.category ?? 'citrus',
             kind: inferKind(item.name, item.sourceCategory),
-            course: item.sourceCategory ?? undefined,
+            course: item.sourceCategory ? { en: item.sourceCategory, he: item.sourceCategory } : undefined,
             priceILS: parseImportedPrice(item.price),
             heroImage,
             heroPrompt: prompt,

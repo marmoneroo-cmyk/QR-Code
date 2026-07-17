@@ -73,8 +73,9 @@ export interface CocktailConfig {
   category: Category;
   /** 'drink' (cocktail) or 'food'. Drives which editor/menu fields apply. Absent ⇒ 'drink'. */
   kind?: 'drink' | 'food';
-  /** For food: the menu section / course it belongs to (e.g. "Mains", "Desserts"). */
-  course?: string;
+  /** For food: the menu section / course it belongs to (e.g. "Mains", "Desserts"). Localized
+   *  like every other display field — a course must read in the guest's chosen language too. */
+  course?: Localized;
   /** Business menu category (cocktail/burger/dessert…) for segmented analytics. Derived if absent. */
   menuCategory?: MenuCategory;
   heroImage: string;
@@ -1076,7 +1077,7 @@ export const TRUFFLE_BURGER: CocktailConfig = {
   },
   category: 'smoky',
   kind: 'food',
-  course: 'Mains',
+  course: { en: 'Mains', he: 'עיקריות' },
   menuCategory: 'burger',
   heroImage: '/Food/truffle-burger-cut.png',
   flavor: { sweet: 2, bitter: 1, citrus: 0, smoky: 4, herbal: 2 },

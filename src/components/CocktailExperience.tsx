@@ -10,6 +10,7 @@ import { track } from '@/lib/tracking/track';
 import { recordView } from '@/lib/tracking/revisit';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
 import { useEngagement } from '@/lib/tracking/useEngagement';
+import { useLang } from '@/lib/useLang';
 
 /**
  * CocktailExperience — a full-screen, cinematic "dedicated landing page" for ONE drink.
@@ -42,7 +43,7 @@ export function CocktailExperience({ config }: CocktailExperienceProps) {
 }
 
 function DrinkExperience({ config }: CocktailExperienceProps) {
-  const [lang, setLang] = useState<Lang>('en');
+  const { lang, setLang } = useLang();
   const [mode, setMode] = useState<ExperienceMode>('hero');
   const reduce = useReducedMotion();
 
@@ -182,7 +183,7 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
 /* ── Food experience — a dish, not a drink: no glass, no flavor radar ──────── */
 
 function FoodExperience({ config }: CocktailExperienceProps) {
-  const [lang, setLang] = useState<Lang>('en');
+  const { lang, setLang } = useLang();
   const [mode, setMode] = useState<ExperienceMode>('hero');
   const reduce = useReducedMotion();
   useEngagement(config.slug);
@@ -305,9 +306,9 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
       >
-        {config.course && (
+        {(config.course?.[lang] || config.course?.en || config.course?.he) && (
           <p className="mb-3 text-[11px] tracking-[0.4em] uppercase text-amber-200/70" style={{ fontFamily: sans }}>
-            {config.course}
+            {config.course[lang] || config.course.en || config.course.he}
           </p>
         )}
         <h1

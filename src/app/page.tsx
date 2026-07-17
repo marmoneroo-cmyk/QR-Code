@@ -11,9 +11,10 @@ import { useMenuOrder } from '@/lib/useMenuOrder';
 import { useCurrency } from '@/lib/useCurrency';
 import { useRestaurant } from '@/lib/useRestaurant';
 import { useMenuConfig } from '@/lib/useMenuConfig';
+import { useLang } from '@/lib/useLang';
 import { track } from '@/lib/tracking/track';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
-import { MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
+import { MENU, type CocktailConfig } from '@/data/cocktail';
 import { inferKind, type ItemKind } from '@/lib/menu/classify';
 
 const MENU_SCROLL_KEY = 'cocktail-demo:menu-scroll';
@@ -29,12 +30,27 @@ const MENU_SLUGS = new Set(MENU.map((m) => m.slug));
 function itemKind(c: CocktailConfig): ItemKind {
   if (c.kind) return c.kind;
   if (MENU_SLUGS.has(c.slug)) return 'drink';
-  return inferKind(`${c.title.en} ${c.title.he}`, c.course ?? '');
+  return inferKind(`${c.title.en} ${c.title.he}`, `${c.course?.en ?? ''} ${c.course?.he ?? ''}`);
+}
+
+/** Stable, language-independent grouping identifier for a course — so switching the
+ *  guest's language never splits/reshuffles food sections. Falls back through whichever
+ *  language the restaurant actually filled in. */
+function courseKey(course: CocktailConfig['course']): string {
+  const key = (course?.en || course?.he || '').trim().toLowerCase();
+  return key || '__dishes__';
+}
+
+/** Human display label for a course, in the guest's current language — falls back to
+ *  whichever language IS filled in, then to a generic default. */
+function courseTitle(course: CocktailConfig['course'], isHe: boolean): string {
+  const val = (isHe ? course?.he || course?.en : course?.en || course?.he) ?? '';
+  return val.trim() || (isHe ? 'מנות' : 'Dishes');
 }
 
 /** Order food sections like a real menu: starters → mains → desserts; drinks last. */
-function courseRank(course: string): number {
-  const c = course.toLowerCase();
+function courseRank(course: CocktailConfig['course']): number {
+  const c = `${course?.en ?? ''} ${course?.he ?? ''}`.toLowerCase();
   if (/ראשונ|starter|appetiz|פתיח/.test(c)) return 1;
   if (/סלט|salad/.test(c)) return 2;
   if (/מרק|soup/.test(c)) return 2.5;
@@ -49,14 +65,14 @@ function courseRank(course: string): number {
 function matchesQuery(c: CocktailConfig, q: string): boolean {
   if (!q) return true;
   const hay = [
-    c.title.en, c.title.he, c.tagline?.en ?? '', c.tagline?.he ?? '', c.course ?? '',
+    c.title.en, c.title.he, c.tagline?.en ?? '', c.tagline?.he ?? '', c.course?.en ?? '', c.course?.he ?? '',
     ...c.labels.flatMap((l) => [l.name.en, l.name.he]),
   ].join(' ').toLowerCase();
   return hay.includes(q);
 }
 
 export default function Home() {
-  const [lang, setLang] = useState<Lang>('en');
+  const { lang, setLang } = useLang();
   const [query, setQuery] = useState('');
   const { drafts } = useDrafts();
   const { apply: applyMenuOrder } = useMenuOrder();
@@ -96,17 +112,22 @@ export default function Home() {
 
     const byCourse = new Map<string, CocktailConfig[]>();
     for (const f of food) {
-      const key = (f.course || (isHe ? 'מנות' : 'Dishes')).trim();
+      const key = courseKey(f.course);
       const arr = byCourse.get(key) ?? [];
       arr.push(f);
       byCourse.set(key, arr);
     }
     const foodSections = [...byCourse.entries()]
-      .map(([title, items]) => ({ title, items, rank: courseRank(title) }))
+      .map(([key, items]) => ({
+        key,
+        title: courseTitle(items[0]?.course, isHe),
+        items,
+        rank: courseRank(items[0]?.course),
+      }))
       .sort((a, b) => a.rank - b.rank);
 
     const built: Array<{ key: string; title: string; items: CocktailConfig[] }> = [
-      ...foodSections.map((s) => ({ key: `food:${s.title}`, title: s.title, items: s.items })),
+      ...foodSections.map((s) => ({ key: `food:${s.key}`, title: s.title, items: s.items })),
       ...(drinks.length ? [{ key: 'bar', title: isHe ? 'קוקטיילים' : 'Cocktails', items: drinks }] : []),
     ];
 
