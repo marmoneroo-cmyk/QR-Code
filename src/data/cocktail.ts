@@ -1076,7 +1076,7 @@ export const TRUFFLE_BURGER: CocktailConfig = {
   },
   category: 'smoky',
   kind: 'food',
-  course: 'עיקריות',
+  course: 'Mains',
   menuCategory: 'burger',
   heroImage: '/Food/truffle-burger-cut.png',
   flavor: { sweet: 2, bitter: 1, citrus: 0, smoky: 4, herbal: 2 },

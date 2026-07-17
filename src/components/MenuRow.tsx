@@ -41,6 +41,30 @@ interface MenuRowProps {
   index: number;
 }
 
+/**
+ * Column count per breakpoint, capped to the section's own item count so a sparse
+ * section (e.g. a "Specials" course with one item) never reserves empty grid tracks —
+ * the classic symptom being a lone card floating beside a dead void. Once a section has
+ * enough items to fill the curated 2/3/4 ladder, this is identical to it.
+ */
+function gridColsClass(count: number): string {
+  if (count <= 1) return 'grid-cols-1';
+  if (count === 2) return 'grid-cols-2';
+  if (count === 3) return 'grid-cols-2 md:grid-cols-3';
+  return 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+}
+
+/** Matches the lg:4-column card width (~360px) so a capped-column row's cards stay
+ *  the same visual scale as a full row instead of stretching to fill the section —
+ *  undefined once there are enough items to fill the curated ladder (uses its own
+ *  max-w-[1500px] ceiling instead). */
+function gridMaxWidthPx(count: number): number | undefined {
+  const CARD_W = 360;
+  const GAP = 20;
+  if (count <= 0 || count >= 4) return undefined;
+  return count * CARD_W + (count - 1) * GAP;
+}
+
 export function MenuRow({ section, lang, currency, promotions, experience, index }: MenuRowProps) {
   const isHe = lang === 'he';
   const reduce = useReducedMotion();
@@ -67,9 +91,13 @@ export function MenuRow({ section, lang, currency, promotions, experience, index
         </span>
       </div>
 
-      {/* Responsive grid — 2 per row on phones, 3–4 on wider screens.
+      {/* Responsive grid — 2 per row on phones, 3–4 on wider screens, capped to the
+          section's own item count so a sparse row never leaves empty tracks.
           Large sections lead with a double-size featured tile. */}
-      <div className="mx-auto grid max-w-[1500px] grid-cols-2 gap-3 px-6 pb-2 md:grid-cols-3 md:gap-5 md:px-10 lg:grid-cols-4">
+      <div
+        className={`mx-auto grid max-w-[1500px] gap-3 px-6 pb-2 md:gap-5 md:px-10 ${gridColsClass(section.items.length)}`}
+        style={{ maxWidth: gridMaxWidthPx(section.items.length) }}
+      >
         {section.items.map(({ cocktail, isDraft }, i) => {
           const featured = section.items.length >= 5 && i === 0;
           return (
