@@ -280,6 +280,7 @@ export function CocktailForm({
               key={k}
               type="button"
               onClick={() => setKind(k)}
+              aria-pressed={kind === k}
               className={`px-5 py-1.5 rounded-full text-[11px] tracking-[0.2em] uppercase transition-colors ${
                 kind === k ? 'bg-amber-200 text-black' : 'text-white/55 hover:text-white'
               }`}
@@ -380,7 +381,19 @@ export function CocktailForm({
             />
           </Field>
         )}
-        <Field label={t('Dietary flags', 'סימוני תזונה')}>
+        {/* Not using <Field> here: it wraps THREE checkboxes (each already has its
+            own correctly-associated <label>), and Field is now a <label> itself —
+            nesting labels is unreliable (can make the browser toggle the wrong
+            checkbox). Each checkbox keeps its own valid implicit label below;
+            this group heading intentionally stays an unassociated <span>, same
+            as before. */}
+        <div>
+          <span
+            className="block text-white/55 text-[10px] tracking-[0.35em] uppercase mb-2"
+            style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          >
+            {t('Dietary flags', 'סימוני תזונה')}
+          </span>
           <div className="flex flex-wrap gap-4 text-sm">
             {(['vegan', 'glutenFree', 'alcoholFree'] as const).map((k) => (
               <label key={k} className="flex items-center gap-2 cursor-pointer">
@@ -394,7 +407,7 @@ export function CocktailForm({
               </label>
             ))}
           </div>
-        </Field>
+        </div>
       </Section>
 
       {kind === 'drink' && (<Section title={t('Flavor profile (0-5)', 'פרופיל טעם (0-5)')} icon={SlidersHorizontal}>
@@ -529,7 +542,7 @@ export function CocktailForm({
             <input
               type="file"
               accept="image/png,image/jpeg,image/webp"
-              className="hidden"
+              className="sr-only"
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -721,14 +734,14 @@ function Section({ title, icon, children }: { title: string; icon?: LucideIcon; 
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div>
-      <label
+    <label className="block">
+      <span
         className="block text-white/55 text-[10px] tracking-[0.35em] uppercase mb-2"
         style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
       >
         {label}
-      </label>
+      </span>
       {children}
-    </div>
+    </label>
   );
 }

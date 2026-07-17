@@ -301,7 +301,9 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
                       key={tabKey}
                       type="button"
                       role="tab"
+                      id={`media-tab-${tabKey}`}
                       aria-selected={tab === tabKey}
+                      aria-controls="media-library-panel"
                       onClick={() => setTab(tabKey)}
                       className={`px-4 py-1.5 rounded-full text-[11px] tracking-[0.2em] uppercase border transition-colors ${
                         tab === tabKey
@@ -327,6 +329,7 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder={t('Search…', 'חיפוש…')}
+                      aria-label={t('Search…', 'חיפוש…')}
                       dir={dir}
                       className="w-full rounded-full bg-black/40 border border-white/12 outline-none text-white text-sm py-2 ps-9 pe-3.5 transition-colors duration-300 placeholder:text-white/25 focus:border-amber-200/40 focus:bg-black/55"
                     />
@@ -336,7 +339,12 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
+            <div
+              id="media-library-panel"
+              role="tabpanel"
+              aria-labelledby={`media-tab-${tab}`}
+              className="flex-1 overflow-y-auto px-6 py-6 sm:px-8"
+            >
               {tab === 'upload' ? (
                 <UploadPane
                   isDragActive={isDragActive}
@@ -453,6 +461,14 @@ function UploadPane({
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         onClick={() => fileInputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
         className={`w-full max-w-md rounded-2xl border-2 border-dashed cursor-pointer transition-colors duration-300 flex flex-col items-center justify-center gap-4 py-16 px-8 text-center ${
           isDragActive
             ? 'border-amber-200/60 bg-amber-200/[0.06]'
@@ -474,12 +490,12 @@ function UploadPane({
           ref={fileInputRef}
           type="file"
           accept="image/png,image/jpeg,image/webp"
-          className="hidden"
+          className="sr-only"
           onChange={onInputChange}
         />
       </div>
       {uploadError && (
-        <p className="mt-4 rounded-xl border border-rose-400/30 bg-rose-900/15 px-4 py-2.5 text-rose-200/90 text-sm">
+        <p role="status" aria-live="polite" className="mt-4 rounded-xl border border-rose-400/30 bg-rose-900/15 px-4 py-2.5 text-rose-200/90 text-sm">
           {uploadError}
         </p>
       )}

@@ -325,6 +325,7 @@ export default function EventInspectorPage() {
           <select
             value={eventFilter}
             onChange={(e) => setEventFilter(e.target.value)}
+            aria-label={t('Event type', 'סוג אירוע')}
             className="bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-white/80 text-sm"
             style={{ fontFamily: sans }}
           >
@@ -339,6 +340,7 @@ export default function EventInspectorPage() {
             value={sessionFilter}
             onChange={(e) => setSessionFilter(e.target.value)}
             placeholder={t('filter by session id…', 'סינון לפי session id…')}
+            aria-label={t('filter by session id…', 'סינון לפי session id…')}
             className="bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-white/80 text-sm flex-1 min-w-[200px]"
             style={{ fontFamily: mono }}
             dir="ltr"

@@ -75,10 +75,11 @@ function LoginForm() {
 
         <form onSubmit={onSubmit} className="relative flex flex-col gap-4">
           <div>
-            <label className="mb-1.5 block text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
+            <label htmlFor="login-email" className="mb-1.5 block text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
               {t('Email', 'אימייל')}
             </label>
             <input
+              id="login-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -89,10 +90,11 @@ function LoginForm() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
+            <label htmlFor="login-password" className="mb-1.5 block text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>
               {t('Password', 'סיסמה')}
             </label>
             <input
+              id="login-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -104,7 +106,7 @@ function LoginForm() {
           </div>
 
           {error && (
-            <p className="text-rose-300/90 text-[13px]" style={{ fontFamily: sans }}>
+            <p role="alert" className="text-rose-300/90 text-[13px]" style={{ fontFamily: sans }}>
               {error}
             </p>
           )}

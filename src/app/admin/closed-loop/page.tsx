@@ -178,11 +178,12 @@ export function ClosedLoopPanel() {
             <input
               className={inputCls}
               placeholder={t('What changed? (e.g. moved higher in the printed menu)', 'מה שינית? (למשל: הזזתי גבוה בתפריט המודפס)')}
+              aria-label={t('What changed? (e.g. moved higher in the printed menu)', 'מה שינית? (למשל: הזזתי גבוה בתפריט המודפס)')}
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
             />
             <div className="flex gap-3">
-              <select className={`${inputCls} flex-1`} value={slug} onChange={(e) => setSlug(e.target.value)}>
+              <select aria-label={t('Cocktail (optional)', 'קוקטייל (אופציונלי)')} className={`${inputCls} flex-1`} value={slug} onChange={(e) => setSlug(e.target.value)}>
                 <option value="">{t('Cocktail (optional)', 'קוקטייל (אופציונלי)')}</option>
                 {MENU.map((c) => (
                   <option key={c.slug} value={c.slug}>
@@ -190,7 +191,7 @@ export function ClosedLoopPanel() {
                   </option>
                 ))}
               </select>
-              <input className={inputCls} type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              <input aria-label={t('Date', 'תאריך')} className={inputCls} type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
             <button
               type="button"
@@ -215,7 +216,7 @@ export function ClosedLoopPanel() {
               </span>
             </button>
             {msg && (
-              <p className="text-amber-200/80 text-xs" style={{ fontFamily: sans }}>
+              <p role="status" aria-live="polite" className="text-amber-200/80 text-xs" style={{ fontFamily: sans }}>
                 {msg}
               </p>
             )}

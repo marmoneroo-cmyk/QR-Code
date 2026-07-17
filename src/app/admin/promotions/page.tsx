@@ -433,12 +433,13 @@ export function PromotionsPanel() {
             <input
               className={inputCls}
               placeholder={t('Name (e.g. Happy Hour)', 'שם (למשל שעה שמחה)')}
+              aria-label={t('Name (e.g. Happy Hour)', 'שם (למשל שעה שמחה)')}
               value={form.name}
               onChange={(e) => set('name', e.target.value)}
             />
 
             <div className="grid grid-cols-[1fr_auto_1fr] gap-2.5">
-              <select className={inputCls} value={form.type} onChange={(e) => set('type', e.target.value as DiscountType)}>
+              <select aria-label={t('Discount type', 'סוג הנחה')} className={inputCls} value={form.type} onChange={(e) => set('type', e.target.value as DiscountType)}>
                 <option value="percentage">{t('Percentage %', 'אחוז %')}</option>
                 <option value="fixed">{t('Fixed ₪', 'סכום ₪')}</option>
               </select>
@@ -446,10 +447,11 @@ export function PromotionsPanel() {
                 className={`${inputCls} w-20 text-center`}
                 type="number"
                 min={0}
+                aria-label={t('Discount value', 'ערך ההנחה')}
                 value={form.value}
                 onChange={(e) => set('value', Number(e.target.value))}
               />
-              <select className={inputCls} value={form.scope} onChange={(e) => set('scope', e.target.value as PromotionScope)}>
+              <select aria-label={t('Scope', 'היקף')} className={inputCls} value={form.scope} onChange={(e) => set('scope', e.target.value as PromotionScope)}>
                 <option value="all">{t('All items', 'כל התפריט')}</option>
                 <option value="item">{t('Specific items', 'פריטים נבחרים')}</option>
               </select>
@@ -499,7 +501,7 @@ export function PromotionsPanel() {
             )}
 
             {/* schedule */}
-            <select className={inputCls} value={form.mode} onChange={(e) => set('mode', e.target.value as ScheduleMode)}>
+            <select aria-label={t('Schedule', 'תזמון')} className={inputCls} value={form.mode} onChange={(e) => set('mode', e.target.value as ScheduleMode)}>
               <option value="always">{t('Always on', 'תמיד פעיל')}</option>
               <option value="weekly">{t('Weekly (days + time)', 'שבועי (ימים + שעות)')}</option>
               <option value="range">{t('Date range', 'טווח תאריכים')}</option>
@@ -514,6 +516,7 @@ export function PromotionsPanel() {
                       key={d.idx}
                       type="button"
                       onClick={() => toggleDay(d.idx)}
+                      aria-pressed={form.days.includes(d.idx)}
                       className={`w-9 h-9 rounded-full border text-[11px] transition-colors ${
                         form.days.includes(d.idx) ? 'border-amber-300/60 text-amber-200 bg-amber-300/10' : 'border-white/12 text-white/50 hover:border-white/25'
                       }`}
@@ -531,20 +534,20 @@ export function PromotionsPanel() {
 
             {form.mode === 'range' && (
               <div className="flex flex-wrap gap-2.5">
-                <input className={inputCls} type="date" value={form.startDate} onChange={(e) => set('startDate', e.target.value)} />
-                <input className={inputCls} type="date" value={form.endDate} onChange={(e) => set('endDate', e.target.value)} />
+                <input aria-label={t('Start date', 'תאריך התחלה')} className={inputCls} type="date" value={form.startDate} onChange={(e) => set('startDate', e.target.value)} />
+                <input aria-label={t('End date', 'תאריך סיום')} className={inputCls} type="date" value={form.endDate} onChange={(e) => set('endDate', e.target.value)} />
               </div>
             )}
 
             {form.mode === 'seasonal' && (
               <div className="flex gap-2.5 items-center">
-                <input className={`${inputCls} w-28`} placeholder="MM-DD" value={form.startMonthDay} onChange={(e) => set('startMonthDay', e.target.value)} />
+                <input aria-label={t('Start month-day', 'התחלה (חודש-יום)')} className={`${inputCls} w-28`} placeholder="MM-DD" value={form.startMonthDay} onChange={(e) => set('startMonthDay', e.target.value)} />
                 <span className="text-white/40">{isHe ? '←' : '→'}</span>
-                <input className={`${inputCls} w-28`} placeholder="MM-DD" value={form.endMonthDay} onChange={(e) => set('endMonthDay', e.target.value)} />
+                <input aria-label={t('End month-day', 'סיום (חודש-יום)')} className={`${inputCls} w-28`} placeholder="MM-DD" value={form.endMonthDay} onChange={(e) => set('endMonthDay', e.target.value)} />
               </div>
             )}
 
-            <select className={inputCls} value={form.badgeKind} onChange={(e) => set('badgeKind', e.target.value as BadgeKind)}>
+            <select aria-label={t('Badge', 'תווית')} className={inputCls} value={form.badgeKind} onChange={(e) => set('badgeKind', e.target.value as BadgeKind)}>
               {BADGE_KINDS.map((b) => (
                 <option key={b} value={b}>
                   {t('badge', 'תווית')}: {badgeKindLabel(b, isHe)}
@@ -586,7 +589,7 @@ export function PromotionsPanel() {
                 </button>
               )}
             </div>
-            {msg && <p className="text-amber-200/80 text-xs" style={{ fontFamily: sans }}>{msg}</p>}
+            {msg && <p role="status" aria-live="polite" className="text-amber-200/80 text-xs" style={{ fontFamily: sans }}>{msg}</p>}
           </section>
 
           {/* List */}

@@ -116,6 +116,7 @@ export function TablesPanel() {
             max={60}
             value={tableCount}
             onChange={(e) => setTableCount(Number(e.target.value))}
+            aria-label={t('Number of tables', 'מספר שולחנות')}
             className="w-20 bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-white/80 text-sm"
             dir="ltr"
           />

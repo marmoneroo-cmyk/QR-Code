@@ -280,6 +280,7 @@ export function SalesPanel() {
                 placeholder={'diner-aperol-spritz,42,2520\ndiner-negroni,8,464'}
                 value={csv}
                 onChange={(e) => setCsv(e.target.value)}
+                aria-label={t('CSV sales data', 'נתוני מכירות CSV')}
                 dir="ltr"
               />
               {dragging && (
@@ -314,7 +315,7 @@ export function SalesPanel() {
               <UploadCloud size={14} strokeWidth={2.2} />
               {saving ? t('Importing…', 'מייבא…') : t('Import sales', 'ייבא מכירות')}
             </button>
-            {msg && <p className="text-amber-200/80 text-xs text-center" style={{ fontFamily: sans }}>{msg}</p>}
+            {msg && <p role="status" aria-live="polite" className="text-amber-200/80 text-xs text-center" style={{ fontFamily: sans }}>{msg}</p>}
           </GlassCard>
 
           {/* Aggregated sales cards */}

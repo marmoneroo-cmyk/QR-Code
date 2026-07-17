@@ -357,13 +357,13 @@ export default function ImportRestaurantPage() {
               <label className="block text-white/45 text-[11px] tracking-wide mb-2" style={{ fontFamily: sans }}>
                 {t('Restaurant URL', 'כתובת אתר המסעדה')}
               </label>
-              <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.restaurant.co.il/menus" dir="ltr" className={inputClass} />
+              <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.restaurant.co.il/menus" dir="ltr" aria-label={t('Restaurant URL', 'כתובת אתר המסעדה')} className={inputClass} />
             </div>
             <div>
               <label className="block text-white/45 text-[11px] tracking-wide mb-2" style={{ fontFamily: sans }}>
                 {t('Restaurant name', 'שם המסעדה')}
               </label>
-              <input type="text" value={restaurantName} onChange={(e) => setRestaurantName(e.target.value)} placeholder={t('e.g. Diner', 'לדוגמה: Diner')} className={inputClass} />
+              <input type="text" value={restaurantName} onChange={(e) => setRestaurantName(e.target.value)} placeholder={t('e.g. Diner', 'לדוגמה: Diner')} aria-label={t('Restaurant name', 'שם המסעדה')} className={inputClass} />
               <p className="text-white/35 text-[10px] tracking-wider mt-2" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
                 {t('slug', 'מזהה')}: <code className="text-amber-100/80" dir="ltr">{restaurantSlug}</code>
               </p>
@@ -466,7 +466,7 @@ export default function ImportRestaurantPage() {
                       <div className="space-y-2.5">
                         {groupItems.map((it) => (
                           <div key={it.uid} className={`flex items-center gap-4 rounded-2xl border px-4 py-3.5 transition-colors ${it.selected ? 'border-amber-200/25 bg-white/[0.03]' : 'border-white/[0.08] bg-transparent opacity-60'}`}>
-                            <input type="checkbox" checked={it.selected} onChange={() => toggleItem(it.uid)} disabled={importing} className="h-4 w-4 shrink-0 accent-amber-300" />
+                            <input type="checkbox" checked={it.selected} onChange={() => toggleItem(it.uid)} disabled={importing} aria-label={t(`Include ${it.name}`, `כלול את ${it.name}`)} className="h-4 w-4 shrink-0 accent-amber-300" />
                             <div className="min-w-0 flex-1">
                               <div className="truncate text-white/90 text-[15px]">{it.name}</div>
                               {it.desc && <div className="mt-0.5 truncate text-white/40 text-xs italic" style={{ fontFamily: serif }}>{it.desc}</div>}
@@ -475,6 +475,7 @@ export default function ImportRestaurantPage() {
                               <span className="shrink-0 text-amber-100/90 text-sm tabular-nums" style={{ fontFamily: sans }} dir="ltr">₪{it.price}</span>
                             )}
                             <select value={it.category} disabled={!it.selected || importing} onChange={(e) => updateItemCategory(it.uid, e.target.value as Category)}
+                              aria-label={t(`Category for ${it.name}`, `קטגוריה עבור ${it.name}`)}
                               className="shrink-0 rounded-lg border border-white/12 bg-black/40 px-2.5 py-1.5 text-amber-100/90 text-[11px] outline-none focus:border-amber-200/40 disabled:opacity-40" style={{ fontFamily: sans }}>
                               {CATEGORY_OPTIONS.map((c) => (<option key={c.id} value={c.id} className="bg-black">{t(c.label, c.labelHe)}</option>))}
                             </select>
@@ -572,7 +573,7 @@ export default function ImportRestaurantPage() {
                       <label className="block text-white/40 text-[10px] tracking-[0.2em] uppercase mb-1.5" style={{ fontFamily: sans }}>
                         {t('ChatGPT image prompt', 'פרומפט תמונה ל-ChatGPT')}
                       </label>
-                      <textarea readOnly value={gpt} rows={2} onFocus={(e) => e.currentTarget.select()} className={`${inputClass} resize-y text-white/65 text-[13px]`} />
+                      <textarea readOnly value={gpt} rows={2} onFocus={(e) => e.currentTarget.select()} aria-label={t('ChatGPT image prompt', 'פרומפט תמונה ל-ChatGPT')} className={`${inputClass} resize-y text-white/65 text-[13px]`} />
                       <button type="button" onClick={() => copyPrompt(draft.slug, gpt)}
                         className="mt-2 inline-flex items-center gap-2 rounded-full border border-amber-200/40 px-4 py-1.5 text-amber-100 hover:bg-amber-200/10 transition-colors text-[10px] tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
                         {copiedSlug === draft.slug ? <Check size={12} strokeWidth={2.4} /> : <ClipboardCopy size={12} strokeWidth={2} />}
@@ -587,7 +588,7 @@ export default function ImportRestaurantPage() {
         )}
 
         {error && (
-          <p className="mt-6 flex items-center gap-2 text-rose-300/90 text-sm" style={{ fontFamily: sans }}>
+          <p role="status" aria-live="polite" className="mt-6 flex items-center gap-2 text-rose-300/90 text-sm" style={{ fontFamily: sans }}>
             <X size={14} strokeWidth={2.2} className="shrink-0" /> {error}
           </p>
         )}
