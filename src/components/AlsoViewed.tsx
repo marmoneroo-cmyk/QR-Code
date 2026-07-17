@@ -65,8 +65,7 @@ export function AlsoViewed({ slug, lang }: { slug: string; lang: Lang }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={cocktail.heroImage}
-                alt=""
-                aria-hidden
+                alt={cocktail.title[lang]}
                 className="w-20 h-24 object-contain mix-blend-screen transition-transform duration-300 group-hover:scale-105"
               />
             )}

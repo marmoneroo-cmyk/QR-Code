@@ -334,7 +334,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         onClick={hasComponents ? onIngredients : undefined}
         disabled={!hasComponents}
         aria-label={isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
-        className="group relative mt-5 flex w-full flex-1 flex-col items-center justify-center outline-none disabled:cursor-default"
+        className="group relative mt-5 flex w-full flex-1 flex-col items-center justify-center outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-default"
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 1.1, delay: 0.25, ease: EASE }}
@@ -588,7 +588,7 @@ function HeroStage({
         type="button"
         onClick={onIngredients}
         aria-label={isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
-        className="group relative mt-4 flex-1 outline-none"
+        className="group relative mt-4 flex-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         style={{ x: px, minHeight: '56vh', maxHeight: '62vh' }}
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

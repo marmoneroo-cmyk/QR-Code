@@ -128,7 +128,7 @@ export default function ScanPage() {
         </h1>
       </div>
 
-      <div className="absolute bottom-10 left-0 right-0 z-30 text-center px-6">
+      <div className="absolute bottom-10 left-0 right-0 z-30 text-center px-6" aria-live="polite">
         {status === 'starting' && (
           <p className="text-amber-200/70 text-sm">Starting camera…</p>
         )}

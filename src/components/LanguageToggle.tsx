@@ -28,6 +28,7 @@ export function LanguageToggle({ lang, onChange }: LanguageToggleProps) {
             <button
               key={opt.value}
               onClick={() => onChange(opt.value)}
+              aria-pressed={isActive}
               className={`px-4 py-1.5 text-[11px] tracking-[0.2em] uppercase transition-all duration-300 ${
                 isActive
                   ? 'bg-amber-200/90 text-black'

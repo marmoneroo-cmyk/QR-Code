@@ -52,6 +52,7 @@ export function MenuRow({ section, lang, currency, promotions, experience, index
       viewport={{ once: true, margin: '-60px' }}
       transition={reduce ? { duration: 0 } : { duration: 0.7, delay: Math.min(index * 0.05, 0.25), ease: [0.16, 1, 0.3, 1] }}
       dir={isHe ? 'rtl' : 'ltr'}
+      lang={lang}
     >
       <div className="mx-auto mb-5 flex max-w-[1500px] items-baseline gap-4 px-6 md:px-10">
         <h2

@@ -149,6 +149,7 @@ export function SettingsToolbar({
                           type="button"
                           onClick={() => onLangChange(l.value)}
                           aria-label={l.aria}
+                          aria-pressed={selected}
                           className={`w-9 h-9 rounded-full overflow-hidden transition-all duration-300 ${
                             selected
                               ? 'ring-2 ring-amber-200 ring-offset-2 ring-offset-[#0b0b0d] scale-105'
@@ -173,6 +174,7 @@ export function SettingsToolbar({
                           key={c}
                           type="button"
                           onClick={() => onCurrencyChange(c)}
+                          aria-pressed={selected}
                           className={`flex-1 py-1.5 rounded-full text-[11px] tracking-[0.06em] transition-all duration-300 ${
                             selected
                               ? 'bg-amber-100 text-black shadow-[0_2px_10px_rgba(252,211,77,0.25)]'

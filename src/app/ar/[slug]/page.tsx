@@ -302,7 +302,7 @@ export default function ArPage({ params }: PageProps) {
         </h1>
       </div>
 
-      <div className="absolute bottom-10 left-0 right-0 z-30 flex items-center justify-center gap-4 px-6">
+      <div className="absolute bottom-10 left-0 right-0 z-30 flex items-center justify-center gap-4 px-6" aria-live="polite">
         {status === 'ready' && (
           <>
             <button

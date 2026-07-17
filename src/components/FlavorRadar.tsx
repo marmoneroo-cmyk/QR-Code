@@ -40,6 +40,16 @@ export function FlavorRadar({ flavor, lang, size = 220 }: FlavorRadarProps) {
     ? 'var(--font-heebo, sans-serif)'
     : 'var(--font-inter, sans-serif)';
 
+  // Accessible summary of the same data the polygon draws (screen readers can't
+  // read chart geometry) — e.g. "Flavor profile: Sweet 4 of 5, Bitter 2 of 5, …".
+  const chartSummary = AXES
+    .map((axis) => {
+      const level = Math.max(0, Math.min(5, flavor[axis]));
+      return `${FLAVOR_LABEL[axis][lang]} ${level} ${isHebrew ? 'מתוך' : 'of'} 5`;
+    })
+    .join(isHebrew ? ', ' : ', ');
+  const chartLabel = `${isHebrew ? 'פרופיל טעמים' : 'Flavor profile'}: ${chartSummary}`;
+
   return (
     <div className="inline-block">
       <svg
@@ -47,7 +57,10 @@ export function FlavorRadar({ flavor, lang, size = 220 }: FlavorRadarProps) {
         height={size}
         viewBox={`0 0 ${size} ${size}`}
         className="overflow-visible"
+        role="img"
+        aria-label={chartLabel}
       >
+        <title>{chartLabel}</title>
         <defs>
           <radialGradient id="flavor-fill" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="rgba(252,211,77,0.45)" />

@@ -71,6 +71,17 @@ export function IngredientLabels({
               }`}
               onMouseEnter={() => onHoverLabel(label.layerId)}
               onMouseLeave={() => onHoverLabel(null)}
+              onFocus={() => onHoverLabel(label.layerId)}
+              onBlur={() => onHoverLabel(null)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === ' ') e.preventDefault();
+                  onHoverLabel(label.layerId);
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-expanded={isActive}
               dir={isHebrew ? 'rtl' : 'ltr'}
               lang={lang}
             >
@@ -99,8 +110,8 @@ export function IngredientLabels({
 
               {/* Text block — label title in orange caps, description italic light */}
               <div className="w-[170px] overflow-hidden">
-                <h3
-                  className="uppercase tracking-[0.22em] transition-all duration-500 truncate"
+                <span
+                  className="block uppercase tracking-[0.22em] transition-all duration-500 truncate"
                   style={{
                     fontFamily: sansFont,
                     fontWeight: 500,
@@ -111,7 +122,7 @@ export function IngredientLabels({
                   }}
                 >
                   {label.name[lang]}
-                </h3>
+                </span>
                 {isActive && (
                   <p
                     className="leading-snug transition-all duration-500 text-white/90 mt-1.5"
