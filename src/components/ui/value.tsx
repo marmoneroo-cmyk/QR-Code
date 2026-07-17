@@ -83,6 +83,18 @@ export function PotentialValue({
   const basis = isHe ? potential.basisHe : potential.basisEn;
   const fontSize = size === 'lg' ? '2rem' : size === 'md' ? '1.5rem' : '1.15rem';
   const confColor = potential.confidence === 'high' ? '#34d399' : potential.confidence === 'medium' ? '#fbbf24' : '#9ca3af';
+  const confLabel =
+    potential.confidence === 'high'
+      ? isHe
+        ? 'ביטחון גבוה'
+        : 'high confidence'
+      : potential.confidence === 'medium'
+        ? isHe
+          ? 'ביטחון בינוני'
+          : 'medium confidence'
+        : isHe
+          ? 'ביטחון נמוך'
+          : 'low confidence';
   return (
     <div
       className="rounded-xl px-3.5 py-2.5"
@@ -93,7 +105,8 @@ export function PotentialValue({
         <TrendingUp size={11} strokeWidth={2.4} />
         {isHe ? 'צפי הכנסה נוספת' : 'Est. revenue upside'}
         <span className="inline-flex items-center gap-1 text-white/40 normal-case tracking-normal">
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: confColor }} />
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: confColor }} aria-hidden />
+          <span className="sr-only">{confLabel}</span>
         </span>
       </p>
       <p style={{ color: accent, fontFamily: serif, fontWeight: 700, fontSize, lineHeight: 1.05 }}>
