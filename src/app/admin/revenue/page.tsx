@@ -176,7 +176,7 @@ export default function RevenueCenterPage() {
             <div className="relative z-10 grid items-center gap-8 md:grid-cols-2 md:gap-12">
               {/* lead drink — overflows its slot upward (premium hero treatment) */}
               {heroCocktail ? (
-                <div className="relative" style={{ overflow: 'visible' }}>
+                <div className={`relative ${isHe ? 'md:order-2' : ''}`} style={{ overflow: 'visible' }}>
                   <Tilt className="mx-auto w-full max-w-[420px]">
                     <FrameBreakImage
                       src={heroCocktail.heroImage}
@@ -187,10 +187,13 @@ export default function RevenueCenterPage() {
                   </Tilt>
                 </div>
               ) : (
-                <span aria-hidden />
+                <span aria-hidden className={isHe ? 'md:order-2' : ''} />
               )}
 
-              <div className={`flex flex-col gap-5 ${isHe ? 'items-end text-end md:text-start' : 'items-start text-start'}`}>
+              {/* Text always leads visually from the reading-start side — explicit order (not
+                  DOM position) so it lands in the RIGHT column for Hebrew, matching the rest
+                  of the page's right-aligned convention, even when there's no hero image. */}
+              <div className={`flex flex-col items-start gap-5 text-start ${isHe ? 'md:order-1' : ''}`}>
                 <p className="text-emerald-300/80 text-[11px] md:text-[12px] tracking-[0.35em] uppercase" style={{ fontFamily: sans }}>
                   {t('Available now · estimate', 'זמין עכשיו · צפי')}
                 </p>
