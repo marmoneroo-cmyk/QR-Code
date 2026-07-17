@@ -243,7 +243,7 @@ export default function Home() {
 
       {/* ── The rows ──────────────────────────────────────────────────────── */}
       {sections.length === 0 ? (
-        <p className="py-16 text-center text-white/40 text-base italic" style={{ fontFamily: titleFont }}>
+        <p className="py-16 text-center text-white/60 text-base italic" style={{ fontFamily: titleFont }}>
           {isHe ? 'לא נמצאו תוצאות.' : 'No matching items.'}
         </p>
       ) : (

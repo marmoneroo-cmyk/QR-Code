@@ -159,7 +159,7 @@ export default function ScanPage() {
           <p className="text-rose-300/90 text-sm">{error ?? 'Camera unavailable.'}</p>
         )}
         {lastResult && status === 'scanning' && (
-          <p className="mt-3 text-white/40 text-xs italic break-all">
+          <p className="mt-3 text-white/60 text-xs italic break-all">
             Last seen: {lastResult.slice(0, 80)}
             {lastResult.length > 80 ? '…' : ''}
             {' '}— not a menu link

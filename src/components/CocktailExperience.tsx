@@ -359,7 +359,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         </motion.span>
         {hasComponents && (
           <span
-            className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] tracking-[0.45em] uppercase text-white/40 transition-colors group-hover:text-white/70"
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] tracking-[0.45em] uppercase text-white/60 transition-colors group-hover:text-white/70"
             style={{ fontFamily: sans }}
           >
             {isHe ? 'גע לגילוי המרכיבים' : 'Tap to explore'}
@@ -421,7 +421,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
       aria-label={isHe ? 'פירוק מרכיבים' : 'Ingredient breakdown'}
     >
       <motion.p
-        className="mb-10 text-center text-[11px] tracking-[0.5em] uppercase text-white/45"
+        className="mb-10 text-center text-[11px] tracking-[0.5em] uppercase text-white/60"
         style={{ fontFamily: sans }}
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -463,7 +463,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
               </motion.span>
 
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] tracking-[0.4em] text-white/35" style={{ fontFamily: sans }}>
+                <p className="text-[10px] tracking-[0.4em] text-white/55" style={{ fontFamily: sans }}>
                   {label.number}
                 </p>
                 <h3 className="mt-1 text-xl leading-tight text-white md:text-2xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
@@ -502,7 +502,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 + components.length * 0.1, ease: EASE }}
       >
-        <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/45" style={{ fontFamily: sans }}>
+        <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
         <FlavorRadar flavor={config.flavor} lang={lang} size={230} />
@@ -710,7 +710,7 @@ function ExplodedView({
       aria-label={isHe ? 'פירוק מרכיבים' : 'Ingredient breakdown'}
     >
       <motion.p
-        className="mb-10 text-center text-[11px] tracking-[0.5em] uppercase text-white/45"
+        className="mb-10 text-center text-[11px] tracking-[0.5em] uppercase text-white/60"
         style={{ fontFamily: sans }}
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -753,7 +753,7 @@ function ExplodedView({
 
               {/* Number + name + ONE line */}
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] tracking-[0.4em] text-white/35" style={{ fontFamily: sans }}>
+                <p className="text-[10px] tracking-[0.4em] text-white/55" style={{ fontFamily: sans }}>
                   {label.number}
                 </p>
                 <h3 className="mt-1 text-xl leading-tight text-white md:text-2xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
@@ -797,7 +797,7 @@ function ExplodedView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 + stack.length * 0.12, ease: EASE }}
       >
-        <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/45" style={{ fontFamily: sans }}>
+        <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
         <FlavorRadar flavor={flavor} lang={lang} size={230} />
@@ -887,7 +887,7 @@ function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
       transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
       aria-label={title}
     >
-      <p className="mb-6 text-center text-[11px] tracking-[0.5em] uppercase text-white/45" style={{ fontFamily: sans }}>
+      <p className="mb-6 text-center text-[11px] tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
         {title}
       </p>
       <div className="flex items-stretch justify-center gap-3">
