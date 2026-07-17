@@ -217,22 +217,27 @@ export function FrameBreakImage({
   accent,
   className,
   overflow = '155%',
+  alt = '',
 }: {
   src: string;
   accent: string;
   className?: string;
   overflow?: string;
+  /** Accessible name. Empty (default) keeps the hero image decorative; pass the drink name
+   *  on informative images so it's announced to screen-reader users. */
+  alt?: string;
 }) {
   return (
-    <span className={`relative block ${className ?? ''}`} aria-hidden>
+    <span className={`relative block ${className ?? ''}`} aria-hidden={alt ? undefined : true}>
       <span
         className="absolute left-1/2 top-1/2 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
         style={{ background: `radial-gradient(circle, ${accent}55, transparent 70%)` }}
+        aria-hidden
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
-        alt=""
+        alt={alt}
         className="absolute bottom-0 left-1/2 w-auto max-w-none -translate-x-1/2 object-contain mix-blend-screen"
         style={{ height: overflow, filter: `drop-shadow(0 26px 34px ${accent}40) drop-shadow(0 12px 22px rgba(0,0,0,0.55))` }}
       />

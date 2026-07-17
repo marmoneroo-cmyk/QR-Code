@@ -14,7 +14,19 @@ const serif = 'var(--font-playfair, serif)';
 
 /** A whole, contained cocktail glass (transparent PNG on dark) with an accent glow.
  *  Pass a DEFINITE height in className (e.g. "w-full h-40"); the image never crops. */
-export function GlassImage({ src, accent, className }: { src: string; accent: string; className?: string }) {
+export function GlassImage({
+  src,
+  accent,
+  className,
+  alt = '',
+}: {
+  src: string;
+  accent: string;
+  className?: string;
+  /** Accessible name. Empty (default) keeps the image decorative (hidden from AT); pass the
+   *  drink/subject name on informative images so screen-reader users hear what it is. */
+  alt?: string;
+}) {
   return (
     <span className={`relative block overflow-hidden ${className ?? ''}`}>
       <span
@@ -23,7 +35,12 @@ export function GlassImage({ src, accent, className }: { src: string; accent: st
         aria-hidden
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt="" aria-hidden className="absolute inset-0 h-full w-full object-contain mix-blend-screen" />
+      <img
+        src={src}
+        alt={alt}
+        aria-hidden={alt ? undefined : true}
+        className="absolute inset-0 h-full w-full object-contain mix-blend-screen"
+      />
     </span>
   );
 }

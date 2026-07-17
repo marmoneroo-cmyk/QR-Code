@@ -124,7 +124,7 @@ export function AdminShell({
           </Link>
 
           <div className="flex items-center gap-2">
-            <Link href="/admin/home" className={pill} style={{ fontFamily: sans }}>
+            <Link href="/admin/home" className={pill} style={{ fontFamily: sans }} aria-label={isHebrew ? 'בית' : 'Home'}>
               <Home size={13} strokeWidth={1.6} />
               <span className="hidden sm:inline">{isHebrew ? 'בית' : 'Home'}</span>
             </Link>
@@ -174,6 +174,7 @@ export function AdminShell({
             onClick={() => setLauncherOpen(false)}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="admin-launcher-title"
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={reduce ? undefined : { opacity: 0 }}
@@ -195,6 +196,7 @@ export function AdminShell({
                       {isHebrew ? 'ניווט' : 'Navigate'}
                     </p>
                     <h2
+                      id="admin-launcher-title"
                       className="text-white tracking-[0.02em]"
                       style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500, fontSize: 'clamp(1.8rem,4.5vw,2.8rem)' }}
                     >

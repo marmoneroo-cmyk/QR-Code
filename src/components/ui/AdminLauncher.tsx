@@ -73,6 +73,7 @@ export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) 
                   <Link
                     href={it.href}
                     onClick={onNavigate}
+                    aria-current={on ? 'page' : undefined}
                     className={`group relative flex h-full items-start gap-3 overflow-hidden rounded-2xl border p-4 transition-all duration-300 ${
                       on
                         ? 'border-amber-300/50 bg-amber-300/[0.07]'
