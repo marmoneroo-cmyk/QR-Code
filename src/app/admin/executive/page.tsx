@@ -272,7 +272,11 @@ export default function ExecutiveSummaryPage() {
                 <div className="absolute inset-0" style={{ background: `linear-gradient(120deg, ${hero.accent}26, rgba(8,8,10,0.7) 60%)` }} aria-hidden />
                 <AccentWash accent={hero.accent} opacity={0.18} />
                 <div className="relative z-10 grid md:grid-cols-2 gap-2 items-stretch">
-                  <div className="relative min-h-[420px] md:min-h-[600px] grid place-items-center p-6 md:p-8">
+                  {/* Image and text are separate grid cells; with dir=rtl inherited, CSS Grid
+                      auto-placement would otherwise always put the first DOM cell (image) in the
+                      right column, pushing text left — explicit order keeps text leading from the
+                      right in Hebrew (matching the rest of the app), unaffected in English. */}
+                  <div className={`relative min-h-[420px] md:min-h-[600px] grid place-items-center p-6 md:p-8 ${isHe ? 'md:order-2' : ''}`}>
                     <Tilt className="w-full">
                       <GlassImage src={hero.hero} accent={hero.accent} className="w-full h-[420px] md:h-[600px]" />
                     </Tilt>
@@ -280,7 +284,7 @@ export default function ExecutiveSummaryPage() {
                       <Flame size={12} strokeWidth={2} /> {t('Top opportunity', 'הזדמנות מובילה')}
                     </span>
                   </div>
-                  <div className="p-7 md:p-9 flex flex-col justify-center gap-5 text-center md:text-start">
+                  <div className={`p-7 md:p-9 flex flex-col justify-center gap-5 text-center md:text-start ${isHe ? 'md:order-1' : ''}`}>
                     <div>
                       <div className="inline-flex items-center gap-1.5 mb-2 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(52,211,153,0.4)', color: '#34d399', fontFamily: sans }}>
                         <BadgeCheck size={12} strokeWidth={2} /> {t('AI confidence', 'ביטחון AI')} {p.confidence}%
