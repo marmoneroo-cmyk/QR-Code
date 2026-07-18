@@ -1080,8 +1080,8 @@ export const TRUFFLE_BURGER: CocktailConfig = {
   course: { en: 'Mains', he: 'עיקריות' },
   menuCategory: 'burger',
   heroImage: '/Food/truffle-burger-cut.png',
-  // Read under FOOD_FLAVOR_LABEL: Sweet 1 · Umami 5 · Acidity 1 · Smoky 4 · Herby 2.
-  flavor: { sweet: 1, bitter: 5, citrus: 1, smoky: 4, herbal: 2 },
+  // Read under FOOD_FLAVOR_LABEL: Sweet 2 · Umami 5 · Acidity 2 · Smoky 3 · Herby 3.
+  flavor: { sweet: 2, bitter: 5, citrus: 2, smoky: 3, herbal: 3 },
   bartenderNote: {
     en: 'The secret is balance — rich truffle against cool lettuce and crisp sweet potato.',
     he: 'הסוד הוא האיזון — כמהין עשיר מול חסה קרירה ובטטה פריכה.',
