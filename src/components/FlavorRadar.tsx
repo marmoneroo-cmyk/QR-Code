@@ -1,12 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FLAVOR_LABEL, type FlavorProfile, type Lang } from '@/data/cocktail';
+import { FLAVOR_LABEL, FOOD_FLAVOR_LABEL, type FlavorProfile, type Lang } from '@/data/cocktail';
 
 interface FlavorRadarProps {
   flavor: FlavorProfile;
   lang: Lang;
   size?: number;
+  /** Food dishes relabel the axes with kitchen language (Umami/Acidity vs Bitter/Citrus). */
+  kind?: 'drink' | 'food';
 }
 
 const AXES: Array<keyof FlavorProfile> = ['sweet', 'bitter', 'citrus', 'smoky', 'herbal'];
@@ -15,7 +17,8 @@ function polarPoint(cx: number, cy: number, radius: number, angleRad: number): [
   return [cx + radius * Math.cos(angleRad), cy + radius * Math.sin(angleRad)];
 }
 
-export function FlavorRadar({ flavor, lang, size = 220 }: FlavorRadarProps) {
+export function FlavorRadar({ flavor, lang, size = 220, kind = 'drink' }: FlavorRadarProps) {
+  const labels = kind === 'food' ? FOOD_FLAVOR_LABEL : FLAVOR_LABEL;
   const cx = size / 2;
   const cy = size / 2;
   const maxRadius = size * 0.36;
@@ -45,7 +48,7 @@ export function FlavorRadar({ flavor, lang, size = 220 }: FlavorRadarProps) {
   const chartSummary = AXES
     .map((axis) => {
       const level = Math.max(0, Math.min(5, flavor[axis]));
-      return `${FLAVOR_LABEL[axis][lang]} ${level} ${isHebrew ? 'מתוך' : 'of'} 5`;
+      return `${labels[axis][lang]} ${level} ${isHebrew ? 'מתוך' : 'of'} 5`;
     })
     .join(isHebrew ? ', ' : ', ');
   const chartLabel = `${isHebrew ? 'פרופיל טעמים' : 'Flavor profile'}: ${chartSummary}`;
@@ -138,7 +141,7 @@ export function FlavorRadar({ flavor, lang, size = 220 }: FlavorRadarProps) {
               letterSpacing="0.2em"
               style={{ fontFamily: labelFont, textTransform: 'uppercase' }}
             >
-              {FLAVOR_LABEL[axis][lang]}
+              {labels[axis][lang]}
             </text>
           );
         })}

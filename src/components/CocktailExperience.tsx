@@ -510,7 +510,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
         <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
-        <FlavorRadar flavor={config.flavor} lang={lang} size={230} />
+        <FlavorRadar flavor={config.flavor} lang={lang} size={230} kind="food" />
         {note && (
           <p className="mt-8 max-w-xs text-center text-[13px] italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
             ”{note}“{config.bartenderName ? ` — ${config.bartenderName}` : ''}

@@ -1080,7 +1080,8 @@ export const TRUFFLE_BURGER: CocktailConfig = {
   course: { en: 'Mains', he: 'עיקריות' },
   menuCategory: 'burger',
   heroImage: '/Food/truffle-burger-cut.png',
-  flavor: { sweet: 2, bitter: 1, citrus: 0, smoky: 4, herbal: 2 },
+  // Read under FOOD_FLAVOR_LABEL: Sweet 1 · Umami 5 · Acidity 1 · Smoky 4 · Herby 2.
+  flavor: { sweet: 1, bitter: 5, citrus: 1, smoky: 4, herbal: 2 },
   bartenderNote: {
     en: 'The secret is balance — rich truffle against cool lettuce and crisp sweet potato.',
     he: 'הסוד הוא האיזון — כמהין עשיר מול חסה קרירה ובטטה פריכה.',
@@ -1129,6 +1130,20 @@ export const FLAVOR_LABEL: Record<keyof FlavorProfile, Localized> = {
   citrus: { en: 'Citrus', he: 'הדרי' },
   smoky: { en: 'Smoky', he: 'מעושן' },
   herbal: { en: 'Herbal', he: 'עשבוני' },
+};
+
+/**
+ * The five FlavorProfile slots are generic taste dimensions; for a dish, the drink
+ * vocabulary ("Citrus", "Bitter") reads wrong, so food items relabel the same axes
+ * with kitchen language. FlavorRadar picks this map when `kind === 'food'`.
+ * Slot mapping: bitter→Umami, citrus→Acidity (sweet/smoky/herbal keep their names).
+ */
+export const FOOD_FLAVOR_LABEL: Record<keyof FlavorProfile, Localized> = {
+  sweet: { en: 'Sweet', he: 'מתוק' },
+  bitter: { en: 'Umami', he: 'אומאמי' },
+  citrus: { en: 'Acidity', he: 'חמיצות' },
+  smoky: { en: 'Smoky', he: 'מעושן' },
+  herbal: { en: 'Herby', he: 'עשבוני' },
 };
 
 // Per-cocktail signature glow colour — builds emotional memory per drink.
