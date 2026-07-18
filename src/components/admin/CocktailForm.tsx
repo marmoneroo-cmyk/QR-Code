@@ -20,6 +20,7 @@ import {
 import {
   CATEGORY_LABEL,
   FLAVOR_LABEL,
+  FOOD_FLAVOR_LABEL,
   SHARED_LAYERS,
   getAccent,
   type Category,
@@ -297,7 +298,8 @@ export function CocktailForm({
 
   return (
     <form onSubmit={handleSave} className="space-y-6" dir={isHebrew ? 'rtl' : 'ltr'}>
-      {/* Drink vs food — flips the cocktail-only fields (category, flavor radar) off for food. */}
+      {/* Drink vs food — flips the drink-only category field off for food; the flavor
+          profile shows for both, relabelled with kitchen terms when kind is food. */}
       <div className="flex items-center gap-3">
         <span className="text-white/45 text-[11px] tracking-[0.2em] uppercase" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
           {t('Type', 'סוג')}
@@ -450,10 +452,10 @@ export function CocktailForm({
         </div>
       </Section>
 
-      {kind === 'drink' && (<Section title={t('Flavor profile (0-5)', 'פרופיל טעם (0-5)')} icon={SlidersHorizontal}>
+      <Section title={t('Flavor profile (0-5)', 'פרופיל טעם (0-5)')} icon={SlidersHorizontal}>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {FLAVOR_AXES.map((axis) => (
-            <Field key={axis} label={FLAVOR_LABEL[axis][lang]}>
+            <Field key={axis} label={(kind === 'food' ? FOOD_FLAVOR_LABEL : FLAVOR_LABEL)[axis][lang]}>
               <input
                 type="number"
                 min={0}
@@ -471,7 +473,7 @@ export function CocktailForm({
             </Field>
           ))}
         </div>
-      </Section>)}
+      </Section>
 
       <Section title={kind === 'food' ? t('Chef note', 'הערת השף') : t('Bartender note', 'הערת הבארמן')} icon={Quote}>
         <Field label={t('Note (English)', 'הערה (באנגלית)')}>
