@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
-import { Layers, Play } from 'lucide-react';
+import { Layers, Play, Box } from 'lucide-react';
 import { getAccent, getFeatureVideo, formatPrice, findCocktailBySlug, MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
 import { FlavorRadar } from './FlavorRadar';
 import { track } from '@/lib/tracking/track';
@@ -381,21 +381,20 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         </div>
       )}
 
-      {(hasComponents || hasVideo) && (
-        <motion.div
-          className={`mt-7 grid w-full max-w-sm shrink-0 gap-3 ${hasComponents && hasVideo ? 'grid-cols-2' : 'grid-cols-1'}`}
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
-        >
-          {hasComponents && (
-            <ActionTile label={isHe ? 'מרכיבים' : 'Ingredients'} icon={<Layers size={20} strokeWidth={1.6} aria-hidden />} onClick={onIngredients} sans={sans} />
-          )}
-          {hasVideo && (
-            <ActionTile label={isHe ? 'וידאו' : 'Video'} icon={<Play size={20} strokeWidth={1.6} aria-hidden />} onClick={onVideo} sans={sans} />
-          )}
-        </motion.div>
-      )}
+      <motion.div
+        className="mt-7 flex w-full max-w-sm shrink-0 flex-wrap justify-center gap-3"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
+      >
+        {hasComponents && (
+          <ActionTile label={isHe ? 'מרכיבים' : 'Ingredients'} icon={<Layers size={20} strokeWidth={1.6} aria-hidden />} onClick={onIngredients} sans={sans} className="flex-1 min-w-[92px] max-w-[160px]" />
+        )}
+        {hasVideo && (
+          <ActionTile label={isHe ? 'וידאו' : 'Video'} icon={<Play size={20} strokeWidth={1.6} aria-hidden />} onClick={onVideo} sans={sans} className="flex-1 min-w-[92px] max-w-[160px]" />
+        )}
+        <ActionTile label={isHe ? 'תצוגת AR' : 'View in AR'} icon={<Box size={20} strokeWidth={1.6} aria-hidden />} href={`/ar/${config.slug}`} sans={sans} className="flex-1 min-w-[92px] max-w-[160px]" />
+      </motion.div>
     </motion.main>
   );
 }
@@ -643,10 +642,10 @@ function HeroStage({
         </span>
       </motion.button>
 
-      {/* TWO actions. That's the whole control surface — no order button: interest
-          is measured from real behaviour (opens, dwell, scroll), not a dead CTA. */}
+      {/* Ingredients / Video / AR — the control surface. Still no order button: interest
+          is measured from real behaviour (opens, dwell, scroll), and AR is a view, not a CTA. */}
       <motion.div
-        className={`mt-8 grid w-full max-w-sm shrink-0 gap-3 ${hasVideo ? 'grid-cols-2' : 'grid-cols-1'}`}
+        className="mt-8 flex w-full max-w-sm shrink-0 flex-wrap justify-center gap-3"
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
@@ -656,6 +655,7 @@ function HeroStage({
           icon={<Layers size={20} strokeWidth={1.6} aria-hidden />}
           onClick={onIngredients}
           sans={sans}
+          className="flex-1 min-w-[92px] max-w-[160px]"
         />
         {hasVideo && (
           <ActionTile
@@ -663,25 +663,53 @@ function HeroStage({
             icon={<Play size={20} strokeWidth={1.6} aria-hidden />}
             onClick={onVideo}
             sans={sans}
+            className="flex-1 min-w-[92px] max-w-[160px]"
           />
         )}
+        <ActionTile
+          label={isHe ? 'תצוגת AR' : 'View in AR'}
+          icon={<Box size={20} strokeWidth={1.6} aria-hidden />}
+          href={`/ar/${config.slug}`}
+          sans={sans}
+          className="flex-1 min-w-[92px] max-w-[160px]"
+        />
       </motion.div>
     </motion.main>
   );
 }
 
-function ActionTile({ label, icon, onClick, sans }: { label: string; icon: ReactNode; onClick?: () => void; sans: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={!onClick}
-      className="flex flex-col items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-4 backdrop-blur-sm transition-transform hover:-translate-y-0.5 hover:border-white/30 disabled:opacity-35"
-    >
+function ActionTile({
+  label,
+  icon,
+  onClick,
+  href,
+  sans,
+  className,
+}: {
+  label: string;
+  icon: ReactNode;
+  onClick?: () => void;
+  /** When set, the tile is a link (e.g. the AR view lives at its own route). */
+  href?: string;
+  sans: string;
+  className?: string;
+}) {
+  const cls = `flex flex-col items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-4 backdrop-blur-sm transition-transform hover:-translate-y-0.5 hover:border-white/30 disabled:opacity-35 ${className ?? ''}`;
+  const inner = (
+    <>
       <span aria-hidden className="leading-none text-amber-100/90">{icon}</span>
       <span className="text-[11px] tracking-[0.14em] uppercase text-white/80" style={{ fontFamily: sans }}>
         {label}
       </span>
+    </>
+  );
+  return href ? (
+    <Link href={href} className={cls}>
+      {inner}
+    </Link>
+  ) : (
+    <button type="button" onClick={onClick} disabled={!onClick} className={cls}>
+      {inner}
     </button>
   );
 }
