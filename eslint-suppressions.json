@@ -1,0 +1,182 @@
+{
+  "src/app/admin/analytics/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 7
+    }
+  },
+  "src/app/admin/closed-loop/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/app/admin/coach/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/app/admin/crm/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 13
+    }
+  },
+  "src/app/admin/events/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 15
+    }
+  },
+  "src/app/admin/executive/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/app/admin/experiments/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/app/admin/guests/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/app/admin/heatmap/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/app/admin/journeys/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 18
+    }
+  },
+  "src/app/admin/menu-engineering/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/app/admin/opportunities/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 14
+    }
+  },
+  "src/app/admin/optimize/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 8
+    }
+  },
+  "src/app/admin/print/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/app/admin/promotions/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 8
+    }
+  },
+  "src/app/admin/qr/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/app/admin/recommendations/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/app/admin/revenue/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 9
+    }
+  },
+  "src/app/admin/sales/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/app/admin/signals/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 8
+    }
+  },
+  "src/app/admin/tables/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 12
+    }
+  },
+  "src/app/admin/wins/page.tsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/app/api/poster/[slug]/route.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/app/cocktails/[slug]/opengraph-image.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/app/global-error.tsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/app/layout.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/app/manifest.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/app/opengraph-image.tsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/components/ErrorScreen.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/components/SettingsToolbar.tsx": {
+    "no-restricted-syntax": {
+      "count": 9
+    }
+  },
+  "src/components/admin/MediaLibrary.tsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/components/ui/celebrate.tsx": {
+    "no-restricted-syntax": {
+      "count": 7
+    }
+  },
+  "src/components/ui/dataviz.tsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/components/ui/premium.tsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/components/ui/value.tsx": {
+    "no-restricted-syntax": {
+      "count": 8
+    }
+  },
+  "src/components/ui/visual.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  }
+}
