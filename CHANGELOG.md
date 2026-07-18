@@ -5,6 +5,48 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2026-07-18] — Guest-experience review → polish, design-system tokens, honesty & a11y
+
+Ran a full parallel-agent review of every screen (guest + admin), benchmarked against real
+menu sites (grade B−, 10 impact-ranked issues), then shipped the findings as verified batches —
+excluding the ordering + payment layer by request. Verified throughout: `tsc` clean,
+`next build` exit 0, **383 tests** green; guest-facing changes live-checked where the preview allows.
+
+### Fixed — Honesty (no fabricated numbers)
+- Executive + Recommendations showed a fabricated "AI confidence" and invented customer counts → now driven by the honest estimation engine (`sampleConfidence`, `estimatePotential`), with an explicit "Not enough data" fallback when there is no basis.
+- Menu-engineering quadrant thumbnails now land in the quadrant their class badge claims (median-anchored axes, not max-normalized); CRM donut is a true 2-partition (no overlapping slice).
+
+### Fixed — CMS integrity
+- Save no longer reports success when the write failed (`upsert` returns an `ok` flag; the form surfaces a real "kept locally, didn't sync" error).
+- A new drink whose slug matches an existing draft now requires confirmation before overwriting; import stops defaulting its URL/name to a real other restaurant.
+- Sales CSV import drops malformed rows (non-numeric / negative) and shows "N valid · M skipped" instead of silently importing zero-value sales. Parser extracted to a tested util (**8 unit tests**, AAA).
+
+### Fixed — RTL & i18n (Hebrew right-aligned and fully translated)
+- Root-cause RTL fixes (Tailwind logical properties) on House Performance + Executive hero content that was left-aligned in Hebrew.
+- Guest language toggle now persists; menu `course` is bilingual; sparse menu sections no longer mix languages or leave dead grid space. Localized the scan page + 8 remaining hardcoded English admin strings; dropped SaaS jargon from owner-facing copy.
+
+### Added
+- **AR entry point** on the guest drink/dish experience.
+- **Route-transition loading skeletons** — a `RouteLoader` at the App Router `loading.tsx` boundaries replaces the blank-white flash on navigation.
+
+### Changed — Design system (tokenization)
+- Semantic status-color tokens (`--success/--warning/--info/--critical` + violet/gold accents) added as a single source of truth in `globals.css`; **26** exact hex literals across the admin analytics screens aliased to them. Provably lossless — each token holds the byte-identical hex, so nothing renders differently. Per-drink accent-math, `/opacity` modifiers, gradient/rgba strings and canvas/3D sinks were deliberately left (not lossless to alias).
+
+### Performance
+- Built-in menu art now served through **next/image** (AVIF/WebP negotiation + responsive `srcset`) via a `SmartImage` primitive that falls back to a plain `<img>` for `data:`/`blob:` operator uploads the optimizer can't touch. Verified the optimizer serves `image/avif` with `srcset`.
+- Guest image lazy-loading (`loading`/`decoding` hints across 12 images, eager on 4 heroes); removed a guest-exposed Admin link with no auth behind it; real search-aware empty state on the menu.
+
+### Accessibility
+- Root-cause pass across shared kit + guest + admin: image alt text, keyboard-reachable uploads, dialog/nav roles, live regions, chart labels, confidence exposed to assistive tech, and guest text contrast raised to WCAG AA (4.5:1).
+- The full-screen preparation-video player is now a focus-trapped modal — focus moves to Skip on open, Escape closes, focus is restored on close, `role=dialog`/`aria-modal`.
+
+### Internal / IA
+- Batch-4 SWR migration (actions / opportunities / signals / promotions → `useApiData`; AdminLauncher advanced-mode flag → `useLocalStorageState`). Repointed orphaned admin links to canonical tabbed routes; confirm before deleting a promotion.
+
+**Deferred / needs a call:** ESLint guard against new hardcoded hex (`eslint.config.mjs` is edit-protected — needs sign-off); a forgot-password affordance (waits on real auth — Foundation Freeze Phase 0); two aesthetic-risk tweaks (BackgroundFX mobile blur, food flavor-radar axes) held until they can be visually verified in-browser.
+
+---
+
 ## [2026-07-10] — Full-system audit hardening (4 parallel audits → merged fix batch, LIVE)
 
 Ran four read-only audits in parallel (database/scalability · API design · AI-brain cohesion · automation/observability), merged findings into one plan, and shipped the safe-autonomous tier via three parallel executors. Verified: `tsc` + **205 tests** + `next build` (57 pages) green; live-checked (`/api/health` `db:ok lastEventAgeSeconds:6`, public read `Cache-Control: s-maxage=60`, envelope intact, menu 200, no console errors).
