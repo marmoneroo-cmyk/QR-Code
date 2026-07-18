@@ -161,8 +161,10 @@ export default function ImportRestaurantPage() {
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
 
-  const [url, setUrl] = useState('https://www.dinerrest.co.il/menus');
-  const [restaurantName, setRestaurantName] = useState('Diner');
+  // Start empty — never pre-fill another restaurant's real URL/name (a new tenant who didn't
+  // notice would scan someone else's menu). The example is shown as a placeholder instead.
+  const [url, setUrl] = useState('');
+  const [restaurantName, setRestaurantName] = useState('');
   const [scanning, setScanning] = useState(false);
   const [menu, setMenu] = useState<ParsedMenu | null>(null);
   const [items, setItems] = useState<SelectedItem[]>([]);

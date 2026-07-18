@@ -269,7 +269,16 @@ export function CocktailForm({
         ? (initial?.labels ?? [])
         : [],
     };
-    await upsert(cocktail);
+    const { ok } = await upsert(cocktail);
+    if (!ok) {
+      setError(
+        t(
+          "Couldn't save — your item is kept on this device but hasn't synced. Check your connection and try again.",
+          'השמירה נכשלה — הפריט נשמר במכשיר אך לא סונכרן. בדקו את החיבור ונסו שוב.',
+        ),
+      );
+      return;
+    }
     onSaved();
   };
 

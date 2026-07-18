@@ -102,10 +102,12 @@ export function useDrafts() {
    * Create or update a draft. Optimistic: the draft is reflected in state
    * immediately and marked 'saving'. On success → 'saved'; on failure the
    * optimistic copy is kept and marked 'sync_failed' (never lost), and the
-   * call still resolves so the caller doesn't crash.
+   * call still resolves so the caller doesn't crash. Returns `{ ok }` so the
+   * caller can tell a real save from a swallowed failure (e.g. block navigation
+   * and show an error instead of pretending the save worked).
    */
   const upsert = useCallback(
-    async (cocktail: CocktailConfig): Promise<DraftCocktail> => {
+    async (cocktail: CocktailConfig): Promise<{ ok: boolean; draft: DraftCocktail }> => {
       const now = Date.now();
       // Always initialized (no timing dependency on React's updater); the
       // updater below refines createdAt from the freshest state.
@@ -128,12 +130,12 @@ export function useDrafts() {
         const draft = toDraftCocktail(stored);
         setDrafts((prev) => prev.map((d) => (d.slug === cocktail.slug ? draft : d)));
         setStatus(cocktail.slug, 'saved');
-        return draft;
+        return { ok: true, draft };
       } catch {
         // The instrument boundary already logged draft.save.failed.
         // Keep the optimistic copy; surface the failure as state.
         setStatus(cocktail.slug, 'sync_failed');
-        return optimistic;
+        return { ok: false, draft: optimistic };
       }
     },
     [setStatus]
