@@ -618,23 +618,14 @@ function HeroStage({
             src={config.heroImage}
             alt={config.title[lang]}
             className="relative z-10 h-full w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
-            style={{ filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)` }}
+            style={{
+              filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)`,
+              // CSS reflection instead of a second <img> of the same hero — one fewer full
+              // image decode on the flagship screen, and it stays glued to the drink.
+              WebkitBoxReflect: 'below 1px linear-gradient(to bottom, rgba(255,255,255,0.26), transparent 42%)',
+            }}
             loading="eager"
             fetchPriority="high"
-            decoding="async"
-          />
-          {/* Reflection */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={config.heroImage}
-            alt=""
-            aria-hidden
-            className="absolute left-0 top-full z-0 h-2/5 w-auto -scale-y-100 object-contain opacity-25"
-            style={{
-              maskImage: 'linear-gradient(to top, transparent 30%, black 100%)',
-              WebkitMaskImage: 'linear-gradient(to top, transparent 30%, black 100%)',
-            }}
-            loading="lazy"
             decoding="async"
           />
         </motion.span>
