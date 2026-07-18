@@ -203,7 +203,7 @@ export function SalesPanel() {
         setCsv('');
         await load();
       } else {
-        setMsg(json.error ?? 'Error');
+        setMsg(json.error ?? t('Error', 'שגיאה'));
       }
     } finally {
       setSaving(false);

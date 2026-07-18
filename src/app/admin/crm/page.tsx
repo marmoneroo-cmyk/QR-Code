@@ -167,7 +167,17 @@ function DonutChart({ segments, centerValue, centerLabel }: { segments: DonutSeg
 }
 
 /** Radial 24-hour clock: one wedge per UTC hour, length + opacity ∝ activity. Peak hour highlighted. */
-function RadialHourClock({ histogram, peakHour, peakAccent }: { histogram: number[]; peakHour: number; peakAccent: string }) {
+function RadialHourClock({
+  histogram,
+  peakHour,
+  peakAccent,
+  t,
+}: {
+  histogram: number[];
+  peakHour: number;
+  peakAccent: string;
+  t: (en: string, he: string) => string;
+}) {
   const SIZE = 260;
   const cx = SIZE / 2;
   const cy = SIZE / 2;
@@ -179,7 +189,7 @@ function RadialHourClock({ histogram, peakHour, peakAccent }: { histogram: numbe
 
   return (
     <div className="flex justify-center" dir="ltr">
-      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ width: '100%', maxWidth: SIZE, height: 'auto', display: 'block' }} role="img" aria-label="Activity by hour">
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ width: '100%', maxWidth: SIZE, height: 'auto', display: 'block' }} role="img" aria-label={t('Activity by hour', 'פעילות לפי שעה')}>
         {/* guide rings */}
         <circle cx={cx} cy={cy} r={rMax} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
         <circle cx={cx} cy={cy} r={rBase} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={1} />
@@ -336,8 +346,8 @@ export default function CrmPage() {
           <div className="mt-4">
             <ShareBar
               rows={[
-                { label: 'EN', count: data?.languageSplit.en ?? 0, color: '#fcd34d' },
-                { label: 'עברית', count: data?.languageSplit.he ?? 0, color: '#34d399' },
+                { label: t('English', 'אנגלית'), count: data?.languageSplit.en ?? 0, color: '#fcd34d' },
+                { label: t('Hebrew', 'עברית'), count: data?.languageSplit.he ?? 0, color: '#34d399' },
               ]}
             />
           </div>
@@ -365,7 +375,7 @@ export default function CrmPage() {
           <PanelHeader label={t('Active guests by hour (UTC)', 'אורחים פעילים לפי שעה (UTC)')} isHe={isHebrew} />
           {data?.hasData && <Pill icon={Flame} text={t(`Peak ${peakHour.toString().padStart(2, '0')}:00`, `שיא ${peakHour.toString().padStart(2, '0')}:00`)} accent="#e8c987" />}
         </div>
-        <RadialHourClock histogram={histogram} peakHour={peakHour} peakAccent="#e8c987" />
+        <RadialHourClock histogram={histogram} peakHour={peakHour} peakAccent="#e8c987" t={t} />
       </GlassCard>
 
       {/* Returning-visitor caveat */}

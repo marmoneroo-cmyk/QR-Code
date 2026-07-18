@@ -340,7 +340,7 @@ export function PromotionsPanel() {
         setMsg(wasEditing ? (isHe ? 'עודכן ✓' : 'Updated ✓') : isHe ? 'נשמר ✓' : 'Saved ✓');
         await load();
       } else {
-        setMsg(json.error ?? 'Error');
+        setMsg(json.error ?? t('Error', 'שגיאה'));
       }
     } finally {
       setSaving(false);

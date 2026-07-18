@@ -10,6 +10,20 @@ import { GlassSheen } from '@/components/ui/visual';
 
 const sans = 'var(--font-inter, sans-serif)';
 
+/** Supabase Auth returns raw English error messages — map the common ones to a
+ *  bilingual string instead of showing English verbatim in Hebrew mode; anything
+ *  unrecognized falls back to a generic translated message rather than leaking
+ *  the raw text. */
+function authErrorMessage(raw: string, t: (en: string, he: string) => string): string {
+  const msg = raw.toLowerCase();
+  if (msg.includes('invalid login credentials')) return t('Incorrect email or password.', 'אימייל או סיסמה שגויים.');
+  if (msg.includes('email not confirmed')) return t('Please confirm your email first.', 'יש לאשר את כתובת האימייל תחילה.');
+  if (msg.includes('too many requests') || msg.includes('rate limit')) {
+    return t('Too many attempts — try again shortly.', 'יותר מדי ניסיונות — נסו שוב בעוד רגע.');
+  }
+  return t('Sign-in failed.', 'ההתחברות נכשלה.');
+}
+
 function LoginForm() {
   const router = useRouter();
   const search = useSearchParams();
@@ -36,7 +50,7 @@ function LoginForm() {
       const sb = createClient();
       const { error: signInError } = await sb.auth.signInWithPassword({ email: email.trim(), password });
       if (signInError) {
-        setError(signInError.message);
+        setError(authErrorMessage(signInError.message, t));
         setLoading(false);
         return;
       }
@@ -44,7 +58,7 @@ function LoginForm() {
       router.push(next);
       router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t('Sign-in failed.', 'ההתחברות נכשלה.'));
+      setError(err instanceof Error ? authErrorMessage(err.message, t) : t('Sign-in failed.', 'ההתחברות נכשלה.'));
       setLoading(false);
     }
   };

@@ -150,7 +150,7 @@ export function TablesPanel() {
           {qrs.map((q) => (
             <div key={q.table} className="rounded-xl border border-white/10 bg-black/30 p-3 flex flex-col items-center break-inside-avoid">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={q.dataUrl} alt={`Table ${q.table}`} className="w-full rounded-md mb-2" />
+              <img src={q.dataUrl} alt={`${t('Table', 'שולחן')} ${q.table}`} className="w-full rounded-md mb-2" />
               <span className="text-white/80 text-sm" style={{ fontFamily: serif, fontStyle: 'italic' }}>
                 {t('Table', 'שולחן')} {q.table}
               </span>

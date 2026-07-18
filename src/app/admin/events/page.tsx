@@ -17,12 +17,13 @@ import { useApiData } from '@/lib/data/useApiData';
 const sans = 'var(--font-inter, sans-serif)';
 const mono = 'ui-monospace, SFMono-Regular, Menlo, monospace';
 
-function ago(iso: string): string {
+function ago(iso: string, isHebrew: boolean): string {
   const secs = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
-  if (secs < 60) return `${secs}s`;
-  if (secs < 3600) return `${Math.round(secs / 60)}m`;
-  if (secs < 86400) return `${Math.round(secs / 3600)}h`;
-  return `${Math.round(secs / 86400)}d`;
+  const unit = (en: string, he: string) => (isHebrew ? he : en);
+  if (secs < 60) return `${secs}${unit('s', 'שנ׳')}`;
+  if (secs < 3600) return `${Math.round(secs / 60)}${unit('m', 'דק׳')}`;
+  if (secs < 86400) return `${Math.round(secs / 3600)}${unit('h', 'שע׳')}`;
+  return `${Math.round(secs / 86400)}${unit('d', 'י׳')}`;
 }
 
 /** Visual identity per event type — icon + accent color for color-coding the feed. */
@@ -398,7 +399,7 @@ export default function EventInspectorPage() {
 
                   {/* Relative time */}
                   <span className="shrink-0 text-white/40 text-[11px] tabular-nums" style={{ fontFamily: mono }} dir="ltr">
-                    {ago(e.created_at)}
+                    {ago(e.created_at, isHebrew)}
                   </span>
                 </li>
               );

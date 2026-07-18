@@ -103,11 +103,13 @@ function clock(iso: string): string {
   return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
-function duration(ms: number): string {
+function duration(ms: number, isHebrew: boolean): string {
   const mins = Math.round(ms / 60000);
-  if (mins < 1) return '<1m';
-  if (mins < 60) return `${mins}m`;
-  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+  const m = isHebrew ? 'ד' : 'm';
+  const h = isHebrew ? 'ש' : 'h';
+  if (mins < 1) return `<1${m}`;
+  if (mins < 60) return `${mins}${m}`;
+  return `${Math.floor(mins / 60)}${h} ${mins % 60}${m}`;
 }
 
 /** Distinct cocktail slugs touched in a session, in first-seen order. */
@@ -373,10 +375,10 @@ export function JourneysPanel() {
     return {
       total,
       avgSteps: Math.round(stepsSum / total),
-      avgDuration: duration(Math.round(durationSum / total)),
+      avgDuration: duration(Math.round(durationSum / total), isHebrew),
       sharePct: Math.round((shared / total) * 100),
     };
-  }, [sessions]);
+  }, [sessions, isHebrew]);
 
   // Aggregate journey funnel — cumulative reach per canonical stage, real events only.
   const funnel = useMemo(() => computeFunnel(sessions), [sessions]);
@@ -512,7 +514,7 @@ export function JourneysPanel() {
                   {/* facts: duration · steps · revenue */}
                   <div className="flex items-center gap-4 shrink-0">
                     <span className="inline-flex items-center gap-1.5 text-white/55 text-[12px]" style={{ fontFamily: sans }}>
-                      <Clock size={13} strokeWidth={1.8} /> {duration(s.durationMs)}
+                      <Clock size={13} strokeWidth={1.8} /> {duration(s.durationMs, isHebrew)}
                     </span>
                     <span className="text-white/40 text-[12px]" style={{ fontFamily: sans }}>
                       {s.steps.length} {t('steps', 'צעדים')}
