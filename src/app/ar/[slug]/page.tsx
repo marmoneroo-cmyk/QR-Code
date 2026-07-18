@@ -12,6 +12,12 @@ interface PageProps {
 
 type Status = 'starting' | 'ready' | 'denied' | 'unsupported';
 
+// Keyboard control steps (mirror the pointer-gesture clamps below).
+const KEY_NUDGE_PX = 12;
+const KEY_SCALE_STEP = 0.1;
+const MIN_SCALE = 0.3;
+const MAX_SCALE = 2.5;
+
 export default function ArPage({ params }: PageProps) {
   const { slug } = use(params);
   const cocktail = findCocktailBySlug(slug);
@@ -54,7 +60,7 @@ export default function ArPage({ params }: PageProps) {
     (async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
         setStatus('unsupported');
-        setError('Camera is not supported in this browser.');
+        setError(t('Camera is not supported in this browser.', 'המצלמה אינה נתמכת בדפדפן זה.'));
         return;
       }
       try {
@@ -77,10 +83,10 @@ export default function ArPage({ params }: PageProps) {
         const name = err instanceof Error ? err.name : '';
         if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
           setStatus('denied');
-          setError('Camera access denied.');
+          setError(t('Camera access denied.', 'הגישה למצלמה נדחתה.'));
         } else {
           setStatus('unsupported');
-          setError(err instanceof Error ? err.message : 'Camera failed.');
+          setError(err instanceof Error ? err.message : t('Camera failed.', 'המצלמה נכשלה בהפעלה.'));
         }
       }
     })();
@@ -123,7 +129,7 @@ export default function ArPage({ params }: PageProps) {
       const [a, b] = [...pointersRef.current.values()];
       const distance = Math.hypot(a!.x - b!.x, a!.y - b!.y);
       const ratio = distance / gestureStartRef.current.distance;
-      const newScale = Math.max(0.3, Math.min(2.5, gestureStartRef.current.scale * ratio));
+      const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, gestureStartRef.current.scale * ratio));
       setScale(newScale);
     }
   }, []);
@@ -133,6 +139,39 @@ export default function ArPage({ params }: PageProps) {
     if (pointersRef.current.size < 2) {
       gestureStartRef.current = null;
     }
+  }, []);
+
+  // Keyboard equivalent of the drag/pinch gestures (arrows move, +/- or [ ]/PageUp-Down scale).
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowLeft':
+        setPos((p) => ({ ...p, x: p.x - KEY_NUDGE_PX }));
+        break;
+      case 'ArrowRight':
+        setPos((p) => ({ ...p, x: p.x + KEY_NUDGE_PX }));
+        break;
+      case 'ArrowUp':
+        setPos((p) => ({ ...p, y: p.y - KEY_NUDGE_PX }));
+        break;
+      case 'ArrowDown':
+        setPos((p) => ({ ...p, y: p.y + KEY_NUDGE_PX }));
+        break;
+      case '+':
+      case '=':
+      case ']':
+      case 'PageUp':
+        setScale((s) => Math.max(MIN_SCALE, Math.min(MAX_SCALE, s + KEY_SCALE_STEP)));
+        break;
+      case '-':
+      case '_':
+      case '[':
+      case 'PageDown':
+        setScale((s) => Math.max(MIN_SCALE, Math.min(MAX_SCALE, s - KEY_SCALE_STEP)));
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
   }, []);
 
   const handleSnap = useCallback(async () => {
@@ -247,6 +286,12 @@ export default function ArPage({ params }: PageProps) {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      aria-label={t(
+        'AR view — arrow keys move the cocktail, plus and minus scale it',
+        'תצוגת AR — מקשי החיצים מזיזים את הקוקטייל, פלוס ומינוס משנים את הגודל',
+      )}
     >
       <video
         ref={videoRef}
@@ -270,7 +315,7 @@ export default function ArPage({ params }: PageProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={cocktail.heroImage}
-            alt={cocktail.title.en}
+            alt={cocktail.title[lang]}
             className="max-h-[80vh] max-w-[80vw] drop-shadow-[0_25px_60px_rgba(0,0,0,0.8)]"
           />
         </div>
@@ -278,8 +323,8 @@ export default function ArPage({ params }: PageProps) {
 
       <Link
         href={`/cocktails/${cocktail.slug}`}
-        className="absolute top-5 right-5 z-30 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-amber-200/40 text-amber-100 hover:text-white flex items-center justify-center text-lg"
-        aria-label="Exit AR"
+        className="absolute top-5 end-5 z-30 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-amber-200/40 text-amber-100 hover:text-white flex items-center justify-center text-lg"
+        aria-label={t('Exit AR', 'יציאה מ‑AR')}
       >
         ×
       </Link>
@@ -302,7 +347,7 @@ export default function ArPage({ params }: PageProps) {
         </h1>
       </div>
 
-      <div className="absolute bottom-10 left-0 right-0 z-30 flex items-center justify-center gap-4 px-6" aria-live="polite">
+      <div className="absolute bottom-10 left-0 right-0 z-30 flex items-center justify-center gap-4 px-6">
         {status === 'ready' && (
           <>
             <button
@@ -327,11 +372,11 @@ export default function ArPage({ params }: PageProps) {
           </>
         )}
         {status === 'starting' && (
-          <p className="text-amber-200/70 text-sm">{t('Starting camera…', 'מפעיל מצלמה…')}</p>
+          <p className="text-amber-200/70 text-sm" aria-live="polite">{t('Starting camera…', 'מפעיל מצלמה…')}</p>
         )}
         {status === 'denied' && (
           <div className="text-center">
-            <p className="text-rose-300/90 text-sm mb-3">{error}</p>
+            <p className="text-rose-300/90 text-sm mb-3" aria-live="polite">{error}</p>
             <button
               type="button"
               onClick={() => window.location.reload()}
@@ -342,7 +387,7 @@ export default function ArPage({ params }: PageProps) {
           </div>
         )}
         {status === 'unsupported' && (
-          <p className="text-rose-300/90 text-sm text-center">{error}</p>
+          <p className="text-rose-300/90 text-sm text-center" aria-live="polite">{error}</p>
         )}
       </div>
 
