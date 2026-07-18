@@ -240,6 +240,19 @@ export function CocktailForm({
       setError(t('Generate or paste a hero image first.', 'יש ליצור או להדביק תמונה ראשית תחילה.'));
       return;
     }
+    // A new drink whose slug matches an existing draft would overwrite it — the on-screen
+    // warning is easy to miss, so require an explicit choice before clobbering saved work.
+    if (
+      slugTaken &&
+      !window.confirm(
+        t(
+          `A draft with the slug "${slug}" already exists. Saving will overwrite it. Continue?`,
+          `כבר קיימת טיוטה עם המזהה "${slug}". השמירה תדרוס אותה. להמשיך?`
+        )
+      )
+    ) {
+      return;
+    }
     const cocktail: CocktailConfig = {
       slug,
       title: { en: name.en.trim(), he: name.he.trim() || name.en.trim() },
