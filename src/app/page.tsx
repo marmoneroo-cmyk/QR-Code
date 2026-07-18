@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SettingsToolbar } from '@/components/SettingsToolbar';
 import { BackgroundFX } from '@/components/BackgroundFX';
-import { GlowDivider } from '@/components/ui/premium';
+import { GlowDivider, EmptyState } from '@/components/ui/premium';
 import { MenuRow, type MenuSection } from '@/components/MenuRow';
 import { useDrafts } from '@/lib/useDrafts';
 import { useMenuOrder } from '@/lib/useMenuOrder';
@@ -193,6 +193,8 @@ export default function Home() {
             src={featured.heroImage}
             alt=""
             aria-hidden
+            fetchPriority="high"
+            decoding="async"
             className="pointer-events-none absolute left-1/2 top-[44%] h-[80%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
             style={{ filter: 'drop-shadow(0 40px 80px rgba(0,0,0,0.9))' }}
             initial={{ opacity: 0, scale: 1.06 }}
@@ -264,9 +266,26 @@ export default function Home() {
 
       {/* ── The rows ──────────────────────────────────────────────────────── */}
       {sections.length === 0 ? (
-        <p className="py-16 text-center text-white/60 text-base italic" style={{ fontFamily: titleFont }}>
-          {isHe ? 'לא נמצאו תוצאות.' : 'No matching items.'}
-        </p>
+        <div className="relative z-10 py-16" dir={isHe ? 'rtl' : 'ltr'}>
+          <EmptyState
+            title={
+              query.trim()
+                ? isHe
+                  ? `לא נמצאו תוצאות ל״${query.trim()}״`
+                  : `No matches for “${query.trim()}”`
+                : isHe
+                  ? 'התפריט ריק כרגע'
+                  : 'The menu is empty right now'
+            }
+            hint={
+              query.trim()
+                ? isHe
+                  ? 'נסו מילה אחרת, או נקו את החיפוש'
+                  : 'Try a different word, or clear the search'
+                : undefined
+            }
+          />
+        </div>
       ) : (
         <div className="relative z-10 flex flex-col gap-12 pb-28 pt-2 md:gap-14">
           {sections.map((section, i) => (

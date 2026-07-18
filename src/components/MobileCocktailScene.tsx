@@ -160,6 +160,9 @@ export function MobileCocktailScene({
               alt={config.title[lang]}
               className="object-contain max-h-[48vh] w-auto mix-blend-screen"
               style={{ filter: 'drop-shadow(0 24px 60px color-mix(in srgb, var(--accent) 35%, transparent))' }}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
             />
           </div>
         )}
@@ -191,7 +194,7 @@ export function MobileCocktailScene({
                     <div className="shrink-0 w-16 h-16 flex items-center justify-center">
                       {img && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={img} alt="" aria-hidden className="max-w-full max-h-full object-contain mix-blend-screen" />
+                        <img src={img} alt="" aria-hidden className="max-w-full max-h-full object-contain mix-blend-screen" loading="lazy" decoding="async" />
                       )}
                     </div>
                     {/* Description beside it */}

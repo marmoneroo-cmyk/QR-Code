@@ -111,7 +111,7 @@ export function SettingsToolbar({
   const rowLabel = 'text-white/40 text-[11px] tracking-[0.12em] mb-2.5';
 
   return (
-    <div ref={rootRef} className="fixed top-6 left-6 z-50 flex items-center gap-2.5">
+    <div ref={rootRef} className="fixed top-6 start-6 z-50 flex items-center gap-2.5">
       <div className="relative">
         <IconButton onClick={() => setOpen((v) => !v)} ariaLabel={t.settings} active={open}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -123,7 +123,7 @@ export function SettingsToolbar({
         <AnimatePresence>
           {open && (
             <motion.div
-              className="absolute left-0 top-12 w-[280px] rounded-3xl border border-white/10 bg-[#0b0b0d]/95 backdrop-blur-2xl shadow-[0_28px_80px_rgba(0,0,0,0.7)]"
+              className="absolute start-0 top-12 w-[280px] rounded-3xl border border-white/10 bg-[#0b0b0d]/95 backdrop-blur-2xl shadow-[0_28px_80px_rgba(0,0,0,0.7)]"
               initial={{ opacity: 0, y: -6, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
@@ -209,15 +209,9 @@ export function SettingsToolbar({
         </AnimatePresence>
       </div>
 
-      <Link href="/admin/revenue" aria-label={t.admin}>
-        <IconButton ariaLabel={t.admin}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-        </IconButton>
-      </Link>
-
+      {/* Admin is intentionally NOT linked from the public guest menu — the owner reaches
+          /admin directly (it lives behind auth). Exposing it here let any guest at the table
+          open the revenue dashboard. */}
       <Link href="/scan" aria-label={t.scan}>
         <IconButton ariaLabel={t.scan}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">

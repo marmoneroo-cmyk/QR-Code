@@ -219,6 +219,8 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
                   featured ? 'px-5 pt-7 pb-1 md:px-10 md:pt-12' : 'px-3 pt-5 pb-1 md:px-5 md:pt-7'
                 }`}
                 style={{ opacity: hoverVideo && playing ? 0 : 1 }}
+                loading="lazy"
+                decoding="async"
               />
               {hoverVideo && (
                 // eslint-disable-next-line jsx-a11y/media-has-caption

@@ -67,6 +67,8 @@ export function AlsoViewed({ slug, lang }: { slug: string; lang: Lang }) {
                 src={cocktail.heroImage}
                 alt={cocktail.title[lang]}
                 className="w-20 h-24 object-contain mix-blend-screen transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
               />
             )}
             <span

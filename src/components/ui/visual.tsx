@@ -240,6 +240,8 @@ export function FrameBreakImage({
         alt={alt}
         className="absolute bottom-0 left-1/2 w-auto max-w-none -translate-x-1/2 object-contain mix-blend-screen"
         style={{ height: overflow, filter: `drop-shadow(0 26px 34px ${accent}40) drop-shadow(0 12px 22px rgba(0,0,0,0.55))` }}
+        loading="lazy"
+        decoding="async"
       />
     </span>
   );

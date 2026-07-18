@@ -356,6 +356,9 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
             alt={config.title[lang]}
             className="relative z-10 mx-auto max-h-[52vh] w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
             style={{ filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)` }}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
           />
         </motion.span>
         {hasComponents && (
@@ -459,6 +462,8 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
                     className="relative h-full w-full object-contain"
                     style={{ filter: 'drop-shadow(0 16px 26px rgba(0,0,0,0.7))' }}
                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : null}
               </motion.span>
@@ -488,7 +493,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
       >
         <span aria-hidden className="absolute left-1/2 top-1/2 h-[75%] w-[85%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" style={{ background: `radial-gradient(circle, ${accent}45, transparent 70%)` }} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={config.heroImage} alt={config.title[lang]} className="relative h-60 w-auto object-contain md:h-72" style={{ filter: 'drop-shadow(0 30px 50px rgba(0,0,0,0.8))' }} />
+        <img src={config.heroImage} alt={config.title[lang]} className="relative h-60 w-auto object-contain md:h-72" style={{ filter: 'drop-shadow(0 30px 50px rgba(0,0,0,0.8))' }} loading="lazy" decoding="async" />
         <figcaption className="mt-4 text-center">
           <p className="text-lg text-white" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
             {config.title[lang]}
@@ -611,6 +616,9 @@ function HeroStage({
             alt={config.title[lang]}
             className="relative z-10 h-full w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
             style={{ filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)` }}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
           />
           {/* Reflection */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -623,6 +631,8 @@ function HeroStage({
               maskImage: 'linear-gradient(to top, transparent 30%, black 100%)',
               WebkitMaskImage: 'linear-gradient(to top, transparent 30%, black 100%)',
             }}
+            loading="lazy"
+            decoding="async"
           />
         </motion.span>
         <span
@@ -748,6 +758,8 @@ function ExplodedView({
                     className="relative h-full w-full object-contain"
                     style={{ filter: 'drop-shadow(0 16px 26px rgba(0,0,0,0.7))' }}
                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : null}
               </motion.span>
@@ -778,7 +790,7 @@ function ExplodedView({
       >
         <span aria-hidden className="absolute left-1/2 top-1/2 h-[75%] w-[85%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" style={{ background: `radial-gradient(circle, ${accent}45, transparent 70%)` }} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={glassImage} alt={glassLabel?.name[lang] ?? ''} className="relative h-56 w-auto object-contain md:h-64" style={{ filter: 'drop-shadow(0 30px 50px rgba(0,0,0,0.8))' }} />
+        <img src={glassImage} alt={glassLabel?.name[lang] ?? ''} className="relative h-56 w-auto object-contain md:h-64" style={{ filter: 'drop-shadow(0 30px 50px rgba(0,0,0,0.8))' }} loading="lazy" decoding="async" />
         {glassLabel && (
           <figcaption className="mt-4 text-center">
             <p className="text-lg text-white" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
@@ -912,6 +924,8 @@ function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
                   alt={c.title[lang]}
                   className="relative h-full w-full object-contain"
                   style={{ filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.7))' }}
+                  loading="lazy"
+                  decoding="async"
                 />
               </span>
               <span

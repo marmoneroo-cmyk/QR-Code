@@ -273,6 +273,9 @@ export function CocktailScene({ config }: CocktailSceneProps) {
                     src={config.heroImage}
                     alt={config.title[lang]}
                     className="object-contain max-h-[80%] max-w-[80%] mix-blend-screen"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
                   />
                 )}
               </div>
@@ -321,6 +324,8 @@ export function CocktailScene({ config }: CocktailSceneProps) {
               alt={config.title[lang]}
               className="object-contain max-h-[90vh] w-auto max-w-full mix-blend-screen"
               style={{ filter: 'drop-shadow(0 0 80px color-mix(in srgb, var(--accent) 50%, transparent))' }}
+              loading="lazy"
+              decoding="async"
             />
           )}
         </motion.aside>

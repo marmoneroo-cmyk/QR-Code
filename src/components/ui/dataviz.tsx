@@ -40,6 +40,8 @@ export function GlassImage({
         alt={alt}
         aria-hidden={alt ? undefined : true}
         className="absolute inset-0 h-full w-full object-contain mix-blend-screen"
+        loading="lazy"
+        decoding="async"
       />
     </span>
   );
