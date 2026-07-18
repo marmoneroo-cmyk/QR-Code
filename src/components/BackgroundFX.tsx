@@ -4,6 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 const PARTICLE_COUNT = 18;
+// Touch devices get a calmer, cheaper field: fewer animated blurred nodes, and no
+// cursor-spotlight (there's no pointer to follow), which drops a per-frame rAF loop.
+const PARTICLE_COUNT_COARSE = 10;
 const PARTICLE_COLORS = [
   'rgba(252, 211, 77, 0.4)',
   'rgba(252, 211, 77, 0.3)',
@@ -52,9 +55,21 @@ function buildParticles(): ParticleSpec[] {
 export function BackgroundFX() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [spotlight, setSpotlight] = useState({ x: 50, y: 50 });
+  // SSR renders the full desktop field; after mount we downgrade on coarse pointers.
+  const [isCoarse, setIsCoarse] = useState(false);
   const particles = useMemo(() => buildParticles(), []);
+  const shownParticles = isCoarse ? particles.slice(0, PARTICLE_COUNT_COARSE) : particles;
 
   useEffect(() => {
+    const mq = window.matchMedia('(pointer: coarse)');
+    const update = () => setIsCoarse(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (isCoarse) return; // no cursor to follow on touch — skip the mousemove rAF loop entirely
     let frame = 0;
     let pending = { x: 50, y: 50 };
     const handle = (event: MouseEvent) => {
@@ -74,7 +89,7 @@ export function BackgroundFX() {
       window.removeEventListener('mousemove', handle);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [isCoarse]);
 
   return (
     <div
@@ -124,7 +139,7 @@ export function BackgroundFX() {
       />
 
       <div className="absolute inset-0">
-        {particles.map((p) => (
+        {shownParticles.map((p) => (
           <motion.div
             key={p.id}
             className="absolute rounded-full"
