@@ -108,7 +108,7 @@ export default function ScanPage() {
 
       <Link
         href="/"
-        className="absolute top-5 right-5 z-30 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-amber-200/40 text-amber-100 hover:text-white flex items-center justify-center text-lg"
+        className="absolute top-5 end-5 z-30 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-amber-200/40 text-amber-100 hover:text-white flex items-center justify-center text-lg"
         aria-label={t('Cancel scan', 'ביטול סריקה')}
       >
         ×
