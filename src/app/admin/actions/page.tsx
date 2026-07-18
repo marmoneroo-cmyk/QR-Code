@@ -304,7 +304,7 @@ function ActionRow({ action, rank, lang, isHe, headFont, celebrating, onDone }: 
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-[14px] text-white/70 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
               style={{ fontFamily: sans }}
             >
-              <Check size={16} strokeWidth={2.2} style={{ color: '#34d399' }} />
+              <Check size={16} strokeWidth={2.2} style={{ color: 'var(--success)' }} />
               {isHe ? 'בוצע' : 'Done'}
             </button>
           </div>

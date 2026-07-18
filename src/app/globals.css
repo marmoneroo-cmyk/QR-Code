@@ -44,6 +44,30 @@ canvas {
   --ink-mid: rgba(255, 255, 255, 0.55);
   --ink-low: rgba(255, 255, 255, 0.34);
   --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Semantic status palette ─────────────────────────────────────────────
+   * Single source of truth for the recurring meaning-colors used across the
+   * analytics/insight screens: positive/up, attention, informational, negative.
+   * Values are EXACT aliases of the hex literals they replace, so consuming a
+   * token renders a byte-identical pixel — no visual change, just one place to
+   * tune the palette. Reference as `var(--success)` in inline styles or
+   * `text-[var(--success)]` / `bg-[var(--warning)]` in Tailwind arbitrary values.
+   *
+   * Do NOT fold alpha into these (e.g. `${accent}24` accent-math or `/20`
+   * opacity modifiers): those resolve through color-mix and are not lossless.
+   * ──────────────────────────────────────────────────────────────────────── */
+  --success: #34d399;        /* emerald-400 — positive, ordering, "up"        */
+  --success-soft: #6ee7b7;   /* emerald-300 — softer positive                 */
+  --warning: #fbbf24;        /* amber-400 — attention, needs-a-look           */
+  --warning-light: #fcd34d;  /* amber-300                                     */
+  --warning-deep: #f59e0b;   /* amber-500                                     */
+  --warning-deeper: #d97706; /* amber-600                                     */
+  --info: #7dd3fc;           /* sky-300 — informational / neutral signal      */
+  --critical: #f87171;       /* red-400 — negative, "down", loss              */
+  --critical-soft: #fb7185;  /* rose-400 — softer negative                    */
+  --critical-light: #fda4af; /* rose-300                                      */
+  --accent-violet: #a78bfa;  /* violet-400 — secondary categorical accent     */
+  --gold-pale: #fde68a;      /* amber-200 — pale gold highlight               */
 }
 
 /* The standard premium surface: layered glass with a lit top edge. */

@@ -349,8 +349,8 @@ export default function CrmPage() {
           <div className="mt-4">
             <ShareBar
               rows={[
-                { label: t('English', 'אנגלית'), count: data?.languageSplit.en ?? 0, color: '#fcd34d' },
-                { label: t('Hebrew', 'עברית'), count: data?.languageSplit.he ?? 0, color: '#34d399' },
+                { label: t('English', 'אנגלית'), count: data?.languageSplit.en ?? 0, color: 'var(--warning-light)' },
+                { label: t('Hebrew', 'עברית'), count: data?.languageSplit.he ?? 0, color: 'var(--success)' },
               ]}
             />
           </div>
@@ -363,9 +363,9 @@ export default function CrmPage() {
           <div className="mt-4">
             <ShareBar
               rows={[
-                { label: t('Mobile', 'נייד'), count: data?.deviceSplit.mobile ?? 0, color: '#fcd34d' },
+                { label: t('Mobile', 'נייד'), count: data?.deviceSplit.mobile ?? 0, color: 'var(--warning-light)' },
                 { label: t('Tablet', 'טאבלט'), count: data?.deviceSplit.tablet ?? 0, color: '#38bdf8' },
-                { label: t('Desktop', 'שולחני'), count: data?.deviceSplit.desktop ?? 0, color: '#34d399' },
+                { label: t('Desktop', 'שולחני'), count: data?.deviceSplit.desktop ?? 0, color: 'var(--success)' },
               ]}
             />
           </div>

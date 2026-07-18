@@ -161,7 +161,7 @@ export function ClosedLoopPanel() {
         {/* Manual external-change log */}
         <GlassCard static className="max-w-xl p-6">
           <div className="mb-1 inline-flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.1)' }}>
+            <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ color: 'var(--warning)', background: 'rgba(251,191,36,0.1)' }}>
               <Wrench size={15} strokeWidth={1.8} />
             </span>
             <h3 className="text-white text-[15px]" style={{ fontFamily: serif, fontWeight: 600 }}>
@@ -235,7 +235,7 @@ export function ClosedLoopPanel() {
                     <span
                       className="grid h-6 w-6 shrink-0 place-items-center rounded-full"
                       style={{
-                        color: manual ? '#fbbf24' : 'rgba(255,255,255,0.55)',
+                        color: manual ? 'var(--warning)' : 'rgba(255,255,255,0.55)',
                         background: manual ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)',
                       }}
                     >
@@ -349,7 +349,7 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
 
           {/* Big delta with arrow */}
           {delta !== null ? (
-            <p className="inline-flex items-baseline gap-1.5" style={{ color: down ? '#fb7185' : '#34d399', fontFamily: serif, fontWeight: 700 }}>
+            <p className="inline-flex items-baseline gap-1.5" style={{ color: down ? 'var(--critical-soft)' : 'var(--success)', fontFamily: serif, fontWeight: 700 }}>
               <DeltaArrow size={26} strokeWidth={2.4} className="self-center" />
               <span style={{ fontSize: 'clamp(1.8rem,4vw,2.6rem)', lineHeight: 1 }}>
                 {delta > 0 ? '+' : ''}

@@ -122,8 +122,8 @@ function promoStatus(p: Promotion & { active?: boolean }): PromoStatus {
 }
 
 const STATUS_STYLE: Record<PromoStatus, { en: string; he: string; cls: string; dot: string }> = {
-  active: { en: 'Live', he: 'פעיל', cls: 'border-emerald-300/40 text-emerald-200 bg-emerald-300/10', dot: '#34d399' },
-  scheduled: { en: 'Scheduled', he: 'מתוזמן', cls: 'border-sky-300/40 text-sky-200 bg-sky-300/10', dot: '#7dd3fc' },
+  active: { en: 'Live', he: 'פעיל', cls: 'border-emerald-300/40 text-emerald-200 bg-emerald-300/10', dot: 'var(--success)' },
+  scheduled: { en: 'Scheduled', he: 'מתוזמן', cls: 'border-sky-300/40 text-sky-200 bg-sky-300/10', dot: 'var(--info)' },
   ended: { en: 'Ended', he: 'הסתיים', cls: 'border-white/20 text-white/40 bg-white/[0.03]', dot: '#9ca3af' },
   off: { en: 'Off', he: 'כבוי', cls: 'border-white/20 text-white/40 bg-white/[0.03]', dot: '#6b7280' },
 };

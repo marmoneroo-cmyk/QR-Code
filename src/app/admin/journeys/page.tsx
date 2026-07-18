@@ -542,7 +542,7 @@ export function JourneysPanel() {
                         style={{
                           fontFamily: sans,
                           borderColor: isOrder ? 'rgba(52,211,153,0.4)' : 'rgba(255,255,255,0.1)',
-                          color: isOrder ? '#34d399' : 'rgba(255,255,255,0.7)',
+                          color: isOrder ? 'var(--success)' : 'rgba(255,255,255,0.7)',
                           background: isOrder ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.03)',
                         }}
                       >
@@ -613,7 +613,7 @@ export function JourneysPanel() {
                         <li key={i} className="ms-5 pb-4 last:pb-0">
                           <span
                             className="absolute -start-[6.5px] mt-1 w-3 h-3 rounded-full border border-black"
-                            style={{ backgroundColor: isOrder ? '#34d399' : '#fcd34d' }}
+                            style={{ backgroundColor: isOrder ? 'var(--success)' : 'var(--warning-light)' }}
                           />
                           <div className="flex items-baseline gap-3">
                             <span className="text-white/40 text-[11px] font-mono w-16 shrink-0">{clock(step.at)}</span>

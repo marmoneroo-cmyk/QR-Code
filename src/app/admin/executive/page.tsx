@@ -282,7 +282,7 @@ export default function ExecutiveSummaryPage() {
                   </div>
                   <div className={`p-7 md:p-9 flex flex-col justify-center gap-5 text-center md:text-start ${isHe ? 'md:order-1' : ''}`}>
                     <div>
-                      <div className="inline-flex items-center gap-1.5 mb-2 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(52,211,153,0.4)', color: '#34d399', fontFamily: sans }}>
+                      <div className="inline-flex items-center gap-1.5 mb-2 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(52,211,153,0.4)', color: 'var(--success)', fontFamily: sans }}>
                         <BadgeCheck size={12} strokeWidth={2} /> {t('Confidence', 'ביטחון')} {p.confidence}%
                       </div>
                       <h2 className="text-white leading-[1]" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 700, fontSize: 'clamp(2.2rem,5vw,3.4rem)' }}>
@@ -407,7 +407,7 @@ export default function ExecutiveSummaryPage() {
                           <AccentWash accent={it.accent} opacity={0.14} />
                           <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 mb-3 transition-transform duration-300 group-hover:scale-105" />
                           <p className="relative text-white/90 text-[16px] text-center" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
-                          <p className="relative text-center text-[11px] mt-2 mb-3" style={{ color: '#34d399', fontFamily: sans }}>
+                          <p className="relative text-center text-[11px] mt-2 mb-3" style={{ color: 'var(--success)', fontFamily: sans }}>
                             <BadgeCheck size={11} strokeWidth={2} className="inline mb-0.5" /> {t('Confidence', 'ביטחון')} {p.confidence}%
                           </p>
                           <div className="relative mt-auto grid grid-cols-2 gap-1 text-center">

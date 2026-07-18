@@ -140,11 +140,11 @@ export default function ExperimentsPage() {
                 {exp.significant ? (
                   <ConfidenceBadge pct={Math.round(exp.confidencePct)} label={t('significance', 'מובהקות')} />
                 ) : exp.hasData ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: '#fbbf24', fontFamily: sans }}>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)', fontFamily: sans }}>
                     <Hourglass size={11} strokeWidth={2} /> {t('collecting data', 'אוסף נתונים')} · {Math.round(exp.confidencePct)}%
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: '#fbbf24', fontFamily: sans }}>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)', fontFamily: sans }}>
                     <Hourglass size={11} strokeWidth={2} /> {t('collecting data', 'אוסף נתונים')}
                   </span>
                 )}
@@ -175,7 +175,7 @@ export default function ExperimentsPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-2xl tabular-nums" style={{ fontFamily: serif, fontWeight: 700, color: v.isWinner ? '#6ee7b7' : '#fde68a' }}>
+                    <p className="text-2xl tabular-nums" style={{ fontFamily: serif, fontWeight: 700, color: v.isWinner ? 'var(--success-soft)' : 'var(--gold-pale)' }}>
                       {v.conversionPct.toFixed(1)}<span className="text-base text-white/40">%</span>
                     </p>
                     <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden my-2">

@@ -285,13 +285,13 @@ export default function EventInspectorPage() {
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <span
                 className="inline-flex items-center gap-1.5 text-[11px] tracking-wider uppercase"
-                style={{ fontFamily: sans, color: allPassed ? '#6ee7b7' : '#fda4af' }}
+                style={{ fontFamily: sans, color: allPassed ? 'var(--success-soft)' : 'var(--critical-light)' }}
               >
                 {allPassed ? <ShieldCheck size={14} strokeWidth={2} /> : <ShieldAlert size={14} strokeWidth={2} />}
                 {integrity ? (allPassed ? t('all checks pass', 'כל הבדיקות עברו') : t('violations found', 'נמצאו הפרות')) : t('checking…', 'בודק…')}
               </span>
               {validPct !== null && (
-                <span className="text-[11px]" style={{ fontFamily: sans, color: allPassed ? '#6ee7b7' : '#fda4af' }}>
+                <span className="text-[11px]" style={{ fontFamily: sans, color: allPassed ? 'var(--success-soft)' : 'var(--critical-light)' }}>
                   {validPct}% {t('valid', 'תקין')}
                 </span>
               )}

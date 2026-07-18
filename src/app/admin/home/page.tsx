@@ -216,7 +216,7 @@ export default function HomeDashboardPage() {
               <EmptyState title={isHe ? 'אין עדיין נתונים.' : 'No data yet.'} />
             ) : (
               <div className="flex flex-col gap-2">
-                <AreaChart data={traffic.series} color="#e8c987" height={64} />
+                <AreaChart data={traffic.series} color="var(--champagne)" height={64} />
                 <p className="text-[12px]" style={{ fontFamily: sans }}>
                   {traffic.deltaPct === null ? (
                     <span className="text-white/40">{isHe ? 'אין מספיק היסטוריה' : 'Not enough history'}</span>

@@ -107,7 +107,7 @@ function ApplyAction({ action, slug, lang }: { action: RecAction; slug: string; 
     <Link
       href={href}
       className="group/apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] tracking-[0.12em] uppercase transition-colors hover:bg-amber-300/20"
-      style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.45)', fontFamily: sans, fontWeight: 600 }}
+      style={{ color: 'var(--warning)', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.45)', fontFamily: sans, fontWeight: 600 }}
     >
       <Lightbulb size={13} strokeWidth={2} className="shrink-0" />
       {lang === 'he' ? 'החל' : 'Apply'}
