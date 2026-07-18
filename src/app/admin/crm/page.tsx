@@ -235,15 +235,18 @@ export default function CrmPage() {
   const histogram: number[] = data?.hourHistogram ?? new Array<number>(24).fill(0);
   const peakHour = useMemo(() => histogram.indexOf(Math.max(...histogram)), [histogram]);
 
-  const segmentColors = { ordering: '#34d399', browsing: '#fbbf24', engaged: '#f87171' } as const;
+  const segmentColors = { ordering: '#34d399', browsing: '#fbbf24' } as const;
+  // The donut is a TRUE partition of sessions (ordering + browsing = sessions). "Deep visits"
+  // is a separate, OVERLAPPING dimension (engagement depth, not an outcome) — as a third slice
+  // it would double-count guests and distort the ordering/browsing percentages, so it lives
+  // only in its own stat card below.
   const donutSegments = useMemo(
     () => [
       { label: t('Ordering guests', 'אורחים מזמינים'), count: ordering, color: segmentColors.ordering },
       { label: t('Browsing guests', 'אורחים מתעניינים'), count: browsing, color: segmentColors.browsing },
-      { label: t('Engaged guests', 'אורחים מעורבים'), count: engaged, color: segmentColors.engaged },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [ordering, browsing, engaged, isHebrew],
+    [ordering, browsing, isHebrew],
   );
 
   return (
@@ -327,7 +330,7 @@ export default function CrmPage() {
             <SegmentCard
               icon={Flame}
               accent="#f87171"
-              title={t('Engaged guests', 'אורחים מעורבים')}
+              title={t('Deep visits', 'ביקורים עמוקים')}
               count={engaged}
               total={sessions}
               meaning={t(`Averaged ${avgEvents.toFixed(1)} actions per visit — deep, attentive sessions.`, `ממוצע ${avgEvents.toFixed(1)} פעולות לביקור — מושבים עמוקים וקשובים.`)}

@@ -6,6 +6,7 @@ import { Link2, Lightbulb, ArrowRight, ArrowLeft, Crown } from 'lucide-react';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, Skeleton, LiveDot } from '@/components/ui/dataviz';
+import { sampleConfidence } from '@/lib/menu-intel/sample';
 import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
 import { PotentialValue } from '@/components/ui/value';
 import { buildMenuBenchmark, estimatePotential } from '@/lib/value/potential';
@@ -23,10 +24,14 @@ const serif = 'var(--font-playfair, serif)';
 const serifHe = 'var(--font-frank-ruhl, serif)';
 const PAIR_ACCENT = '#7dd3fc';
 
-/** Co-view strength → presentational AI-confidence %. More shared sessions = stronger signal. */
+/**
+ * Signal strength of the top pairing — trust in the co-view SAMPLE, from the shared
+ * sampleConfidence curve (n / (n + 60)), NOT a fabricated 58 + n×6. More shared sessions ⇒
+ * stronger, but a handful of co-views can never read as a made-up 95%.
+ */
 function pairingConfidence(row: CoViewRow): number {
   const top = row.related[0]?.coViews ?? 0;
-  return Math.min(95, 58 + top * 6);
+  return Math.round(sampleConfidence(top) * 100);
 }
 
 export function RecommendationsPanel() {
@@ -218,7 +223,7 @@ export function RecommendationsPanel() {
                     </span>
                   </span>
                   <span className="absolute top-4 end-4 z-10">
-                    <ConfidenceBadge pct={confidence} label={t('AI confidence', 'ביטחון AI')} />
+                    <ConfidenceBadge pct={confidence} label={t('Signal strength', 'עוצמת אות')} />
                   </span>
                 </div>
 

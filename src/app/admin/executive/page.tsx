@@ -13,7 +13,8 @@ import { ReadinessNote } from '@/components/ui/value';
 import { useReadiness } from '@/lib/useReadiness';
 import { useLang } from '@/lib/useLang';
 import { getAccent, findCocktailBySlug } from '@/data/cocktail';
-import { totalPotential } from '@/lib/value/potential';
+import { totalPotential, buildMenuBenchmark, estimatePotential, type MenuBenchmark } from '@/lib/value/potential';
+import { sampleConfidence } from '@/lib/menu-intel/sample';
 import { formatILS } from '@/lib/format';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 import { useApiData } from '@/lib/data/useApiData';
@@ -28,14 +29,25 @@ interface Enriched extends MenuEngineeringItem {
   accent: string;
 }
 
-/** Projected upside — clearly an estimate, derived from attention × menu price. */
-function project(it: Enriched) {
-  const orders = Math.max(8, Math.round((it.attentionScore / 100) * 24));
-  const customers = Math.max(4, Math.round(orders * 0.6));
-  const revenue = orders * (it.price || 0);
+/**
+ * Honest projection for the hero item. Current revenue is real (units × price); the upside
+ * comes from the SHARED estimatePotential engine (tied to the menu's own median, returns null
+ * when there's no quantified upside — never fabricated), and confidence is the real
+ * sample-based curve. Replaces the earlier attention×price / (55 + views×1.3) heuristics that
+ * invented orders and a precise-looking confidence out of thin air.
+ */
+function project(it: Enriched, bench: MenuBenchmark) {
+  const pot = estimatePotential(it, bench);
   const beforeRev = it.units * (it.price || 0);
-  const confidence = Math.min(95, 55 + Math.round(it.views * 1.3));
-  return { orders, customers, revenue, beforeRev, afterRev: beforeRev + revenue, confidence };
+  const revenue = pot?.revenueILS ?? 0;
+  return {
+    orders: pot?.extraOrders ?? 0,
+    revenue,
+    beforeRev,
+    afterRev: beforeRev + revenue,
+    confidence: Math.round(sampleConfidence(it.views) * 100),
+    hasUpside: pot !== null,
+  };
 }
 
 function GlassImage({ src, accent, className }: { src: string; accent: string; className?: string }) {
@@ -141,6 +153,7 @@ export default function ExecutiveSummaryPage() {
 
   // Honest money hero: sums ONLY quantified upsides from real per-item analytics.
   const potential = useMemo(() => totalPotential(me?.items ?? []), [me]);
+  const bench = useMemo(() => buildMenuBenchmark(me?.items ?? []), [me]);
 
   const ranked = useMemo(() => {
     const score = (i: Enriched) => (i.highInterestLowConversion ? 1000 : 0) + (i.klass === 'puzzle' ? 500 : 0) + i.attentionScore;
@@ -264,7 +277,7 @@ export default function ExecutiveSummaryPage() {
 
           {/* HERO */}
           {(() => {
-            const p = project(hero);
+            const p = project(hero, bench);
             const leak = hero.highInterestLowConversion;
             return (
               <Reveal>
@@ -287,7 +300,7 @@ export default function ExecutiveSummaryPage() {
                   <div className={`p-7 md:p-9 flex flex-col justify-center gap-5 text-center md:text-start ${isHe ? 'md:order-1' : ''}`}>
                     <div>
                       <div className="inline-flex items-center gap-1.5 mb-2 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(52,211,153,0.4)', color: '#34d399', fontFamily: sans }}>
-                        <BadgeCheck size={12} strokeWidth={2} /> {t('AI confidence', 'ביטחון AI')} {p.confidence}%
+                        <BadgeCheck size={12} strokeWidth={2} /> {t('Confidence', 'ביטחון')} {p.confidence}%
                       </div>
                       <h2 className="text-white leading-[1]" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 700, fontSize: 'clamp(2.2rem,5vw,3.4rem)' }}>
                         {hero.title[lang]}
@@ -312,9 +325,13 @@ export default function ExecutiveSummaryPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                      <Pill icon={Users} text={`+${p.customers} ${t('guests', 'אורחים')}`} />
-                      <Pill icon={ShoppingBag} text={`+${p.orders} ${t('orders/mo', 'הזמנות/חודש')}`} />
-                      <Pill icon={TrendingUp} text={`≈ +${ils(p.revenue)} ${t('potential', 'פוטנציאל')}`} accent={hero.accent} />
+                      {p.orders > 0 && <Pill icon={ShoppingBag} text={`+${p.orders} ${t('orders/mo', 'הזמנות/חודש')}`} />}
+                      {p.revenue > 0 && <Pill icon={TrendingUp} text={`≈ +${ils(p.revenue)} ${t('potential', 'פוטנציאל')}`} accent={hero.accent} />}
+                      {!p.hasUpside && (
+                        <span className="text-white/45 text-[12px]" style={{ fontFamily: sans }}>
+                          {t('Not enough data to quantify upside yet.', 'עדיין אין מספיק נתונים לכימות הפוטנציאל.')}
+                        </span>
+                      )}
                     </div>
 
                     <Link href={leak ? '/admin/menu-analysis' : '/admin/experience'} className="inline-flex w-fit mx-auto md:mx-0 items-center gap-2 rounded-full px-6 py-3 text-[11px] tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]" style={{ background: hero.accent, fontFamily: sans, fontWeight: 700 }}>
@@ -399,7 +416,7 @@ export default function ExecutiveSummaryPage() {
               <p className="text-amber-200/70 text-[10px] tracking-[0.4em] uppercase mb-4" style={{ fontFamily: sans }}>{t('More opportunities', 'הזדמנויות נוספות')}</p>
               <Stagger className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {more.map((it) => {
-                  const p = project(it);
+                  const p = project(it, bench);
                   return (
                     <motion.div key={it.slug} variants={staggerItem}>
                       <HoverLift accent={it.accent} className="h-full">
@@ -408,10 +425,9 @@ export default function ExecutiveSummaryPage() {
                           <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 mb-3 transition-transform duration-300 group-hover:scale-105" />
                           <p className="relative text-white/90 text-[16px] text-center" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
                           <p className="relative text-center text-[11px] mt-2 mb-3" style={{ color: '#34d399', fontFamily: sans }}>
-                            <BadgeCheck size={11} strokeWidth={2} className="inline mb-0.5" /> {t('AI confidence', 'ביטחון AI')} {p.confidence}%
+                            <BadgeCheck size={11} strokeWidth={2} className="inline mb-0.5" /> {t('Confidence', 'ביטחון')} {p.confidence}%
                           </p>
-                          <div className="relative mt-auto grid grid-cols-3 gap-1 text-center">
-                            <Mini v={`+${p.customers}`} l={t('guests', 'אורחים')} />
+                          <div className="relative mt-auto grid grid-cols-2 gap-1 text-center">
                             <Mini v={`+${p.orders}`} l={t('orders', 'הזמנות')} />
                             <Mini v={`≈${ils(p.revenue)}`} l={t('potential', 'פוטנציאל')} accent={it.accent} />
                           </div>

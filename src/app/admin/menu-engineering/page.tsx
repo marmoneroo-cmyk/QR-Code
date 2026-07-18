@@ -128,9 +128,24 @@ export function MenuEngineeringPanel() {
 
   const xMax = Math.max(1, ...items.map((i) => i.units));
   const yMax = Math.max(1, ...items.map((i) => i.margin));
+  const medDemand = data?.medianDemand ?? 0;
+  const medMargin = data?.medianMargin ?? 0;
+  // Position each thumbnail so the MEDIAN lands exactly on the 50% quadrant boundary (the
+  // crosshair) — the server classifies by median, so max-normalizing here could draw an item
+  // in the wrong quadrant (e.g. a "Star" sitting in the "Dog" corner). Piecewise-linear:
+  // [0..median] → [0..50%], [median..max] → [50%..100%], then inset so thumbnails don't clip.
+  const axisFrac = (value: number, med: number, max: number): number => {
+    const f =
+      med <= 0
+        ? 0.12
+        : value <= med
+          ? (value / med) * 0.5
+          : 0.5 + ((value - med) / Math.max(1e-9, max - med)) * 0.5;
+    return Math.max(0, Math.min(1, f));
+  };
   const pos = (i: EnrichedItem) => ({
-    left: `${(i.units / xMax) * 76 + 12}%`,
-    bottom: `${(i.margin / yMax) * 70 + 15}%`,
+    left: `${12 + axisFrac(i.units, medDemand, xMax) * 76}%`,
+    bottom: `${15 + axisFrac(i.margin, medMargin, yMax) * 70}%`,
   });
 
   const hasItems = items.length > 0;
