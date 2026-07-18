@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Cocktail not found' };
   }
   const title = cocktail.title.en;
-  const description = cocktail.tagline?.en ?? 'An interactive 3D cocktail breakdown.';
+  const description = cocktail.tagline?.en ?? 'An interactive look at what goes into this drink.';
   return {
     title: `${title} — Interactive Menu`,
     description,

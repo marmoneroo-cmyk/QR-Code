@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useLang } from '@/lib/useLang';
 
 interface ScanResult {
   data: string;
@@ -10,6 +11,9 @@ interface ScanResult {
 
 export default function ScanPage() {
   const router = useRouter();
+  const { lang } = useLang();
+  const isHebrew = lang === 'he';
+  const t = (en: string, he: string): string => (isHebrew ? he : en);
   const videoRef = useRef<HTMLVideoElement>(null);
   const scannerRef = useRef<{ stop(): void; destroy(): void } | null>(null);
   // Use a ref (not state) for the navigating guard so handleScan stays stable —
@@ -48,7 +52,7 @@ export default function ScanPage() {
     (async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
         setStatus('unsupported');
-        setError('Camera is not supported in this browser.');
+        setError(t('Camera is not supported in this browser.', 'המצלמה אינה נתמכת בדפדפן זה.'));
         return;
       }
 
@@ -76,10 +80,10 @@ export default function ScanPage() {
         const name = err instanceof Error ? err.name : '';
         if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
           setStatus('denied');
-          setError('Camera permission was denied. Allow camera access and reload.');
+          setError(t('Camera permission was denied. Allow camera access and reload.', 'הגישה למצלמה נדחתה. אשרו גישה למצלמה וטענו מחדש.'));
         } else {
           setStatus('unsupported');
-          setError(err instanceof Error ? err.message : 'Camera failed to start.');
+          setError(err instanceof Error ? err.message : t('Camera failed to start.', 'המצלמה נכשלה בהפעלה.'));
         }
       }
     })();
@@ -105,43 +109,43 @@ export default function ScanPage() {
       <Link
         href="/"
         className="absolute top-5 right-5 z-30 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-amber-200/40 text-amber-100 hover:text-white flex items-center justify-center text-lg"
-        aria-label="Cancel scan"
+        aria-label={t('Cancel scan', 'ביטול סריקה')}
       >
         ×
       </Link>
 
-      <div className="absolute top-6 left-6 z-30">
+      <div className="absolute top-6 start-6 z-30" dir={isHebrew ? 'rtl' : 'ltr'}>
         <p
           className="text-amber-200/85 text-[10px] tracking-[0.45em] uppercase mb-1"
           style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
         >
-          Scan
+          {t('Scan', 'סריקה')}
         </p>
         <h1
           className="text-white text-2xl"
           style={{
-            fontFamily: 'var(--font-playfair, serif)',
-            fontStyle: 'italic',
+            fontFamily: isHebrew ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)',
+            fontStyle: isHebrew ? 'normal' : 'italic',
           }}
         >
-          Point at a QR
+          {t('Point at a QR', 'כוונו לקוד QR')}
         </h1>
       </div>
 
-      <div className="absolute bottom-10 left-0 right-0 z-30 text-center px-6" aria-live="polite">
+      <div className="absolute bottom-10 left-0 right-0 z-30 text-center px-6" aria-live="polite" dir={isHebrew ? 'rtl' : 'ltr'}>
         {status === 'starting' && (
-          <p className="text-amber-200/70 text-sm">Starting camera…</p>
+          <p className="text-amber-200/70 text-sm">{t('Starting camera…', 'מפעיל מצלמה…')}</p>
         )}
         {status === 'scanning' && (
           <p
             className="text-white/70 text-[11px] tracking-[0.3em] uppercase"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
-            Looking for a code…
+            {t('Looking for a code…', 'מחפש קוד…')}
           </p>
         )}
         {status === 'navigating' && (
-          <p className="text-emerald-300/90 text-sm italic">✓ Found — opening…</p>
+          <p className="text-emerald-300/90 text-sm italic">{t('✓ Found — opening…', '✓ נמצא — פותח…')}</p>
         )}
         {status === 'denied' && (
           <div className="space-y-2">
@@ -151,18 +155,18 @@ export default function ScanPage() {
               onClick={() => window.location.reload()}
               className="text-amber-200/80 text-[11px] tracking-[0.3em] uppercase underline"
             >
-              Retry
+              {t('Retry', 'נסה שוב')}
             </button>
           </div>
         )}
         {status === 'unsupported' && (
-          <p className="text-rose-300/90 text-sm">{error ?? 'Camera unavailable.'}</p>
+          <p className="text-rose-300/90 text-sm">{error ?? t('Camera unavailable.', 'המצלמה אינה זמינה.')}</p>
         )}
         {lastResult && status === 'scanning' && (
           <p className="mt-3 text-white/60 text-xs italic break-all">
-            Last seen: {lastResult.slice(0, 80)}
+            {t('Last seen: ', 'נצפה לאחרונה: ')}{lastResult.slice(0, 80)}
             {lastResult.length > 80 ? '…' : ''}
-            {' '}— not a menu link
+            {' '}{t('— not a menu link', '— לא קישור לתפריט')}
           </p>
         )}
       </div>

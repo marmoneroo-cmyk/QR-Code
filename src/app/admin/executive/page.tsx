@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Sunrise, Flame, ArrowRight, Users, ShoppingBag, TrendingUp, TrendingDown, BadgeCheck, Share2, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { Skeleton, SkeletonGrid, LiveDot, AreaChart } from '@/components/ui/dataviz';
+import { Skeleton, SkeletonGrid, LiveDot, AreaChart, GlassImage, deltaPct } from '@/components/ui/dataviz';
 import { Stagger, staggerItem, Reveal } from '@/components/ui/motion';
 import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
 import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
@@ -48,23 +48,6 @@ function project(it: Enriched, bench: MenuBenchmark) {
     confidence: Math.round(sampleConfidence(it.views) * 100),
     hasUpside: pot !== null,
   };
-}
-
-function GlassImage({ src, accent, className }: { src: string; accent: string; className?: string }) {
-  return (
-    <span className={`relative block overflow-hidden ${className ?? ''}`}>
-      <span className="absolute inset-[12%] rounded-full blur-2xl opacity-45" style={{ background: `radial-gradient(circle, ${accent}66, transparent 72%)` }} aria-hidden />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt="" aria-hidden className="absolute inset-0 h-full w-full object-contain mix-blend-screen" />
-    </span>
-  );
-}
-
-function deltaPct(series: number[] | undefined): number | null {
-  if (!series || series.length < 8) return null;
-  const a = series.slice(-7).reduce((s, n) => s + n, 0);
-  const b = series.slice(-14, -7).reduce((s, n) => s + n, 0);
-  return b > 0 ? Math.round(((a - b) / b) * 100) : null;
 }
 
 interface BriefingInput {

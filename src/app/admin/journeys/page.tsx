@@ -254,7 +254,7 @@ function FunnelStepper({ nodes, total, isHebrew, t }: FunnelStepperProps) {
 
   return (
     <section className="mb-8" dir={isHebrew ? 'rtl' : 'ltr'}>
-      <SectionLabel icon={Filter}>{t('Journey funnel', 'משפך מסע')}</SectionLabel>
+      <SectionLabel icon={Filter}>{t('Guest path', 'מסע האורח')}</SectionLabel>
 
       <GlassCard className="p-5 sm:p-6" static>
         {/* flex-wrap = wraps to rows; no overflow-x anywhere */}
