@@ -48,7 +48,7 @@ export default function GuestsPage() {
               role="tab"
               aria-selected={isActive}
               onClick={() => setTab(tb.id)}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] tracking-[0.18em] uppercase transition-all ${
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-11 tracking-[0.18em] uppercase transition-all ${
                 isActive
                   ? 'bg-[#e8c987]/15 text-amber-100 shadow-[0_0_20px_-6px_rgba(232,201,135,0.6)] ring-1 ring-[#e8c987]/50'
                   : 'text-white/55 hover:text-amber-100/90 hover:bg-white/[0.04]'

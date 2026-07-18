@@ -85,7 +85,7 @@ export function OrderBar({ cocktailSlug, accent, lang, priceILS, costILS }: Orde
         <button
           type="button"
           onClick={handleAdd}
-          className="px-5 py-2 rounded-full text-[10px] tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03]"
+          className="px-5 py-2 rounded-full text-10 tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03]"
           style={{ fontFamily: labelFont, backgroundColor: accent }}
         >
           {confirmed ? (isHebrew ? 'בבחירות שלך ✓' : 'In your picks ✓') : addLabel}
@@ -103,7 +103,7 @@ export function OrderBar({ cocktailSlug, accent, lang, priceILS, costILS }: Orde
           <button
             type="button"
             onClick={handleConfirm}
-            className="px-5 py-2 rounded-full text-[10px] tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03]"
+            className="px-5 py-2 rounded-full text-10 tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03]"
             style={{ fontFamily: labelFont, backgroundColor: accent }}
           >
             {isHebrew ? `הראה למלצר · ${count}` : `Show waiter · ${count}`}

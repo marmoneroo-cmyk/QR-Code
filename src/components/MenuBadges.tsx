@@ -22,7 +22,7 @@ export function MenuBadges({ badges, lang, className = '' }: MenuBadgesProps) {
       {badges.map((b) => (
         <span
           key={`${b.kind}:${b.label.en}`}
-          className={`px-2.5 py-1 rounded-full border backdrop-blur-md text-[8.5px] leading-none tracking-[0.2em] uppercase ${TONE_CLASS[b.tone]}`}
+          className={`px-2.5 py-1 rounded-full border backdrop-blur-md text-8 leading-none tracking-[0.2em] uppercase ${TONE_CLASS[b.tone]}`}
           style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
         >
           {b.label[lang] || b.label.en}

@@ -48,7 +48,7 @@ export function ReadinessNote({
       className="mb-6 flex items-center gap-3 rounded-2xl border border-amber-200/15 bg-amber-100/[0.03] px-4 py-3"
     >
       <Sunrise size={15} className="shrink-0 text-amber-200/70" strokeWidth={1.6} />
-      <p className="text-[12px] leading-relaxed text-amber-100/70" style={{ fontFamily: sans }}>
+      <p className="text-xs leading-relaxed text-amber-100/70" style={{ fontFamily: sans }}>
         {copy[lang]}
       </p>
     </motion.div>
@@ -75,7 +75,7 @@ export function PotentialValue({
   const isHe = lang === 'he';
   if (!potential) {
     return (
-      <p className="text-white/35 text-[11px] italic" style={{ fontFamily: sans }}>
+      <p className="text-white/35 text-11 italic" style={{ fontFamily: sans }}>
         {isHe ? 'אספו עוד ביקורי אורחים להערכת פוטנציאל' : 'Collect more guest visits to estimate upside'}
       </p>
     );
@@ -101,7 +101,7 @@ export function PotentialValue({
       style={{ background: `${accent}14`, border: `1px solid ${accent}40` }}
       title={basis}
     >
-      <p className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-[0.22em]" style={{ color: accent, fontFamily: sans }}>
+      <p className="inline-flex items-center gap-1.5 text-9 uppercase tracking-[0.22em]" style={{ color: accent, fontFamily: sans }}>
         <TrendingUp size={11} strokeWidth={2.4} />
         {isHe ? 'צפי הכנסה נוספת' : 'Est. revenue upside'}
         <span className="inline-flex items-center gap-1 text-white/40 normal-case tracking-normal">
@@ -112,7 +112,7 @@ export function PotentialValue({
       <p style={{ color: accent, fontFamily: serif, fontWeight: 700, fontSize, lineHeight: 1.05 }}>
         +{ils(potential.revenueILS)}
       </p>
-      <p className="mt-0.5 text-white/45 text-[10px] leading-snug" style={{ fontFamily: sans }}>
+      <p className="mt-0.5 text-white/45 text-10 leading-snug" style={{ fontFamily: sans }}>
         {isHe
           ? `+${potential.extraOrders} הזמנות · רווח ~${ils(potential.profitILS)} · ${basis}`
           : `+${potential.extraOrders} orders · ~${ils(potential.profitILS)} profit · ${basis}`}
@@ -138,11 +138,11 @@ function BeforeAfterRow({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="w-10 shrink-0 text-[9px] uppercase tracking-[0.15em] text-white/40" style={{ fontFamily: sans }}>{label}</span>
+      <span className="w-10 shrink-0 text-9 uppercase tracking-[0.15em] text-white/40" style={{ fontFamily: sans }}>{label}</span>
       <span className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
         <span className="absolute inset-y-0 start-0 rounded-full transition-[width] duration-500" style={{ width: `${Math.max(3, (val / max) * 100)}%`, background: color }} />
       </span>
-      <span className="w-12 shrink-0 text-end text-[11px] tabular-nums" style={{ color, fontFamily: sans, fontWeight: 600 }}>{fmt(val)}</span>
+      <span className="w-12 shrink-0 text-end text-11 tabular-nums" style={{ color, fontFamily: sans, fontWeight: 600 }}>{fmt(val)}</span>
     </div>
   );
 }
@@ -195,7 +195,7 @@ export function ConfidenceMeter({
   const color = clamped >= 80 ? '#34d399' : clamped >= 60 ? '#fbbf24' : '#9ca3af';
   return (
     <div className="inline-flex items-center gap-2">
-      <span className="text-[9px] uppercase tracking-[0.2em] text-white/45" style={{ fontFamily: sans }}>
+      <span className="text-9 uppercase tracking-[0.2em] text-white/45" style={{ fontFamily: sans }}>
         {label ?? (isHe ? 'ביטחון' : 'Confidence')}
       </span>
       <span className="inline-flex gap-[2px]" aria-hidden>
@@ -203,7 +203,7 @@ export function ConfidenceMeter({
           <span key={i} className="h-3 w-1.5 rounded-sm transition-colors" style={{ background: i < filled ? color : 'rgba(255,255,255,0.12)' }} />
         ))}
       </span>
-      <span className="text-[12px] tabular-nums" style={{ color, fontFamily: sans, fontWeight: 700 }}>
+      <span className="text-xs tabular-nums" style={{ color, fontFamily: sans, fontWeight: 700 }}>
         {clamped}%
       </span>
     </div>

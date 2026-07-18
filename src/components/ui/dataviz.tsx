@@ -243,7 +243,7 @@ export function SkeletonGrid({ count = 4, className }: { count?: number; classNa
 /** Pulsing "live" indicator for auto-refreshing screens. */
 export function LiveDot({ label, accent = '#34d399', className }: { label?: string; accent?: string; className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] ${className ?? ''}`} style={{ color: accent, fontFamily: sans }}>
+    <span className={`inline-flex items-center gap-1.5 text-10 uppercase tracking-[0.2em] ${className ?? ''}`} style={{ color: accent, fontFamily: sans }}>
       <span className="relative flex h-2 w-2">
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60" style={{ background: accent }} />
         <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: accent }} />
@@ -283,7 +283,7 @@ export function KpiCard({
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
         )}
         {delta !== undefined && delta !== null && (
-          <span className={`inline-flex items-center gap-0.5 text-[11px] ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: sans }}>
+          <span className={`inline-flex items-center gap-0.5 text-11 ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: sans }}>
             {up ? <TrendingUp size={12} strokeWidth={2} /> : <TrendingDown size={12} strokeWidth={2} />}
             {up ? '+' : ''}
             {delta}%
@@ -291,9 +291,9 @@ export function KpiCard({
         )}
       </div>
       <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}><CountUpText text={value} /></p>
-      <p className="text-white/45 text-[11px] mt-1 tracking-wide" style={{ fontFamily: sans }}>{label}</p>
+      <p className="text-white/45 text-11 mt-1 tracking-wide" style={{ fontFamily: sans }}>{label}</p>
       {series && series.length > 0 && <div className="mt-2"><AreaChart data={series} color={accent} height={32} showDot={false} strokeWidth={1.75} /></div>}
-      {hint && <p className="text-white/30 text-[9px] mt-1.5 tracking-wide" style={{ fontFamily: sans }}>{hint}</p>}
+      {hint && <p className="text-white/30 text-9 mt-1.5 tracking-wide" style={{ fontFamily: sans }}>{hint}</p>}
     </div>
   );
 }
@@ -302,7 +302,7 @@ export function KpiCard({
 export function Pill({ icon: Icon, text, accent }: { icon: LucideIcon; text: string; accent?: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[12px]"
+      className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-xs"
       style={{ color: accent ?? 'rgba(255,255,255,0.8)', fontFamily: sans }}
     >
       <Icon size={13} strokeWidth={1.8} /> {text}
@@ -314,7 +314,7 @@ export function Pill({ icon: Icon, text, accent }: { icon: LucideIcon; text: str
 export function ConfidenceBadge({ pct, label = 'AI confidence' }: { pct: number; label?: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase"
+      className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase"
       style={{ borderColor: 'rgba(52,211,153,0.4)', color: '#34d399', fontFamily: sans }}
     >
       <BadgeCheck size={12} strokeWidth={2} /> {label} {pct}%
@@ -325,7 +325,7 @@ export function ConfidenceBadge({ pct, label = 'AI confidence' }: { pct: number;
 /** Section eyebrow label. */
 export function SectionLabel({ children, icon: Icon }: { children: ReactNode; icon?: LucideIcon }) {
   return (
-    <p className="inline-flex items-center gap-2 text-amber-200/70 text-[10px] tracking-[0.4em] uppercase mb-4" style={{ fontFamily: sans }}>
+    <p className="inline-flex items-center gap-2 text-amber-200/70 text-10 tracking-[0.4em] uppercase mb-4" style={{ fontFamily: sans }}>
       {Icon && <Icon size={13} strokeWidth={2} />}
       {children}
     </p>

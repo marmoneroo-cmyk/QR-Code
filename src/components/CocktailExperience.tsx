@@ -124,7 +124,7 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
         <button
           type="button"
           onClick={() => setLang(isHe ? 'en' : 'he')}
-          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-[11px] tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white"
+          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-11 tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white"
           style={{ fontFamily: sans }}
         >
           {isHe ? 'EN' : 'עב'}
@@ -229,7 +229,7 @@ function FoodExperience({ config }: CocktailExperienceProps) {
           </button>
         )}
         <button type="button" onClick={() => setLang(isHe ? 'en' : 'he')}
-          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-[11px] tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white" style={{ fontFamily: sans }}>
+          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-11 tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white" style={{ fontFamily: sans }}>
           {isHe ? 'EN' : 'עב'}
         </button>
       </header>
@@ -308,7 +308,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
       >
         {(config.course?.[lang] || config.course?.en || config.course?.he) && (
-          <p className="mb-3 text-[11px] tracking-[0.4em] uppercase text-amber-200/70" style={{ fontFamily: sans }}>
+          <p className="mb-3 text-11 tracking-[0.4em] uppercase text-amber-200/70" style={{ fontFamily: sans }}>
             {config.course[lang] || config.course.en || config.course.he}
           </p>
         )}
@@ -319,7 +319,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
           {config.title[lang]}
         </h1>
         {config.tagline && (
-          <p className="mt-3 text-[13px] tracking-[0.12em] text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+          <p className="mt-3 text-13 tracking-[0.12em] text-white/55 md:text-sm" style={{ fontFamily: sans }}>
             {config.tagline[lang]}
           </p>
         )}
@@ -366,7 +366,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         </motion.span>
         {hasComponents && (
           <span
-            className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] tracking-[0.45em] uppercase text-white/60 transition-colors group-hover:text-white/70"
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-10 tracking-[0.45em] uppercase text-white/60 transition-colors group-hover:text-white/70"
             style={{ fontFamily: sans }}
           >
             {isHe ? 'גע לגילוי המרכיבים' : 'Tap to explore'}
@@ -377,7 +377,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
       {dietary.length > 0 && (
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
           {dietary.map((d) => (
-            <span key={d.en} className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-[11px] tracking-wide text-emerald-200/90" style={{ fontFamily: sans }}>
+            <span key={d.en} className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-11 tracking-wide text-emerald-200/90" style={{ fontFamily: sans }}>
               {isHe ? d.he : d.en}
             </span>
           ))}
@@ -427,7 +427,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
       aria-label={isHe ? 'פירוק מרכיבים' : 'Ingredient breakdown'}
     >
       <motion.h1
-        className="mb-10 text-center text-[11px] tracking-[0.5em] uppercase text-white/60"
+        className="mb-10 text-center text-11 tracking-[0.5em] uppercase text-white/60"
         style={{ fontFamily: sans }}
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -471,13 +471,13 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
               </motion.span>
 
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] tracking-[0.4em] text-white/55" style={{ fontFamily: sans }}>
+                <p className="text-10 tracking-[0.4em] text-white/55" style={{ fontFamily: sans }}>
                   {label.number}
                 </p>
                 <h3 className="mt-1 text-xl leading-tight text-white md:text-2xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
                   {label.name[lang]}
                 </h3>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+                <p className="mt-1 text-xs leading-relaxed text-white/55 md:text-sm" style={{ fontFamily: sans }}>
                   {label.description[lang]}
                 </p>
               </div>
@@ -510,12 +510,12 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 + components.length * 0.1, ease: EASE }}
       >
-        <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
+        <p className="mb-5 text-center text-11 tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
         <FlavorRadar flavor={config.flavor} lang={lang} size={230} kind="food" />
         {note && (
-          <p className="mt-8 max-w-xs text-center text-[13px] italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
+          <p className="mt-8 max-w-xs text-center text-13 italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
             ”{note}“{config.bartenderName ? ` — ${config.bartenderName}` : ''}
           </p>
         )}
@@ -580,7 +580,7 @@ function HeroStage({
           {config.title[lang]}
         </h1>
         {config.tagline && (
-          <p className="mt-3 text-[13px] tracking-[0.2em] text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+          <p className="mt-3 text-13 tracking-[0.2em] text-white/55 md:text-sm" style={{ fontFamily: sans }}>
             {config.tagline[lang]}
           </p>
         )}
@@ -638,7 +638,7 @@ function HeroStage({
           />
         </motion.span>
         <span
-          className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] tracking-[0.45em] uppercase text-white/70 transition-colors group-hover:text-white"
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-10 tracking-[0.45em] uppercase text-white/70 transition-colors group-hover:text-white"
           style={{ fontFamily: sans }}
         >
           {isHe ? 'גע בכוס לגילוי' : 'Tap to explore'}
@@ -701,7 +701,7 @@ function ActionTile({
   const inner = (
     <>
       <span aria-hidden className="leading-none text-amber-100/90">{icon}</span>
-      <span className="text-[11px] tracking-[0.14em] uppercase text-white/80" style={{ fontFamily: sans }}>
+      <span className="text-11 tracking-[0.14em] uppercase text-white/80" style={{ fontFamily: sans }}>
         {label}
       </span>
     </>
@@ -752,7 +752,7 @@ function ExplodedView({
       aria-label={isHe ? 'פירוק מרכיבים' : 'Ingredient breakdown'}
     >
       <motion.h1
-        className="mb-10 text-center text-[11px] tracking-[0.5em] uppercase text-white/60"
+        className="mb-10 text-center text-11 tracking-[0.5em] uppercase text-white/60"
         style={{ fontFamily: sans }}
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -797,13 +797,13 @@ function ExplodedView({
 
               {/* Number + name + ONE line */}
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] tracking-[0.4em] text-white/55" style={{ fontFamily: sans }}>
+                <p className="text-10 tracking-[0.4em] text-white/55" style={{ fontFamily: sans }}>
                   {label.number}
                 </p>
                 <h3 className="mt-1 text-xl leading-tight text-white md:text-2xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
                   {label.name[lang]}
                 </h3>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+                <p className="mt-1 text-xs leading-relaxed text-white/55 md:text-sm" style={{ fontFamily: sans }}>
                   {label.description[lang]}
                 </p>
               </div>
@@ -827,7 +827,7 @@ function ExplodedView({
             <p className="text-lg text-white" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
               {glassLabel.name[lang]}
             </p>
-            <p className="mt-1 max-w-xs text-[12px] text-white/50" style={{ fontFamily: sans }}>
+            <p className="mt-1 max-w-xs text-xs text-white/50" style={{ fontFamily: sans }}>
               {glassLabel.description[lang]}
             </p>
           </figcaption>
@@ -841,12 +841,12 @@ function ExplodedView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 + stack.length * 0.12, ease: EASE }}
       >
-        <p className="mb-5 text-center text-[11px] tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
+        <p className="mb-5 text-center text-11 tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
         <FlavorRadar flavor={flavor} lang={lang} size={230} />
         {note && (
-          <p className="mt-8 max-w-xs text-center text-[13px] italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
+          <p className="mt-8 max-w-xs text-center text-13 italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
             ”{note}“{noteName ? ` — ${noteName}` : ''}
           </p>
         )}
@@ -931,7 +931,7 @@ function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
       transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
       aria-label={title}
     >
-      <p className="mb-6 text-center text-[11px] tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
+      <p className="mb-6 text-center text-11 tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
         {title}
       </p>
       <div className="flex items-stretch justify-center gap-3">
@@ -960,13 +960,13 @@ function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
                 />
               </span>
               <span
-                className="block w-full truncate text-[13px] leading-tight text-white/90"
+                className="block w-full truncate text-13 leading-tight text-white/90"
                 style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
               >
                 {c.title[lang]}
               </span>
               {c.priceILS !== undefined && (
-                <span className="text-[11px] text-amber-100/80" style={{ fontFamily: sans }}>
+                <span className="text-11 text-amber-100/80" style={{ fontFamily: sans }}>
                   {formatPrice(c.priceILS, 'ILS')}
                 </span>
               )}
@@ -1092,7 +1092,7 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
         ref={skipRef}
         type="button"
         onClick={onEnd}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-white/25 bg-black/50 px-7 py-2.5 text-[11px] tracking-[0.3em] uppercase text-white/85 backdrop-blur-md transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-white/25 bg-black/50 px-7 py-2.5 text-11 tracking-[0.3em] uppercase text-white/85 backdrop-blur-md transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80"
         style={{ fontFamily: sans }}
       >
         {isHe ? 'דלג' : 'Skip'}

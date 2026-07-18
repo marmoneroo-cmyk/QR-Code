@@ -140,17 +140,17 @@ export default function ExperimentsPage() {
                 {exp.significant ? (
                   <ConfidenceBadge pct={Math.round(exp.confidencePct)} label={t('significance', 'מובהקות')} />
                 ) : exp.hasData ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)', fontFamily: sans }}>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)', fontFamily: sans }}>
                     <Hourglass size={11} strokeWidth={2} /> {t('collecting data', 'אוסף נתונים')} · {Math.round(exp.confidencePct)}%
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)', fontFamily: sans }}>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)', fontFamily: sans }}>
                     <Hourglass size={11} strokeWidth={2} /> {t('collecting data', 'אוסף נתונים')}
                   </span>
                 )}
               </div>
               {cocktail && (
-                <p className="text-white/45 text-[11px] mb-3 tracking-wide" style={{ fontFamily: sans }}>{exp.attribute[lang]}</p>
+                <p className="text-white/45 text-11 mb-3 tracking-wide" style={{ fontFamily: sans }}>{exp.attribute[lang]}</p>
               )}
 
               {/* A vs B variant mini-panels */}
@@ -163,14 +163,14 @@ export default function ExperimentsPage() {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2.5">
-                      <span className="inline-flex items-center gap-1.5 text-white/85 text-[13px]" style={{ fontFamily: sans }}>
+                      <span className="inline-flex items-center gap-1.5 text-white/85 text-13" style={{ fontFamily: sans }}>
                         {v.label[lang]}
                         {v.isControl && (
-                          <span className="text-white/30 text-[9px] tracking-wider uppercase">{t('control', 'בקרה')}</span>
+                          <span className="text-white/30 text-9 tracking-wider uppercase">{t('control', 'בקרה')}</span>
                         )}
                       </span>
                       {v.isWinner && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-0.5 text-[9px] tracking-[0.15em] uppercase text-emerald-300" style={{ fontFamily: sans }}>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-0.5 text-9 tracking-[0.15em] uppercase text-emerald-300" style={{ fontFamily: sans }}>
                           <Trophy size={11} strokeWidth={2} /> {t('winner', 'מנצח')}
                         </span>
                       )}
@@ -189,7 +189,7 @@ export default function ExperimentsPage() {
                         }}
                       />
                     </div>
-                    <p className="text-white/45 text-[11px] tabular-nums" style={{ fontFamily: sans }}>
+                    <p className="text-white/45 text-11 tabular-nums" style={{ fontFamily: sans }}>
                       {v.conversions}/{v.exposures} {t('converted', 'המירו')}
                     </p>
                   </div>
@@ -199,7 +199,7 @@ export default function ExperimentsPage() {
               {/* headline lift */}
               {challenger && exp.hasData && challenger.exposures > 0 && (
                 <div className="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-white/10">
-                  <span className="text-white/40 text-[10px] tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+                  <span className="text-white/40 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
                     {t('Lift vs control', 'שיפור מול בקרה')}
                   </span>
                   <span className={`inline-flex items-center gap-1 text-3xl leading-none tabular-nums ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: serif, fontWeight: 700 }}>
@@ -210,7 +210,7 @@ export default function ExperimentsPage() {
               )}
 
               {!exp.hasData && (
-                <p className="text-white/40 text-[12px] mt-4 pt-4 border-t border-white/10" style={{ fontFamily: sans }}>
+                <p className="text-white/40 text-xs mt-4 pt-4 border-t border-white/10" style={{ fontFamily: sans }}>
                   {t(
                     'No exposures yet — open a cocktail and use the order bar; each session is split between variants and measured here.',
                     'עדיין אין חשיפות — פתח קוקטייל והשתמש בסרגל ההזמנה; כל session מפוצל בין הוריאציות ונמדד כאן.',
@@ -225,7 +225,7 @@ export default function ExperimentsPage() {
       </div>
       )}
 
-      <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-8 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
+      <p className="text-center text-white/30 text-10 tracking-[0.4em] uppercase pt-8 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
         {t('Sessions split deterministically · winner declared at 95% significance', 'פיצול דטרמיניסטי · מנצח נקבע ב-95% מובהקות')}
       </p>
     </AdminShell>

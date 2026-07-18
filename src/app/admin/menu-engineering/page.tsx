@@ -184,7 +184,7 @@ export function MenuEngineeringPanel() {
                   </span>
                 </div>
                 <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}>{counts[k]}</p>
-                <p className="text-[11px] mt-1 tracking-wide" style={{ color: meta.color, fontFamily: sans }}>{meta.label[lang]}</p>
+                <p className="text-11 mt-1 tracking-wide" style={{ color: meta.color, fontFamily: sans }}>{meta.label[lang]}</p>
               </GlassCard>
             );
           })}
@@ -197,7 +197,7 @@ export function MenuEngineeringPanel() {
       <GlassCard className="p-6" static>
         <div className="flex items-center justify-between mb-4">
           <PanelHeader label={t('The matrix', 'המטריצה')} />
-          <p className="text-white/30 text-[9px] tracking-wider" style={{ fontFamily: sans }}>
+          <p className="text-white/30 text-9 tracking-wider" style={{ fontFamily: sans }}>
             {t('↑ margin · → demand', '↑ רווח · → ביקוש')}
           </p>
         </div>
@@ -271,7 +271,7 @@ export function MenuEngineeringPanel() {
                   <Icon size={15} strokeWidth={1.8} />
                 </span>
                 <div>
-                  <p className="text-[11px] tracking-[0.3em] uppercase mb-1" style={{ color: meta.color, fontFamily: sans }}>{meta.label[lang]}</p>
+                  <p className="text-11 tracking-[0.3em] uppercase mb-1" style={{ color: meta.color, fontFamily: sans }}>{meta.label[lang]}</p>
                   <p className="text-white/60 text-sm leading-relaxed" style={{ fontFamily: sans }}>{meta.rec[lang]}</p>
                 </div>
               </div>
@@ -280,7 +280,7 @@ export function MenuEngineeringPanel() {
         })}
       </section>
 
-      <p className="text-center text-white/30 text-[10px] tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
+      <p className="text-center text-white/30 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
         {t('Seeded cost estimates · override per drink', 'הערכות עלות · עדכן לכל משקה')}
       </p>
     </div>
@@ -291,7 +291,7 @@ function QuadrantLabel({ klass, lang, className }: { klass: MenuClass; lang: 'en
   const meta = CLASS_META[klass];
   const Icon = meta.icon;
   return (
-    <span className={`absolute inline-flex items-center gap-1.5 text-[9px] tracking-[0.3em] uppercase ${className}`} style={{ color: `${meta.color}cc`, fontFamily: sans }}>
+    <span className={`absolute inline-flex items-center gap-1.5 text-9 tracking-[0.3em] uppercase ${className}`} style={{ color: `${meta.color}cc`, fontFamily: sans }}>
       <Icon size={11} strokeWidth={2} /> {meta.label[lang]}
     </span>
   );
@@ -346,7 +346,7 @@ function MatrixThumb({ item, lang, t, pos, isHovered, isSelected, isDimmed, onHo
         <GlassImage src={item.hero} accent={item.accent} className="h-16 w-16 rounded-full" />
       </span>
       <span
-        className="mt-1.5 max-w-[92px] truncate text-center text-[10px] leading-tight transition-colors"
+        className="mt-1.5 max-w-[92px] truncate text-center text-10 leading-tight transition-colors"
         style={{ fontFamily: sans, color: active ? meta.color : 'rgba(255,255,255,0.65)' }}
       >
         {item.title[lang]}
@@ -365,13 +365,13 @@ function MatrixThumb({ item, lang, t, pos, isHovered, isSelected, isDimmed, onHo
           }}
         >
           <span
-            className="mb-1.5 block truncate text-[13px] leading-tight text-white"
+            className="mb-1.5 block truncate text-13 leading-tight text-white"
             style={{ fontFamily: serif, fontWeight: 700 }}
           >
             {item.title[lang]}
           </span>
           <span
-            className="mb-2 block text-[9px] uppercase tracking-[0.2em]"
+            className="mb-2 block text-9 uppercase tracking-[0.2em]"
             style={{ color: meta.color, fontFamily: sans }}
           >
             {meta.label[lang]}
@@ -391,8 +391,8 @@ function MatrixThumb({ item, lang, t, pos, isHovered, isSelected, isDimmed, onHo
 function PopStat({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <span className="block">
-      <span className="block text-[13px]" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</span>
-      <span className="block text-[8px] tracking-wide text-white/40" style={{ fontFamily: sans }}>{l}</span>
+      <span className="block text-13" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</span>
+      <span className="block text-8 tracking-wide text-white/40" style={{ fontFamily: sans }}>{l}</span>
     </span>
   );
 }
@@ -423,11 +423,11 @@ function ItemCard({ item, lang, t, registerCard, isSelected, isFlashed }: ItemCa
           dir={lang === 'he' ? 'rtl' : 'ltr'}
         >
           <AccentWash accent={item.accent} />
-          <span className="absolute top-3 end-3 z-10 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[9px] tracking-[0.15em] uppercase backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.4)', color: meta.color, border: `1px solid ${meta.color}66`, fontFamily: sans }}>
+          <span className="absolute top-3 end-3 z-10 inline-flex items-center gap-1 rounded-full px-2 py-1 text-9 tracking-[0.15em] uppercase backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.4)', color: meta.color, border: `1px solid ${meta.color}66`, fontFamily: sans }}>
             <Icon size={10} strokeWidth={2} /> {meta.label[lang]}
           </span>
           <GlassImage src={item.hero} accent={item.accent} className="relative w-full h-44 mb-3 transition-transform duration-500 group-hover:scale-105" />
-          <p className="relative text-white/90 text-[15px] text-center leading-tight mb-3" style={{ fontFamily: serif, fontStyle: lang === 'he' ? 'normal' : 'italic', fontWeight: 600 }}>
+          <p className="relative text-white/90 text-15 text-center leading-tight mb-3" style={{ fontFamily: serif, fontStyle: lang === 'he' ? 'normal' : 'italic', fontWeight: 600 }}>
             {item.title[lang]}
           </p>
           <div className="relative grid grid-cols-3 gap-1 text-center">
@@ -444,8 +444,8 @@ function ItemCard({ item, lang, t, registerCard, isSelected, isFlashed }: ItemCa
 function Stat({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <div>
-      <p className="text-[14px]" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
-      <p className="text-white/40 text-[9px] tracking-wide" style={{ fontFamily: sans }}>{l}</p>
+      <p className="text-sm" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
+      <p className="text-white/40 text-9 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
     </div>
   );
 }

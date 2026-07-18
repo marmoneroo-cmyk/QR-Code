@@ -98,7 +98,7 @@ export function QrPanel() {
           type="button"
           onClick={handleDownloadAll}
           disabled={generating || cards.length === 0}
-          className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-[12px] tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100 disabled:opacity-40"
+          className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-xs tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100 disabled:opacity-40"
           style={{ fontFamily: sans, fontWeight: 600 }}
         >
           <Download size={13} strokeWidth={1.8} />
@@ -107,7 +107,7 @@ export function QrPanel() {
         <button
           type="button"
           onClick={() => window.print()}
-          className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-[13px] tracking-[0.16em] uppercase text-black transition-shadow"
+          className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-13 tracking-[0.16em] uppercase text-black transition-shadow"
           style={{
             fontFamily: sans,
             fontWeight: 700,
@@ -134,7 +134,7 @@ export function QrPanel() {
               key={o.label}
               type="button"
               onClick={() => setArMode(o.v)}
-              className={`px-4 py-1.5 rounded-full text-[10px] tracking-[0.2em] uppercase transition-all ${
+              className={`px-4 py-1.5 rounded-full text-10 tracking-[0.2em] uppercase transition-all ${
                 arMode === o.v ? 'bg-amber-100 text-black' : 'text-white/55 hover:text-white/90'
               }`}
               style={{ fontFamily: sans, fontWeight: 500 }}
@@ -175,7 +175,7 @@ export function QrPanel() {
                 />
               )}
 
-              <p className="text-amber-200/70 text-[9px] tracking-[0.4em] uppercase mb-1.5 print:text-amber-700" style={{ fontFamily: sans }}>
+              <p className="text-amber-200/70 text-9 tracking-[0.4em] uppercase mb-1.5 print:text-amber-700" style={{ fontFamily: sans }}>
                 {t('Scan to explore', 'סרקו לגילוי')}
               </p>
               <h3
@@ -211,14 +211,14 @@ export function QrPanel() {
                 />
               </div>
 
-              <p className="text-white/40 text-[10px] mb-4 break-all max-w-full print:text-black/60" style={{ fontFamily: sans }} dir="ltr">
+              <p className="text-white/40 text-10 mb-4 break-all max-w-full print:text-black/60" style={{ fontFamily: sans }} dir="ltr">
                 {card.url.replace(/^https?:\/\//, '')}
               </p>
 
               <button
                 type="button"
                 onClick={() => handleDownload(card)}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-[10px] tracking-[0.3em] uppercase print:hidden"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-10 tracking-[0.3em] uppercase print:hidden"
                 style={{ fontFamily: sans }}
               >
                 <Download size={12} strokeWidth={1.8} />

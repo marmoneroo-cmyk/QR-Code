@@ -61,7 +61,7 @@ export function MobileLabelSheet({ config, activeLayerId, onClose, lang }: Mobil
               </div>
               {label.origin && (
                 <p
-                  className="text-amber-200/85 text-[10px] tracking-[0.25em] uppercase mb-2"
+                  className="text-amber-200/85 text-10 tracking-[0.25em] uppercase mb-2"
                   style={{
                     fontFamily: isHebrew
                       ? 'var(--font-heebo, sans-serif)'
@@ -72,7 +72,7 @@ export function MobileLabelSheet({ config, activeLayerId, onClose, lang }: Mobil
                 </p>
               )}
               <p
-                className="text-white/85 text-[14px] leading-relaxed"
+                className="text-white/85 text-sm leading-relaxed"
                 style={{ fontFamily: descFont, fontWeight: isHebrew ? 300 : 400 }}
               >
                 {label.description[lang]}

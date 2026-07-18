@@ -93,7 +93,7 @@ export function MenuRow({ section, lang, currency, promotions, experience, index
         </h2>
         <span aria-hidden className="h-px flex-1 self-center" style={{ background: 'linear-gradient(90deg, rgba(232,201,135,0.22), rgba(255,255,255,0.06) 55%, transparent)' }} />
         {section.items.length > 1 && (
-          <span className="shrink-0 text-[11px] tracking-[0.25em] tabular-nums" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.55)' }}>
+          <span className="shrink-0 text-11 tracking-[0.25em] tabular-nums" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.55)' }}>
             {section.items.length}
           </span>
         )}
@@ -252,23 +252,23 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
             >
               <div className="pointer-events-none absolute inset-x-0 -top-10 bottom-0 -z-10" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 45%, transparent)' }} />
               <h3
-                className={`line-clamp-2 text-white leading-tight ${featured ? 'text-[17px] md:text-[24px]' : 'text-[16px]'}`}
+                className={`line-clamp-2 text-white leading-tight ${featured ? 'text-17 md:text-2xl' : 'text-base'}`}
                 style={{ fontFamily: isHe ? serifHe : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
               >
                 {cocktail.title[lang]}
               </h3>
               {featured && cocktail.tagline && (
-                <p className="mt-1 hidden md:block text-white/50 text-[12.5px] leading-snug line-clamp-1" style={{ fontFamily: sans }}>
+                <p className="mt-1 hidden md:block text-white/50 text-xs leading-snug line-clamp-1" style={{ fontFamily: sans }}>
                   {cocktail.tagline[lang]}
                 </p>
               )}
               {priced && priced.discounted ? (
                 <p className="mt-1 inline-flex items-baseline gap-1.5" style={{ fontFamily: sans }} dir="ltr">
-                  <span className="text-[12px] line-through opacity-40">{formatPrice(priced.original, currency)}</span>
-                  <span className={`text-amber-300 font-semibold ${featured ? 'text-[15px] md:text-[18px]' : 'text-[15px]'}`}>{formatPrice(priced.price, currency)}</span>
+                  <span className="text-xs line-through opacity-40">{formatPrice(priced.original, currency)}</span>
+                  <span className={`text-amber-300 font-semibold ${featured ? 'text-15 md:text-lg' : 'text-15'}`}>{formatPrice(priced.price, currency)}</span>
                 </p>
               ) : cocktail.priceILS !== undefined ? (
-                <p className={`mt-1 text-amber-100/90 ${featured ? 'text-[15px] md:text-[18px]' : 'text-[15px]'}`} style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
+                <p className={`mt-1 text-amber-100/90 ${featured ? 'text-15 md:text-lg' : 'text-15'}`} style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
                   {formatPrice(cocktail.priceILS, currency)}
                 </p>
               ) : null}

@@ -106,21 +106,21 @@ function CompareCol({
 }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
-      <span className="text-[9px] uppercase tracking-[0.22em] text-white/40" style={{ fontFamily: sans }}>
+      <span className="text-9 uppercase tracking-[0.22em] text-white/40" style={{ fontFamily: sans }}>
         {label}
       </span>
       <span className={`relative block w-full ${dim ? 'opacity-55 grayscale-[0.3]' : ''}`}>
         <GlassImage src={src} accent={accent} className={`w-full ${imageClass}`} />
         {badge ? (
           <span
-            className="absolute top-1 inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-black"
+            className="absolute top-1 inline-flex items-center rounded-full px-2 py-0.5 text-9 font-bold uppercase tracking-wide text-black"
             style={{ insetInlineEnd: '0.25rem', background: badgeAccent ?? accent, boxShadow: `0 0 14px ${badgeAccent ?? accent}` }}
           >
             {badge}
           </span>
         ) : (
           <span
-            className="absolute top-1 inline-flex items-center rounded-full border border-dashed border-white/20 px-2 py-0.5 text-[9px] uppercase tracking-wide text-white/30"
+            className="absolute top-1 inline-flex items-center rounded-full border border-dashed border-white/20 px-2 py-0.5 text-9 uppercase tracking-wide text-white/30"
             style={{ insetInlineEnd: '0.25rem' }}
           >
             {isHe ? 'אין' : 'none'}
@@ -193,7 +193,7 @@ export function StoryBlock({
       )}
       <div className="relative min-w-0" style={{ direction: isHe ? 'rtl' : 'ltr' }}>
         {eyebrow ? (
-          <p className="mb-2 text-[10px] uppercase tracking-[0.3em]" style={{ color: accent, fontFamily: sans }}>
+          <p className="mb-2 text-10 uppercase tracking-[0.3em]" style={{ color: accent, fontFamily: sans }}>
             {eyebrow}
           </p>
         ) : null}

@@ -63,7 +63,7 @@ export default function EditDraftPage({ params }: PageProps) {
         dir={isHe ? 'rtl' : 'ltr'}
       >
         <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-black via-zinc-950 to-black" />
-        <div className="relative z-10 flex items-center gap-3 text-white/45 text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+        <div className="relative z-10 flex items-center gap-3 text-white/45 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
           <span className="h-2 w-2 rounded-full bg-amber-200/70 animate-pulse" />
           {isHe ? 'טוען טיוטה…' : 'Loading draft…'}
         </div>
@@ -80,7 +80,7 @@ export default function EditDraftPage({ params }: PageProps) {
         <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-black via-zinc-950 to-black" />
         <div className="relative z-10 flex flex-col items-center">
           <p
-            className="text-amber-200/70 text-[10px] tracking-[0.4em] uppercase mb-4"
+            className="text-amber-200/70 text-10 tracking-[0.4em] uppercase mb-4"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             {isHe ? 'הקוקטייל לא נמצא' : 'Cocktail not found'}
@@ -101,7 +101,7 @@ export default function EditDraftPage({ params }: PageProps) {
           </div>
           <Link
             href="/admin"
-            className="px-6 py-2.5 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-[11px] tracking-[0.3em] uppercase"
+            className="px-6 py-2.5 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-11 tracking-[0.3em] uppercase"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             {isHe ? 'חזרה לניהול' : 'Back to admin'}

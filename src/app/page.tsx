@@ -224,7 +224,7 @@ export default function Home() {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={restaurantLogo} alt={restaurantName} className="mb-5 max-h-16 w-auto object-contain" />
           ) : (
-            <p className="mb-4 text-amber-200/70 text-[11px] tracking-[0.55em] uppercase" style={{ fontFamily: sans }}>
+            <p className="mb-4 text-amber-200/70 text-11 tracking-[0.55em] uppercase" style={{ fontFamily: sans }}>
               {isHe ? 'תפריט' : 'Menu'}
             </p>
           )}

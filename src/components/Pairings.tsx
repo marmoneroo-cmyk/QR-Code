@@ -28,13 +28,13 @@ export function Pairings({ cocktail, lang }: PairingsProps) {
       lang={lang}
     >
       <p
-        className="text-amber-200/70 text-[9px] tracking-[0.5em] uppercase mb-2"
+        className="text-amber-200/70 text-9 tracking-[0.5em] uppercase mb-2"
         style={{ fontFamily: sansFont }}
       >
         {isHebrew ? 'משתלב עם' : 'Pairs with'}
       </p>
       <p
-        className="text-white/70 text-[13px] tracking-[0.05em]"
+        className="text-white/70 text-13 tracking-[0.05em]"
         style={{
           fontFamily: serifFont,
           fontStyle: isHebrew ? 'normal' : 'italic',

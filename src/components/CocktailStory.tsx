@@ -11,11 +11,11 @@ export function CocktailStory({ slug, lang }: { slug: string; lang: Lang }) {
 
   return (
     <section className="px-6 pt-9 flex flex-col items-center text-center max-w-xl mx-auto" dir={isHebrew ? 'rtl' : 'ltr'}>
-      <p className="text-amber-200/70 text-[10px] tracking-[0.45em] uppercase mb-3" style={{ fontFamily: sans }}>
+      <p className="text-amber-200/70 text-10 tracking-[0.45em] uppercase mb-3" style={{ fontFamily: sans }}>
         {isHebrew ? 'הסיפור' : 'The Story'}
       </p>
       <p
-        className="text-white/75 text-[15px] leading-relaxed"
+        className="text-white/75 text-15 leading-relaxed"
         style={{ fontFamily: serif, fontStyle: isHebrew ? 'normal' : 'italic' }}
       >
         {story[lang]}

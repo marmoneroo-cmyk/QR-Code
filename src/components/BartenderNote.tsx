@@ -33,14 +33,14 @@ export function BartenderNote({ cocktail, lang }: BartenderNoteProps) {
       </div>
 
       <p
-        className="text-amber-100/80 text-[10px] tracking-[0.45em] uppercase mb-3"
+        className="text-amber-100/80 text-10 tracking-[0.45em] uppercase mb-3"
         style={{ fontFamily: sansFont }}
       >
         {isHebrew ? 'הערת הבארמן' : "Bartender's note"}
       </p>
 
       <blockquote
-        className="text-white/85 text-[19px] leading-snug"
+        className="text-white/85 text-19 leading-snug"
         style={{
           fontFamily: serifFont,
           fontStyle: isHebrew ? 'normal' : 'italic',
@@ -52,7 +52,7 @@ export function BartenderNote({ cocktail, lang }: BartenderNoteProps) {
 
       {cocktail.bartenderName && (
         <figcaption
-          className="mt-3 text-white/40 text-[10px] tracking-[0.35em] uppercase"
+          className="mt-3 text-white/40 text-10 tracking-[0.35em] uppercase"
           style={{ fontFamily: sansFont }}
         >
           — {cocktail.bartenderName}

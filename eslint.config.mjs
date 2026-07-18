@@ -41,6 +41,13 @@ const noHardcodedHexColors = {
         message:
           "Hardcoded hex in a Tailwind arbitrary value — use a token class or text-[var(--token)]. Add `// eslint-disable-next-line no-restricted-syntax` with a reason if a var() won't work here.",
       },
+      {
+        // A Tailwind arbitrary font-size: text-[13px]. Use the named scale (globals.css @theme):
+        // text-10/11/13/15/17/19/22/26 for custom steps, or text-xs/sm/base/lg/xl/2xl for defaults.
+        selector: "Literal[value=/text-\\[[0-9.]+px\\]/]",
+        message:
+          "Hardcoded font size — use the named type scale (text-10, text-11, text-13, … or text-xs/sm/base/lg). Add a size token in globals.css @theme if a new step is truly needed.",
+      },
     ],
   },
 };

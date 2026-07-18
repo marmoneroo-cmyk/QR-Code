@@ -50,7 +50,7 @@ export default function MenuAnalysisPage() {
               role="tab"
               aria-selected={isActive}
               onClick={() => setTab(tb.id)}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] tracking-[0.18em] uppercase transition-all duration-200 ${
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-11 tracking-[0.18em] uppercase transition-all duration-200 ${
                 isActive
                   ? 'border border-amber-300/60 bg-amber-300/10 text-amber-100 shadow-[0_0_24px_-6px_rgba(251,191,36,0.55)]'
                   : 'border border-transparent text-white/50 hover:bg-white/[0.04] hover:text-white/80'

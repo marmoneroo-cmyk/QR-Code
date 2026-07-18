@@ -305,7 +305,7 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
                       aria-selected={tab === tabKey}
                       aria-controls="media-library-panel"
                       onClick={() => setTab(tabKey)}
-                      className={`px-4 py-1.5 rounded-full text-[11px] tracking-[0.2em] uppercase border transition-colors ${
+                      className={`px-4 py-1.5 rounded-full text-11 tracking-[0.2em] uppercase border transition-colors ${
                         tab === tabKey
                           ? 'bg-amber-200 text-black border-amber-200'
                           : 'text-white/55 border-white/12 hover:text-amber-100 hover:border-amber-200/40'

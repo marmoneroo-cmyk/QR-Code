@@ -116,7 +116,7 @@ export default function ScanPage() {
 
       <div className="absolute top-6 start-6 z-30" dir={isHebrew ? 'rtl' : 'ltr'}>
         <p
-          className="text-amber-200/85 text-[10px] tracking-[0.45em] uppercase mb-1"
+          className="text-amber-200/85 text-10 tracking-[0.45em] uppercase mb-1"
           style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
         >
           {t('Scan', 'סריקה')}
@@ -138,7 +138,7 @@ export default function ScanPage() {
         )}
         {status === 'scanning' && (
           <p
-            className="text-white/70 text-[11px] tracking-[0.3em] uppercase"
+            className="text-white/70 text-11 tracking-[0.3em] uppercase"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             {t('Looking for a code…', 'מחפש קוד…')}
@@ -153,7 +153,7 @@ export default function ScanPage() {
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="text-amber-200/80 text-[11px] tracking-[0.3em] uppercase underline"
+              className="text-amber-200/80 text-11 tracking-[0.3em] uppercase underline"
             >
               {t('Retry', 'נסה שוב')}
             </button>

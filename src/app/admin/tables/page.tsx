@@ -124,7 +124,7 @@ export function TablesPanel() {
             type="button"
             onClick={generateQrs}
             disabled={generating || !origin}
-            className="px-5 py-2 rounded-full text-[10px] tracking-[0.25em] uppercase text-black disabled:opacity-50"
+            className="px-5 py-2 rounded-full text-10 tracking-[0.25em] uppercase text-black disabled:opacity-50"
             style={{ fontFamily: sans, background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))' }}
           >
             {generating ? t('Generating…', 'מייצר…') : t('Generate', 'ייצר')}
@@ -133,14 +133,14 @@ export function TablesPanel() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="px-5 py-2 rounded-full border border-amber-200/40 hover:border-amber-200/80 text-amber-100 text-[10px] tracking-[0.25em] uppercase"
+              className="px-5 py-2 rounded-full border border-amber-200/40 hover:border-amber-200/80 text-amber-100 text-10 tracking-[0.25em] uppercase"
               style={{ fontFamily: sans }}
             >
               {t('Print sheet', 'הדפס גיליון')}
             </button>
           )}
         </div>
-        <p className="text-white/35 text-[11px]" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
+        <p className="text-white/35 text-11" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
           {t('Every scan, view and order is attributed to its table.', 'כל סריקה, צפייה והזמנה מיוחסות לשולחן.')}
         </p>
       </GlassCard>
@@ -192,7 +192,7 @@ export function TablesPanel() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <SectionLabel icon={LayoutGrid}>{t('Floor plan', 'מפת רצפה')}</SectionLabel>
           {tables.length > 0 && (
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] text-white/40" style={{ fontFamily: sans }}>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-10 text-white/40" style={{ fontFamily: sans }}>
               <span className="inline-flex items-center gap-1.5">
                 <span className="inline-flex items-end gap-0.5" aria-hidden>
                   <span className="block h-2 w-2 rounded-[3px] bg-white/25" />
@@ -248,7 +248,7 @@ export function TablesPanel() {
                         </span>
                         {isBest && (
                           <span
-                            className="absolute top-5 end-5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] tracking-[0.2em] uppercase"
+                            className="absolute top-5 end-5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-9 tracking-[0.2em] uppercase"
                             style={{ color: accent, background: `${accent}1a`, border: `1px solid ${accent}55`, fontFamily: sans }}
                           >
                             <Crown size={11} strokeWidth={2} /> {t('Top', 'מוביל')}
@@ -306,8 +306,8 @@ export function TablesPanel() {
 function MiniStat({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <div>
-      <p className="text-[18px] leading-none" style={{ color: accent ?? 'rgba(255,255,255,0.92)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
-      <p className="text-white/40 text-[10px] mt-1 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
+      <p className="text-lg leading-none" style={{ color: accent ?? 'rgba(255,255,255,0.92)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
+      <p className="text-white/40 text-10 mt-1 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
     </div>
   );
 }
@@ -381,7 +381,7 @@ function FloorPlan({
             <p className="text-white/70" style={{ fontFamily: serif, fontStyle: 'italic', fontSize: '1.3rem' }}>
               {t('An empty floor — for now.', 'רצפה ריקה — לבינתיים.')}
             </p>
-            <p className="mt-2 text-[12px] leading-relaxed text-white/40" style={{ fontFamily: sans }}>
+            <p className="mt-2 text-xs leading-relaxed text-white/40" style={{ fontFamily: sans }}>
               {t(
                 'Place a QR on each table. As guests scan, tables light up by revenue and orders.',
                 'הנח QR על כל שולחן. ככל שאורחים סורקים, השולחנות נדלקים לפי הכנסה והזמנות.',
@@ -467,15 +467,15 @@ function FloorNode({
           className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-10 w-max -translate-x-1/2 scale-95 rounded-xl border border-white/12 bg-zinc-900/95 px-3 py-2 text-left opacity-0 shadow-xl backdrop-blur transition-all duration-200 group-hover/node:scale-100 group-hover/node:opacity-100 group-focus-within/node:scale-100 group-focus-within/node:opacity-100"
           dir="ltr"
         >
-          <span className="block text-[11px] text-white/55" style={{ fontFamily: sans }}>
+          <span className="block text-11 text-white/55" style={{ fontFamily: sans }}>
             {t('Table', 'שולחן')} {row.tableId}
           </span>
-          <span className="mt-1 block whitespace-nowrap text-[12px] text-white/85" style={{ fontFamily: sans }}>
+          <span className="mt-1 block whitespace-nowrap text-xs text-white/85" style={{ fontFamily: sans }}>
             {row.views.toLocaleString()} {t('views', 'צפיות')}
             <span className="text-white/30"> · </span>
             {row.orders.toLocaleString()} {t('orders', 'הזמנות')}
           </span>
-          <span className="mt-0.5 block whitespace-nowrap text-[12px]" style={{ fontFamily: sans }}>
+          <span className="mt-0.5 block whitespace-nowrap text-xs" style={{ fontFamily: sans }}>
             <span className="text-emerald-300">{ils(row.revenue)}</span>
             <span className="text-white/30"> · </span>
             <span style={{ color: accent }}>{row.conversionPct.toFixed(1)}%</span>
@@ -484,7 +484,7 @@ function FloorNode({
       </button>
 
       {/* always-visible key stat (touch-friendly) */}
-      <span className="text-[10px] leading-none text-white/45" style={{ fontFamily: sans }}>
+      <span className="text-10 leading-none text-white/45" style={{ fontFamily: sans }}>
         {row.revenue > 0 ? ils(row.revenue) : `${row.views.toLocaleString()} ${t('views', 'צפיות')}`}
       </span>
     </motion.div>

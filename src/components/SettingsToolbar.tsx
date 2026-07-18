@@ -108,7 +108,7 @@ export function SettingsToolbar({
     scan: isHebrew ? 'סריקת QR' : 'Scan QR',
   };
 
-  const rowLabel = 'text-white/40 text-[11px] tracking-[0.12em] mb-2.5';
+  const rowLabel = 'text-white/40 text-11 tracking-[0.12em] mb-2.5';
 
   return (
     <div ref={rootRef} className="fixed top-6 start-6 z-50 flex items-center gap-2.5">
@@ -131,7 +131,7 @@ export function SettingsToolbar({
               dir={isHebrew ? 'rtl' : 'ltr'}
             >
               <div className="px-6 pt-5 pb-4 border-b border-white/[0.06]">
-                <p className="text-amber-200/75 text-[11px] tracking-[0.28em] uppercase" style={{ fontFamily: sans, fontWeight: 500 }}>
+                <p className="text-amber-200/75 text-11 tracking-[0.28em] uppercase" style={{ fontFamily: sans, fontWeight: 500 }}>
                   {t.settings}
                 </p>
               </div>
@@ -175,7 +175,7 @@ export function SettingsToolbar({
                           type="button"
                           onClick={() => onCurrencyChange(c)}
                           aria-pressed={selected}
-                          className={`flex-1 py-1.5 rounded-full text-[11px] tracking-[0.06em] transition-all duration-300 ${
+                          className={`flex-1 py-1.5 rounded-full text-11 tracking-[0.06em] transition-all duration-300 ${
                             selected
                               ? 'bg-amber-100 text-black shadow-[0_2px_10px_rgba(252,211,77,0.25)]'
                               : 'text-white/50 hover:text-white/90'
@@ -198,7 +198,7 @@ export function SettingsToolbar({
                     value={restaurantName}
                     onChange={(e) => onRestaurantChange(e.target.value)}
                     placeholder={isHebrew ? 'שם המסעדה' : 'Restaurant name'}
-                    className="w-full bg-transparent border-b border-white/15 focus:border-amber-200/60 outline-none text-white text-[15px] py-1.5 transition-colors duration-300 placeholder:text-white/25"
+                    className="w-full bg-transparent border-b border-white/15 focus:border-amber-200/60 outline-none text-white text-15 py-1.5 transition-colors duration-300 placeholder:text-white/25"
                     style={{ fontFamily: sans }}
                     dir={isHebrew ? 'rtl' : 'ltr'}
                   />

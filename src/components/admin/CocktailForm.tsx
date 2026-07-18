@@ -301,7 +301,7 @@ export function CocktailForm({
       {/* Drink vs food — flips the drink-only category field off for food; the flavor
           profile shows for both, relabelled with kitchen terms when kind is food. */}
       <div className="flex items-center gap-3">
-        <span className="text-white/45 text-[11px] tracking-[0.2em] uppercase" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+        <span className="text-white/45 text-11 tracking-[0.2em] uppercase" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
           {t('Type', 'סוג')}
         </span>
         <div className="inline-flex rounded-full border border-white/12 bg-black/30 p-1">
@@ -311,7 +311,7 @@ export function CocktailForm({
               type="button"
               onClick={() => setKind(k)}
               aria-pressed={kind === k}
-              className={`px-5 py-1.5 rounded-full text-[11px] tracking-[0.2em] uppercase transition-colors ${
+              className={`px-5 py-1.5 rounded-full text-11 tracking-[0.2em] uppercase transition-colors ${
                 kind === k ? 'bg-amber-200 text-black' : 'text-white/55 hover:text-white'
               }`}
               style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
@@ -371,7 +371,7 @@ export function CocktailForm({
             className={inputClass}
           />
         </Field>
-        <p className="text-amber-200/60 text-[11px] tracking-wider">
+        <p className="text-amber-200/60 text-11 tracking-wider">
           slug: <code className="text-amber-100/80" dir="ltr">{slug}</code>
           {slugTaken && (
             <span className="text-rose-300/80 mx-2">
@@ -431,7 +431,7 @@ export function CocktailForm({
             as before. */}
         <div>
           <span
-            className="block text-white/55 text-[10px] tracking-[0.35em] uppercase mb-2"
+            className="block text-white/55 text-10 tracking-[0.35em] uppercase mb-2"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             {t('Dietary flags', 'סימוני תזונה')}
@@ -543,13 +543,13 @@ export function CocktailForm({
                   /* clipboard blocked — the field above is selectable as a fallback */
                 }
               }}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-[11px] tracking-[0.3em] uppercase"
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-11 tracking-[0.3em] uppercase"
               style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
             >
               {gptCopied ? <Check size={13} strokeWidth={2.4} /> : <ClipboardCopy size={13} strokeWidth={2} />}
               {gptCopied ? t('Copied', 'הועתק') : t('Copy ChatGPT prompt', 'העתק פרומפט ל-ChatGPT')}
             </button>
-            <span className="text-white/70 text-[11px] italic" style={{ fontFamily: 'var(--font-garamond, serif)' }}>
+            <span className="text-white/70 text-11 italic" style={{ fontFamily: 'var(--font-garamond, serif)' }}>
               {t('Paste in ChatGPT → download the PNG → Upload photo below.', 'הדביקו ב-ChatGPT → הורידו את ה-PNG → העלו למטה.')}
             </span>
           </div>
@@ -561,7 +561,7 @@ export function CocktailForm({
             onClick={handleGenerate}
             disabled={generating}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/60 text-amber-100 hover:bg-amber-200/10 transition-colors text-[11px] tracking-[0.3em] uppercase disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/60 text-amber-100 hover:bg-amber-200/10 transition-colors text-11 tracking-[0.3em] uppercase disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             <Lightbulb size={13} strokeWidth={2} />
@@ -576,7 +576,7 @@ export function CocktailForm({
           </span>
           <span className="text-white/70 text-xs italic">{t('— or —', '— או —')}</span>
           <label
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/30 text-amber-100/80 hover:text-amber-100 hover:border-amber-200/60 cursor-pointer transition-colors text-[11px] tracking-[0.3em] uppercase"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/30 text-amber-100/80 hover:text-amber-100 hover:border-amber-200/60 cursor-pointer transition-colors text-11 tracking-[0.3em] uppercase"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             <Upload size={13} strokeWidth={2} />
@@ -609,7 +609,7 @@ export function CocktailForm({
             type="button"
             onClick={() => setMediaLibraryOpen(true)}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/30 text-amber-100/80 hover:text-amber-100 hover:border-amber-200/60 transition-colors text-[11px] tracking-[0.3em] uppercase"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/30 text-amber-100/80 hover:text-amber-100 hover:border-amber-200/60 transition-colors text-11 tracking-[0.3em] uppercase"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             <LibraryBig size={13} strokeWidth={2} />
@@ -650,7 +650,7 @@ export function CocktailForm({
             onClick={handleGenerateBreakdown}
             disabled={generatingBreakdown}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/60 text-amber-100 hover:bg-amber-200/10 transition-colors text-[11px] tracking-[0.3em] uppercase disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/60 text-amber-100 hover:bg-amber-200/10 transition-colors text-11 tracking-[0.3em] uppercase disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             <Layers size={13} strokeWidth={2} />
@@ -661,7 +661,7 @@ export function CocktailForm({
                 : t('Generate full breakdown', 'יצירת פירוט מלא')}
           </motion.button>
           {breakdownLayers && !generatingBreakdown && (
-            <span className="text-emerald-300/80 text-[11px] tracking-wider uppercase">
+            <span className="text-emerald-300/80 text-11 tracking-wider uppercase">
               {t(
                 `✓ ${breakdownLayers.length} layers ready`,
                 `✓ ${breakdownLayers.length} שכבות מוכנות`
@@ -690,7 +690,7 @@ export function CocktailForm({
                 return (
                   <li
                     key={l.id}
-                    className={`text-[10px] tracking-wider uppercase border rounded-md py-2 px-3 flex items-center gap-2 ${color}`}
+                    className={`text-10 tracking-wider uppercase border rounded-md py-2 px-3 flex items-center gap-2 ${color}`}
                     style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
                   >
                     <span className="font-mono">{icon}</span>
@@ -729,7 +729,7 @@ export function CocktailForm({
       <div className="pt-2 flex items-center gap-5">
         <button
           type="submit"
-          className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-amber-200 text-black text-[12px] tracking-[0.3em] uppercase hover:bg-amber-100 hover:scale-[1.03] transition-all shadow-[0_18px_50px_-22px_rgba(251,191,36,0.9)]"
+          className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-amber-200 text-black text-xs tracking-[0.3em] uppercase hover:bg-amber-100 hover:scale-[1.03] transition-all shadow-[0_18px_50px_-22px_rgba(251,191,36,0.9)]"
           style={{ fontFamily: 'var(--font-inter, sans-serif)', fontWeight: 600 }}
         >
           <Check size={14} strokeWidth={2.4} />
@@ -737,7 +737,7 @@ export function CocktailForm({
         </button>
         <Link
           href="/admin"
-          className="text-white/50 hover:text-white/80 transition-colors text-[12px] tracking-[0.3em] uppercase"
+          className="text-white/50 hover:text-white/80 transition-colors text-xs tracking-[0.3em] uppercase"
           style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
         >
           {t('Cancel', 'ביטול')}
@@ -778,7 +778,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
       <span
-        className="block text-white/55 text-[10px] tracking-[0.35em] uppercase mb-2"
+        className="block text-white/55 text-10 tracking-[0.35em] uppercase mb-2"
         style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
       >
         {label}

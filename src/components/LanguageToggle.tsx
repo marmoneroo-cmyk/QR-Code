@@ -29,7 +29,7 @@ export function LanguageToggle({ lang, onChange }: LanguageToggleProps) {
               key={opt.value}
               onClick={() => onChange(opt.value)}
               aria-pressed={isActive}
-              className={`px-4 py-1.5 text-[11px] tracking-[0.2em] uppercase transition-all duration-300 ${
+              className={`px-4 py-1.5 text-11 tracking-[0.2em] uppercase transition-all duration-300 ${
                 isActive
                   ? 'bg-amber-200/90 text-black'
                   : 'text-amber-200/70 hover:text-amber-200'

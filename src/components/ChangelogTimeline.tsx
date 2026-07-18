@@ -43,7 +43,7 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
           </div>
 
           {v.intro && (
-            <p className="text-white/55 text-[15px] mb-8 leading-relaxed" style={{ fontFamily: bodyFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>
+            <p className="text-white/55 text-15 mb-8 leading-relaxed" style={{ fontFamily: bodyFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>
               {v.intro}
             </p>
           )}
@@ -51,7 +51,7 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
           <div className="space-y-10">
             {v.sections.map((section) => (
               <section key={section.title}>
-                <h3 className="text-amber-200/85 text-[11px] tracking-[0.4em] uppercase mb-6 flex items-center gap-3" style={{ fontFamily: sans }}>
+                <h3 className="text-amber-200/85 text-11 tracking-[0.4em] uppercase mb-6 flex items-center gap-3" style={{ fontFamily: sans }}>
                   <span>{section.title}</span>
                   <span className="flex-1 h-px bg-amber-200/15" />
                 </h3>
@@ -60,14 +60,14 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
                   {section.groups.map((group, gi) => (
                     <div key={gi}>
                       {group.heading && (
-                        <h4 className="text-white/90 text-[14px] mb-3 tracking-wide" style={{ fontFamily: titleFont, fontWeight: 500 }}>
+                        <h4 className="text-white/90 text-sm mb-3 tracking-wide" style={{ fontFamily: titleFont, fontWeight: 500 }}>
                           {group.heading}
                         </h4>
                       )}
                       {group.items.length > 0 && (
                         <ul className="space-y-2">
                           {group.items.map((item, ii) => (
-                            <li key={ii} className="text-white/65 text-[14px] leading-relaxed ps-5 relative" style={{ fontFamily: bodyFont }}>
+                            <li key={ii} className="text-white/65 text-sm leading-relaxed ps-5 relative" style={{ fontFamily: bodyFont }}>
                               <span className="absolute start-0 top-2 w-1 h-1 rounded-full bg-amber-200/50" />
                               {renderInline(item).map((part, pi) => {
                                 if (part.kind === 'bold') {
@@ -79,7 +79,7 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
                                 }
                                 if (part.kind === 'code') {
                                   return (
-                                    <code key={pi} dir="ltr" className="px-1.5 py-0.5 mx-0.5 rounded bg-amber-200/10 text-amber-100/90 text-[12px]" style={{ fontFamily: 'var(--font-inter, monospace)' }}>
+                                    <code key={pi} dir="ltr" className="px-1.5 py-0.5 mx-0.5 rounded bg-amber-200/10 text-amber-100/90 text-xs" style={{ fontFamily: 'var(--font-inter, monospace)' }}>
                                       {part.value}
                                     </code>
                                   );
@@ -100,7 +100,7 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
       ))}
 
       <footer className="mt-24 pt-12 border-t border-white/10 text-center">
-        <p className="text-white/30 text-[11px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+        <p className="text-white/30 text-11 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
           {isHebrew ? 'סוף היומן' : 'End of log'}
         </p>
       </footer>

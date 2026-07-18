@@ -28,7 +28,7 @@ const POLL_MS = 20_000;
 
 /** The amber "do it" pill — the single most important affordance on the screen. */
 const primaryBtn =
-  'group inline-flex items-center gap-2.5 rounded-full bg-amber-100 px-7 py-3.5 text-[13px] font-semibold tracking-[0.08em] text-black transition-all duration-300 hover:bg-amber-200 hover:gap-3.5 hover:shadow-[0_0_40px_rgba(251,191,36,0.35)]';
+  'group inline-flex items-center gap-2.5 rounded-full bg-amber-100 px-7 py-3.5 text-13 font-semibold tracking-[0.08em] text-black transition-all duration-300 hover:bg-amber-200 hover:gap-3.5 hover:shadow-[0_0_40px_rgba(251,191,36,0.35)]';
 
 export function CoachPanel() {
   const { lang } = useLang();
@@ -185,7 +185,7 @@ function HeroAction({
       <Stagger className="relative z-[1] mt-2 flex w-full max-w-2xl flex-col items-center">
         <motion.p
           variants={staggerItem}
-          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.45em]"
+          className="inline-flex items-center gap-2 text-10 uppercase tracking-[0.45em]"
           style={{ color: accent, fontFamily: sans }}
         >
           <Sunrise size={13} strokeWidth={2} />
@@ -224,7 +224,7 @@ function HeroAction({
           <PotentialValue potential={action.potential} lang={lang} size="lg" accent="#34d399" />
           <div className="flex flex-wrap items-center justify-center gap-4">
             <ConfidenceMeter pct={action.confidencePct} lang={lang} />
-            <span className="inline-flex items-center gap-1.5 text-[11px] text-white/40" style={{ fontFamily: sans }}>
+            <span className="inline-flex items-center gap-1.5 text-11 text-white/40" style={{ fontFamily: sans }}>
               <Clock size={12} strokeWidth={1.8} />
               {isHe ? `~${action.effortMin} דק'` : `~${action.effortMin} min`}
             </span>
@@ -260,7 +260,7 @@ function NextUpStrip({
 }) {
   return (
     <Stagger className="mt-10 flex flex-wrap items-center justify-center gap-3 opacity-60 transition-opacity hover:opacity-100">
-      <span className="text-[10px] uppercase tracking-[0.32em] text-white/35" style={{ fontFamily: sans }}>
+      <span className="text-10 uppercase tracking-[0.32em] text-white/35" style={{ fontFamily: sans }}>
         {isHe ? 'גם על הרשימה הערב' : "Also on tonight's list"}
       </span>
       {actions.map((a) => {
@@ -343,7 +343,7 @@ function EmptyHero({
         >
           {heading}
         </h2>
-        <p className="mt-4 text-[14px] leading-relaxed text-white/45" style={{ fontFamily: sans }}>
+        <p className="mt-4 text-sm leading-relaxed text-white/45" style={{ fontFamily: sans }}>
           {body}
         </p>
       </div>

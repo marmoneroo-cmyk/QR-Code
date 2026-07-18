@@ -194,7 +194,7 @@ export default function RevenueCenterPage() {
                   DOM position) so it lands in the RIGHT column for Hebrew, matching the rest
                   of the page's right-aligned convention, even when there's no hero image. */}
               <div className={`flex flex-col items-start gap-5 text-start ${isHe ? 'md:order-1' : ''}`}>
-                <p className="text-emerald-300/80 text-[11px] md:text-[12px] tracking-[0.35em] uppercase" style={{ fontFamily: sans }}>
+                <p className="text-emerald-300/80 text-11 md:text-xs tracking-[0.35em] uppercase" style={{ fontFamily: sans }}>
                   {t('Available now · estimate', 'זמין עכשיו · צפי')}
                 </p>
 
@@ -219,7 +219,7 @@ export default function RevenueCenterPage() {
                 )}
 
                 {hasUpside && (
-                  <p className="text-white/55 text-[13px] md:text-[14px]" style={{ fontFamily: sans }}>
+                  <p className="text-white/55 text-13 md:text-sm" style={{ fontFamily: sans }}>
                     {t(
                       `${potential.count} actions · ~${ils(potential.profitILS)} profit`,
                       `${potential.count} פעולות · רווח ~${ils(potential.profitILS)}`,
@@ -265,7 +265,7 @@ export default function RevenueCenterPage() {
                 <EmptyState title={t('No measured sales yet.', 'אין עדיין מכירות שנמדדו.')} />
               </GlassCard>
             )}
-            <p className="mt-2.5 text-white/30 text-[10px] tracking-wide" style={{ fontFamily: sans }}>
+            <p className="mt-2.5 text-white/30 text-10 tracking-wide" style={{ fontFamily: sans }}>
               {t('Real measured revenue. Not attributed to the platform.', 'הכנסה אמיתית שנמדדה. לא מיוחסת לפלטפורמה.')}
             </p>
           </section>
@@ -290,7 +290,7 @@ export default function RevenueCenterPage() {
                         <div className="relative min-w-0 flex-1">
                           <div className="flex items-baseline justify-between gap-3">
                             <p
-                              className="truncate text-white/90 text-[15px] md:text-[17px]"
+                              className="truncate text-white/90 text-15 md:text-17"
                               style={{ fontFamily: isHe ? heSerif : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
                             >
                               {it.title[lang]}
@@ -315,7 +315,7 @@ export default function RevenueCenterPage() {
                 ))}
               </Stagger>
 
-              <p className="mt-2.5 text-white/30 text-[10px] tracking-wide" style={{ fontFamily: sans }}>
+              <p className="mt-2.5 text-white/30 text-10 tracking-wide" style={{ fontFamily: sans }}>
                 {t('Estimated upside per drink, from your data.', 'צפי הכנסה לכל קוקטייל, מהנתונים שלכם.')}
               </p>
             </section>
@@ -365,7 +365,7 @@ function ProvenStat({ value, label, accent }: { value: number | string; label: s
       <p className="relative leading-none" style={{ color: accent, fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.8rem, 5vw, 2.8rem)' }}>
         <CountUpText text={String(value)} />
       </p>
-      <p className="relative mt-2 text-white/45 text-[11px] tracking-[0.1em] uppercase" style={{ fontFamily: sans }}>{label}</p>
+      <p className="relative mt-2 text-white/45 text-11 tracking-[0.1em] uppercase" style={{ fontFamily: sans }}>{label}</p>
     </GlassCard>
   );
 }
@@ -378,7 +378,7 @@ function ActualStat({ value, label, accent }: { value: string; label: string; ac
       <p className="relative leading-tight text-white text-2xl" style={{ fontFamily: serif, fontWeight: 700 }}>
         <CountUpText text={value} />
       </p>
-      <p className="relative mt-1 text-white/45 text-[11px] tracking-wide" style={{ fontFamily: sans }}>{label}</p>
+      <p className="relative mt-1 text-white/45 text-11 tracking-wide" style={{ fontFamily: sans }}>{label}</p>
     </GlassCard>
   );
 }
@@ -401,13 +401,13 @@ function LeverBar({
   return (
     <GlassCard accent={accent} static className="p-5">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-2 text-white/70 text-[12px] tracking-[0.05em]" style={{ fontFamily: sans }}>
+        <span className="inline-flex items-center gap-2 text-white/70 text-xs tracking-[0.05em]" style={{ fontFamily: sans }}>
           <span className="grid h-7 w-7 place-items-center rounded-lg" style={{ color: accent, background: `${accent}1a` }}>
             <Icon size={14} strokeWidth={1.9} />
           </span>
           {label}
         </span>
-        <span className="text-[18px] tabular-nums" style={{ color: accent, fontFamily: serif, fontWeight: 700 }}>
+        <span className="text-lg tabular-nums" style={{ color: accent, fontFamily: serif, fontWeight: 700 }}>
           +{ils(value)}
         </span>
       </div>

@@ -138,7 +138,7 @@ export function IngredientLabels({
                 )}
                 {label.origin && isActive && (
                   <p
-                    className="mt-1.5 text-[10px] tracking-[0.25em] uppercase"
+                    className="mt-1.5 text-10 tracking-[0.25em] uppercase"
                     style={{ fontFamily: sansFont, color: 'var(--accent)', opacity: 0.75 }}
                   >
                     {label.origin[lang]}

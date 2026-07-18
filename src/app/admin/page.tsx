@@ -21,7 +21,7 @@ const heBody = 'var(--font-heebo, sans-serif)';
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-4 mb-6">
-      <h2 className="text-amber-200/85 text-[11px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+      <h2 className="text-amber-200/85 text-11 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
         {children}
       </h2>
       <span className="flex-1 h-px bg-amber-200/12" />
@@ -172,7 +172,7 @@ export default function AdminPage() {
             <button
               type="button"
               onClick={copyAllDrafts}
-              className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-[12px] tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100"
+              className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-xs tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100"
               style={{ fontFamily: sans, fontWeight: 600 }}
             >
               {copiedAll ? t('Copied!', 'הועתק!') : t('Export JSON', 'ייצוא JSON')}
@@ -180,7 +180,7 @@ export default function AdminPage() {
           )}
           <Link
             href="/admin/new"
-            className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-[13px] tracking-[0.16em] uppercase text-black transition-shadow"
+            className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-13 tracking-[0.16em] uppercase text-black transition-shadow"
             style={{
               fontFamily: sans,
               fontWeight: 700,
@@ -213,7 +213,7 @@ export default function AdminPage() {
           </p>
           <Link
             href="/admin/new"
-            className="text-amber-200/90 hover:text-amber-100 transition-colors text-[11px] tracking-[0.3em] uppercase"
+            className="text-amber-200/90 hover:text-amber-100 transition-colors text-11 tracking-[0.3em] uppercase"
             style={{ fontFamily: sans }}
           >
             {t('Create your first cocktail →', '← צור את הקוקטייל הראשון שלך')}
@@ -249,7 +249,7 @@ export default function AdminPage() {
               <h3 className="text-white text-xl mb-1" style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>
                 {draft.title[lang] || draft.title.en || t('Untitled', 'ללא שם')}
               </h3>
-              <p className="text-amber-200/60 text-[10px] tracking-[0.3em] uppercase mb-3">
+              <p className="text-amber-200/60 text-10 tracking-[0.3em] uppercase mb-3">
                 {CATEGORY_LABEL[draft.category][lang]}
               </p>
               {draft.tagline?.[lang] && (
@@ -260,14 +260,14 @@ export default function AdminPage() {
               <div className="flex items-center gap-2 pt-3 border-t border-white/[0.08] flex-wrap">
                 <Link
                   href={`/drafts/${draft.slug}`}
-                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-[10px] tracking-[0.3em] uppercase"
+                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-10 tracking-[0.3em] uppercase"
                   style={{ fontFamily: sans }}
                 >
                   {t('Preview', 'תצוגה')}
                 </Link>
                 <Link
                   href={`/admin/${draft.slug}/edit`}
-                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-[10px] tracking-[0.3em] uppercase"
+                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-10 tracking-[0.3em] uppercase"
                   style={{ fontFamily: sans }}
                 >
                   {t('Edit', 'עריכה')}
@@ -284,7 +284,7 @@ export default function AdminPage() {
                       alert(t('Clipboard copy failed.', 'העתקה ללוח נכשלה.'));
                     }
                   }}
-                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-[10px] tracking-[0.3em] uppercase"
+                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-10 tracking-[0.3em] uppercase"
                   style={{ fontFamily: sans }}
                 >
                   {copiedSlug === draft.slug ? t('Copied!', 'הועתק!') : t('Copy JSON', 'העתק JSON')}
@@ -295,7 +295,7 @@ export default function AdminPage() {
                     if (confirm(t(`Delete draft "${draft.title[lang] || draft.title.en}"?`, `למחוק את הטיוטה "${draft.title[lang] || draft.title.en}"?`)))
                       remove(draft.slug);
                   }}
-                  className="inline-flex items-center rounded-full border border-rose-300/20 px-3.5 py-1.5 text-rose-300/70 hover:text-rose-300 hover:border-rose-300/40 transition-colors text-[10px] tracking-[0.3em] uppercase ms-auto"
+                  className="inline-flex items-center rounded-full border border-rose-300/20 px-3.5 py-1.5 text-rose-300/70 hover:text-rose-300 hover:border-rose-300/40 transition-colors text-10 tracking-[0.3em] uppercase ms-auto"
                   style={{ fontFamily: sans }}
                 >
                   {t('Delete', 'מחיקה')}
@@ -307,14 +307,14 @@ export default function AdminPage() {
       )}
 
       <div className="flex items-center gap-4 mb-3">
-        <h2 className="text-amber-200/85 text-[11px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+        <h2 className="text-amber-200/85 text-11 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
           {t('Published', 'פורסמו')} ({MENU.length})
         </h2>
         {order.length > 0 && (
           <button
             type="button"
             onClick={() => setOrder([])}
-            className="text-white/45 hover:text-amber-100 transition-colors text-[9px] tracking-[0.25em] uppercase"
+            className="text-white/45 hover:text-amber-100 transition-colors text-9 tracking-[0.25em] uppercase"
             style={{ fontFamily: sans }}
           >
             {t('Custom order · Reset', 'סדר מותאם · אפס')}
@@ -322,7 +322,7 @@ export default function AdminPage() {
         )}
         <span className="flex-1 h-px bg-amber-200/12" />
       </div>
-      <p className="text-white/35 text-[11px] mb-6" style={{ fontFamily: sans }}>
+      <p className="text-white/35 text-11 mb-6" style={{ fontFamily: sans }}>
         {t(
           'Drag the handle to set how items appear on the guest menu (saved on this device).',
           'גררו מהידית כדי לקבוע את סדר הופעת הפריטים בתפריט הסועד (נשמר במכשיר זה).'
@@ -354,7 +354,7 @@ export default function AdminPage() {
             <h3 className="text-white text-xl mb-1" style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>
               {cocktail.title[lang]}
             </h3>
-            <p className="text-amber-200/60 text-[10px] tracking-[0.3em] uppercase mb-3">
+            <p className="text-amber-200/60 text-10 tracking-[0.3em] uppercase mb-3">
               {CATEGORY_LABEL[cocktail.category][lang]}
             </p>
             {cocktail.tagline && (
@@ -362,7 +362,7 @@ export default function AdminPage() {
                 {cocktail.tagline[lang]}
               </p>
             )}
-            <p className="text-white/30 text-[10px] tracking-wider uppercase mt-4">{t('Published', 'פורסם')}</p>
+            <p className="text-white/30 text-10 tracking-wider uppercase mt-4">{t('Published', 'פורסם')}</p>
           </DraftCard>
         ))}
       </div>

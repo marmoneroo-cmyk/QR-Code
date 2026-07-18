@@ -115,7 +115,7 @@ export default function PrintPage() {
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-200 text-black text-[11px] tracking-[0.25em] uppercase shadow-[0_18px_50px_-22px_rgba(251,191,36,0.9)] hover:bg-amber-100 hover:scale-[1.03] transition-all duration-300"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-200 text-black text-11 tracking-[0.25em] uppercase shadow-[0_18px_50px_-22px_rgba(251,191,36,0.9)] hover:bg-amber-100 hover:scale-[1.03] transition-all duration-300"
           style={{ fontFamily: sans, fontWeight: 600 }}
         >
           <Printer size={14} strokeWidth={2} />
@@ -162,7 +162,7 @@ export default function PrintPage() {
                     <QrCode size={20} className="text-white/25" strokeWidth={1.6} />
                   </div>
                 )}
-                <p className="text-white/80 text-[11px] text-center leading-tight truncate" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 600 }}>
+                <p className="text-white/80 text-11 text-center leading-tight truncate" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 600 }}>
                   {card.cocktail.title[lang]}
                 </p>
               </div>
@@ -191,7 +191,7 @@ export default function PrintPage() {
             labels={{ ILS: `${CURRENCY_SYMBOL.ILS} ILS`, USD: `${CURRENCY_SYMBOL.USD} USD`, EUR: `${CURRENCY_SYMBOL.EUR} EUR` }}
           />
           <label
-            className="inline-flex items-center gap-2 text-white/60 text-[10px] tracking-[0.28em] uppercase cursor-pointer"
+            className="inline-flex items-center gap-2 text-white/60 text-10 tracking-[0.28em] uppercase cursor-pointer"
             style={{ fontFamily: sans }}
           >
             <input type="checkbox" checked={includeNote} onChange={(e) => setIncludeNote(e.target.checked)} className="accent-amber-300" />
@@ -205,7 +205,7 @@ export default function PrintPage() {
             labels={{ gold: t('Gold accent', 'זהב'), minimal: t('Minimal', 'מינימלי') }}
           />
         </div>
-        <p className="text-white/30 text-[9px] tracking-[0.22em] uppercase mt-4" style={{ fontFamily: sans }}>
+        <p className="text-white/30 text-9 tracking-[0.22em] uppercase mt-4" style={{ fontFamily: sans }}>
           {t('Theme affects on-screen preview only — print stays clean', 'העיצוב משפיע על התצוגה המקדימה בלבד — ההדפסה נשארת נקייה')}
         </p>
       </section>
@@ -242,7 +242,7 @@ function Toggle<T extends string | number>({
 }) {
   return (
     <div className="inline-flex items-center gap-3">
-      <span className="text-white/40 text-[10px] tracking-[0.28em] uppercase" style={{ fontFamily: sans }}>
+      <span className="text-white/40 text-10 tracking-[0.28em] uppercase" style={{ fontFamily: sans }}>
         {label}
       </span>
       <div className="flex items-center rounded-full border border-white/10 bg-white/[0.03] p-0.5">
@@ -254,7 +254,7 @@ function Toggle<T extends string | number>({
               key={String(opt)}
               type="button"
               onClick={() => onChange(opt)}
-              className={`px-3.5 py-1.5 rounded-full text-[11px] tracking-[0.08em] transition-all duration-300 ${
+              className={`px-3.5 py-1.5 rounded-full text-11 tracking-[0.08em] transition-all duration-300 ${
                 isActive ? 'bg-amber-100 text-black' : 'text-white/55 hover:text-white/90'
               }`}
               style={{ fontFamily: sans, fontWeight: 500 }}
@@ -326,7 +326,7 @@ function PrintTableTent({
           <div className="w-8 h-px bg-amber-200/60 print:bg-amber-700/60" />
         </div>
 
-        <p className="text-amber-200/85 print:text-amber-800 text-[9px] tracking-[0.5em] uppercase mt-3 mb-2" style={{ fontFamily: sans }}>
+        <p className="text-amber-200/85 print:text-amber-800 text-9 tracking-[0.5em] uppercase mt-3 mb-2" style={{ fontFamily: sans }}>
           {CATEGORY_LABEL[cocktail.category][lang]}
         </p>
 
@@ -361,7 +361,7 @@ function PrintTableTent({
           <blockquote className="text-white/65 print:text-black/65 italic max-w-xs leading-snug text-sm mt-3 mb-2" style={{ fontFamily: body }}>
             &ldquo;{cocktail.bartenderNote[lang]}&rdquo;
             {cocktail.bartenderName && (
-              <footer className="text-amber-200/70 print:text-amber-700 text-[9px] tracking-[0.3em] uppercase mt-2 not-italic" style={{ fontFamily: sans }}>
+              <footer className="text-amber-200/70 print:text-amber-700 text-9 tracking-[0.3em] uppercase mt-2 not-italic" style={{ fontFamily: sans }}>
                 — {cocktail.bartenderName}
               </footer>
             )}
@@ -370,10 +370,10 @@ function PrintTableTent({
 
         <div className={`flex items-end justify-between w-full ${isCompact ? 'mt-2' : 'mt-4'}`}>
           <div className="text-left">
-            <p className="text-amber-200/70 print:text-amber-700 text-[8px] tracking-[0.4em] uppercase mb-1" style={{ fontFamily: sans }}>
+            <p className="text-amber-200/70 print:text-amber-700 text-8 tracking-[0.4em] uppercase mb-1" style={{ fontFamily: sans }}>
               {t('Scan', 'סרקו')}
             </p>
-            <p className="text-white/55 print:text-black/55 text-[9px] italic" style={{ fontFamily: body }}>
+            <p className="text-white/55 print:text-black/55 text-9 italic" style={{ fontFamily: body }}>
               {t('for the 3D experience', 'לחוויה התלת-ממדית')}
             </p>
           </div>

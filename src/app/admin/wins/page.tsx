@@ -181,7 +181,7 @@ export function WinsPanel() {
                     </span>
                   </div>
                   {avgUplift !== null && (
-                    <p className="mt-1 text-[13px]" style={{ fontFamily: sans }}>
+                    <p className="mt-1 text-13" style={{ fontFamily: sans }}>
                       <span style={{ color: EMERALD, fontWeight: 700 }}>
                         <CountUpText text={`+${avgUplift}%`} />
                       </span>{' '}
@@ -201,7 +201,7 @@ export function WinsPanel() {
                       key={x.key}
                       type="button"
                       onClick={() => setTab(x.key)}
-                      className="rounded-full px-4 py-1.5 text-[11px] uppercase tracking-[0.18em] transition-colors"
+                      className="rounded-full px-4 py-1.5 text-11 uppercase tracking-[0.18em] transition-colors"
                       style={{
                         fontFamily: sans,
                         fontWeight: 600,
@@ -251,7 +251,7 @@ export function WinsPanel() {
               <button
                 type="button"
                 onClick={() => setTab('all')}
-                className="mt-1 text-[12px] uppercase tracking-[0.2em]"
+                className="mt-1 text-xs uppercase tracking-[0.2em]"
                 style={{ fontFamily: sans, color: GOLD, fontWeight: 600 }}
               >
                 {t('See all wins →', 'הצג את כל הניצחונות →')}
@@ -363,7 +363,7 @@ function WinCard({ item, lang, isHe, t, featured, isBest, activeTab }: WinCardPr
           {/* Crown — the single best result in the active window (real max deltaPct) */}
           {isBest && (
             <span
-              className="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.22em]"
+              className="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-10 uppercase tracking-[0.22em]"
               style={{ borderColor: `${GOLD}66`, color: GOLD, background: `${GOLD}14`, fontFamily: sans, fontWeight: 700 }}
             >
               <Trophy size={12} strokeWidth={2} /> {BEST_LABEL[activeTab][lang]}
@@ -372,7 +372,7 @@ function WinCard({ item, lang, isHe, t, featured, isBest, activeTab }: WinCardPr
 
           {/* Success badge */}
           <span
-            className="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.22em]"
+            className="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-10 uppercase tracking-[0.22em]"
             style={{ borderColor: `${EMERALD}66`, color: EMERALD, background: `${EMERALD}14`, fontFamily: sans, fontWeight: 700 }}
           >
             <PartyPopper size={13} strokeWidth={2} /> {t('🎉 Success', '🎉 הצלחה')}
@@ -404,12 +404,12 @@ function WinCard({ item, lang, isHe, t, featured, isBest, activeTab }: WinCardPr
           </p>
 
           {/* Story-first result line — real delta + real metric, ordered per language */}
-          <p className="text-[15px] text-white/80" style={{ fontFamily: sans, fontWeight: 600 }}>
+          <p className="text-15 text-white/80" style={{ fontFamily: sans, fontWeight: 600 }}>
             {isHe ? `${metric.label.he} +${delta}%` : `+${delta}% ${metric.label.en}`}
           </p>
 
           {/* Real, attributable facts only: metric · window · date */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] text-white/55" style={{ fontFamily: sans }}>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-white/55" style={{ fontFamily: sans }}>
             <span className="inline-flex items-center gap-1.5" style={{ color: accent }}>
               <MetricIcon size={13} strokeWidth={1.9} /> {metric.label[lang]}
             </span>
@@ -426,7 +426,7 @@ function WinCard({ item, lang, isHe, t, featured, isBest, activeTab }: WinCardPr
           {/* Confidence — honest about sample strength */}
           <div className="mt-auto pt-2">
             <span
-              className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.18em]"
+              className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 uppercase tracking-[0.18em]"
               style={{ borderColor: `${confColor}55`, color: confColor, fontFamily: sans, fontWeight: 600 }}
             >
               <ShieldCheck size={11} strokeWidth={2} /> {CONF_LABEL[item.confidence][lang]}
@@ -463,7 +463,7 @@ function EmptyState({ isHe, t }: EmptyStateProps) {
           >
             {t('Your first win is coming', 'הניצחון הראשון שלך מתקרב')}
           </h2>
-          <p className="text-white/55 text-[15px] leading-relaxed" style={{ fontFamily: sans }}>
+          <p className="text-white/55 text-15 leading-relaxed" style={{ fontFamily: sans }}>
             {t(
               'Make a move and the platform will measure it — when a change works, it lands here in lights.',
               'בצעו צעד והמערכת תמדוד אותו — כששינוי עובד, הוא ינחת כאן באורות.'

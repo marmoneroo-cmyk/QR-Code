@@ -1,6 +1,26 @@
 @import "tailwindcss";
 
 /*
+ * Typography scale — the non-default steps this luxury micro-type UI needs, named so
+ * the app never hand-writes `text-[NNpx]` again (an ESLint guard enforces it). Tailwind's
+ * own steps stay standard and cover 12/14/16/18/20/24px (xs/sm/base/lg/xl/2xl); these fill
+ * the small-caps/eyebrow range and a few display sizes. Values are exact — this migration
+ * changed no rendered size — so future tightening of the ramp is a one-file edit here.
+ */
+@theme {
+  --text-8: 0.5rem;      /* 8px  — micro tags */
+  --text-9: 0.5625rem;   /* 9px  — captions */
+  --text-10: 0.625rem;   /* 10px — eyebrows / overlines (most common) */
+  --text-11: 0.6875rem;  /* 11px — tracked labels */
+  --text-13: 0.8125rem;  /* 13px — small body */
+  --text-15: 0.9375rem;  /* 15px — body */
+  --text-17: 1.0625rem;  /* 17px — lead */
+  --text-19: 1.1875rem;  /* 19px — small display */
+  --text-22: 1.375rem;   /* 22px — display */
+  --text-26: 1.625rem;   /* 26px — hero display */
+}
+
+/*
  * NOTE: Do NOT add an unlayered "* { margin:0; padding:0 }" reset here.
  * Tailwind v4 ships Preflight inside "@layer base", which already resets
  * margin, padding and box-sizing. An unlayered reset outranks every

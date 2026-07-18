@@ -43,7 +43,7 @@ export default function DraftPage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white px-8 text-center">
         <p
-          className="text-amber-200/70 text-[10px] tracking-[0.4em] uppercase mb-4"
+          className="text-amber-200/70 text-10 tracking-[0.4em] uppercase mb-4"
           style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
         >
           Draft not found
@@ -66,14 +66,14 @@ export default function DraftPage({ params }: PageProps) {
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="px-6 py-2.5 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-[11px] tracking-[0.3em] uppercase"
+            className="px-6 py-2.5 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-11 tracking-[0.3em] uppercase"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             Back to menu
           </Link>
           <Link
             href="/admin"
-            className="text-amber-200/70 hover:text-amber-200 transition-colors text-[11px] tracking-[0.3em] uppercase"
+            className="text-amber-200/70 hover:text-amber-200 transition-colors text-11 tracking-[0.3em] uppercase"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
           >
             Open admin

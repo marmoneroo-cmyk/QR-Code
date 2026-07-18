@@ -101,7 +101,7 @@ export function AdminShell({
   }, [launcherOpen]);
 
   const pill =
-    'inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-2 text-[10px] tracking-[0.2em] uppercase text-white/65 hover:text-amber-100 hover:border-amber-200/40 hover:bg-white/[0.05] transition-all';
+    'inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-2 text-10 tracking-[0.2em] uppercase text-white/65 hover:text-amber-100 hover:border-amber-200/40 hover:bg-white/[0.05] transition-all';
 
   return (
     <div
@@ -116,7 +116,7 @@ export function AdminShell({
         <div className="glass-chrome backdrop-blur-2xl mx-auto max-w-6xl rounded-2xl px-4 sm:px-5 min-h-14 py-2.5 flex items-center justify-between gap-3">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-amber-200/80 hover:text-amber-100 transition-colors text-[10px] tracking-[0.3em] uppercase shrink-0"
+            className="inline-flex items-center gap-2 text-amber-200/80 hover:text-amber-100 transition-colors text-10 tracking-[0.3em] uppercase shrink-0"
             style={{ fontFamily: sans }}
           >
             <span className="transition-transform group-hover:-translate-x-0.5">{isHebrew ? '→' : '←'}</span>
@@ -146,7 +146,7 @@ export function AdminShell({
                   type="button"
                   onClick={() => setLang(l)}
                   aria-pressed={lang === l}
-                  className={`px-2.5 py-1 rounded-full text-[9px] tracking-[0.15em] uppercase transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-9 tracking-[0.15em] uppercase transition-all ${
                     lang === l ? 'text-black' : 'text-white/50 hover:text-white/90'
                   }`}
                   style={{
@@ -192,7 +192,7 @@ export function AdminShell({
               <div className="mx-auto max-w-5xl">
                 <div className="flex items-center justify-between mb-10">
                   <div>
-                    <p className="text-[10px] tracking-[0.42em] uppercase mb-3" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.7)' }}>
+                    <p className="text-10 tracking-[0.42em] uppercase mb-3" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.7)' }}>
                       {isHebrew ? 'ניווט' : 'Navigate'}
                     </p>
                     <h2
@@ -225,7 +225,7 @@ export function AdminShell({
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={reduce ? { duration: 0 } : { duration: 0.5, ease: LUX_EASE }}
-          className="text-[10px] tracking-[0.45em] uppercase mb-4"
+          className="text-10 tracking-[0.45em] uppercase mb-4"
           style={{ fontFamily: sans, color: 'rgba(232,201,135,0.72)' }}
         >
           {shownEyebrow}
@@ -260,7 +260,7 @@ export function AdminShell({
             initial={reduce ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={reduce ? { duration: 0 } : { duration: 0.55, delay: 0.2, ease: LUX_EASE }}
-            className="text-white/45 text-[15px] mt-5 max-w-2xl leading-relaxed"
+            className="text-white/45 text-15 mt-5 max-w-2xl leading-relaxed"
             style={{ fontFamily: bodyFont, fontStyle: isHebrew ? 'normal' : 'italic' }}
           >
             {shownSubtitle}

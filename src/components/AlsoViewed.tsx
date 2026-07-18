@@ -51,7 +51,7 @@ export function AlsoViewed({ slug, lang }: { slug: string; lang: Lang }) {
 
   return (
     <section className="px-5 pt-10 flex flex-col items-center" dir={isHebrew ? 'rtl' : 'ltr'}>
-      <p className="text-amber-200/70 text-[10px] tracking-[0.45em] uppercase mb-5" style={{ fontFamily: sans }}>
+      <p className="text-amber-200/70 text-10 tracking-[0.45em] uppercase mb-5" style={{ fontFamily: sans }}>
         {isHebrew ? 'אורחים צפו גם ב' : 'Guests also viewed'}
       </p>
       <div className="flex flex-wrap items-start justify-center gap-5 max-w-3xl">
@@ -72,7 +72,7 @@ export function AlsoViewed({ slug, lang }: { slug: string; lang: Lang }) {
               />
             )}
             <span
-              className="text-white/70 group-hover:text-white text-[12px] text-center leading-tight transition-colors"
+              className="text-white/70 group-hover:text-white text-xs text-center leading-tight transition-colors"
               style={{ fontFamily: sans }}
             >
               {cocktail.title[lang]}

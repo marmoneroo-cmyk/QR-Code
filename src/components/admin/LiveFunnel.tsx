@@ -91,19 +91,19 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
   return (
     <section className="mb-12 rounded-2xl border border-amber-200/20 bg-gradient-to-b from-amber-950/10 to-black p-6">
       <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-        <p className="text-amber-200/80 text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+        <p className="text-amber-200/80 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
           {t('Conversion funnel · live', 'משפך המרה · חי')}
         </p>
         <div className="flex items-center gap-3">
           {updatedAt !== null && (
-            <span className="text-white/35 text-[9px] tracking-wider" style={{ fontFamily: sans }}>
+            <span className="text-white/35 text-9 tracking-wider" style={{ fontFamily: sans }}>
               {agoLabel}
             </span>
           )}
           <button
             type="button"
             onClick={load}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-300/30 hover:border-emerald-300/70 text-emerald-200/90 text-[9px] tracking-[0.3em] uppercase transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-300/30 hover:border-emerald-300/70 text-emerald-200/90 text-9 tracking-[0.3em] uppercase transition-colors"
             style={{ fontFamily: sans }}
           >
             <span className={`w-1.5 h-1.5 rounded-full bg-emerald-400 ${refreshing ? 'animate-ping' : 'animate-pulse'}`} />
@@ -113,7 +113,7 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
       </div>
 
       {/* Stage legend — clarifies what each step means */}
-      <p className="text-white/40 text-[10px] leading-relaxed mb-5" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
+      <p className="text-white/40 text-10 leading-relaxed mb-5" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
         {t(
           'Seen = card viewed in the menu · Opened = entered the drink page · Ingredients/360/Waiter = actions inside · Ordered = guests who ordered · units = total drinks.',
           'נצפה = הכרטיס נראה בתפריט · נפתח = כניסה לעמוד המשקה · מרכיבים/360/מלצר = פעולות בפנים · הוזמן = אורחים שהזמינו · יח׳ = סך הכוסות.',
@@ -157,12 +157,12 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
                       {titleBySlug.get(row.cocktailSlug) ?? row.cocktailSlug}
                     </span>
                     {row.flag === 'leak' && (
-                      <span className="shrink-0 text-rose-200 text-[9px] tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border border-rose-400/40" style={{ fontFamily: sans }}>
+                      <span className="shrink-0 text-rose-200 text-9 tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border border-rose-400/40" style={{ fontFamily: sans }}>
                         ⚠ {t('leak', 'דליפה')}
                       </span>
                     )}
                     {row.flag === 'high_converter' && (
-                      <span className="shrink-0 text-emerald-200 text-[9px] tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border border-emerald-300/40" style={{ fontFamily: sans }}>
+                      <span className="shrink-0 text-emerald-200 text-9 tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border border-emerald-300/40" style={{ fontFamily: sans }}>
                         ★ {t('high converter', 'שיעור הזמנות גבוה')}
                       </span>
                     )}
@@ -193,7 +193,7 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
                             {value}
                           </span>
                         </div>
-                        <p className="text-white/35 text-[8px] tracking-wider uppercase mt-1 text-center truncate" style={{ fontFamily: sans }}>
+                        <p className="text-white/35 text-8 tracking-wider uppercase mt-1 text-center truncate" style={{ fontFamily: sans }}>
                           {t(stage.en, stage.he)}
                         </p>
                       </div>

@@ -164,11 +164,11 @@ export function ClosedLoopPanel() {
             <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ color: 'var(--warning)', background: 'rgba(251,191,36,0.1)' }}>
               <Wrench size={15} strokeWidth={1.8} />
             </span>
-            <h3 className="text-white text-[15px]" style={{ fontFamily: serif, fontWeight: 600 }}>
+            <h3 className="text-white text-15" style={{ fontFamily: serif, fontWeight: 600 }}>
               {t('Log an external change', 'רישום שינוי חיצוני')}
             </h3>
           </div>
-          <p className="mb-4 text-white/45 text-[12px]" style={{ fontFamily: sans }}>
+          <p className="mb-4 text-white/45 text-xs" style={{ fontFamily: sans }}>
             {t(
               'For actions the platform can’t see (printed menu, Instagram campaign, new photo shoot).',
               'לפעולות שהמערכת לא רואה (תפריט מודפס, קמפיין אינסטגרם, צילום חדש).'
@@ -197,7 +197,7 @@ export function ClosedLoopPanel() {
               type="button"
               onClick={submitManual}
               disabled={saving}
-              className="group relative inline-flex w-fit shrink-0 items-center justify-center gap-2 self-start overflow-hidden rounded-full px-6 py-3 text-[11px] tracking-[0.25em] uppercase text-black transition-shadow disabled:opacity-50"
+              className="group relative inline-flex w-fit shrink-0 items-center justify-center gap-2 self-start overflow-hidden rounded-full px-6 py-3 text-11 tracking-[0.25em] uppercase text-black transition-shadow disabled:opacity-50"
               style={{
                 fontFamily: sans,
                 fontWeight: 700,
@@ -231,7 +231,7 @@ export function ClosedLoopPanel() {
               {data.timeline.slice(0, 30).map((c) => {
                 const manual = c.source === 'manual';
                 return (
-                  <div key={c.id} className="flex items-center gap-3 px-5 py-3 text-[12px]" style={{ fontFamily: sans }}>
+                  <div key={c.id} className="flex items-center gap-3 px-5 py-3 text-xs" style={{ fontFamily: sans }}>
                     <span
                       className="grid h-6 w-6 shrink-0 place-items-center rounded-full"
                       style={{
@@ -330,7 +330,7 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
         {/* Status badge */}
         <div className="px-5 pt-3">
           <span
-            className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.2em]"
+            className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-10 uppercase tracking-[0.2em]"
             style={{ borderColor: `${st.color}66`, color: st.color, background: `${st.color}14`, fontFamily: sans, fontWeight: 600 }}
           >
             <StatusIcon size={13} strokeWidth={2} /> {st[lang]}
@@ -340,7 +340,7 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
         <div className="flex flex-1 flex-col gap-2.5 p-5 pt-2.5">
           {title && (
             <h4
-              className="text-white text-[17px] leading-tight"
+              className="text-white text-17 leading-tight"
               style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
             >
               {title}
@@ -373,7 +373,7 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
           )}
 
           {/* Metric · window (compact) */}
-          <p className="text-white/50 text-[11px]" style={{ fontFamily: sans }}>
+          <p className="text-white/50 text-11" style={{ fontFamily: sans }}>
             {METRIC[m.metric][lang]} · {m.observationDays}
             {t('d', 'י')}
             {m.stillAccumulating ? t(' · live', ' · נצבר') : ''}

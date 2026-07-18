@@ -56,7 +56,7 @@ export function GlowDivider({ className }: { className?: string }) {
 /** Eyebrow label — tracked uppercase champagne, the section voice. */
 export function SectionLabel({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <p className={`text-[10px] tracking-[0.42em] uppercase ${className ?? ''}`} style={{ fontFamily: sans, color: 'rgba(232,201,135,0.75)' }}>
+    <p className={`text-10 tracking-[0.42em] uppercase ${className ?? ''}`} style={{ fontFamily: sans, color: 'rgba(232,201,135,0.75)' }}>
       {children}
     </p>
   );
@@ -113,13 +113,13 @@ interface PanelHeaderProps {
 export function PanelHeader({ label, href, cta, isHe }: PanelHeaderProps) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <h3 className="text-[10px] tracking-[0.3em] uppercase" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.85)' }}>
+      <h3 className="text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.85)' }}>
         {label}
       </h3>
       {href && cta && (
         <Link
           href={href}
-          className="group/link inline-flex items-center gap-1 text-[10px] tracking-[0.2em] uppercase text-white/40 hover:text-amber-100 transition-colors"
+          className="group/link inline-flex items-center gap-1 text-10 tracking-[0.2em] uppercase text-white/40 hover:text-amber-100 transition-colors"
           style={{ fontFamily: sans }}
         >
           {cta}
@@ -146,7 +146,7 @@ export function CtaPill({ href, children, className, tone = 'champagne' }: CtaPi
     return (
       <Link
         href={href}
-        className={`group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-[12px] tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100 ${className ?? ''}`}
+        className={`group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-xs tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100 ${className ?? ''}`}
         style={{ fontFamily: sans, fontWeight: 600 }}
       >
         {children}
@@ -156,7 +156,7 @@ export function CtaPill({ href, children, className, tone = 'champagne' }: CtaPi
   return (
     <Link
       href={href}
-      className={`group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-[13px] tracking-[0.16em] uppercase text-black transition-shadow ${className ?? ''}`}
+      className={`group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-13 tracking-[0.16em] uppercase text-black transition-shadow ${className ?? ''}`}
       style={{
         fontFamily: sans,
         fontWeight: 700,
@@ -190,8 +190,8 @@ export function EmptyState({ title, hint, icon, className }: EmptyStateProps) {
       <span className="grid place-items-center w-10 h-10 rounded-full border border-white/10 text-amber-200/50">
         {icon ?? <Sparkles size={16} strokeWidth={1.4} />}
       </span>
-      <p className="text-white/55 text-[12.5px]" style={{ fontFamily: sans }}>{title}</p>
-      {hint && <p className="text-white/30 text-[11px] max-w-[26ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
+      <p className="text-white/55 text-xs" style={{ fontFamily: sans }}>{title}</p>
+      {hint && <p className="text-white/30 text-11 max-w-[26ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
     </div>
   );
 }
@@ -220,13 +220,13 @@ export function ErrorState({ title, hint, onRetry, retryLabel = 'Try again', cla
       <span className="grid place-items-center w-10 h-10 rounded-full border border-rose-400/25 text-rose-300/70">
         <AlertTriangle size={16} strokeWidth={1.5} />
       </span>
-      <p className="text-rose-200/80 text-[12.5px]" style={{ fontFamily: sans }}>{title}</p>
-      {hint && <p className="text-white/30 text-[11px] max-w-[28ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
+      <p className="text-rose-200/80 text-xs" style={{ fontFamily: sans }}>{title}</p>
+      {hint && <p className="text-white/30 text-11 max-w-[28ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
       {onRetry && (
         <button
           type="button"
           onClick={onRetry}
-          className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-[11px] text-white/70 transition-colors hover:border-white/30 hover:text-white/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
+          className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-11 text-white/70 transition-colors hover:border-white/30 hover:text-white/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
           style={{ fontFamily: sans }}
         >
           <RotateCw size={12} strokeWidth={2} /> {retryLabel}
@@ -269,7 +269,7 @@ export function StatBlock({ value, label, size = 'default', tone = 'white', clas
       >
         {value}
       </div>
-      <p className="mt-2 text-[11px] tracking-[0.14em] uppercase" style={{ fontFamily: sans, color: 'var(--ink-mid)' }}>
+      <p className="mt-2 text-11 tracking-[0.14em] uppercase" style={{ fontFamily: sans, color: 'var(--ink-mid)' }}>
         {label}
       </p>
     </div>

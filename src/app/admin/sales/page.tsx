@@ -79,16 +79,16 @@ function RevenueTreemap({
                     aria-hidden
                   />
                   <p
-                    className="relative truncate text-[13px] leading-tight text-white/90"
+                    className="relative truncate text-13 leading-tight text-white/90"
                     style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
                   >
                     {d.title}
                   </p>
                   <div className="relative mt-1 flex items-baseline justify-between gap-1.5">
-                    <span className="text-[15px] font-bold leading-none tabular-nums" style={{ color: d.accent, fontFamily: serif }}>
+                    <span className="text-15 font-bold leading-none tabular-nums" style={{ color: d.accent, fontFamily: serif }}>
                       {formatIls(d.revenue)}
                     </span>
-                    <span className="shrink-0 text-[10px] text-white/40 tabular-nums" style={{ fontFamily: sans }}>
+                    <span className="shrink-0 text-10 text-white/40 tabular-nums" style={{ fontFamily: sans }}>
                       {sharePct}%
                     </span>
                   </div>
@@ -244,16 +244,16 @@ export function SalesPanel() {
           {/* CSV import form */}
           <GlassCard static className="lg:col-span-2 p-6 flex flex-col gap-4 h-fit">
             <SectionLabel icon={UploadCloud}>{t('Import CSV', 'ייבוא CSV')}</SectionLabel>
-            <p className="text-white/45 text-[12px] -mt-2" style={{ fontFamily: sans }}>
+            <p className="text-white/45 text-xs -mt-2" style={{ fontFamily: sans }}>
               {t('One row per item:', 'שורה לכל פריט:')}{' '}
               <code className="text-amber-200/80">slug,units,revenue</code>
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <label className="text-white/50 text-[11px] flex flex-col gap-1.5" style={{ fontFamily: sans }}>
+              <label className="text-white/50 text-11 flex flex-col gap-1.5" style={{ fontFamily: sans }}>
                 {t('From', 'מתאריך')}
                 <input className={inputCls} type="date" value={start} onChange={(e) => setStart(e.target.value)} />
               </label>
-              <label className="text-white/50 text-[11px] flex flex-col gap-1.5" style={{ fontFamily: sans }}>
+              <label className="text-white/50 text-11 flex flex-col gap-1.5" style={{ fontFamily: sans }}>
                 {t('To', 'עד תאריך')}
                 <input className={inputCls} type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
               </label>
@@ -266,7 +266,7 @@ export function SalesPanel() {
               className={`relative rounded-2xl border border-dashed transition-colors ${dragging ? 'border-amber-200/60 ring-2 ring-amber-300/70' : 'border-amber-200/25 bg-white/[0.02]'}`}
             >
               <textarea
-                className={`${inputCls} w-full h-44 font-mono text-[12px] resize-none leading-relaxed !border-0 !bg-transparent`}
+                className={`${inputCls} w-full h-44 font-mono text-xs resize-none leading-relaxed !border-0 !bg-transparent`}
                 placeholder={'diner-aperol-spritz,42,2520\ndiner-negroni,8,464'}
                 value={csv}
                 onChange={(e) => setCsv(e.target.value)}
@@ -275,18 +275,18 @@ export function SalesPanel() {
               />
               {dragging && (
                 <div className="pointer-events-none absolute inset-0 grid place-items-center rounded-2xl bg-amber-300/10 backdrop-blur-[1px]">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/50 bg-black/60 px-4 py-2 text-amber-200 text-[11px] tracking-[0.18em] uppercase" style={{ fontFamily: sans }}>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/50 bg-black/60 px-4 py-2 text-amber-200 text-11 tracking-[0.18em] uppercase" style={{ fontFamily: sans }}>
                     <UploadCloud size={14} strokeWidth={2.2} />
                     {t('Drop CSV to load', 'שחררו CSV לטעינה')}
                   </span>
                 </div>
               )}
             </div>
-            <p className="text-white/35 text-[11px] -mt-1 inline-flex items-center gap-1.5" style={{ fontFamily: sans }}>
+            <p className="text-white/35 text-11 -mt-1 inline-flex items-center gap-1.5" style={{ fontFamily: sans }}>
               <UploadCloud size={11} strokeWidth={1.8} className="shrink-0" />
               {t('Drag & drop a .csv / .txt file here, or paste above.', 'גררו ושחררו קובץ ‎.csv / .txt‎ כאן, או הדביקו למעלה.')}
             </p>
-            <div className="flex items-center justify-between gap-2 text-[11px]" style={{ fontFamily: sans }}>
+            <div className="flex items-center justify-between gap-2 text-11" style={{ fontFamily: sans }}>
               <span className="text-white/45">
                 {t(`${parsed.rows.length} valid rows`, `${parsed.rows.length} שורות תקינות`)}
                 {parsed.skipped > 0 && (
@@ -306,7 +306,7 @@ export function SalesPanel() {
               type="button"
               onClick={submit}
               disabled={saving}
-              className="mt-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-amber-300 text-black text-[11px] tracking-[0.25em] uppercase font-semibold transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
+              className="mt-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-amber-300 text-black text-11 tracking-[0.25em] uppercase font-semibold transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
               style={{ fontFamily: sans }}
             >
               <UploadCloud size={14} strokeWidth={2.2} />
@@ -368,15 +368,15 @@ export function SalesPanel() {
                         <GlassImage src={c.heroImage} accent={accent} className="w-full h-32 mb-3 transition-transform duration-300 group-hover:scale-105" />
                       ) : (
                         <div className="w-full h-32 mb-3 rounded-xl border border-dashed border-white/10 grid place-items-center">
-                          <span className="text-white/25 text-[10px] tracking-wide" style={{ fontFamily: sans }}>{t('no image', 'אין תמונה')}</span>
+                          <span className="text-white/25 text-10 tracking-wide" style={{ fontFamily: sans }}>{t('no image', 'אין תמונה')}</span>
                         </div>
                       )}
-                      <p className="text-white/90 text-[15px] text-center leading-tight" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
+                      <p className="text-white/90 text-15 text-center leading-tight" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
                         {title}
                       </p>
                       <div className="mt-3 flex items-baseline justify-between gap-2" style={{ fontFamily: sans }}>
-                        <span className="text-white/45 text-[11px]">{s.units} {t('units', 'יח׳')}</span>
-                        <span className="text-[17px] tabular-nums" style={{ color: accent, fontFamily: serif, fontWeight: 700 }}>{ils(s.revenue)}</span>
+                        <span className="text-white/45 text-11">{s.units} {t('units', 'יח׳')}</span>
+                        <span className="text-17 tabular-nums" style={{ color: accent, fontFamily: serif, fontWeight: 700 }}>{ils(s.revenue)}</span>
                       </div>
                       <div className="mt-2 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                         <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct}%`, background: accent, opacity: 0.85 }} />

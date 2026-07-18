@@ -274,7 +274,7 @@ function ActionRow({ action, rank, lang, isHe, headFont, celebrating, onDone }: 
 
             <div className="flex flex-wrap items-center gap-3">
               <span
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-2 text-[13px] text-white/75"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-2 text-13 text-white/75"
                 style={{ fontFamily: sans }}
               >
                 <Clock size={14} strokeWidth={1.9} />
@@ -292,7 +292,7 @@ function ActionRow({ action, rank, lang, isHe, headFont, celebrating, onDone }: 
           <div className="flex shrink-0 flex-col gap-3 md:w-48">
             <Link
               href={action.executeHref}
-              className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3.5 text-[14px] font-medium text-black transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3.5 text-sm font-medium text-black transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               style={{ background: accent, fontFamily: sans }}
             >
               {action.executeLabel[lang]}
@@ -301,7 +301,7 @@ function ActionRow({ action, rank, lang, isHe, headFont, celebrating, onDone }: 
             <button
               type="button"
               onClick={onDone}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-[14px] text-white/70 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-5 py-3.5 text-sm text-white/70 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
               style={{ fontFamily: sans }}
             >
               <Check size={16} strokeWidth={2.2} style={{ color: 'var(--success)' }} />
@@ -338,7 +338,7 @@ function DoneTodaySection({ actions, lang, isHe, headFont, celebratingId, onUndo
         aria-expanded={open}
         className="flex w-full items-center justify-between gap-3 rounded-3xl px-5 py-4 text-start transition-colors hover:bg-white/[0.02] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/20"
       >
-        <span className="inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.18em] text-white/70" style={{ fontFamily: sans }}>
+        <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/70" style={{ fontFamily: sans }}>
           <CheckCircle2 size={14} strokeWidth={2} className="text-emerald-300/70" />
           {isHe ? `בוצעו היום (${actions.length})` : `Done today (${actions.length})`}
         </span>
@@ -355,7 +355,7 @@ function DoneTodaySection({ actions, lang, isHe, headFont, celebratingId, onUndo
         <div className="relative overflow-hidden px-5 pb-4">
           <Confetti count={22} />
           <p
-            className="relative inline-flex items-center gap-2 text-[13px] text-emerald-200/90"
+            className="relative inline-flex items-center gap-2 text-13 text-emerald-200/90"
             style={{ fontFamily: sans }}
             role="status"
           >
@@ -382,7 +382,7 @@ function DoneTodaySection({ actions, lang, isHe, headFont, celebratingId, onUndo
                   ) : (
                     <span className="h-10 w-10 shrink-0 rounded-lg border border-white/10 bg-white/[0.02]" />
                   )}
-                  <span className="truncate text-[14px] text-white/80" style={{ fontFamily: headFont }}>
+                  <span className="truncate text-sm text-white/80" style={{ fontFamily: headFont }}>
                     {title}
                   </span>
                 </div>
@@ -390,7 +390,7 @@ function DoneTodaySection({ actions, lang, isHe, headFont, celebratingId, onUndo
                   type="button"
                   onClick={() => onUndo(a.id)}
                   aria-label={isHe ? 'החזר' : 'Undo'}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] text-white/65 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-11 text-white/65 transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
                   style={{ fontFamily: sans }}
                 >
                   <RotateCcw size={12} strokeWidth={2} />
@@ -417,7 +417,7 @@ function AllDoneState({ isHe, headFont }: { isHe: boolean; headFont: string }) {
       >
         {isHe ? 'זהו, האולם מסודר להיום. עבודה יפה.' : "That's the floor handled for today. Nicely done."}
       </h3>
-      <p className="mx-auto mt-3 max-w-md text-[14px] text-white/50" style={{ fontFamily: sans }}>
+      <p className="mx-auto mt-3 max-w-md text-sm text-white/50" style={{ fontFamily: sans }}>
         {isHe ? 'חזרו מחר לפעולות חדשות, או פתחו את הפעולות שבוצעו למטה.' : 'Come back tomorrow for fresh actions, or reopen what you did below.'}
       </p>
     </section>

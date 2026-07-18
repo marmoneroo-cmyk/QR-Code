@@ -115,7 +115,7 @@ export default function KioskPage() {
 
       <Reveal
         delay={0.3}
-        className="absolute bottom-6 right-6 z-50 text-amber-200/50 text-[10px] tracking-[0.4em] uppercase select-none"
+        className="absolute bottom-6 right-6 z-50 text-amber-200/50 text-10 tracking-[0.4em] uppercase select-none"
       >
         <span style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
           {String(index + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
@@ -128,7 +128,7 @@ export default function KioskPage() {
 
       <Reveal
         delay={0.4}
-        className="absolute bottom-6 left-6 z-50 text-amber-200/40 text-[9px] tracking-[0.35em] uppercase select-none"
+        className="absolute bottom-6 left-6 z-50 text-amber-200/40 text-9 tracking-[0.35em] uppercase select-none"
       >
         <span style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
           ESC to exit · ← → to switch · space to pause · S to {scheduleEnabled ? 'show all' : 'apply schedule'}

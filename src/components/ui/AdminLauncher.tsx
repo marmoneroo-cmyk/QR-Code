@@ -51,11 +51,11 @@ export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) 
       {groups.map((g) => (
         <section key={g.en}>
           <div className="flex items-center gap-3 mb-4">
-            <p className="text-[10px] tracking-[0.4em] uppercase" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.6)' }}>
+            <p className="text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.6)' }}>
               {isHe ? g.he : g.en}
             </p>
             <span className="h-px flex-1" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.08), transparent)' }} />
-            <span className="text-[9px] tabular-nums" style={{ fontFamily: sans, color: 'rgba(255,255,255,0.25)' }}>
+            <span className="text-9 tabular-nums" style={{ fontFamily: sans, color: 'rgba(255,255,255,0.25)' }}>
               {g.items.length}
             </span>
           </div>
@@ -95,10 +95,10 @@ export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) 
                       <Icon size={19} strokeWidth={1.5} />
                     </span>
                     <span className="relative min-w-0 flex-1">
-                      <span className="block text-white/90 text-[13px] tracking-wide" style={{ fontFamily: sans, fontWeight: 500 }}>
+                      <span className="block text-white/90 text-13 tracking-wide" style={{ fontFamily: sans, fontWeight: 500 }}>
                         {isHe ? it.he : it.en}
                       </span>
-                      <span className="block text-white/40 text-[11px] leading-snug mt-0.5" style={{ fontFamily: sans }}>
+                      <span className="block text-white/40 text-11 leading-snug mt-0.5" style={{ fontFamily: sans }}>
                         {isHe ? it.descHe : it.descEn}
                       </span>
                     </span>
@@ -125,7 +125,7 @@ export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) 
           type="button"
           onClick={toggleAdvanced}
           aria-pressed={showAdvanced}
-          className="inline-flex items-center gap-2.5 text-[10px] tracking-[0.24em] uppercase text-white/40 hover:text-amber-100 transition-colors"
+          className="inline-flex items-center gap-2.5 text-10 tracking-[0.24em] uppercase text-white/40 hover:text-amber-100 transition-colors"
           style={{ fontFamily: sans }}
         >
           <span
