@@ -14,6 +14,19 @@ const MAX_EVENTS = 50;
 const MAX_BODY_BYTES = 64_000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * Tenant slugs are lowercase alphanumeric + hyphen, 1–64 chars. This PUBLIC, anonymous
+ * endpoint takes its target tenant from the request body, so an attacker-shaped slug must be
+ * rejected BEFORE it reaches the DB. Two-layer defense: (1) this static format allowlist, then
+ * (2) resolveRestaurantId() below, which drops slugs that don't resolve to a real tenant.
+ *
+ * LONG-TERM FIX: the proper defense is to stop trusting a body-supplied slug at all and derive
+ * the tenant server-side — from a signed QR/menu token or a session — so an anonymous client
+ * cannot name which tenant it writes under. This allowlist + the resolve check are the
+ * infra-free interim hardening until that lands.
+ */
+const SLUG_PATTERN = /^[a-z0-9-]{1,64}$/;
+
 // Cache restaurant slug → uuid (resolved once per server instance).
 const restaurantIdCache = new Map<string, string>();
 
@@ -109,6 +122,12 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const slug = typeof batch?.restaurantSlug === 'string' ? batch.restaurantSlug : 'diner';
+  // Reject a malformed tenant slug up front (see SLUG_PATTERN). A legit menu/QR client always
+  // sends a well-formed slug, so valid tracking is unaffected; only attacker-shaped strings are
+  // refused before they can be resolved or written under.
+  if (!SLUG_PATTERN.test(slug)) {
+    return NextResponse.json({ success: false, error: 'invalid slug' }, { status: 400 });
+  }
   const events = Array.isArray(batch?.events) ? batch.events.slice(0, MAX_EVENTS) : [];
   if (events.length === 0) {
     return NextResponse.json({ success: true, inserted: 0 });

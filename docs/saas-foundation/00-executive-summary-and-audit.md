@@ -3,6 +3,19 @@
 **App:** `cocktail-demo` · **Audience:** Founder + engineers (read this first) · **Status:** DOCUMENTATION ONLY — no application code was changed.
 **Date:** 2026-06-09 · **Verified against:** `supabase/schema.sql`, `src/lib/supabase/{server,restaurant}.ts`, `src/lib/promotions/repository.ts`, `src/app/api/track/route.ts`, and the recon bundle. Every current-state claim cites a file (path + approx line). Anything absent is marked **NOT PRESENT**.
 
+> **Status update (as of this revision).** This audit was written *before* the auth layer existed. Auth has since **landed**, so several headline "no auth" claims below are **stale and are corrected inline**. What is now true:
+> - **Authentication exists.** `requireSession()` (`src/lib/auth/guard.ts`) is the single API auth boundary; every sensitive admin/tenant `/api/*` route calls it and derives the tenant from `session.restaurantSlug` — **never** from `?restaurant=` or the request body.
+> - **Page middleware exists.** `src/proxy.ts` (Next middleware) refreshes the session and gates `/admin/*` behind login when `AUTH_ENFORCED=true`.
+> - **Revenue/analytics reads are gated.** `sales`, `events/raw`, `sessions`, and `analytics/*` GET routes now require a session; they no longer accept `?restaurant=` as an authorization input.
+>
+> **What still REMAINS (accurately called out below):**
+> - (a) The runtime **still uses the service-role client** (`createAdminSupabase()`) for tenant CRUD, so **RLS is NOT yet the live boundary** — the live boundary is app-code (`requireSession()` + hand-written `.eq('restaurant_id', …)`), not `auth.uid()` membership policies. `auth.uid()` is still null in Postgres.
+> - (b) `AUTH_ENFORCED` gates the page middleware and **may be off by default in some envs** (`.env.example` ships `AUTH_ENFORCED=false`) — verify per-environment.
+> - (c) Rotation of the previously-exposed Supabase secrets may still be **pending — verify**.
+> - (d) No `super_admin`/platform role, no billing/`subscriptions`/`plans`, and no security `audit_logs` yet.
+>
+> Net: **Gate 0 (auth exists) is effectively met; Gate 1 (RLS as the live boundary) is not.** Read the sections below with these corrections applied.
+
 This is the top-level synthesis. The detail lives in five sibling deliverables — read them for the runnable SQL, route-by-route tables, and step-by-step designs:
 
 | Doc | Title | Owns |
@@ -17,13 +30,15 @@ This is the top-level synthesis. The detail lives in five sibling deliverables �
 
 ## 1. Executive Summary / Verdict
 
-**The database is already a well-architected multi-tenant system; the running application enforces none of it.** Every business table carries `restaurant_id NOT NULL` and RLS is enabled on all 10 tables with correct membership-based policies (`supabase/schema.sql:211-335`). That schema is genuinely good — and genuinely **dormant**, because every server data path goes through `createAdminSupabase()`, which uses `SUPABASE_SERVICE_ROLE_KEY` with empty cookies (`src/lib/supabase/server.ts:35-51`, verified) and **bypasses RLS entirely**. There is **no application auth at all**: NOT PRESENT — no `middleware.ts`, no `auth/` dir, no login (recon `auth-ui-session`). So `auth.uid()` is always null, the membership policies never run, and the only tenant boundary at runtime is a hardcoded `TENANT_SLUG = 'diner'` default (`src/lib/analytics/queries.ts:31`) plus hand-written `.eq('restaurant_id', …)` filters — neither of which is an authorization control. The consequences are concrete and exploitable today with no credentials: `/admin/*` is fully open (`src/app/admin/page.tsx:1`, no gate layout), `updatePromotion`/`deletePromotion` scope by raw `id` with no tenant check so any guessed UUID is cross-tenant editable/deletable (`src/lib/promotions/repository.ts:107-121`, verified), and `/api/track`, `/api/promotions`, `/api/sales`, `/api/experience`, `/api/changes` all take the target tenant from the request body and write under service-role. Beyond isolation, the SaaS scaffolding does not exist yet: **NOT PRESENT** — no `super_admin` role (`role` ∈ `owner|manager|staff`, `schema.sql:35`), no billing/`subscriptions`/`plans`, no security `audit_logs` (`changes` is a per-tenant *content* log), no `invitations`, no soft-delete (hard `on delete cascade` makes a tenant delete irreversible). **Verdict: the foundation is half-built — a strong schema with no runtime enforcement and no platform layer.** Authentication is the single blocking prerequisite; until it lands, every other feature is built on sand. **Add auth before onboarding a second tenant.**
+**The database is already a well-architected multi-tenant system; the running application enforces none of it.** Every business table carries `restaurant_id NOT NULL` and RLS is enabled on all 10 tables with correct membership-based policies (`supabase/schema.sql:211-335`). That schema is genuinely good — and genuinely **dormant**, because every server data path goes through `createAdminSupabase()`, which uses `SUPABASE_SERVICE_ROLE_KEY` with empty cookies (`src/lib/supabase/server.ts:35-51`, verified) and **bypasses RLS entirely**. **[CORRECTED — see Status update above.]** Application auth **now exists**: `requireSession()` (`src/lib/auth/guard.ts`) gates every sensitive admin/tenant `/api/*` route and derives the tenant from `session.restaurantSlug`, and `src/proxy.ts` (Next middleware) gates `/admin/*` behind login when `AUTH_ENFORCED=true`. **But** because the runtime still calls `createAdminSupabase()` (service-role) for tenant CRUD, `auth.uid()` is still null in Postgres, the membership policies still never run, and the live tenant boundary is app-code — `requireSession()` plus hand-written `.eq('restaurant_id', …)` filters — **not RLS**. (Historically, before auth, the only boundary was a hardcoded `TENANT_SLUG = 'diner'` default at `src/lib/analytics/queries.ts:31`.) What REMAINS exploitable is narrower than originally written: the `updatePromotion`/`deletePromotion` mutators still scope by raw `id` with no `restaurant_id` check (`src/lib/promotions/repository.ts:107-121`, verified) so a member of tenant A could still reach tenant B's promotion by UUID — **verify whether this has since been fixed** — but the write routes (`/api/promotions`, `/api/sales`, `/api/experience`, `/api/changes`) now require a session and take the tenant from it, not the body. `/api/track` remains public **by design** (diners are anonymous) and takes its slug from the body — hardened separately (format allowlist + slug-must-resolve). Beyond isolation, the SaaS scaffolding does not exist yet: **NOT PRESENT** — no `super_admin` role (`role` ∈ `owner|manager|staff`, `schema.sql:35`), no billing/`subscriptions`/`plans`, no security `audit_logs` (`changes` is a per-tenant *content* log), no `invitations`, no soft-delete (hard `on delete cascade` makes a tenant delete irreversible). **Verdict: the foundation is now partly built — a strong schema, auth landed, but RLS is still not the live runtime boundary and there is no platform layer.** Authentication (the original single blocking prerequisite) now exists; the next blocking step is making **RLS the live boundary** by moving tenant CRUD off the service-role client (Gate 1). **Close the remaining service-role/id-scope holes before onboarding a second tenant.**
 
 ---
 
 ## 2. Architecture Review (current vs target)
 
 **Current — schema is multi-tenant, runtime is single-tenant-by-constant and unguarded:**
+
+> **Note (corrected):** the diagram below depicts the *pre-auth* runtime and is kept for historical context. Today, `/admin/*` is gated by `src/proxy.ts` when `AUTH_ENFORCED=true`, and the `/api/*` write/read routes call `requireSession()` and derive the tenant from the session — not the body/URL. The one part still accurate: tenant CRUD still runs under the **service-role** client, so RLS is still bypassed (the "SERVICE-ROLE ► BYPASSRLS" box below remains true).
 
 ```
    anonymous internet user (no login required)
@@ -85,8 +100,8 @@ The load-bearing change is **"resolve tenant + authorize per request from the se
 | RLS policies | **Present & correct, but dormant.** Enabled on all 10 tables; membership-based (`exists(... restaurant_members ... user_id = auth.uid())`) | `schema.sql:211-335` |
 | Service-role client | **Present — bypasses RLS.** `createAdminSupabase()` uses `SUPABASE_SERVICE_ROLE_KEY`, empty cookies; used by every route/repository | `server.ts:35-51` (verified) |
 | Anon/RLS client | **Present but dead code.** `createServerSupabase()` never imported by any route or lib module | `server.ts:5-33` |
-| App authentication | **NOT PRESENT** — no `middleware.ts`, no `auth/` dir, no login/signin/signup, no `next-auth`, no `getSession`/`getUser` | recon `auth-ui-session` §1 |
-| `/admin/*` gating | **NOT PRESENT** — no `admin/layout.tsx`; `admin/page.tsx:1` is `'use client'`, renders with no check; linked from public menu | `src/app/admin/page.tsx:1`; `SettingsToolbar.tsx:~209` |
+| App authentication | **PRESENT (added since audit).** `requireSession()` is the single API auth boundary; `getSessionContext()` derives tenant from the session | `src/lib/auth/guard.ts`; `src/lib/auth/session.ts` |
+| `/admin/*` gating | **PRESENT when `AUTH_ENFORCED=true`.** `src/proxy.ts` (Next middleware) gates `/admin/*` behind login; enforcement is **off by default** (`AUTH_ENFORCED !== 'true'`) — verify per env | `src/proxy.ts:46`; `.env.example:24` |
 | Role enforcement | **NOT PRESENT** — no code reads `restaurant_members.role`; `role` hits in `admin/**` are ARIA only | recon `auth-ui-session` §2; `schema.sql:35` |
 | Tenant resolution | Hardcoded `TENANT_SLUG='diner'` default; slug→UUID via service-role `getRestaurantId()` (process-cached) | `analytics/queries.ts:31`; `restaurant.ts:7-15` |
 | Cross-tenant write holes | `updatePromotion`/`deletePromotion` filter `.eq('id', id)` only — no `restaurant_id` | `promotions/repository.ts:107-121` (verified) |
@@ -104,15 +119,15 @@ The load-bearing change is **"resolve tenant + authorize per request from the se
 
 ## 4. Security Audit Summary (top findings, ranked)
 
-Severity uses the project scale (Critical = cross-tenant compromise / data loss). Full exploit steps and remediation detail in [`06-pentest-session-analytics.md`](./06-pentest-session-analytics.md). All findings are exploitable today **with no credentials, because none exist.**
+Severity uses the project scale (Critical = cross-tenant compromise / data loss). Full exploit steps and remediation detail in [`06-pentest-session-analytics.md`](./06-pentest-session-analytics.md). **[CORRECTED]** This table was written pre-auth, when every finding was exploitable with no credentials. With `requireSession()` + `src/proxy.ts` now live (and `AUTH_ENFORCED=true`), findings that depended on "no auth exists" (#2, #3, #5) are **mitigated at the route layer** — each row is annotated below. The isolation findings that live *below* the auth layer (#1 id-scope, #4 RLS-not-live) are **not** fixed by auth and remain open.
 
 | # | Finding | Severity | One-line remediation | Detail |
 |---|---|---|---|---|
 | 1 | Cross-tenant promotion write/delete via raw `id` — `updatePromotion`/`deletePromotion` have no `restaurant_id` scope (`promotions/repository.ts:107-121`) | **Critical** | Filter `.eq('id',id).eq('restaurant_id', sessionRestId)`; better, run under the RLS client | [`06` V1](./06-pentest-session-analytics.md) |
-| 2 | Unauthenticated tenant-targeted writes — `promotions`/`sales`/`experience`/`changes` POST/PUT take tenant from request body, write under service-role | **Critical** | Derive tenant from session JWT; reject/ignore body `restaurant`; Zod-validate | [`06` V2](./06-pentest-session-analytics.md) |
-| 3 | Open `/admin/*` + service-role = full cross-tenant console; linked from the public menu | **Critical** | Add `middleware.ts` + `admin/layout.tsx` gate requiring a valid session | [`06` V3](./06-pentest-session-analytics.md) |
-| 4 | RLS never enforced at runtime — service-role everywhere, `auth.uid()` null | **Critical** | Route tenant CRUD through `createServerSupabase()` (anon, cookie-bound) | [`06` V4](./06-pentest-session-analytics.md), [`02` §4](./02-tenant-isolation-and-rls.md) |
-| 5 | Unauthenticated revenue/PII read exfiltration — `sales` GET (`?restaurant=`), `events/raw`, `sessions`, `overview` | **High** | Gate all read routes behind session; never accept `?restaurant=` | [`06` V5](./06-pentest-session-analytics.md) |
+| 2 | ~~Unauthenticated tenant-targeted writes~~ — **MITIGATED:** `promotions`/`sales`/`experience`/`changes` POST/PUT now call `requireSession()` and take tenant from `session.restaurantSlug`, not the body | ~~Critical~~ → resolved at route layer | Done via `requireSession()` (`src/lib/auth/guard.ts`) | [`06` V2](./06-pentest-session-analytics.md) |
+| 3 | ~~Open `/admin/*`~~ — **MITIGATED when `AUTH_ENFORCED=true`:** `src/proxy.ts` gates `/admin/*` behind login. **Verify** the flag is on in each env (off by default) | ~~Critical~~ → resolved when enforced | `src/proxy.ts` middleware gate | [`06` V3](./06-pentest-session-analytics.md) |
+| 4 | RLS never enforced at runtime — service-role everywhere, `auth.uid()` null | **Critical (OPEN)** | Route tenant CRUD through `createServerSupabase()` (anon, cookie-bound) | [`06` V4](./06-pentest-session-analytics.md), [`02` §4](./02-tenant-isolation-and-rls.md) |
+| 5 | ~~Unauthenticated revenue/PII read exfiltration~~ — **MITIGATED:** `sales` GET, `events/raw`, `sessions`, `overview` now require a session and no longer accept `?restaurant=` | ~~High~~ → resolved at route layer | Done — read routes gated behind `requireSession()` | [`06` V5](./06-pentest-session-analytics.md) |
 | 6 | No role enforcement — `restaurant_members.role` never read; every member would be all-powerful once auth lands | **High** | Enforce owner>manager>staff matrix in RLS `WITH CHECK` + handlers | [`06` V6](./06-pentest-session-analytics.md), [`03` §4](./03-auth-roles-superadmin.md) |
 | 7 | SSRF via `scrape-restaurant` — user `url` into server fetch, no allowlist/private-IP block | **High** | `https`-only allowlist; block private/link-local/loopback; require auth | [`06` V7](./06-pentest-session-analytics.md) |
 | 8 | Analytics pollution via `/api/track` — body slug, no auth, no rate limit, unknown tenant silently 200s | **Medium** | Bind tenant to a signed QR/menu token; per-IP/session rate limit; alert on unknown slug | [`06` V8](./06-pentest-session-analytics.md) |
@@ -120,7 +135,7 @@ Severity uses the project scale (Critical = cross-tenant compromise / data loss)
 | 10 | Tenant-existence enumeration via timing/silent-accept on `/api/track` | **Low** | Uniform constant-time responses; rate-limit | [`06` V10](./06-pentest-session-analytics.md) |
 | 11 | Storage bucket cross-tenant asset enumeration (latent — bucket public-read, currently unused) | **Low** | Make private; signed URLs; randomized, tenant-namespaced keys | [`06` V11](./06-pentest-session-analytics.md) |
 
-**Single root cause for #1–#5:** service-role bypass (`server.ts:35-51`) + no auth layer. Fix those two and most of the table collapses.
+**Single root cause for #1–#5 was:** service-role bypass (`server.ts:35-51`) + no auth layer. The auth layer now exists, so #2/#3/#5 have collapsed at the route layer; what remains is the **service-role bypass** (#4) — until tenant CRUD moves off `createAdminSupabase()`, RLS stays dormant and the app-code `.eq('restaurant_id')` filter (#1) is the only thing standing between tenants.
 
 ---
 
