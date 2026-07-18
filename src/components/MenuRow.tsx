@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { formatPrice, getAccent, getHoverVideo, type CocktailConfig, type Currency, type Lang } from '@/data/cocktail';
 import { resolveDinerBadges, resolveDinerPrice } from '@/data/experience';
 import { MenuBadges } from './MenuBadges';
+import { SmartImage } from './ui/SmartImage';
 import { ImpressionTracker } from './ImpressionTracker';
 import type { Promotion } from '@/lib/promotions/types';
 import type { ExperienceConfig } from '@/lib/experience/types';
@@ -211,16 +212,14 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
           <div className="absolute inset-0 flex flex-col">
             <div className="relative flex-1 min-h-0">
               <span aria-hidden className="absolute inset-x-6 bottom-3 h-12 rounded-full blur-2xl" style={{ background: `radial-gradient(ellipse at center, ${accent}40, transparent 70%)` }} />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <SmartImage
                 src={cocktail.heroImage}
                 alt={cocktail.title[lang]}
-                className={`absolute inset-0 h-full w-full object-contain drop-shadow-[0_22px_38px_rgba(0,0,0,0.75)] transition-transform duration-500 group-hover:scale-[1.05] ${
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className={`object-contain drop-shadow-[0_22px_38px_rgba(0,0,0,0.75)] transition-transform duration-500 group-hover:scale-[1.05] ${
                   featured ? 'px-5 pt-7 pb-1 md:px-10 md:pt-12' : 'px-3 pt-5 pb-1 md:px-5 md:pt-7'
                 }`}
                 style={{ opacity: hoverVideo && playing ? 0 : 1 }}
-                loading="lazy"
-                decoding="async"
               />
               {hoverVideo && (
                 // eslint-disable-next-line jsx-a11y/media-has-caption

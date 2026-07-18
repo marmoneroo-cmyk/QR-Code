@@ -14,6 +14,11 @@ const baseSecurityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  images: {
+    // Serve the built-in /public menu art as AVIF/WebP with a responsive srcset.
+    // Operator uploads are inline data:/blob: URLs and bypass this via SmartImage.
+    formats: ["image/avif", "image/webp"],
+  },
   async headers() {
     return [
       { source: "/:path*", headers: baseSecurityHeaders },
