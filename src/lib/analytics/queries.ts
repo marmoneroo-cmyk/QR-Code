@@ -404,7 +404,10 @@ export async function getIntegrityReport(restaurantSlug: string = TENANT_SLUG): 
   }
 }
 
-function classify(demand: number, margin: number, medDemand: number, medMargin: number): MenuClass {
+// Exported only so the pure quadrant logic can be unit-tested directly (see
+// queries.test.ts). Behavior is unchanged — this is the classic menu-engineering
+// Star/Plowhorse/Puzzle/Dog assignment around the demand & margin medians.
+export function classify(demand: number, margin: number, medDemand: number, medMargin: number): MenuClass {
   // Require real demand to be "popular" — avoids the all-zero-median collapse
   // where a drink nobody orders would read as a Star.
   const popular = demand >= Math.max(1, medDemand);
