@@ -84,8 +84,6 @@ export default function Home() {
   const { promotions, experience } = useMenuConfig('diner');
 
   const isHe = lang === 'he';
-  const titleFont = isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
-  const sans = isHe ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
 
   // Built-in MENU wins. Hide any draft that duplicates a built-in by slug OR by
   // name (ignoring a trailing "(200 גרם)"-style suffix) — so promoting an item to
@@ -224,14 +222,14 @@ export default function Home() {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={restaurantLogo} alt={restaurantName} className="mb-5 max-h-16 w-auto object-contain" />
           ) : (
-            <p className="mb-4 text-amber-200/70 text-11 tracking-[0.55em] uppercase" style={{ fontFamily: sans }}>
+            <p className="mb-4 text-amber-200/70 text-11 tracking-[0.55em] uppercase font-sans">
               {isHe ? 'תפריט' : 'Menu'}
             </p>
           )}
 
           <h1
-            className="text-white leading-[1.04] text-5xl md:text-7xl"
-            style={{ fontFamily: titleFont, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+            className="text-white leading-[1.04] text-5xl md:text-7xl font-serif"
+            style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
           >
             <span
               style={{
@@ -245,7 +243,7 @@ export default function Home() {
             </span>
           </h1>
 
-          <p className="mt-4 text-white/55 text-sm md:text-base" style={{ fontFamily: sans, letterSpacing: '0.04em' }}>
+          <p className="mt-4 text-white/55 text-sm md:text-base font-sans" style={{ letterSpacing: '0.04em' }}>
             {isHe ? `${orderedCocktails.length} מנות ומשקאות` : `${orderedCocktails.length} dishes & drinks`}
           </p>
 
@@ -266,8 +264,7 @@ export default function Home() {
               placeholder={isHe ? 'חיפוש בתפריט…' : 'Search the menu…'}
               aria-label={isHe ? 'חיפוש בתפריט' : 'Search the menu'}
               dir={isHe ? 'rtl' : 'ltr'}
-              className="glass-chrome w-full rounded-full py-3 ps-11 pe-5 text-start text-white placeholder:text-white/60 outline-none backdrop-blur-xl transition-colors duration-300 focus:border-amber-200/55"
-              style={{ fontFamily: sans, fontSize: '15px' }}
+              className="glass-chrome w-full rounded-full py-3 ps-11 pe-5 text-start text-15 text-white placeholder:text-white/60 outline-none backdrop-blur-xl transition-colors duration-300 focus:border-amber-200/55 font-sans"
             />
           </div>
         </motion.div>

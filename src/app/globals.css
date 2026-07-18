@@ -21,6 +21,24 @@
 }
 
 /*
+ * Font families resolve per UI language so the `font-sans` / `font-serif` utilities can
+ * replace ~471 hand-written inline fontFamily styles. DirectionSync keeps <html lang> in
+ * sync, so the switch is global and robust — no per-element JS. These override Tailwind's
+ * default --font-sans/--font-serif in plain :root (not @theme) so they're always emitted,
+ * never tree-shaken. English → Inter / Playfair; Hebrew → Heebo / Frank Ruhl.
+ */
+:root {
+  --app-sans: var(--font-inter, ui-sans-serif, system-ui, sans-serif);
+  --app-serif: var(--font-playfair, Georgia, 'Times New Roman', serif);
+  --font-sans: var(--app-sans);
+  --font-serif: var(--app-serif);
+}
+:root:lang(he) {
+  --app-sans: var(--font-heebo, ui-sans-serif, system-ui, sans-serif);
+  --app-serif: var(--font-frank-ruhl, Georgia, serif);
+}
+
+/*
  * NOTE: Do NOT add an unlayered "* { margin:0; padding:0 }" reset here.
  * Tailwind v4 ships Preflight inside "@layer base", which already resets
  * margin, padding and box-sizing. An unlayered reset outranks every
