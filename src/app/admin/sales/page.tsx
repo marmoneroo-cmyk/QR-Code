@@ -10,7 +10,8 @@ import { motion } from 'framer-motion';
 import { useLang } from '@/lib/useLang';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { formatILS } from '@/lib/format';
-import type { SaleInput, SalesByItem } from '@/lib/sales/repository';
+import type { SalesByItem } from '@/lib/sales/repository';
+import { parseCsv } from '@/lib/sales/parseCsv';
 import { useApiData } from '@/lib/data/useApiData';
 
 const sans = 'var(--font-inter, sans-serif)';
@@ -18,17 +19,6 @@ const serif = 'var(--font-playfair, serif)';
 const inputCls = 'bg-black/40 border border-white/12 rounded-xl px-3.5 py-2.5 text-white text-sm outline-none focus:border-amber-200/40 transition-colors';
 const ils = formatILS;
 
-function parseCsv(text: string): SaleInput[] {
-  return text
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter((l) => l && !/^slug/i.test(l))
-    .map((l) => {
-      const [slug, units, revenue] = l.split(/[,\t]/).map((s) => s.trim());
-      return { slug, units: Number(units) || 0, revenue: Number(revenue) || 0 };
-    })
-    .filter((r) => r.slug);
-}
 
 /** Tiles laid into wrapping rows whose widths are ∝ revenue. Each row is packed
  *  to ~100% width, so a tile's AREA (width × fixed row height) tracks its share
@@ -176,7 +166,7 @@ export function SalesPanel() {
 
   const knownSlugs = useMemo(() => new Set(MENU.map((c) => c.slug)), []);
   const parsed = useMemo(() => parseCsv(csv), [csv]);
-  const unknown = parsed.filter((r) => !knownSlugs.has(r.slug)).map((r) => r.slug);
+  const unknown = parsed.rows.filter((r) => !knownSlugs.has(r.slug)).map((r) => r.slug);
 
   const load = reload;
 
@@ -185,7 +175,7 @@ export function SalesPanel() {
       setMsg(isHe ? 'בחרו טווח תאריכים' : 'Pick a date range');
       return;
     }
-    if (parsed.length === 0) {
+    if (parsed.rows.length === 0) {
       setMsg(isHe ? 'אין שורות לייבוא' : 'No rows to import');
       return;
     }
@@ -195,7 +185,7 @@ export function SalesPanel() {
       const res = await fetch('/api/sales', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ periodStart: start, periodEnd: end, rows: parsed }),
+        body: JSON.stringify({ periodStart: start, periodEnd: end, rows: parsed.rows }),
       });
       const json: { success: boolean; data?: { imported: number }; error?: string } = await res.json();
       if (json.success) {
@@ -297,7 +287,14 @@ export function SalesPanel() {
               {t('Drag & drop a .csv / .txt file here, or paste above.', 'גררו ושחררו קובץ ‎.csv / .txt‎ כאן, או הדביקו למעלה.')}
             </p>
             <div className="flex items-center justify-between gap-2 text-[11px]" style={{ fontFamily: sans }}>
-              <span className="text-white/45">{t(`${parsed.length} valid rows`, `${parsed.length} שורות תקינות`)}</span>
+              <span className="text-white/45">
+                {t(`${parsed.rows.length} valid rows`, `${parsed.rows.length} שורות תקינות`)}
+                {parsed.skipped > 0 && (
+                  <span className="text-amber-300/80">
+                    {t(` · ${parsed.skipped} skipped`, ` · ${parsed.skipped} דולגו`)}
+                  </span>
+                )}
+              </span>
               {unknown.length > 0 && (
                 <span className="inline-flex items-center gap-1 text-rose-300/90 text-end">
                   <AlertTriangle size={12} strokeWidth={2} className="shrink-0" />
