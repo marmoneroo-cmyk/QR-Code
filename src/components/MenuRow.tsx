@@ -69,6 +69,11 @@ function gridMaxWidthPx(count: number): number | undefined {
 export function MenuRow({ section, lang, currency, promotions, experience, index }: MenuRowProps) {
   const isHe = lang === 'he';
   const reduce = useReducedMotion();
+  // One shared "now" for the whole row: time-based badges/prices resolve AFTER mount
+  // (SSR-safe, null until then). Computed once here instead of once per card, so a
+  // section of N cards no longer triggers N independent mount re-renders.
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => setNow(new Date()), []);
   return (
     <motion.section
       className="w-full"
@@ -116,6 +121,7 @@ export function MenuRow({ section, lang, currency, promotions, experience, index
                 currency={currency}
                 promotions={promotions}
                 experienceConfig={experience[cocktail.slug]}
+                now={now}
                 delay={i}
                 featured={featured}
               />
@@ -134,12 +140,14 @@ interface RowCardProps {
   currency: Currency;
   promotions?: Promotion[];
   experienceConfig?: ExperienceConfig;
+  /** Shared post-mount timestamp from MenuRow; null until mounted (SSR-safe). */
+  now: Date | null;
   delay: number;
   /** Double-size lead tile — bigger type/padding; same behavior. */
   featured?: boolean;
 }
 
-function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConfig, delay, featured }: RowCardProps) {
+function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConfig, now, delay, featured }: RowCardProps) {
   const isHe = lang === 'he';
   const reduce = useReducedMotion();
   const accent = getAccent(cocktail.slug);
@@ -148,9 +156,8 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [playing, setPlaying] = useState(false);
 
-  // Time-based badges/price resolved AFTER mount (no SSR/CSR hydration mismatch).
-  const [now, setNow] = useState<Date | null>(null);
-  useEffect(() => setNow(new Date()), []);
+  // Time-based badges/price resolved AFTER mount (no SSR/CSR hydration mismatch),
+  // using the single `now` shared by the whole MenuRow.
   const badges = now ? resolveDinerBadges(cocktail, now, { promotions, experienceConfig }) : [];
   const priced = now ? resolveDinerPrice(cocktail, now, { promotions }) : null;
 

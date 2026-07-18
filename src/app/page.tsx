@@ -74,6 +74,9 @@ function matchesQuery(c: CocktailConfig, q: string): boolean {
 export default function Home() {
   const { lang, setLang } = useLang();
   const [query, setQuery] = useState('');
+  // Raw `query` drives the input (typing stays instant); the heavier filter/group
+  // work keys off this debounced copy so it runs at most ~every 180ms, not per keystroke.
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const { drafts } = useDrafts();
   const { apply: applyMenuOrder } = useMenuOrder();
   const { currency, setCurrency } = useCurrency();
@@ -104,9 +107,17 @@ export default function Home() {
   const draftSlugs = useMemo(() => new Set(drafts.map((d) => d.slug)), [drafts]);
   const featured = orderedCocktails[0] ?? null;
 
+  // Debounce the query: filtering waits ~180ms after the last keystroke so a fast
+  // typist doesn't re-filter+regroup the whole menu on every character.
+  const SEARCH_DEBOUNCE_MS = 180;
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(query), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [query]);
+
   // Group into Netflix-style rows: one per food course, plus one for all cocktails.
   const sections = useMemo<MenuSection[]>(() => {
-    const q = query.trim().toLowerCase();
+    const q = debouncedQuery.trim().toLowerCase();
     const food = orderedCocktails.filter((c) => itemKind(c) === 'food');
     const drinks = orderedCocktails.filter((c) => itemKind(c) === 'drink');
 
@@ -140,7 +151,7 @@ export default function Home() {
           .map((cocktail) => ({ cocktail, isDraft: draftSlugs.has(cocktail.slug) })),
       }))
       .filter((s) => s.items.length > 0);
-  }, [orderedCocktails, draftSlugs, isHe, query]);
+  }, [orderedCocktails, draftSlugs, isHe, debouncedQuery]);
 
   useEffect(() => {
     setRestaurantSlug('diner');
@@ -241,7 +252,7 @@ export default function Home() {
           <GlowDivider className="mt-5" />
 
           <div className="relative mt-6 w-full max-w-sm">
-            <span className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-amber-200/45 ${isHe ? 'right-4' : 'left-4'}`} aria-hidden>
+            <span className="pointer-events-none absolute top-1/2 start-4 -translate-y-1/2 text-amber-200/45" aria-hidden>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <circle cx="11" cy="11" r="7" />
                 <path d="M21 21l-4.3-4.3" />
@@ -255,9 +266,7 @@ export default function Home() {
               placeholder={isHe ? 'חיפוש בתפריט…' : 'Search the menu…'}
               aria-label={isHe ? 'חיפוש בתפריט' : 'Search the menu'}
               dir={isHe ? 'rtl' : 'ltr'}
-              className={`glass-chrome w-full rounded-full py-3 text-white placeholder:text-white/35 outline-none backdrop-blur-xl transition-colors duration-300 focus:border-amber-200/55 ${
-                isHe ? 'pr-11 pl-5 text-right' : 'pl-11 pr-5'
-              }`}
+              className="glass-chrome w-full rounded-full py-3 ps-11 pe-5 text-start text-white placeholder:text-white/35 outline-none backdrop-blur-xl transition-colors duration-300 focus:border-amber-200/55"
               style={{ fontFamily: sans, fontSize: '15px' }}
             />
           </div>
@@ -269,16 +278,16 @@ export default function Home() {
         <div className="relative z-10 py-16" dir={isHe ? 'rtl' : 'ltr'}>
           <EmptyState
             title={
-              query.trim()
+              debouncedQuery.trim()
                 ? isHe
-                  ? `לא נמצאו תוצאות ל״${query.trim()}״`
-                  : `No matches for “${query.trim()}”`
+                  ? `לא נמצאו תוצאות ל״${debouncedQuery.trim()}״`
+                  : `No matches for “${debouncedQuery.trim()}”`
                 : isHe
                   ? 'התפריט ריק כרגע'
                   : 'The menu is empty right now'
             }
             hint={
-              query.trim()
+              debouncedQuery.trim()
                 ? isHe
                   ? 'נסו מילה אחרת, או נקו את החיפוש'
                   : 'Try a different word, or clear the search'

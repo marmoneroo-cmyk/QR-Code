@@ -103,7 +103,7 @@ export function BackgroundFX() {
         style={{
           background:
             'radial-gradient(circle at center, rgba(190, 24, 93, 0.16), rgba(120, 53, 15, 0.06) 35%, transparent 65%)',
-          filter: 'blur(70px)',
+          filter: isCoarse ? 'blur(40px)' : 'blur(70px)',
         }}
         animate={{ scale: [1, 1.06, 1], opacity: [0.65, 0.95, 0.65] }}
         transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
@@ -114,7 +114,7 @@ export function BackgroundFX() {
         style={{
           background:
             'radial-gradient(circle, rgba(252, 211, 77, 0.1), transparent 70%)',
-          filter: 'blur(90px)',
+          filter: isCoarse ? 'blur(55px)' : 'blur(90px)',
         }}
         animate={{ scale: [1, 1.12, 1], opacity: [0.45, 0.8, 0.45] }}
         transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
@@ -125,7 +125,7 @@ export function BackgroundFX() {
         style={{
           background:
             'radial-gradient(circle, rgba(56, 189, 248, 0.05), transparent 70%)',
-          filter: 'blur(90px)',
+          filter: isCoarse ? 'blur(55px)' : 'blur(90px)',
         }}
         animate={{ scale: [1, 1.18, 1], opacity: [0.25, 0.5, 0.25] }}
         transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut', delay: 6 }}

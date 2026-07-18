@@ -549,7 +549,7 @@ export function CocktailForm({
               {gptCopied ? <Check size={13} strokeWidth={2.4} /> : <ClipboardCopy size={13} strokeWidth={2} />}
               {gptCopied ? t('Copied', 'הועתק') : t('Copy ChatGPT prompt', 'העתק פרומפט ל-ChatGPT')}
             </button>
-            <span className="text-white/35 text-[11px] italic" style={{ fontFamily: 'var(--font-garamond, serif)' }}>
+            <span className="text-white/70 text-[11px] italic" style={{ fontFamily: 'var(--font-garamond, serif)' }}>
               {t('Paste in ChatGPT → download the PNG → Upload photo below.', 'הדביקו ב-ChatGPT → הורידו את ה-PNG → העלו למטה.')}
             </span>
           </div>
@@ -571,10 +571,10 @@ export function CocktailForm({
                 ? t('Regenerate hero', 'יצירה מחדש של התמונה')
                 : t('Generate with AI', 'יצירה באמצעות AI')}
           </motion.button>
-          <span className="text-white/40 text-xs">
+          <span className="text-white/70 text-xs">
             {t('Powered by Pollinations · ~10s · free', 'מופעל על ידי Pollinations · ~10 שניות · חינם')}
           </span>
-          <span className="text-white/30 text-xs italic">{t('— or —', '— או —')}</span>
+          <span className="text-white/70 text-xs italic">{t('— or —', '— או —')}</span>
           <label
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-amber-200/30 text-amber-100/80 hover:text-amber-100 hover:border-amber-200/60 cursor-pointer transition-colors text-[11px] tracking-[0.3em] uppercase"
             style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
@@ -604,7 +604,7 @@ export function CocktailForm({
               }}
             />
           </label>
-          <span className="text-white/30 text-xs italic">{t('— or —', '— או —')}</span>
+          <span className="text-white/70 text-xs italic">{t('— or —', '— או —')}</span>
           <motion.button
             type="button"
             onClick={() => setMediaLibraryOpen(true)}
@@ -755,7 +755,7 @@ export function CocktailForm({
 }
 
 const inputClass =
-  'w-full rounded-xl bg-black/40 border border-white/12 outline-none text-white text-base py-2.5 px-3.5 transition-colors duration-300 placeholder:text-white/25 focus:border-amber-200/40 focus:bg-black/55';
+  'w-full rounded-xl bg-black/40 border border-white/12 outline-none text-white text-base py-2.5 px-3.5 transition-colors duration-300 placeholder:text-white/50 focus:border-amber-200/40 focus:bg-black/55';
 
 type Translate = (en: string, he: string) => string;
 

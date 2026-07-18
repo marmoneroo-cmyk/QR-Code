@@ -6,6 +6,7 @@ import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, u
 import { Layers, Play, Box } from 'lucide-react';
 import { getAccent, getFeatureVideo, formatPrice, findCocktailBySlug, MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
 import { FlavorRadar } from './FlavorRadar';
+import { SmartImage } from '@/components/ui/SmartImage';
 import { track } from '@/lib/tracking/track';
 import { recordView } from '@/lib/tracking/revisit';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
@@ -345,20 +346,22 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
           className="absolute left-1/2 top-1/2 h-[70%] w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
           style={{ background: `radial-gradient(circle, ${accent}44, transparent 70%)` }}
         />
+        {/* The float animation stays on the wrapper; the hero itself goes through
+            the optimizer. SmartImage renders next/image in fill mode, so this parent
+            must be relative with a resolved height — the 52vh constraint moves here,
+            and object-contain keeps the plated dish centered at the same size. */}
         <motion.span
-          className="relative block"
+          className="relative block h-[52vh] w-full"
           animate={reduce ? undefined : { y: [0, -8, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <SmartImage
             src={config.heroImage}
             alt={config.title[lang]}
-            className="relative z-10 mx-auto max-h-[52vh] w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
+            sizes="(max-width: 768px) 90vw, 50vw"
+            priority
+            className="z-10 object-contain transition-transform duration-700 group-hover:scale-[1.03]"
             style={{ filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)` }}
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
           />
         </motion.span>
         {hasComponents && (
@@ -423,7 +426,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
       exit={{ opacity: 0, transition: { duration: 0.3 } }}
       aria-label={isHe ? 'פירוק מרכיבים' : 'Ingredient breakdown'}
     >
-      <motion.p
+      <motion.h1
         className="mb-10 text-center text-[11px] tracking-[0.5em] uppercase text-white/60"
         style={{ fontFamily: sans }}
         initial={{ opacity: 0, y: -8 }}
@@ -431,7 +434,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
         transition={{ duration: 0.7, ease: EASE }}
       >
         {isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
-      </motion.p>
+      </motion.h1>
 
       <ol className="relative flex w-full flex-col gap-8">
         {components.map((label, i) => {
@@ -635,7 +638,7 @@ function HeroStage({
           />
         </motion.span>
         <span
-          className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] tracking-[0.45em] uppercase text-white/40 transition-colors group-hover:text-white/70"
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] tracking-[0.45em] uppercase text-white/70 transition-colors group-hover:text-white"
           style={{ fontFamily: sans }}
         >
           {isHe ? 'גע בכוס לגילוי' : 'Tap to explore'}
@@ -748,7 +751,7 @@ function ExplodedView({
       exit={{ opacity: 0, transition: { duration: 0.3 } }}
       aria-label={isHe ? 'פירוק מרכיבים' : 'Ingredient breakdown'}
     >
-      <motion.p
+      <motion.h1
         className="mb-10 text-center text-[11px] tracking-[0.5em] uppercase text-white/60"
         style={{ fontFamily: sans }}
         initial={{ opacity: 0, y: -8 }}
@@ -756,7 +759,7 @@ function ExplodedView({
         transition={{ duration: 0.7, ease: EASE }}
       >
         {isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
-      </motion.p>
+      </motion.h1>
 
       <ol className="relative flex w-full flex-col gap-9">
         {stack.map((label, i) => {
@@ -992,6 +995,8 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
   const maxPct = useRef(0);
   const flushed = useRef(false);
   const skipRef = useRef<HTMLButtonElement>(null);
+  // Scopes the Tab focus trap to the dialog (see the keydown effect below).
+  const dialogRef = useRef<HTMLElement>(null);
   // Keep the latest onEnd without re-running the mount-once focus effect below.
   const onEndRef = useRef(onEnd);
   onEndRef.current = onEnd;
@@ -1012,7 +1017,8 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
   }, [cocktailSlug]);
 
   // A11y: this player is a full-screen takeover, so move focus into it (the Skip
-  // control), let Escape dismiss it, and restore focus to wherever it was on close.
+  // control), let Escape dismiss it, trap Tab inside so it can't reach the header
+  // behind, and restore focus to wherever it was on close.
   useEffect(() => {
     const previouslyFocused = document.activeElement as HTMLElement | null;
     skipRef.current?.focus();
@@ -1020,6 +1026,26 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
       if (e.key === 'Escape') {
         e.preventDefault();
         onEndRef.current();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea, input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey) {
+        if (active === first || !dialog.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !dialog.contains(active)) {
+        e.preventDefault();
+        first.focus();
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -1031,6 +1057,7 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
 
   return (
     <motion.section
+      ref={dialogRef}
       className="fixed inset-0 z-40 flex items-center justify-center bg-black"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
