@@ -269,21 +269,34 @@ export class SupabaseAdapter implements CocktailStore {
       }
     );
 
-    // 2. Replace child rows (delete-then-insert keeps it simple & consistent).
-    await this.client.from('cocktail_layers').delete().eq('cocktail_id', cocktailId);
-    await this.client.from('cocktail_labels').delete().eq('cocktail_id', cocktailId);
+    // 2. Replace child rows (delete-then-insert). This is NOT atomic — there's no
+    // transaction across these statements — so on ANY failure we THROW rather than
+    // swallow. A silent insert failure would leave the draft with its old layers/labels
+    // deleted and the new ones missing (silent data loss); throwing surfaces it, and a
+    // retry re-runs the full delete+insert, which self-heals. (A Postgres RPC/transaction
+    // is the proper long-term fix.)
+    const delLayers = await this.client.from('cocktail_layers').delete().eq('cocktail_id', cocktailId);
+    if (delLayers.error) throw delLayers.error;
+    const delLabels = await this.client.from('cocktail_labels').delete().eq('cocktail_id', cocktailId);
+    if (delLabels.error) throw delLabels.error;
 
     if (cocktail.layers.length) {
       const { error } = await this.client
         .from('cocktail_layers')
         .insert(layerInserts(cocktailId, cocktail.layers));
-      if (error) log.error('saveDraft layers insert failed', { slug: cocktail.slug, error: error.message });
+      if (error) {
+        log.error('saveDraft layers insert failed', { slug: cocktail.slug, error: error.message });
+        throw error;
+      }
     }
     if (cocktail.labels.length) {
       const { error } = await this.client
         .from('cocktail_labels')
         .insert(labelInserts(cocktailId, cocktail.labels));
-      if (error) log.error('saveDraft labels insert failed', { slug: cocktail.slug, error: error.message });
+      if (error) {
+        log.error('saveDraft labels insert failed', { slug: cocktail.slug, error: error.message });
+        throw error;
+      }
     }
 
     // 3. Read back the full reconstructed draft.
