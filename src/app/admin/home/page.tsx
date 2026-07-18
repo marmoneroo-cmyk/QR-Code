@@ -189,7 +189,7 @@ export default function HomeDashboardPage() {
                     <span className={m.result.direction === 'down' ? 'text-rose-200' : 'text-emerald-200'}>
                       {m.result.deltaPct !== null ? `${m.result.deltaPct > 0 ? '+' : ''}${m.result.deltaPct}%` : (isHe ? 'עלייה' : 'up')}
                     </span>
-                    <span className="text-white/35"> · {m.observationDays}{isHe ? 'י' : 'd'}</span>
+                    <span className="text-white/70"> · {m.observationDays}{isHe ? 'י' : 'd'}</span>
                   </li>
                 ))}
               </ul>
@@ -219,7 +219,7 @@ export default function HomeDashboardPage() {
                 <AreaChart data={traffic.series} color="var(--champagne)" height={64} />
                 <p className="text-xs" style={{ fontFamily: sans }}>
                   {traffic.deltaPct === null ? (
-                    <span className="text-white/40">{isHe ? 'אין מספיק היסטוריה' : 'Not enough history'}</span>
+                    <span className="text-white/70">{isHe ? 'אין מספיק היסטוריה' : 'Not enough history'}</span>
                   ) : (
                     <span className={traffic.deltaPct < 0 ? 'text-rose-200' : 'text-emerald-200'}>
                       {traffic.deltaPct > 0 ? '▲ +' : traffic.deltaPct < 0 ? '▼ ' : '■ '}{traffic.deltaPct}% {isHe ? 'מול השבוע הקודם' : 'vs prior 7 days'}
@@ -268,7 +268,7 @@ export default function HomeDashboardPage() {
                 {loop.timeline.slice(0, 4).map((c) => (
                   <li key={c.id} className="text-white/75 flex justify-between gap-2">
                     <span className="truncate">{c.summary ?? c.changeType}</span>
-                    <span className="text-white/30 shrink-0">{c.createdAt.slice(5, 10)}</span>
+                    <span className="text-white/70 shrink-0">{c.createdAt.slice(5, 10)}</span>
                   </li>
                 ))}
               </ul>
@@ -376,7 +376,7 @@ function Kpi({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-white text-xl leading-none" style={{ fontFamily: 'var(--font-playfair, serif)', fontWeight: 600 }}>{value}</p>
-      <p className="mt-1.5 text-10 tracking-[0.12em] uppercase text-white/40" style={{ fontFamily: sans }}>{label}</p>
+      <p className="mt-1.5 text-10 tracking-[0.12em] uppercase text-white/70" style={{ fontFamily: sans }}>{label}</p>
     </div>
   );
 }

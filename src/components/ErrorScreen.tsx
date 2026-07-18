@@ -72,7 +72,7 @@ export function ErrorScreen({
           </Link>
         </div>
         {digest && (
-          <p className="mt-2 font-mono text-10 text-white/25" style={{ fontFamily: sans }}>
+          <p className="mt-2 font-mono text-10 text-white/60" style={{ fontFamily: sans }}>
             ref: {digest}
           </p>
         )}

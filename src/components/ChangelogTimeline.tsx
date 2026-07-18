@@ -100,7 +100,7 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
       ))}
 
       <footer className="mt-24 pt-12 border-t border-white/10 text-center">
-        <p className="text-white/30 text-11 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+        <p className="text-white/70 text-11 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
           {isHebrew ? 'סוף היומן' : 'End of log'}
         </p>
       </footer>

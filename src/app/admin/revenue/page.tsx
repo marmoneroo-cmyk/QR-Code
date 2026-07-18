@@ -265,7 +265,7 @@ export default function RevenueCenterPage() {
                 <EmptyState title={t('No measured sales yet.', 'אין עדיין מכירות שנמדדו.')} />
               </GlassCard>
             )}
-            <p className="mt-2.5 text-white/30 text-10 tracking-wide" style={{ fontFamily: sans }}>
+            <p className="mt-2.5 text-white/70 text-10 tracking-wide" style={{ fontFamily: sans }}>
               {t('Real measured revenue. Not attributed to the platform.', 'הכנסה אמיתית שנמדדה. לא מיוחסת לפלטפורמה.')}
             </p>
           </section>
@@ -315,7 +315,7 @@ export default function RevenueCenterPage() {
                 ))}
               </Stagger>
 
-              <p className="mt-2.5 text-white/30 text-10 tracking-wide" style={{ fontFamily: sans }}>
+              <p className="mt-2.5 text-white/70 text-10 tracking-wide" style={{ fontFamily: sans }}>
                 {t('Estimated upside per drink, from your data.', 'צפי הכנסה לכל קוקטייל, מהנתונים שלכם.')}
               </p>
             </section>

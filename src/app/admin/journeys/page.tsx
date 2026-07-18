@@ -327,7 +327,7 @@ function FunnelStepper({ nodes, total, isHebrew, t }: FunnelStepperProps) {
         </div>
 
         <p
-          className="text-white/30 text-10 tracking-[0.25em] uppercase text-center mt-5 pt-4 border-t border-white/10"
+          className="text-white/70 text-10 tracking-[0.25em] uppercase text-center mt-5 pt-4 border-t border-white/10"
           style={{ fontFamily: sans }}
         >
           {t(
@@ -501,7 +501,7 @@ export function JourneysPanel() {
                       <p className="text-white/90 text-sm leading-tight" style={{ fontFamily: serif, fontWeight: 600 }}>
                         {isHebrew ? src.he : src.en}
                       </p>
-                      <p className="flex items-center gap-1.5 text-white/40 text-11 mt-0.5" style={{ fontFamily: sans }}>
+                      <p className="flex items-center gap-1.5 text-white/70 text-11 mt-0.5" style={{ fontFamily: sans }}>
                         <DeviceIcon size={12} strokeWidth={1.8} />
                         {deviceLabel(s.device, lang) ?? t('device', 'מכשיר')}
                         {s.tableId && (
@@ -516,7 +516,7 @@ export function JourneysPanel() {
                     <span className="inline-flex items-center gap-1.5 text-white/55 text-xs" style={{ fontFamily: sans }}>
                       <Clock size={13} strokeWidth={1.8} /> {duration(s.durationMs, isHebrew)}
                     </span>
-                    <span className="text-white/40 text-xs" style={{ fontFamily: sans }}>
+                    <span className="text-white/70 text-xs" style={{ fontFamily: sans }}>
                       {s.steps.length} {t('steps', 'צעדים')}
                     </span>
                     {s.ordered ? (
@@ -586,7 +586,7 @@ export function JourneysPanel() {
                       { label: t('Revenue', 'הכנסה'), value: formatILS(s.revenue), accent: true },
                     ].map((m) => (
                       <div key={m.label}>
-                        <p className="text-white/35 text-9 tracking-[0.2em] uppercase mb-1" style={{ fontFamily: sans }}>
+                        <p className="text-white/70 text-9 tracking-[0.2em] uppercase mb-1" style={{ fontFamily: sans }}>
                           {m.label}
                         </p>
                         <p className={`text-sm font-mono ${m.accent ? 'text-emerald-200/90' : 'text-white/85'}`}>
@@ -596,7 +596,7 @@ export function JourneysPanel() {
                     ))}
                     {s.profit > 0 && (
                       <div>
-                        <p className="text-white/35 text-9 tracking-[0.2em] uppercase mb-1" style={{ fontFamily: sans }}>
+                        <p className="text-white/70 text-9 tracking-[0.2em] uppercase mb-1" style={{ fontFamily: sans }}>
                           {t('Profit', 'רווח')}
                         </p>
                         <p className="text-sm font-mono text-emerald-300/90">{formatILS(s.profit)}</p>
@@ -616,7 +616,7 @@ export function JourneysPanel() {
                             style={{ backgroundColor: isOrder ? 'var(--success)' : 'var(--warning-light)' }}
                           />
                           <div className="flex items-baseline gap-3">
-                            <span className="text-white/40 text-11 font-mono w-16 shrink-0">{clock(step.at)}</span>
+                            <span className="text-white/70 text-11 font-mono w-16 shrink-0">{clock(step.at)}</span>
                             <span className={`inline-flex items-center gap-1.5 text-sm ${isOrder ? 'text-emerald-200' : 'text-white/85'}`} style={{ fontFamily: sans }}>
                               <Icon size={13} strokeWidth={1.8} className="shrink-0 opacity-70" />
                               {stepText(step)}
@@ -635,7 +635,7 @@ export function JourneysPanel() {
         })}
       </Stagger>
 
-      <p className="text-center text-white/30 text-10 tracking-[0.4em] uppercase pt-6 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
+      <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
         {t('Latest 40 · anonymous', '40 אחרונים · אנונימי')}
       </p>
     </>

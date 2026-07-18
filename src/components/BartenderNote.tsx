@@ -52,7 +52,7 @@ export function BartenderNote({ cocktail, lang }: BartenderNoteProps) {
 
       {cocktail.bartenderName && (
         <figcaption
-          className="mt-3 text-white/40 text-10 tracking-[0.35em] uppercase"
+          className="mt-3 text-white/70 text-10 tracking-[0.35em] uppercase"
           style={{ fontFamily: sansFont }}
         >
           — {cocktail.bartenderName}

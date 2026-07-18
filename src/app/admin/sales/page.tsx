@@ -88,7 +88,7 @@ function RevenueTreemap({
                     <span className="text-15 font-bold leading-none tabular-nums" style={{ color: d.accent, fontFamily: serif }}>
                       {formatIls(d.revenue)}
                     </span>
-                    <span className="shrink-0 text-10 text-white/40 tabular-nums" style={{ fontFamily: sans }}>
+                    <span className="shrink-0 text-10 text-white/70 tabular-nums" style={{ fontFamily: sans }}>
                       {sharePct}%
                     </span>
                   </div>
@@ -282,7 +282,7 @@ export function SalesPanel() {
                 </div>
               )}
             </div>
-            <p className="text-white/35 text-11 -mt-1 inline-flex items-center gap-1.5" style={{ fontFamily: sans }}>
+            <p className="text-white/70 text-11 -mt-1 inline-flex items-center gap-1.5" style={{ fontFamily: sans }}>
               <UploadCloud size={11} strokeWidth={1.8} className="shrink-0" />
               {t('Drag & drop a .csv / .txt file here, or paste above.', 'גררו ושחררו קובץ ‎.csv / .txt‎ כאן, או הדביקו למעלה.')}
             </p>
@@ -368,7 +368,7 @@ export function SalesPanel() {
                         <GlassImage src={c.heroImage} accent={accent} className="w-full h-32 mb-3 transition-transform duration-300 group-hover:scale-105" />
                       ) : (
                         <div className="w-full h-32 mb-3 rounded-xl border border-dashed border-white/10 grid place-items-center">
-                          <span className="text-white/25 text-10 tracking-wide" style={{ fontFamily: sans }}>{t('no image', 'אין תמונה')}</span>
+                          <span className="text-white/70 text-10 tracking-wide" style={{ fontFamily: sans }}>{t('no image', 'אין תמונה')}</span>
                         </div>
                       )}
                       <p className="text-white/90 text-15 text-center leading-tight" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>

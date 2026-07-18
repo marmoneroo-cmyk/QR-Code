@@ -262,7 +262,7 @@ export function ExperiencePanel() {
                           {cocktail ? (
                             <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-36" />
                           ) : (
-                            <div className="h-36 w-full grid place-items-center text-white/25 text-11" style={{ fontFamily: sans }}>
+                            <div className="h-36 w-full grid place-items-center text-white/70 text-11" style={{ fontFamily: sans }}>
                               {isHe ? 'אין תמונה' : 'No image'}
                             </div>
                           )}
@@ -295,7 +295,7 @@ export function ExperiencePanel() {
                             {c.title[lang]}
                           </p>
                           {cocktail?.tagline && (
-                            <p className="mt-0.5 truncate text-white/40 text-9 tracking-wide" style={{ fontFamily: sans }}>
+                            <p className="mt-0.5 truncate text-white/70 text-9 tracking-wide" style={{ fontFamily: sans }}>
                               {cocktail.tagline[lang]}
                             </p>
                           )}
@@ -321,7 +321,7 @@ export function ExperiencePanel() {
                               })}
                             </ul>
                           ) : (
-                            <p className="text-white/30 text-10" style={{ fontFamily: sans }}>
+                            <p className="text-white/70 text-10" style={{ fontFamily: sans }}>
                               {isHe ? 'אין מודולים פעילים' : 'No active modules'}
                             </p>
                           )}
@@ -340,7 +340,7 @@ export function ExperiencePanel() {
                     >
                       {c.title[lang]}
                     </h3>
-                    <p className="mt-0.5 text-white/35 text-10 tracking-wide" style={{ fontFamily: sans }}>
+                    <p className="mt-0.5 text-white/70 text-10 tracking-wide" style={{ fontFamily: sans }}>
                       {activeBadges} {isHe ? 'תגיות' : 'badges'} · {liveModules}/{MODULES.length} {isHe ? 'מודולים' : 'modules'}
                     </p>
                   </div>

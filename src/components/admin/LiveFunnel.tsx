@@ -96,7 +96,7 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
         </p>
         <div className="flex items-center gap-3">
           {updatedAt !== null && (
-            <span className="text-white/35 text-9 tracking-wider" style={{ fontFamily: sans }}>
+            <span className="text-white/70 text-9 tracking-wider" style={{ fontFamily: sans }}>
               {agoLabel}
             </span>
           )}
@@ -113,7 +113,7 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
       </div>
 
       {/* Stage legend — clarifies what each step means */}
-      <p className="text-white/40 text-10 leading-relaxed mb-5" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
+      <p className="text-white/70 text-10 leading-relaxed mb-5" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
         {t(
           'Seen = card viewed in the menu · Opened = entered the drink page · Ingredients/360/Waiter = actions inside · Ordered = guests who ordered · units = total drinks.',
           'נצפה = הכרטיס נראה בתפריט · נפתח = כניסה לעמוד המשקה · מרכיבים/360/מלצר = פעולות בפנים · הוזמן = אורחים שהזמינו · יח׳ = סך הכוסות.',
@@ -121,19 +121,19 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
       </p>
 
       {error && (
-        <p className="text-white/40 text-sm" style={{ fontFamily: sans }}>
+        <p className="text-white/70 text-sm" style={{ fontFamily: sans }}>
           {t('Could not load live data (is Supabase + migration 0004 applied?).', 'לא ניתן לטעון נתונים חיים (האם Supabase + migration 0004 הוחלו?).')}
         </p>
       )}
 
       {!error && rows === null && (
-        <p className="text-white/40 text-sm" style={{ fontFamily: sans }}>
+        <p className="text-white/70 text-sm" style={{ fontFamily: sans }}>
           {t('Loading…', 'טוען…')}
         </p>
       )}
 
       {!error && rows !== null && rows.length === 0 && (
-        <p className="text-white/40 text-sm leading-relaxed" style={{ fontFamily: sans }}>
+        <p className="text-white/70 text-sm leading-relaxed" style={{ fontFamily: sans }}>
           {t(
             'No interactions captured yet. Open the menu, view a cocktail, tap ingredients / 360 / order — events appear here within seconds.',
             'עדיין לא נקלטו אינטראקציות. פתח את התפריט, צפה בקוקטייל, לחץ מרכיבים / 360 / הזמנה — האירועים יופיעו כאן תוך שניות.',
@@ -193,7 +193,7 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
                             {value}
                           </span>
                         </div>
-                        <p className="text-white/35 text-8 tracking-wider uppercase mt-1 text-center truncate" style={{ fontFamily: sans }}>
+                        <p className="text-white/70 text-8 tracking-wider uppercase mt-1 text-center truncate" style={{ fontFamily: sans }}>
                           {t(stage.en, stage.he)}
                         </p>
                       </div>

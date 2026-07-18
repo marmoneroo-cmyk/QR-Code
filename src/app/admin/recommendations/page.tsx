@@ -242,10 +242,10 @@ export function RecommendationsPanel() {
                     <p className="text-white/85 text-13 leading-snug" style={{ fontFamily: sans, fontWeight: 500 }}>
                       <Link2 size={12} strokeWidth={2} className="inline mb-0.5 me-1" style={{ color: PAIR_ACCENT }} />
                       {titleOf(top.slug)}
-                      <span className="text-white/40 font-mono text-11 ms-1">×{top.coViews}</span>
+                      <span className="text-white/70 font-mono text-11 ms-1">×{top.coViews}</span>
                     </p>
                   ) : (
-                    <p className="text-white/40 text-13 italic" style={{ fontFamily: sans }}>
+                    <p className="text-white/70 text-13 italic" style={{ fontFamily: sans }}>
                       {t('No pairing yet.', 'אין שילוב.')}
                     </p>
                   )}
@@ -272,7 +272,7 @@ export function RecommendationsPanel() {
       )}
 
       {hasData && (
-        <p className="text-center text-white/30 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
+        <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
           {t('Co-views counted per guest session · use for pairings & upsell', 'צפיות משותפות נספרות לכל ביקור · לשילובים והגדלת מכירה')}
         </p>
       )}

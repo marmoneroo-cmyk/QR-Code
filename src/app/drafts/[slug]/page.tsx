@@ -33,7 +33,7 @@ export default function DraftPage({ params }: PageProps) {
 
   if (!hydrated) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white/40 text-sm">
+      <div className="min-h-screen bg-black flex items-center justify-center text-white/70 text-sm">
         Loading draft…
       </div>
     );

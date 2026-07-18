@@ -106,7 +106,7 @@ function CompareCol({
 }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
-      <span className="text-9 uppercase tracking-[0.22em] text-white/40" style={{ fontFamily: sans }}>
+      <span className="text-9 uppercase tracking-[0.22em] text-white/70" style={{ fontFamily: sans }}>
         {label}
       </span>
       <span className={`relative block w-full ${dim ? 'opacity-55 grayscale-[0.3]' : ''}`}>
@@ -120,7 +120,7 @@ function CompareCol({
           </span>
         ) : (
           <span
-            className="absolute top-1 inline-flex items-center rounded-full border border-dashed border-white/20 px-2 py-0.5 text-9 uppercase tracking-wide text-white/30"
+            className="absolute top-1 inline-flex items-center rounded-full border border-dashed border-white/20 px-2 py-0.5 text-9 uppercase tracking-wide text-white/70"
             style={{ insetInlineEnd: '0.25rem' }}
           >
             {isHe ? 'אין' : 'none'}

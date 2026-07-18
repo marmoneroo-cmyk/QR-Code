@@ -108,7 +108,7 @@ export function SettingsToolbar({
     scan: isHebrew ? 'סריקת QR' : 'Scan QR',
   };
 
-  const rowLabel = 'text-white/40 text-11 tracking-[0.12em] mb-2.5';
+  const rowLabel = 'text-white/70 text-11 tracking-[0.12em] mb-2.5';
 
   return (
     <div ref={rootRef} className="fixed top-6 start-6 z-50 flex items-center gap-2.5">
@@ -198,7 +198,7 @@ export function SettingsToolbar({
                     value={restaurantName}
                     onChange={(e) => onRestaurantChange(e.target.value)}
                     placeholder={isHebrew ? 'שם המסעדה' : 'Restaurant name'}
-                    className="w-full bg-transparent border-b border-white/15 focus:border-amber-200/60 outline-none text-white text-15 py-1.5 transition-colors duration-300 placeholder:text-white/25"
+                    className="w-full bg-transparent border-b border-white/15 focus:border-amber-200/60 outline-none text-white text-15 py-1.5 transition-colors duration-300 placeholder:text-white/60"
                     style={{ fontFamily: sans }}
                     dir={isHebrew ? 'rtl' : 'ltr'}
                   />

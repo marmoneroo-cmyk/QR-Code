@@ -155,14 +155,14 @@ export function HeatmapPanel() {
               ))}
             </div>
           </div>
-          <p className="mt-3 text-center text-white/30 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+          <p className="mt-3 text-center text-white/70 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
             {t('Top to bottom, as a guest sees it', 'מלמעלה למטה, כפי שאורח רואה')}
           </p>
         </div>
 
         {/* Horizontal heat legend: cold → hot */}
         <div className="mx-auto mt-7 flex max-w-[360px] items-center gap-3" style={{ fontFamily: sans }}>
-          <span className="text-white/35 text-10 tracking-[0.25em] uppercase whitespace-nowrap">{t('Cold', 'קר')}</span>
+          <span className="text-white/70 text-10 tracking-[0.25em] uppercase whitespace-nowrap">{t('Cold', 'קר')}</span>
           <div
             className="h-2 flex-1 rounded-full border border-white/[0.06]"
             style={{ background: `linear-gradient(90deg, rgba(255,255,255,0.04), rgba(251,191,36,0.45) 60%, ${ACCENT})` }}

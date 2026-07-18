@@ -322,7 +322,7 @@ export default function AdminPage() {
         )}
         <span className="flex-1 h-px bg-amber-200/12" />
       </div>
-      <p className="text-white/35 text-11 mb-6" style={{ fontFamily: sans }}>
+      <p className="text-white/70 text-11 mb-6" style={{ fontFamily: sans }}>
         {t(
           'Drag the handle to set how items appear on the guest menu (saved on this device).',
           'גררו מהידית כדי לקבוע את סדר הופעת הפריטים בתפריט הסועד (נשמר במכשיר זה).'
@@ -362,7 +362,7 @@ export default function AdminPage() {
                 {cocktail.tagline[lang]}
               </p>
             )}
-            <p className="text-white/30 text-10 tracking-wider uppercase mt-4">{t('Published', 'פורסם')}</p>
+            <p className="text-white/70 text-10 tracking-wider uppercase mt-4">{t('Published', 'פורסם')}</p>
           </DraftCard>
         ))}
       </div>

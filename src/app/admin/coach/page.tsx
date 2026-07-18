@@ -224,7 +224,7 @@ function HeroAction({
           <PotentialValue potential={action.potential} lang={lang} size="lg" accent="#34d399" />
           <div className="flex flex-wrap items-center justify-center gap-4">
             <ConfidenceMeter pct={action.confidencePct} lang={lang} />
-            <span className="inline-flex items-center gap-1.5 text-11 text-white/40" style={{ fontFamily: sans }}>
+            <span className="inline-flex items-center gap-1.5 text-11 text-white/70" style={{ fontFamily: sans }}>
               <Clock size={12} strokeWidth={1.8} />
               {isHe ? `~${action.effortMin} דק'` : `~${action.effortMin} min`}
             </span>
@@ -260,7 +260,7 @@ function NextUpStrip({
 }) {
   return (
     <Stagger className="mt-10 flex flex-wrap items-center justify-center gap-3 opacity-60 transition-opacity hover:opacity-100">
-      <span className="text-10 uppercase tracking-[0.32em] text-white/35" style={{ fontFamily: sans }}>
+      <span className="text-10 uppercase tracking-[0.32em] text-white/70" style={{ fontFamily: sans }}>
         {isHe ? 'גם על הרשימה הערב' : "Also on tonight's list"}
       </span>
       {actions.map((a) => {

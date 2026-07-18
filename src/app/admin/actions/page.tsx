@@ -43,7 +43,7 @@ const CELEBRATE_MS = 2_000;
 function celebrationMessage(valueILS: number | null, lang: 'en' | 'he'): string {
   if (typeof valueILS === 'number') {
     return lang === 'he'
-      ? `יפה — בערך ${formatILS(valueILS)} של פוטנציאל עכשיו בתנועה.`
+      ? `יפה — בערך ${formatILS(valueILS)} של פוטנציאל עכשיו בתנופה.`
       : `Nice — that's about ${formatILS(valueILS)} of upside now in motion.`;
   }
   return lang === 'he' ? 'בוצע. דבר אחד פחות על הפס.' : 'Done. One less thing on the pass.';

@@ -154,7 +154,7 @@ export function OpportunitiesPanel() {
               <SectionLabel icon={Lightbulb}>{isHe ? 'הזדמנויות היום' : "Today's opportunities"}</SectionLabel>
             </div>
             {data.opportunities.length > 0 && (
-              <p className="text-white/40 text-xs mb-4" style={{ fontFamily: sans }}>
+              <p className="text-white/70 text-xs mb-4" style={{ fontFamily: sans }}>
                 {isHe
                   ? `${active.length} פעולות פתוחות · ${handled.length} טופלו`
                   : `${active.length} open ${active.length === 1 ? 'action' : 'actions'} · ${handled.length} handled`}
@@ -491,7 +491,7 @@ function HandledSection({ items, statuses, lang, isHe, headFont, onRestore }: Ha
                   <span className="truncate text-white/80 text-sm" style={{ fontFamily: headFont }}>
                     {title}
                   </span>
-                  <span className="truncate text-white/40 text-11 hidden sm:inline" style={{ fontFamily: sans }}>
+                  <span className="truncate text-white/70 text-11 hidden sm:inline" style={{ fontFamily: sans }}>
                     {TYPE_LABEL[o.type][lang]}
                   </span>
                 </div>
@@ -519,7 +519,7 @@ function ReachStat({ label, pct, accent }: { label: string; pct: number; accent:
     <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
       <span className="w-1.5 h-1.5 rounded-full block mb-3" style={{ background: accent }} />
       <StatBlock
-        value={<>{pct}<span className="text-white/35 text-[1.25rem]">%</span></>}
+        value={<>{pct}<span className="text-white/60 text-[1.25rem]">%</span></>}
         label={label}
       />
     </div>

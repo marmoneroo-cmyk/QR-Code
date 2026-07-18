@@ -140,7 +140,7 @@ export function TablesPanel() {
             </button>
           )}
         </div>
-        <p className="text-white/35 text-11" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
+        <p className="text-white/70 text-11" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
           {t('Every scan, view and order is attributed to its table.', 'כל סריקה, צפייה והזמנה מיוחסות לשולחן.')}
         </p>
       </GlassCard>
@@ -192,7 +192,7 @@ export function TablesPanel() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <SectionLabel icon={LayoutGrid}>{t('Floor plan', 'מפת רצפה')}</SectionLabel>
           {tables.length > 0 && (
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-10 text-white/40" style={{ fontFamily: sans }}>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-10 text-white/70" style={{ fontFamily: sans }}>
               <span className="inline-flex items-center gap-1.5">
                 <span className="inline-flex items-end gap-0.5" aria-hidden>
                   <span className="block h-2 w-2 rounded-[3px] bg-white/25" />
@@ -307,7 +307,7 @@ function MiniStat({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <div>
       <p className="text-lg leading-none" style={{ color: accent ?? 'rgba(255,255,255,0.92)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
-      <p className="text-white/40 text-10 mt-1 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
+      <p className="text-white/70 text-10 mt-1 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
     </div>
   );
 }
@@ -381,7 +381,7 @@ function FloorPlan({
             <p className="text-white/70" style={{ fontFamily: serif, fontStyle: 'italic', fontSize: '1.3rem' }}>
               {t('An empty floor — for now.', 'רצפה ריקה — לבינתיים.')}
             </p>
-            <p className="mt-2 text-xs leading-relaxed text-white/40" style={{ fontFamily: sans }}>
+            <p className="mt-2 text-xs leading-relaxed text-white/70" style={{ fontFamily: sans }}>
               {t(
                 'Place a QR on each table. As guests scan, tables light up by revenue and orders.',
                 'הנח QR על כל שולחן. ככל שאורחים סורקים, השולחנות נדלקים לפי הכנסה והזמנות.',

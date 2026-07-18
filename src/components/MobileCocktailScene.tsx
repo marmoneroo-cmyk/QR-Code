@@ -111,7 +111,7 @@ export function MobileCocktailScene({
           <button
             type="button"
             onClick={() => setVideoOpen(false)}
-            className="absolute top-5 right-5 z-10 w-10 h-10 rounded-full border border-amber-200/40 bg-black/50 text-amber-100 text-lg leading-none"
+            className="absolute top-5 end-5 z-10 w-10 h-10 rounded-full border border-amber-200/40 bg-black/50 text-amber-100 text-lg leading-none"
             aria-label={isHebrew ? 'סגור' : 'Close'}
           >
             ×

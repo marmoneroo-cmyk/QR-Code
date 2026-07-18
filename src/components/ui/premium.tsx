@@ -119,7 +119,7 @@ export function PanelHeader({ label, href, cta, isHe }: PanelHeaderProps) {
       {href && cta && (
         <Link
           href={href}
-          className="group/link inline-flex items-center gap-1 text-10 tracking-[0.2em] uppercase text-white/40 hover:text-amber-100 transition-colors"
+          className="group/link inline-flex items-center gap-1 text-10 tracking-[0.2em] uppercase text-white/70 hover:text-amber-100 transition-colors"
           style={{ fontFamily: sans }}
         >
           {cta}
@@ -191,7 +191,7 @@ export function EmptyState({ title, hint, icon, className }: EmptyStateProps) {
         {icon ?? <Sparkles size={16} strokeWidth={1.4} />}
       </span>
       <p className="text-white/55 text-xs" style={{ fontFamily: sans }}>{title}</p>
-      {hint && <p className="text-white/30 text-11 max-w-[26ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
+      {hint && <p className="text-white/70 text-11 max-w-[26ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
     </div>
   );
 }
@@ -221,7 +221,7 @@ export function ErrorState({ title, hint, onRetry, retryLabel = 'Try again', cla
         <AlertTriangle size={16} strokeWidth={1.5} />
       </span>
       <p className="text-rose-200/80 text-xs" style={{ fontFamily: sans }}>{title}</p>
-      {hint && <p className="text-white/30 text-11 max-w-[28ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
+      {hint && <p className="text-white/70 text-11 max-w-[28ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
       {onRetry && (
         <button
           type="button"

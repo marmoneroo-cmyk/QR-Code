@@ -293,7 +293,7 @@ export function KpiCard({
       <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}><CountUpText text={value} /></p>
       <p className="text-white/45 text-11 mt-1 tracking-wide" style={{ fontFamily: sans }}>{label}</p>
       {series && series.length > 0 && <div className="mt-2"><AreaChart data={series} color={accent} height={32} showDot={false} strokeWidth={1.75} /></div>}
-      {hint && <p className="text-white/30 text-9 mt-1.5 tracking-wide" style={{ fontFamily: sans }}>{hint}</p>}
+      {hint && <p className="text-white/70 text-9 mt-1.5 tracking-wide" style={{ fontFamily: sans }}>{hint}</p>}
     </div>
   );
 }

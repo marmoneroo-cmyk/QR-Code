@@ -366,7 +366,7 @@ export default function ImportRestaurantPage() {
                 {t('Restaurant name', 'שם המסעדה')}
               </label>
               <input type="text" value={restaurantName} onChange={(e) => setRestaurantName(e.target.value)} placeholder={t('e.g. Diner', 'לדוגמה: Diner')} aria-label={t('Restaurant name', 'שם המסעדה')} className={inputClass} />
-              <p className="text-white/35 text-10 tracking-wider mt-2" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
+              <p className="text-white/70 text-10 tracking-wider mt-2" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
                 {t('slug', 'מזהה')}: <code className="text-amber-100/80" dir="ltr">{restaurantSlug}</code>
               </p>
             </div>
@@ -391,12 +391,12 @@ export default function ImportRestaurantPage() {
                     <input type="file" accept="image/*" onChange={onLogoFile} className="hidden" />
                   </label>
                   {logo && (
-                    <button type="button" onClick={() => setLogo('')} className="text-white/40 hover:text-rose-300 text-10 tracking-[0.3em] uppercase">
+                    <button type="button" onClick={() => setLogo('')} className="text-white/70 hover:text-rose-300 text-10 tracking-[0.3em] uppercase">
                       {t('Remove', 'הסרה')}
                     </button>
                   )}
                 </div>
-                <p className="text-white/35 text-10 mt-2" style={{ fontFamily: sans }}>{t('Shown on the menu header. Stored on this device.', 'מוצג בכותרת התפריט. נשמר במכשיר זה.')}</p>
+                <p className="text-white/70 text-10 mt-2" style={{ fontFamily: sans }}>{t('Shown on the menu header. Stored on this device.', 'מוצג בכותרת התפריט. נשמר במכשיר זה.')}</p>
               </div>
             </div>
           </div>
@@ -413,7 +413,7 @@ export default function ImportRestaurantPage() {
               {scanning ? <Loader2 size={14} strokeWidth={2.2} className="animate-spin" /> : <Search size={14} strokeWidth={2.2} />}
               {scanning ? t('Scanning…', 'סורק…') : menu ? t('Re-scan', 'סריקה מחדש') : t('Scan menu', 'סריקת תפריט')}
             </motion.button>
-            <span className="text-white/35 text-xs italic" style={{ fontFamily: serif }}>
+            <span className="text-white/70 text-xs italic" style={{ fontFamily: serif }}>
               {t('Supports: getmood.io · Wix Restaurants · Tabit (best-effort) · generic HTML', 'נתמך: getmood.io · Wix Restaurants · Tabit (מאמץ מיטבי) · HTML גנרי')}
             </span>
           </div>
@@ -444,7 +444,7 @@ export default function ImportRestaurantPage() {
                       {t('All', 'הכל')}
                     </button>
                     <span className="text-white/20">·</span>
-                    <button type="button" onClick={() => setItems((p) => p.map((it) => ({ ...it, selected: false })))} disabled={importing} className="text-white/40 hover:text-white/70 disabled:opacity-40">
+                    <button type="button" onClick={() => setItems((p) => p.map((it) => ({ ...it, selected: false })))} disabled={importing} className="text-white/70 hover:text-white/90 disabled:opacity-40">
                       {t('None', 'כלום')}
                     </button>
                   </div>
@@ -458,7 +458,7 @@ export default function ImportRestaurantPage() {
                     <div key={cat.id} className="mb-7">
                       <div className="mb-3 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
                         <h4 className="text-amber-200/85 text-xs tracking-[0.28em] uppercase" style={{ fontFamily: sans }}>
-                          {cat.name} <span className="text-white/35">({groupItems.length})</span>
+                          {cat.name} <span className="text-white/70">({groupItems.length})</span>
                         </h4>
                         <button type="button" onClick={() => toggleGroup(cat.name, !allSelected)} disabled={importing}
                           className="text-10 tracking-[0.2em] uppercase text-white/45 hover:text-amber-100 transition-colors disabled:opacity-40" style={{ fontFamily: sans }}>
@@ -471,7 +471,7 @@ export default function ImportRestaurantPage() {
                             <input type="checkbox" checked={it.selected} onChange={() => toggleItem(it.uid)} disabled={importing} aria-label={t(`Include ${it.name}`, `כלול את ${it.name}`)} className="h-4 w-4 shrink-0 accent-amber-300" />
                             <div className="min-w-0 flex-1">
                               <div className="truncate text-white/90 text-15">{it.name}</div>
-                              {it.desc && <div className="mt-0.5 truncate text-white/40 text-xs italic" style={{ fontFamily: serif }}>{it.desc}</div>}
+                              {it.desc && <div className="mt-0.5 truncate text-white/70 text-xs italic" style={{ fontFamily: serif }}>{it.desc}</div>}
                             </div>
                             {it.price && (
                               <span className="shrink-0 text-amber-100/90 text-sm tabular-nums" style={{ fontFamily: sans }} dir="ltr">₪{it.price}</span>
@@ -485,7 +485,7 @@ export default function ImportRestaurantPage() {
                               {it.status === 'in_progress' && <span className="inline-flex items-center gap-1 text-amber-200"><Loader2 size={12} strokeWidth={2.2} className="animate-spin" /> {t('working', 'עובד')}</span>}
                               {it.status === 'done' && <span className="inline-flex items-center gap-1 text-emerald-300"><Check size={12} strokeWidth={2.4} /> {t('done', 'הושלם')}</span>}
                               {it.status === 'error' && <span className="inline-flex items-center gap-1 text-rose-300" title={it.errorMessage}><X size={12} strokeWidth={2.4} /> {t('failed', 'נכשל')}</span>}
-                              {it.status === 'pending' && it.selected && <span className="text-white/40">{t('queued', 'בתור')}</span>}
+                              {it.status === 'pending' && it.selected && <span className="text-white/70">{t('queued', 'בתור')}</span>}
                             </div>
                           </div>
                         ))}
@@ -553,7 +553,7 @@ export default function ImportRestaurantPage() {
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="text-white/90 text-15">{draft.title[lang] || draft.title.en}</div>
-                        {draft.tagline && <div className="mt-0.5 text-white/40 text-xs italic" style={{ fontFamily: serif }}>{draft.tagline[lang] || draft.tagline.en}</div>}
+                        {draft.tagline && <div className="mt-0.5 text-white/70 text-xs italic" style={{ fontFamily: serif }}>{draft.tagline[lang] || draft.tagline.en}</div>}
                         {draft.priceILS !== undefined && <div className="mt-1 text-amber-100/90 text-13 tabular-nums" style={{ fontFamily: sans }} dir="ltr">₪{draft.priceILS}</div>}
                         {needsImage && (
                           <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-0.5 text-10 tracking-wide text-amber-200/85" style={{ fontFamily: sans }}>
@@ -572,7 +572,7 @@ export default function ImportRestaurantPage() {
                     </div>
 
                     <div className="mt-3">
-                      <label className="block text-white/40 text-10 tracking-[0.2em] uppercase mb-1.5" style={{ fontFamily: sans }}>
+                      <label className="block text-white/70 text-10 tracking-[0.2em] uppercase mb-1.5" style={{ fontFamily: sans }}>
                         {t('ChatGPT image prompt', 'פרומפט תמונה ל-ChatGPT')}
                       </label>
                       <textarea readOnly value={gpt} rows={2} onFocus={(e) => e.currentTarget.select()} aria-label={t('ChatGPT image prompt', 'פרומפט תמונה ל-ChatGPT')} className={`${inputClass} resize-y text-white/65 text-13`} />

@@ -93,7 +93,7 @@ function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, l
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-10 text-white/40 tracking-wide" style={{ fontFamily: sans }}>
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-10 text-white/70 tracking-wide" style={{ fontFamily: sans }}>
         <span>{peakLabel} {peak.toLocaleString()}</span>
         <span>{lastLabel} {last.toLocaleString()}</span>
       </div>
@@ -337,7 +337,7 @@ export default function AnalyticsPage() {
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-white/40 text-10 tracking-[0.3em] uppercase">
+                  <tr className="text-white/70 text-10 tracking-[0.3em] uppercase">
                     <th className="text-start pb-3 font-normal">{t('Cocktail', 'קוקטייל')}</th>
                     <th className="text-end pb-3 font-normal">{t('Views', 'צפיות')}</th>
                     <th className="text-end pb-3 font-normal">{t('Orders', 'הזמנות')}</th>
@@ -383,7 +383,7 @@ export default function AnalyticsPage() {
               <div key={h} className="flex-1 flex flex-col items-center gap-1" title={`${h}:00 — ${(v * 100).toFixed(0)}%`}>
                 <div className="w-full rounded-sm" style={{ height: `${Math.max(2, v * 100)}%`, background: `rgba(232, 201, 135, ${0.25 + v * 0.65})` }} />
                 {(h === 0 || h === 6 || h === 12 || h === 18 || h === 23) && (
-                  <span className="text-white/40 text-9 font-mono" style={{ fontFamily: sans }}>
+                  <span className="text-white/70 text-9 font-mono" style={{ fontFamily: sans }}>
                     {h.toString().padStart(2, '0')}
                   </span>
                 )}
@@ -392,7 +392,7 @@ export default function AnalyticsPage() {
           </div>
         </GlassCard>
 
-        <p className="text-center text-white/30 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
+        <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
           {t('Live · anonymized events', 'בזמן אמת · אירועים אנונימיים')}
         </p>
       </div>

@@ -270,7 +270,7 @@ function ReadinessRing({
         <div>
           <p className="leading-none tabular-nums" style={{ fontFamily: serif, fontWeight: 700 }}>
             <span style={{ fontSize: 'clamp(2.6rem,7vw,3.4rem)', color }}>{value}</span>
-            <span className="text-white/35 text-2xl">/{target}</span>
+            <span className="text-white/60 text-2xl">/{target}</span>
           </p>
           <p className="mt-2 inline-flex items-center gap-1.5 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans, color: ready ? color : 'rgba(255,255,255,0.45)' }}>
             {ready ? <CheckCircle2 size={12} strokeWidth={2.4} /> : null}
@@ -376,7 +376,7 @@ function DistCard({
       </div>
 
       {s.count === 0 ? (
-        <p className="py-6 text-center text-white/35 text-sm" style={{ fontFamily: sans }}>
+        <p className="py-6 text-center text-white/70 text-sm" style={{ fontFamily: sans }}>
           {t('not collected yet', 'עדיין לא נאסף')}
         </p>
       ) : (
@@ -386,18 +386,18 @@ function DistCard({
             <div>
               <p className="leading-none tabular-nums" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,3.2rem)', color: cfg.color }}>
                 {s.p95}
-                <span className="text-white/40 text-lg">{unit}</span>
+                <span className="text-white/60 text-lg">{unit}</span>
               </p>
-              <p className="mt-1 text-white/40 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+              <p className="mt-1 text-white/70 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
                 P95 · {t('samples', 'דגימות')} {s.count.toLocaleString()}
               </p>
             </div>
             <div className="text-end">
               <p className="text-white/70 text-xl tabular-nums" style={{ fontFamily: serif, fontWeight: 600 }}>
                 {s.avg}
-                <span className="text-white/35 text-sm">{unit}</span>
+                <span className="text-white/70 text-sm">{unit}</span>
               </p>
-              <p className="text-white/35 text-10 tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>
+              <p className="text-white/70 text-10 tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>
                 {t('avg', 'ממוצע')}
               </p>
             </div>
@@ -407,7 +407,7 @@ function DistCard({
           <div className="mb-5 grid grid-cols-4 gap-2 text-center">
             {([['P50', s.p50], ['P75', s.p75], ['P90', s.p90], ['max', s.max]] as const).map(([k, v]) => (
               <div key={k} className="rounded-xl border border-white/[0.06] bg-white/[0.02] py-2">
-                <p className="text-white/35 text-9 uppercase tracking-wider" style={{ fontFamily: sans }}>{k}</p>
+                <p className="text-white/70 text-9 uppercase tracking-wider" style={{ fontFamily: sans }}>{k}</p>
                 <p className="text-white/90 text-sm tabular-nums" style={{ fontFamily: serif, fontWeight: 600 }}>{v}{unit}</p>
               </div>
             ))}
@@ -420,7 +420,7 @@ function DistCard({
               {clean}% {t('clean', 'תקין')}
             </span>
           </div>
-          <p className="mt-2 text-white/35 text-10" style={{ fontFamily: sans }}>
+          <p className="mt-2 text-white/70 text-10" style={{ fontFamily: sans }}>
             {t('invalid', 'לא תקין')} {block.invalidPct}% · {t('missing', 'חסר')} {block.missingPct}%{extra ? ` · ${extra}` : ''}
           </p>
         </>
@@ -470,7 +470,7 @@ export default function SignalsPage() {
       actions={
         <>
           <LiveDot label={isHebrew ? 'חי' : 'Live'} />
-          <span className="text-white/40 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+          <span className="text-white/70 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
             {d ? t(`${d.totalEvents.toLocaleString()} events · ${d.collectedSinceDays ?? 0}d`, `${d.totalEvents.toLocaleString()} אירועים · ${d.collectedSinceDays ?? 0}י`) : ''}
           </span>
         </>
@@ -515,7 +515,7 @@ export default function SignalsPage() {
 
             {/* Readiness ring gauge + health roll-up */}
             <div className="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-sm">
-              <p className="mb-4 text-center text-white/40 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>{t('Green streak', 'רצף ירוק')}</p>
+              <p className="mb-4 text-center text-white/70 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>{t('Green streak', 'רצף ירוק')}</p>
               <ReadinessRing
                 value={streak}
                 target={required}
@@ -604,7 +604,7 @@ export default function SignalsPage() {
                 <div key={tr.metric} className="flex items-center justify-between rounded-xl bg-white/[0.02] px-4 py-3">
                   <span className="text-white/75 text-sm" style={{ fontFamily: sans }}>{localizeTrendMetric(tr.metric, isHebrew)}</span>
                   <span className="flex items-center gap-3">
-                    <span className="text-white/35 text-xs tabular-nums" style={{ fontFamily: sans }}>{tr.priorPct}%</span>
+                    <span className="text-white/70 text-xs tabular-nums" style={{ fontFamily: sans }}>{tr.priorPct}%</span>
                     <Direction dir={tr.trend} value={`${tr.recentPct}%`} />
                   </span>
                 </div>
@@ -625,7 +625,7 @@ export default function SignalsPage() {
                       <span className="text-white/75 text-sm" style={{ fontFamily: sans }}>{localizeDriftMetric(dr.signal, isHebrew)}</span>
                     </span>
                     <span className="flex items-center gap-3">
-                      <span className="text-white/35 text-xs tabular-nums" style={{ fontFamily: sans }}>{dr.baseline} {isHebrew ? '←' : '→'} {dr.recent}</span>
+                      <span className="text-white/70 text-xs tabular-nums" style={{ fontFamily: sans }}>{dr.baseline} {isHebrew ? '←' : '→'} {dr.recent}</span>
                       <span className="inline-flex items-center gap-1 text-sm tabular-nums" style={{ color: cfg.color, fontFamily: sans }}>
                         {dr.deltaPct >= 0 ? <TrendingUp size={14} strokeWidth={2.2} /> : <TrendingDown size={14} strokeWidth={2.2} />}
                         {dr.deltaPct >= 0 ? '+' : ''}{dr.deltaPct}%
@@ -671,7 +671,7 @@ export default function SignalsPage() {
           </Stagger>
         </section>
 
-        <p className="inline-flex items-center justify-center gap-2 border-t border-white/10 pt-6 text-center text-white/30 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+        <p className="inline-flex items-center justify-center gap-2 border-t border-white/10 pt-6 text-center text-white/70 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
           <Users size={12} strokeWidth={2} />
           {t('Internal QA · the engine is built only after every signal here is healthy', 'QA פנימי · המנוע נבנה רק אחרי שכל סיגנל כאן בריא')}
         </p>

@@ -36,7 +36,7 @@ function ShareBar({ rows }: { rows: SplitRow[] }) {
           <span key={r.label} className="inline-flex items-center gap-2 text-11" style={{ fontFamily: sans }}>
             <span className="h-2 w-2 rounded-full" style={{ background: r.color }} />
             <span className="text-white/70">{r.label}</span>
-            <span className="text-white/40 font-mono">{((r.count / total) * 100).toFixed(0)}%</span>
+            <span className="text-white/70 font-mono">{((r.count / total) * 100).toFixed(0)}%</span>
           </span>
         ))}
       </div>
@@ -62,7 +62,7 @@ function SegmentCard({ icon: Icon, accent, title, count, total, meaning }: Segme
         <span className="grid place-items-center w-9 h-9 rounded-xl" style={{ color: accent, background: `${accent}1a` }}>
           <Icon size={17} strokeWidth={1.8} />
         </span>
-        <span className="text-white/40 text-11 font-mono" style={{ fontFamily: sans }}>{share.toFixed(0)}%</span>
+        <span className="text-white/70 text-11 font-mono" style={{ fontFamily: sans }}>{share.toFixed(0)}%</span>
       </div>
       <div>
         <p className="text-white leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2rem,4vw,2.6rem)' }}>
@@ -157,7 +157,7 @@ function DonutChart({ segments, centerValue, centerLabel }: { segments: DonutSeg
               <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.color }} />
               <span className="flex-1 text-white/70 text-13" style={{ fontFamily: sans }}>{s.label}</span>
               <span className="text-white text-13 font-medium tabular-nums" style={{ fontFamily: sans }}>{s.count.toLocaleString()}</span>
-              <span className="w-10 text-end text-white/40 text-11 font-mono tabular-nums">{pct.toFixed(0)}%</span>
+              <span className="w-10 text-end text-white/70 text-11 font-mono tabular-nums">{pct.toFixed(0)}%</span>
             </li>
           );
         })}
@@ -394,7 +394,7 @@ export default function CrmPage() {
         </div>
       </GlassCard>
 
-      <p className="text-center text-white/30 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
+      <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
         {t('Anonymous session signals · no PII · refreshes automatically', 'אותות מושב אנונימיים · ללא מידע אישי · מתעדכן אוטומטית')}
       </p>
         </>

@@ -266,7 +266,7 @@ export default function Home() {
               placeholder={isHe ? 'חיפוש בתפריט…' : 'Search the menu…'}
               aria-label={isHe ? 'חיפוש בתפריט' : 'Search the menu'}
               dir={isHe ? 'rtl' : 'ltr'}
-              className="glass-chrome w-full rounded-full py-3 ps-11 pe-5 text-start text-white placeholder:text-white/35 outline-none backdrop-blur-xl transition-colors duration-300 focus:border-amber-200/55"
+              className="glass-chrome w-full rounded-full py-3 ps-11 pe-5 text-start text-white placeholder:text-white/60 outline-none backdrop-blur-xl transition-colors duration-300 focus:border-amber-200/55"
               style={{ fontFamily: sans, fontSize: '15px' }}
             />
           </div>

@@ -117,7 +117,7 @@ export function BulkBreakdownButton() {
 
   if (candidateCount === 0 && !running) {
     return (
-      <p className="text-white/40 text-11 tracking-wider italic">
+      <p className="text-white/70 text-11 tracking-wider italic">
         {t(
           'All drafts have custom layers — nothing to bulk-generate.',
           'לכל הטיוטות יש שכבות מותאמות אישית — אין מה לייצר בכמות.'

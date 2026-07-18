@@ -75,7 +75,7 @@ export function PotentialValue({
   const isHe = lang === 'he';
   if (!potential) {
     return (
-      <p className="text-white/35 text-11 italic" style={{ fontFamily: sans }}>
+      <p className="text-white/70 text-11 italic" style={{ fontFamily: sans }}>
         {isHe ? 'אספו עוד ביקורי אורחים להערכת פוטנציאל' : 'Collect more guest visits to estimate upside'}
       </p>
     );
@@ -138,7 +138,7 @@ function BeforeAfterRow({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="w-10 shrink-0 text-9 uppercase tracking-[0.15em] text-white/40" style={{ fontFamily: sans }}>{label}</span>
+      <span className="w-10 shrink-0 text-9 uppercase tracking-[0.15em] text-white/70" style={{ fontFamily: sans }}>{label}</span>
       <span className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
         <span className="absolute inset-y-0 start-0 rounded-full transition-[width] duration-500" style={{ width: `${Math.max(3, (val / max) * 100)}%`, background: color }} />
       </span>

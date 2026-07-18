@@ -98,7 +98,7 @@ export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) 
                       <span className="block text-white/90 text-13 tracking-wide" style={{ fontFamily: sans, fontWeight: 500 }}>
                         {isHe ? it.he : it.en}
                       </span>
-                      <span className="block text-white/40 text-11 leading-snug mt-0.5" style={{ fontFamily: sans }}>
+                      <span className="block text-white/70 text-11 leading-snug mt-0.5" style={{ fontFamily: sans }}>
                         {isHe ? it.descHe : it.descEn}
                       </span>
                     </span>
@@ -125,7 +125,7 @@ export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) 
           type="button"
           onClick={toggleAdvanced}
           aria-pressed={showAdvanced}
-          className="inline-flex items-center gap-2.5 text-10 tracking-[0.24em] uppercase text-white/40 hover:text-amber-100 transition-colors"
+          className="inline-flex items-center gap-2.5 text-10 tracking-[0.24em] uppercase text-white/70 hover:text-amber-100 transition-colors"
           style={{ fontFamily: sans }}
         >
           <span

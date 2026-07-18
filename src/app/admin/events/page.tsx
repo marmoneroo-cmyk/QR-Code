@@ -172,7 +172,7 @@ export default function EventInspectorPage() {
           >
             {paused ? <Play size={13} strokeWidth={2} /> : <Pause size={13} strokeWidth={2} />}
           </button>
-          <span className="text-white/40 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+          <span className="text-white/70 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
             {integrity ? t(`${integrity.totalEvents} events`, `${integrity.totalEvents} אירועים`) : ''}
           </span>
         </span>
@@ -267,7 +267,7 @@ export default function EventInspectorPage() {
               (loading ? (
                 Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8 w-24 rounded-full" />)
               ) : (
-                <span className="text-white/30 text-xs" style={{ fontFamily: sans }}>
+                <span className="text-white/70 text-xs" style={{ fontFamily: sans }}>
                   {t('No events in view.', 'אין אירועים בתצוגה.')}
                 </span>
               ))}
@@ -389,7 +389,7 @@ export default function EventInspectorPage() {
                       {e.event_name ? eventTypeLabel(e.event_name, lang) : t(s.en, s.he)}
                       {label && <span className="text-white/70"> · {label}</span>}
                     </p>
-                    <p className="text-white/35 text-10 truncate" style={{ fontFamily: mono }} dir="ltr">
+                    <p className="text-white/70 text-10 truncate" style={{ fontFamily: mono }} dir="ltr">
                       {e.event_name ? `${e.event_name} · ` : ''}
                       {(e.session_id ?? '—').slice(0, 12)}
                       {e.table_id ? ` · ${e.table_id}` : ''}
@@ -398,7 +398,7 @@ export default function EventInspectorPage() {
                   </div>
 
                   {/* Relative time */}
-                  <span className="shrink-0 text-white/40 text-11 tabular-nums" style={{ fontFamily: mono }} dir="ltr">
+                  <span className="shrink-0 text-white/70 text-11 tabular-nums" style={{ fontFamily: mono }} dir="ltr">
                     {ago(e.created_at, isHebrew)}
                   </span>
                 </li>
@@ -428,7 +428,7 @@ export default function EventInspectorPage() {
           </GlassCard>
         </section>
 
-        <p className="text-center text-white/30 text-10 tracking-[0.4em] uppercase pt-6 mt-2 border-t border-white/10" style={{ fontFamily: sans }}>
+        <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 mt-2 border-t border-white/10" style={{ fontFamily: sans }}>
           {t('Showing latest 200 events · all metrics count UNIQUE sessions', 'מציג 200 אירועים אחרונים · כל המדדים סופרים sessions ייחודיים')}
         </p>
       </div>

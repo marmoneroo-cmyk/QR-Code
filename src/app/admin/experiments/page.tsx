@@ -166,7 +166,7 @@ export default function ExperimentsPage() {
                       <span className="inline-flex items-center gap-1.5 text-white/85 text-13" style={{ fontFamily: sans }}>
                         {v.label[lang]}
                         {v.isControl && (
-                          <span className="text-white/30 text-9 tracking-wider uppercase">{t('control', 'בקרה')}</span>
+                          <span className="text-white/70 text-9 tracking-wider uppercase">{t('control', 'בקרה')}</span>
                         )}
                       </span>
                       {v.isWinner && (
@@ -176,7 +176,7 @@ export default function ExperimentsPage() {
                       )}
                     </div>
                     <p className="text-2xl tabular-nums" style={{ fontFamily: serif, fontWeight: 700, color: v.isWinner ? 'var(--success-soft)' : 'var(--gold-pale)' }}>
-                      {v.conversionPct.toFixed(1)}<span className="text-base text-white/40">%</span>
+                      {v.conversionPct.toFixed(1)}<span className="text-base text-white/60">%</span>
                     </p>
                     <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden my-2">
                       <div
@@ -199,7 +199,7 @@ export default function ExperimentsPage() {
               {/* headline lift */}
               {challenger && exp.hasData && challenger.exposures > 0 && (
                 <div className="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-white/10">
-                  <span className="text-white/40 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+                  <span className="text-white/70 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
                     {t('Lift vs control', 'שיפור מול בקרה')}
                   </span>
                   <span className={`inline-flex items-center gap-1 text-3xl leading-none tabular-nums ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: serif, fontWeight: 700 }}>
@@ -210,7 +210,7 @@ export default function ExperimentsPage() {
               )}
 
               {!exp.hasData && (
-                <p className="text-white/40 text-xs mt-4 pt-4 border-t border-white/10" style={{ fontFamily: sans }}>
+                <p className="text-white/70 text-xs mt-4 pt-4 border-t border-white/10" style={{ fontFamily: sans }}>
                   {t(
                     'No exposures yet — open a cocktail and use the order bar; each session is split between variants and measured here.',
                     'עדיין אין חשיפות — פתח קוקטייל והשתמש בסרגל ההזמנה; כל session מפוצל בין הוריאציות ונמדד כאן.',
@@ -225,7 +225,7 @@ export default function ExperimentsPage() {
       </div>
       )}
 
-      <p className="text-center text-white/30 text-10 tracking-[0.4em] uppercase pt-8 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
+      <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-8 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
         {t('Sessions split deterministically · winner declared at 95% significance', 'פיצול דטרמיניסטי · מנצח נקבע ב-95% מובהקות')}
       </p>
     </AdminShell>

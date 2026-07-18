@@ -197,7 +197,7 @@ export function MenuEngineeringPanel() {
       <GlassCard className="p-6" static>
         <div className="flex items-center justify-between mb-4">
           <PanelHeader label={t('The matrix', 'המטריצה')} />
-          <p className="text-white/30 text-9 tracking-wider" style={{ fontFamily: sans }}>
+          <p className="text-white/70 text-9 tracking-wider" style={{ fontFamily: sans }}>
             {t('↑ margin · → demand', '↑ רווח · → ביקוש')}
           </p>
         </div>
@@ -280,7 +280,7 @@ export function MenuEngineeringPanel() {
         })}
       </section>
 
-      <p className="text-center text-white/30 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
+      <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
         {t('Seeded cost estimates · override per drink', 'הערכות עלות · עדכן לכל משקה')}
       </p>
     </div>
@@ -392,7 +392,7 @@ function PopStat({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <span className="block">
       <span className="block text-13" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</span>
-      <span className="block text-8 tracking-wide text-white/40" style={{ fontFamily: sans }}>{l}</span>
+      <span className="block text-8 tracking-wide text-white/70" style={{ fontFamily: sans }}>{l}</span>
     </span>
   );
 }
@@ -445,7 +445,7 @@ function Stat({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <div>
       <p className="text-sm" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
-      <p className="text-white/40 text-9 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
+      <p className="text-white/70 text-9 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
     </div>
   );
 }

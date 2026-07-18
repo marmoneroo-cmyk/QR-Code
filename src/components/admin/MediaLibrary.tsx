@@ -482,7 +482,7 @@ function UploadPane({
           <p className="text-white/85 text-sm" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
             {t('Drag & drop an image here', 'גררו תמונה לכאן')}
           </p>
-          <p className="text-white/40 text-xs mt-1" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+          <p className="text-white/70 text-xs mt-1" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
             {t('or click to browse · up to 4MB', 'או לחצו לבחירה · עד 4MB')}
           </p>
         </div>

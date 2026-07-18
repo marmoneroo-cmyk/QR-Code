@@ -148,7 +148,7 @@ function LoginForm() {
         </form>
 
         <div className="relative mt-8 text-center">
-          <Link href="/" className="text-white/40 hover:text-white/70 text-10 tracking-[0.3em] uppercase transition-colors" style={{ fontFamily: sans }}>
+          <Link href="/" className="text-white/70 hover:text-white/90 text-10 tracking-[0.3em] uppercase transition-colors" style={{ fontFamily: sans }}>
             {t('← Back to menu', '→ חזרה לתפריט')}
           </Link>
         </div>

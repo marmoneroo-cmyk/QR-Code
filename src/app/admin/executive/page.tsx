@@ -297,13 +297,13 @@ export default function ExecutiveSummaryPage() {
 
                     <div className="flex items-center gap-3 justify-center md:justify-start">
                       <div className="rounded-xl border border-white/10 bg-black/30 px-4 py-2.5">
-                        <p className="text-9 tracking-[0.25em] uppercase text-white/40" style={{ fontFamily: sans }}>{t('Today', 'היום')}</p>
-                        <p className="text-white/80 text-lg tabular-nums" style={{ fontFamily: serif, fontWeight: 600 }}>{ils(p.beforeRev)}<span className="text-11 text-white/35">/{t('mo', 'חודש')}</span></p>
+                        <p className="text-9 tracking-[0.25em] uppercase text-white/70" style={{ fontFamily: sans }}>{t('Today', 'היום')}</p>
+                        <p className="text-white/80 text-lg tabular-nums" style={{ fontFamily: serif, fontWeight: 600 }}>{ils(p.beforeRev)}<span className="text-11 text-white/70">/{t('mo', 'חודש')}</span></p>
                       </div>
                       <ArrowRight size={20} className={`text-white/40 ${isHe ? 'rotate-180' : ''}`} strokeWidth={1.6} />
                       <div className="rounded-xl border px-4 py-2.5" style={{ borderColor: `${hero.accent}66`, background: `${hero.accent}14` }}>
                         <p className="text-9 tracking-[0.25em] uppercase" style={{ color: hero.accent, fontFamily: sans }}>{t('Projected', 'תחזית')}</p>
-                        <p className="text-xl tabular-nums" style={{ color: hero.accent, fontFamily: serif, fontWeight: 700 }}>{ils(p.afterRev)}<span className="text-11 text-white/35">/{t('mo', 'חודש')}</span></p>
+                        <p className="text-xl tabular-nums" style={{ color: hero.accent, fontFamily: serif, fontWeight: 700 }}>{ils(p.afterRev)}<span className="text-11 text-white/70">/{t('mo', 'חודש')}</span></p>
                       </div>
                     </div>
 
@@ -335,7 +335,7 @@ export default function ExecutiveSummaryPage() {
                 <p className="inline-flex items-center gap-2 text-amber-200/70 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
                   <TrendingUp size={13} strokeWidth={2} /> {t('Demand trend', 'מגמת ביקוש')}
                 </p>
-                <p className="text-white/40 text-10 tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>{t('last 14 days', '14 ימים אחרונים')}</p>
+                <p className="text-white/70 text-10 tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>{t('last 14 days', '14 ימים אחרונים')}</p>
               </div>
               <AreaChart data={(ov?.viewsByDay ?? []).slice(-14)} color={hero.accent} height={120} />
             </GlassCard>
@@ -366,7 +366,7 @@ export default function ExecutiveSummaryPage() {
                     >
                       {isHe ? briefing.he : briefing.en}
                     </p>
-                    <p className="text-white/30 text-10 mt-2 tracking-wide" style={{ fontFamily: sans }}>
+                    <p className="text-white/70 text-10 mt-2 tracking-wide" style={{ fontFamily: sans }}>
                       {t('Projections shown elsewhere are estimates.', 'התחזיות המוצגות במקומות אחרים הן הערכות.')}
                     </p>
                   </div>
@@ -434,7 +434,7 @@ export default function ExecutiveSummaryPage() {
                   <HoverLift accent={it.accent} className="h-full">
                     <Link href="/admin/menu-analysis" className="group relative block h-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5 hover:border-amber-200/40 transition-colors">
                       <AccentWash accent={it.accent} opacity={0.16} />
-                      <span className="absolute top-3 left-4 z-10 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>{i + 1}</span>
+                      <span className="absolute top-3 start-4 z-10 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>{i + 1}</span>
                       <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 mb-3 transition-transform duration-300 group-hover:scale-110" />
                       <p className="relative text-white/90 text-15 text-center leading-tight" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
                       <p className="relative text-amber-200/70 text-11 text-center mt-1 tabular-nums" style={{ fontFamily: sans }}>
@@ -497,7 +497,7 @@ function MoneyHero({ potential, t, isHe }: { potential: { revenueILS: number; co
             </span>
           </div>
         </div>
-        <p className="mt-4 text-white/30 text-10 tracking-wide" style={{ fontFamily: sans }}>
+        <p className="mt-4 text-white/70 text-10 tracking-wide" style={{ fontFamily: sans }}>
           {t('Estimate · based on real data', 'צפי · מבוסס נתונים אמיתיים')}
         </p>
       </div>
@@ -517,7 +517,7 @@ function Mini({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <div>
       <p className="text-sm tabular-nums" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
-      <p className="text-white/40 text-9 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
+      <p className="text-white/70 text-9 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
     </div>
   );
 }
@@ -537,7 +537,7 @@ function KpiTrend({ label, value, delta, series, color, t }: { label: string; va
       </div>
       <p className="text-white text-2xl mb-2 tabular-nums" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
       <AreaChart data={series} color={color} height={36} showDot={false} strokeWidth={1.75} />
-      <p className="text-white/30 text-9 mt-1.5 tracking-wide" style={{ fontFamily: sans }}>{t('vs last week', 'מול שבוע קודם')}</p>
+      <p className="text-white/70 text-9 mt-1.5 tracking-wide" style={{ fontFamily: sans }}>{t('vs last week', 'מול שבוע קודם')}</p>
     </GlassCard>
   );
 }

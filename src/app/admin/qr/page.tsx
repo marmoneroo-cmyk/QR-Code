@@ -211,7 +211,7 @@ export function QrPanel() {
                 />
               </div>
 
-              <p className="text-white/40 text-10 mb-4 break-all max-w-full print:text-black/60" style={{ fontFamily: sans }} dir="ltr">
+              <p className="text-white/70 text-10 mb-4 break-all max-w-full print:text-black/60" style={{ fontFamily: sans }} dir="ltr">
                 {card.url.replace(/^https?:\/\//, '')}
               </p>
 

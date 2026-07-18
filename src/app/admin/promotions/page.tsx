@@ -148,7 +148,7 @@ function Time24({ value, onChange, label }: { value: string; onChange: (v: strin
   const selCls = 'bg-transparent text-white text-sm outline-none cursor-pointer';
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-white/40 text-10 tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>{label}</span>
+      <span className="text-white/70 text-10 tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>{label}</span>
       <span className="inline-flex items-center gap-0.5 rounded-xl border border-white/12 bg-black/40 px-2.5 py-2">
         <select aria-label={`${label} HH`} className={selCls} value={h} onChange={(e) => onChange(`${e.target.value}:${m}`)}>
           {HOURS.map((hh) => (
@@ -190,7 +190,7 @@ function LivePreview({ form, lang, isHe }: { form: FormState; lang: Lang; isHe: 
 
   return (
     <div className="flex flex-col gap-3 min-w-0" dir={isHe ? 'rtl' : 'ltr'}>
-      <div className="flex items-center gap-2 text-white/40 text-10 tracking-[0.18em] uppercase" style={{ fontFamily: sans }}>
+      <div className="flex items-center gap-2 text-white/70 text-10 tracking-[0.18em] uppercase" style={{ fontFamily: sans }}>
         <Eye size={12} strokeWidth={2} />
         {t('Guest preview', 'תצוגת אורח')}
       </div>
@@ -459,7 +459,7 @@ export function PromotionsPanel() {
 
             {form.scope === 'item' && (
               <div className="flex flex-col gap-2">
-                <p className="text-white/40 text-10 tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>
+                <p className="text-white/70 text-10 tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>
                   {t(`Pick items · ${form.targetSlugs.length} selected`, `בחרו פריטים · ${form.targetSlugs.length} נבחרו`)}
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -709,7 +709,7 @@ export function PromotionsPanel() {
 
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <Pill icon={CalendarClock} text={scheduleSummary(p.schedule, isHe)} />
-                      <span className="text-white/30 text-10 tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>
+                      <span className="text-white/70 text-10 tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>
                         {badgeKindLabel(p.badgeKind ?? 'happy_hour', isHe)}
                       </span>
                     </div>

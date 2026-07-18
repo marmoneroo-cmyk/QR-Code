@@ -242,7 +242,7 @@ export function ClosedLoopPanel() {
                       {manual ? <Wrench size={11} strokeWidth={2} /> : <Zap size={11} strokeWidth={2} />}
                     </span>
                     <span className="min-w-0 flex-1 truncate text-white/75">{c.summary ?? c.changeType}</span>
-                    <span className="shrink-0 text-white/35">
+                    <span className="shrink-0 text-white/70">
                       {manual ? t('manual', 'ידני') : t('auto', 'אוטו')} · {fmtDate(c.createdAt)}
                     </span>
                   </div>
@@ -357,7 +357,7 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
               </span>
             </p>
           ) : (
-            <p className="text-white/35 text-sm italic" style={{ fontFamily: sans }}>
+            <p className="text-white/70 text-sm italic" style={{ fontFamily: sans }}>
               {t('No delta yet', 'אין דלתא')}
             </p>
           )}

@@ -145,7 +145,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
       </div>
 
       <motion.div
-        className="absolute top-10 left-10 z-30"
+        className="absolute top-10 start-10 z-30"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
@@ -186,7 +186,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
       </motion.div>
 
       <motion.div
-        className="absolute top-10 right-10 z-30 flex items-center gap-3"
+        className="absolute top-10 end-10 z-30 flex items-center gap-3"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.0, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -233,7 +233,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
       <div className="absolute inset-0 z-10 flex">
         {/* LEFT — description + metrics, 48px from screen edge */}
         <motion.aside
-          className={`hidden xl:flex flex-col justify-start gap-7 w-[260px] shrink-0 pl-12 pr-4 pt-48 pb-12 text-start overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+          className={`hidden xl:flex flex-col justify-start gap-7 w-[260px] shrink-0 ps-12 pe-4 pt-48 pb-12 text-start overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
             isHebrew ? 'items-end' : 'items-start'
           }`}
           dir={isHebrew ? 'rtl' : 'ltr'}
@@ -312,7 +312,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
 
         {/* RIGHT — full drink photo; narrower at xl to keep labels clear, wider at 2xl */}
         <motion.aside
-          className="hidden xl:flex items-center justify-center w-[400px] 2xl:w-[460px] shrink-0 pl-4 pr-10 2xl:pr-14 pt-24 pb-12"
+          className="hidden xl:flex items-center justify-center w-[400px] 2xl:w-[460px] shrink-0 ps-4 pe-10 2xl:pe-14 pt-24 pb-12"
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.1, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
@@ -333,7 +333,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
 
       {/* Flavor + note fallback for md→lg (below the xl 3-zone layout) */}
       <motion.div
-        className={`absolute bottom-10 left-10 z-30 hidden md:flex xl:hidden flex-col gap-5 max-w-[320px] text-start ${
+        className={`absolute bottom-10 start-10 z-30 hidden md:flex xl:hidden flex-col gap-5 max-w-[320px] text-start ${
           isHebrew ? 'items-end' : 'items-start'
         }`}
         dir={isHebrew ? 'rtl' : 'ltr'}
@@ -373,7 +373,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.0 }}
-          className="md:hidden fixed bottom-6 right-6 z-40 px-4 py-2 rounded-full border border-amber-200/40 bg-black/60 backdrop-blur-sm text-amber-100 text-10 tracking-[0.3em] uppercase"
+          className="md:hidden fixed bottom-6 end-6 z-40 px-4 py-2 rounded-full border border-amber-200/40 bg-black/60 backdrop-blur-sm text-amber-100 text-10 tracking-[0.3em] uppercase"
           style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
         >
           {isHebrew ? 'הפעל הטיה' : 'Enable tilt'}
@@ -399,7 +399,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
           <button
             type="button"
             onClick={() => setVideoOpen(false)}
-            className="absolute top-6 right-6 z-10 w-10 h-10 rounded-full border border-amber-200/40 hover:border-amber-200/80 bg-black/50 text-amber-100 text-lg leading-none"
+            className="absolute top-6 end-6 z-10 w-10 h-10 rounded-full border border-amber-200/40 hover:border-amber-200/80 bg-black/50 text-amber-100 text-lg leading-none"
             aria-label={isHebrew ? 'סגור' : 'Close'}
           >
             ×
