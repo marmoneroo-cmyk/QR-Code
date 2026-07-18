@@ -252,7 +252,7 @@ export function RecommendationsPanel() {
 
                   <div className="mt-auto pt-1">
                     <Link
-                      href={`/admin/promotions?cocktail=${encodeURIComponent(row.slug)}`}
+                      href={`/admin/promote?cocktail=${encodeURIComponent(row.slug)}`}
                       className="group/apply inline-flex w-full items-center justify-center gap-1.5 rounded-full px-3.5 py-2.5 text-[12px] tracking-[0.12em] uppercase transition-colors hover:bg-[#e8c987]/20"
                       style={{ color: 'var(--champagne)', background: 'rgba(232,201,135,0.12)', border: '1px solid rgba(232,201,135,0.45)', fontFamily: sans, fontWeight: 600 }}
                     >

@@ -178,7 +178,7 @@ export default function HomeDashboardPage() {
           </Widget>
 
           {/* Impact Tracker */}
-          <Widget title={isHe ? 'מד השפעה' : 'Impact Tracker'} href="/admin/closed-loop" cta={isHe ? 'לולאה' : 'Loop'} isHe={isHe}>
+          <Widget title={isHe ? 'מד השפעה' : 'Impact Tracker'} href="/admin/results" cta={isHe ? 'לולאה' : 'Loop'} isHe={isHe}>
             {wins.length === 0 ? (
               <EmptyState title={isHe ? 'אין עדיין תוצאות נמדדות.' : 'No measured results yet.'} />
             ) : (
@@ -231,7 +231,7 @@ export default function HomeDashboardPage() {
           </Widget>
 
           {/* Promotion Status */}
-          <Widget title={isHe ? 'מבצעים פעילים' : 'Promotion Status'} href="/admin/promotions" cta={isHe ? 'נהל' : 'Manage'} isHe={isHe}>
+          <Widget title={isHe ? 'מבצעים פעילים' : 'Promotion Status'} href="/admin/promote" cta={isHe ? 'נהל' : 'Manage'} isHe={isHe}>
             {promos.length === 0 ? (
               <EmptyState title={isHe ? 'אין מבצעים פעילים.' : 'No active promotions.'} />
             ) : (
@@ -260,7 +260,7 @@ export default function HomeDashboardPage() {
           </Widget>
 
           {/* Recent Changes */}
-          <Widget title={isHe ? 'שינויים אחרונים' : 'Recent Changes'} href="/admin/closed-loop" cta={isHe ? 'הכול' : 'All'} isHe={isHe}>
+          <Widget title={isHe ? 'שינויים אחרונים' : 'Recent Changes'} href="/admin/results" cta={isHe ? 'הכול' : 'All'} isHe={isHe}>
             {!loop || loop.timeline.length === 0 ? (
               <EmptyState title={isHe ? 'אין שינויים שתועדו.' : 'No changes logged.'} />
             ) : (

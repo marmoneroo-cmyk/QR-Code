@@ -676,7 +676,11 @@ export function PromotionsPanel() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => remove(p.id)}
+                          onClick={() => {
+                            if (window.confirm(t('Delete this promotion? This cannot be undone.', 'למחוק את המבצע הזה? לא ניתן לשחזר.'))) {
+                              void remove(p.id);
+                            }
+                          }}
                           className="text-rose-300/60 hover:text-rose-300 transition-colors"
                           aria-label={t('delete', 'מחיקה')}
                           title={t('Delete', 'מחיקה')}

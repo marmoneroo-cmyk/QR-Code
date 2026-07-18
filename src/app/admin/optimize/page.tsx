@@ -78,7 +78,7 @@ const EDITOR_ACTIONS: ReadonlySet<RecAction> = new Set<RecAction>(['fix_offer', 
 
 /** Resolve the "Apply" destination for a recommendation, or null when there's nothing to apply. */
 function applyHref(action: RecAction, slug: string): string | null {
-  if (PROMOTION_ACTIONS.has(action)) return `/admin/promotions?cocktail=${encodeURIComponent(slug)}`;
+  if (PROMOTION_ACTIONS.has(action)) return `/admin/promote?cocktail=${encodeURIComponent(slug)}`;
   if (EDITOR_ACTIONS.has(action)) return `/admin/${encodeURIComponent(slug)}/edit`;
   return null; // keep_position → no Apply
 }
