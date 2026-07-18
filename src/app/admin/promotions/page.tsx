@@ -296,7 +296,7 @@ export function PromotionsPanel() {
       const timer = window.setTimeout(() => setPrefilled(false), 2400);
       return () => window.clearTimeout(timer);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setForm((f) => ({ ...f, [k]: v }));

@@ -1051,7 +1051,7 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
       aria-label={isHe ? 'וידאו הכנה' : 'Preparation video'}
     >
       {/* No poster — the footage itself appears immediately, not a still of the drink. */}
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      { }
       <video
         src={src}
         autoPlay

@@ -229,7 +229,7 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
                 style={{ opacity: hoverVideo && playing ? 0 : 1 }}
               />
               {hoverVideo && (
-                // eslint-disable-next-line jsx-a11y/media-has-caption
+                 
                 <video
                   ref={videoRef}
                   src={hoverVideo}

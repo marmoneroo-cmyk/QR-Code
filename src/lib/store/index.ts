@@ -9,7 +9,7 @@
  */
 
 import type { CocktailConfig } from '@/data/cocktail';
-import type { CocktailStore, StoredDraft } from './interface';
+import type { CocktailStore } from './interface';
 import { LocalStorageAdapter } from './local';
 import { SupabaseAdapter } from './supabase';
 import { isSupabaseConfigured } from '@/lib/supabase/client';

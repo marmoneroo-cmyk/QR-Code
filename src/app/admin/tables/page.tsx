@@ -70,7 +70,7 @@ export function TablesPanel() {
       const out: TableQr[] = [];
       for (let n = 1; n <= count; n += 1) {
         const url = `${origin}/?t=${n}&src=table_qr`;
-        // eslint-disable-next-line no-await-in-loop
+         
         const dataUrl = await QRCode.toDataURL(url, QR_OPTIONS);
         out.push({ table: n, url, dataUrl });
       }

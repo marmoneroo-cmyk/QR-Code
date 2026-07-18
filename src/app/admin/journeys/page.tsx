@@ -260,7 +260,7 @@ function FunnelStepper({ nodes, total, isHebrew, t }: FunnelStepperProps) {
         {/* flex-wrap = wraps to rows; no overflow-x anywhere */}
         <div className="flex flex-wrap items-stretch justify-center gap-y-4">
           {nodes.map((node, idx) => {
-            const { stage, count, pctOfTotal, dropPct } = node;
+            const { stage, count, pctOfTotal } = node;
             const Icon = stage.icon;
             const isLast = idx === nodes.length - 1;
 

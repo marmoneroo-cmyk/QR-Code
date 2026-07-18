@@ -239,8 +239,6 @@ export function QrPanel() {
 }
 
 export default function QrAdminPage() {
-  const { lang } = useLang();
-  const isHebrew = lang === 'he';
   return (
     <AdminShell
       title="QR Table Tents"

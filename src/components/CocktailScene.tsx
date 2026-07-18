@@ -404,7 +404,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
           >
             ×
           </button>
-          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+          { }
           <video
             src={featureVideo}
             className="max-h-[90vh] max-w-[90vw] w-auto rounded-2xl shadow-2xl"

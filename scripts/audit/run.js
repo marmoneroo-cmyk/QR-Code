@@ -16,7 +16,6 @@ async function ensure(slug,name){ let id=await tid(slug); if(id) return id; cons
 function ev(restId,{slug,name,sid,vid,t,value,metadata,device,lang}){ const iso=new Date(t).toISOString(); return {restaurant_id:restId,cocktail_slug:slug??null,event_name:name,session_id:sid,visitor_id:vid??null,table_id:null,device_type:device??'mobile',language:lang??'he',referrer:null,value_num:(value===undefined?null:value),metadata:metadata??null,occurred_at:iso,created_at:iso}; }
 async function ins(rows){ for(let i=0;i<rows.length;i+=500){ const {error}=await sb.from('events').insert(rows.slice(i,i+500)); if(error) throw new Error(error.message);} return rows.length; }
 async function clearTenant(slug){ const id=await tid(slug); if(!id) return; await sb.from('events').delete().eq('restaurant_id',id); await sb.from('changes').delete().eq('restaurant_id',id); }
-async function countEv(restId,filter={}){ let q=sb.from('events').select('id',{count:'exact',head:true}).eq('restaurant_id',restId); for(const[k,v]of Object.entries(filter)) q=q.eq(k,v); const {count}=await q; return count; }
 async function post(path,body,headers){ const r=await fetch(BASE+path,{method:'POST',headers:{'Content-Type':'application/json',...(headers||{})},body:JSON.stringify(body)}); let j; try{j=await r.json()}catch{j=null} return {status:r.status,json:j}; }
 async function getJSON(path){ const r=await fetch(BASE+path); let j; try{j=await r.json()}catch{j=null} return {status:r.status,json:j}; }
 async function audit(fn,rest){ return getJSON(`/api/auditx?fn=${fn}&restaurant=${rest}`); }
@@ -53,7 +52,7 @@ async function t9(){ const a=await tid(A);
   log('  VERDICT:',(row.data&&row.data.metadata&&row.data.metadata.revenue===1000000000)?'CONFIRMED — unauthenticated client revenue stored verbatim':'check'); }
 
 // ---- TEST 8: tenant isolation (aggregation) + cross-tenant access (authz) ----
-async function t8(){ const a=await tid(A), b=await tid(B);
+async function t8(){ const a=await tid(A);
   // generate events in A only
   const rows=[]; for(let i=0;i<20;i++) rows.push(ev(a,{slug:'diner-negroni',name:'cocktail_opened',sid:'iso-'+i,t:Date.now()-3600000}));
   await ins(rows);

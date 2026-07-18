@@ -52,10 +52,23 @@ const noHardcodedHexColors = {
   },
 };
 
+// Intentionally-unused bindings are conventionally underscore-prefixed (ignored params
+// like `_ctx`, placeholder destructures like `_c`). Honor that so they don't read as dead code.
+const underscoreIgnore = {
+  files: ["src/**/*.{ts,tsx}"],
+  rules: {
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
+    ],
+  },
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   noHardcodedHexColors,
+  underscoreIgnore,
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

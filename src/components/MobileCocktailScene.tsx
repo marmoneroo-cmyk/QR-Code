@@ -116,7 +116,7 @@ export function MobileCocktailScene({
           >
             ×
           </button>
-          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+          { }
           <video
             src={featureVideo}
             className="max-h-[85vh] max-w-[94vw] w-auto rounded-2xl"

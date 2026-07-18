@@ -199,7 +199,7 @@ export default function Home() {
         dir={isHe ? 'rtl' : 'ltr'}
       >
         {featured && (
-          // eslint-disable-next-line @next/next/no-img-element
+           
           <motion.img
             src={featured.heroImage}
             alt=""

@@ -65,7 +65,7 @@ const EVENT_TYPE_LABELS: Record<TrackEvent, Label> = {
 if (process.env.NODE_ENV !== 'production') {
   for (const key of TRACK_EVENTS) {
     if (!(key in EVENT_TYPE_LABELS)) {
-      // eslint-disable-next-line no-console
+       
       console.warn(`[eventLabels] Missing label for event type: ${key}`);
     }
   }

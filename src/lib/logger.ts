@@ -48,13 +48,13 @@ const isProd = process.env.NODE_ENV === 'production';
 
 /** Map level → console method (the one place console.* is permitted). */
 const sink: Record<LogLevel, (...args: unknown[]) => void> = {
-  // eslint-disable-next-line no-console
+   
   debug: (...a) => console.debug(...a),
-  // eslint-disable-next-line no-console
+   
   info: (...a) => console.info(...a),
-  // eslint-disable-next-line no-console
+   
   warn: (...a) => console.warn(...a),
-  // eslint-disable-next-line no-console
+   
   error: (...a) => console.error(...a),
 };
 
