@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { Layers, Play, Box } from 'lucide-react';
 import { getAccent, getFeatureVideo, formatPrice, findCocktailBySlug, MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
+import Image from 'next/image';
 import { FlavorRadar } from './FlavorRadar';
 import { SmartImage } from '@/components/ui/SmartImage';
+import { getHeroDimensions } from '@/data/imageDimensions';
 import { useApiData } from '@/lib/data/useApiData';
 import { track } from '@/lib/tracking/track';
 import { recordView } from '@/lib/tracking/revisit';
@@ -613,21 +615,44 @@ function HeroStage({
           animate={reduce ? undefined : { y: [0, -10, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={config.heroImage}
-            alt={config.title[lang]}
-            className="relative z-10 h-full w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
-            style={{
+          {(() => {
+            // Built-in heroes get next/image (AVIF/WebP + srcset); their dimensions vary,
+            // so we look them up. Uploads (data:/blob:) and unlisted images fall back to a
+            // plain <img>. Either way: height-driven (h-full), auto width, CSS reflection —
+            // one fewer decode than the old twin-<img> reflection.
+            const heroStyle = {
+              height: '100%',
+              width: 'auto',
               filter: `drop-shadow(0 40px 70px rgba(0,0,0,0.85)) drop-shadow(0 0 50px ${accent}30)`,
-              // CSS reflection instead of a second <img> of the same hero — one fewer full
-              // image decode on the flagship screen, and it stays glued to the drink.
               WebkitBoxReflect: 'below 1px linear-gradient(to bottom, rgba(255,255,255,0.26), transparent 42%)',
-            }}
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-          />
+            } as const;
+            const heroClass =
+              'relative z-10 h-full w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]';
+            const dims = getHeroDimensions(config.heroImage);
+            return dims ? (
+              <Image
+                src={config.heroImage}
+                alt={config.title[lang]}
+                width={dims.width}
+                height={dims.height}
+                priority
+                sizes="(max-width: 768px) 80vw, 40vw"
+                className={heroClass}
+                style={heroStyle}
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={config.heroImage}
+                alt={config.title[lang]}
+                className={heroClass}
+                style={heroStyle}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
+            );
+          })()}
         </motion.span>
         <span
           className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-10 tracking-[0.45em] uppercase text-white/70 transition-colors group-hover:text-white"
