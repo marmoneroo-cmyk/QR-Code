@@ -210,8 +210,8 @@ export default function HomeDashboardPage() {
             )}
           </Widget>
 
-          {/* Traffic Trends */}
-          <Widget title={isHe ? 'מגמת תנועה' : 'Traffic Trends'} href="/admin/analytics" cta={isHe ? '14 ימים' : '14 days'} isHe={isHe}>
+          {/* Guest Visits */}
+          <Widget title={isHe ? 'מגמת ביקורים' : 'Guest Visits'} href="/admin/analytics" cta={isHe ? '14 ימים' : '14 days'} isHe={isHe}>
             {traffic.series.length === 0 ? (
               <EmptyState title={isHe ? 'אין עדיין נתונים.' : 'No data yet.'} />
             ) : (

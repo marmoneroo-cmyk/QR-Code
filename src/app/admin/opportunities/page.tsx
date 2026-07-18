@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
-import { AlertTriangle, ArrowUp, Megaphone, Tag, Repeat, Layers, Lightbulb, EyeOff, Check, X, Clock, ChevronDown, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, ArrowUp, Megaphone, Tag, Repeat, Layers, Lightbulb, EyeOff, Check, X, Clock, ChevronDown, RotateCcw, CheckCircle2, BadgeCheck } from 'lucide-react';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, SectionLabel, Skeleton } from '@/components/ui/dataviz';
@@ -14,6 +14,7 @@ import { PotentialValue } from '@/components/ui/value';
 import { HoverLift, AccentWash, BeforeAfterImage } from '@/components/ui/visual';
 import { estimatePotential, buildMenuBenchmark, type MenuBenchmark } from '@/lib/value/potential';
 import { isStatusActive, type OppStatusKind, type OppStatusMap } from '@/lib/value/focus';
+import { sampleConfidence } from '@/lib/menu-intel/sample';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
 import type { Opportunity, OpportunityType, Confidence, LayoutInsight } from '@/lib/opportunities/types';
 import { useNow } from '@/lib/useNow';
@@ -50,7 +51,6 @@ const AFTER_BADGE: Record<OpportunityType, { en: string; he: string }> = {
   reengage_returning: { en: 'featured', he: 'מומלץ' },
 };
 
-const CONF_PCT: Record<Confidence, number> = { high: 90, medium: 70, low: 45 };
 const CONF_LABEL: Record<Confidence, { en: string; he: string }> = {
   high: { en: 'High confidence', he: 'ביטחון גבוה' },
   medium: { en: 'Medium', he: 'בינוני' },
@@ -320,7 +320,16 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
         >
           <Icon size={12} strokeWidth={2} /> {TYPE_LABEL[o.type][lang]}
         </span>
-        <ConfidenceBadge pct={CONF_PCT[o.confidence]} label={CONF_LABEL[o.confidence][lang]} />
+        {item ? (
+          <ConfidenceBadge pct={Math.round(sampleConfidence(item.views) * 100)} label={CONF_LABEL[o.confidence][lang]} />
+        ) : (
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.18em] uppercase"
+            style={{ borderColor: `${meta.color}66`, color: meta.color, fontFamily: sans }}
+          >
+            <BadgeCheck size={12} strokeWidth={2} /> {CONF_LABEL[o.confidence][lang]}
+          </span>
+        )}
       </div>
 
       <h3

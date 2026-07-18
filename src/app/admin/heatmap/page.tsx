@@ -201,14 +201,14 @@ function MockupSection({ section, maxViews, isHottest, lang, isHe }: MockupSecti
     >
       {isHottest && (
         <span
-          className={`absolute top-2 grid h-6 w-6 place-items-center rounded-full ${isHe ? 'left-2' : 'right-2'}`}
+          className="absolute top-2 end-2 grid h-6 w-6 place-items-center rounded-full"
           style={{ color: '#fff', background: 'rgba(0,0,0,0.28)', boxShadow: `0 0 14px -2px ${ACCENT}` }}
           title={isHe ? 'החלק החם ביותר' : 'Hottest section'}
         >
           <Flame size={13} strokeWidth={2.2} fill={ACCENT} />
         </span>
       )}
-      <div className={`min-w-0 ${isHottest ? (isHe ? 'pl-7' : 'pr-7') : ''}`}>
+      <div className={`min-w-0 ${isHottest ? 'pe-7' : ''}`}>
         <p className="text-[13px] leading-tight truncate" style={{ color: textColor, fontFamily: sans }}>
           {sectionLabel(section.section, lang)}
         </p>

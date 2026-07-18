@@ -139,8 +139,8 @@ export function RecommendationsPanel() {
             <EmptyState
               title={t('No co-views yet', 'אין צפיות משותפות עדיין')}
               hint={t(
-                'Co-views appear once guests browse more than one drink in the same session. As traffic grows, this page reveals which cocktails are explored together.',
-                'צפיות משותפות מופיעות כאשר אורחים מעיינים ביותר ממשקה אחד באותו ביקור. ככל שהתנועה גדלה, עמוד זה חושף אילו קוקטיילים נחקרים יחד.',
+                'Co-views appear once guests browse more than one drink in the same session. As more guests visit, this page reveals which cocktails are explored together.',
+                'צפיות משותפות מופיעות כאשר אורחים מעיינים ביותר ממשקה אחד באותו ביקור. ככל שיגיעו עוד אורחים, עמוד זה חושף אילו קוקטיילים נחקרים יחד.',
               )}
             />
           </div>

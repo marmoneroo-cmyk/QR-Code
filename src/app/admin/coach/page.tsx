@@ -315,8 +315,8 @@ function EmptyHero({
       ? 'אין עדיין מספיק נתונים כדי להמליץ על מהלך. ברגע שאורחים יתחילו לסרוק את התפריט, נדע בדיוק מה כדאי לעשות.'
       : "Not enough data yet to recommend a move. Once guests start scanning the menu, we'll know exactly what's worth doing."
     : isHe
-      ? 'שקט באולם — אין שום דבר דחוף הערב. נמשיך לעקוב אחרי התנועה ונעדכן ברגע שיופיע מהלך ששווה לעשות.'
-      : "All quiet on the floor — nothing urgent tonight. We'll keep an eye on the traffic and flag the next move the moment it's worth making.";
+      ? 'שקט באולם — אין שום דבר דחוף הערב. נמשיך לעקוב אחרי הביקורים ונעדכן ברגע שיופיע מהלך ששווה לעשות.'
+      : "All quiet on the floor — nothing urgent tonight. We'll keep an eye on guest visits and flag the next move the moment it's worth making.";
 
   return (
     <GlassCard accent={accent} static className="px-8 py-20 text-center">

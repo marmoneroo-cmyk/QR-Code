@@ -206,7 +206,7 @@ function LivePreview({ form, lang, isHe }: { form: FormState; lang: Lang; isHe: 
         />
 
         {/* Floating badge — mirrors how the live menu badge appears */}
-        <div className={`absolute top-3 z-10 flex flex-wrap items-center gap-1.5 ${isHe ? 'left-3' : 'right-3'}`}>
+        <div className="absolute top-3 end-3 z-10 flex flex-wrap items-center gap-1.5">
           <span
             className="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] tracking-[0.14em] uppercase"
             style={{ color: accent, background: `${accent}1f`, border: `1px solid ${accent}55`, fontFamily: sans, fontWeight: 700 }}

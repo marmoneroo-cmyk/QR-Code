@@ -177,7 +177,7 @@ export function BeforeAfterBar({
   );
 }
 
-/** Segmented "AI confidence" meter (████░ 91%) — gives a sense of machine intelligence. */
+/** Segmented confidence meter (████░ 91%) — how strongly the sample supports the number. */
 export function ConfidenceMeter({
   pct,
   lang,
@@ -196,7 +196,7 @@ export function ConfidenceMeter({
   return (
     <div className="inline-flex items-center gap-2">
       <span className="text-[9px] uppercase tracking-[0.2em] text-white/45" style={{ fontFamily: sans }}>
-        {label ?? (isHe ? 'ביטחון AI' : 'AI confidence')}
+        {label ?? (isHe ? 'ביטחון' : 'Confidence')}
       </span>
       <span className="inline-flex gap-[2px]" aria-hidden>
         {Array.from({ length: segments }).map((_, i) => (

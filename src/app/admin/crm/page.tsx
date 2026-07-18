@@ -157,7 +157,7 @@ function DonutChart({ segments, centerValue, centerLabel }: { segments: DonutSeg
               <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.color }} />
               <span className="flex-1 text-white/70 text-[13px]" style={{ fontFamily: sans }}>{s.label}</span>
               <span className="text-white text-[13px] font-medium tabular-nums" style={{ fontFamily: sans }}>{s.count.toLocaleString()}</span>
-              <span className="w-10 text-right text-white/40 text-[11px] font-mono tabular-nums">{pct.toFixed(0)}%</span>
+              <span className="w-10 text-end text-white/40 text-[11px] font-mono tabular-nums">{pct.toFixed(0)}%</span>
             </li>
           );
         })}
