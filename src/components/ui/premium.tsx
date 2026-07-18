@@ -53,15 +53,6 @@ export function GlowDivider({ className }: { className?: string }) {
   );
 }
 
-/** Eyebrow label — tracked uppercase champagne, the section voice. */
-export function SectionLabel({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <p className={`text-10 tracking-[0.42em] uppercase ${className ?? ''}`} style={{ fontFamily: sans, color: 'rgba(232,201,135,0.75)' }}>
-      {children}
-    </p>
-  );
-}
-
 /* ─── Panels ────────────────────────────────────────────────────────────── */
 
 interface GlassCardProps {

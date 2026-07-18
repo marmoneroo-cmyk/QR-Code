@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { motion } from 'framer-motion';
 import { FLAVOR_LABEL, FOOD_FLAVOR_LABEL, type FlavorProfile, type Lang } from '@/data/cocktail';
 
@@ -9,6 +10,12 @@ interface FlavorRadarProps {
   size?: number;
   /** Food dishes relabel the axes with kitchen language (Umami/Acidity vs Bitter/Citrus). */
   kind?: 'drink' | 'food';
+  /**
+   * Optional per-drink signature hex (e.g. '#e8c987') for the polygon stroke, the
+   * data-point dots, and the inner gradient stop — so each drink's radar reads in
+   * its own color instead of the shared amber/pink. Omit to keep the amber/pink default.
+   */
+  accent?: string;
 }
 
 const AXES: Array<keyof FlavorProfile> = ['sweet', 'bitter', 'citrus', 'smoky', 'herbal'];
@@ -17,8 +24,21 @@ function polarPoint(cx: number, cy: number, radius: number, angleRad: number): [
   return [cx + radius * Math.cos(angleRad), cy + radius * Math.sin(angleRad)];
 }
 
-export function FlavorRadar({ flavor, lang, size = 220, kind = 'drink' }: FlavorRadarProps) {
+export function FlavorRadar({ flavor, lang, size = 220, kind = 'drink', accent }: FlavorRadarProps) {
   const labels = kind === 'food' ? FOOD_FLAVOR_LABEL : FLAVOR_LABEL;
+
+  // Unique gradient id per instance: two radars can share the screen (e.g. during
+  // view transitions), and a fixed id would make every `url(#…)` resolve to the
+  // first definition — so a per-accent gradient must not reuse one global id.
+  const gradientId = useId();
+
+  // When an accent hex is supplied, tint the polygon stroke, the dots, and the
+  // gradient core with it (hex + 2-digit alpha suffix, the same inline-SVG pattern
+  // used across the experience). No accent → the original amber/pink, byte-for-byte.
+  const strokeColor = accent ? `${accent}d9` : 'rgba(252,211,77,0.85)';
+  const dotColor = accent ? `${accent}f2` : 'rgba(252,211,77,0.95)';
+  const fillInner = accent ? `${accent}73` : 'rgba(252,211,77,0.45)';
+
   const cx = size / 2;
   const cy = size / 2;
   const maxRadius = size * 0.36;
@@ -65,8 +85,8 @@ export function FlavorRadar({ flavor, lang, size = 220, kind = 'drink' }: Flavor
       >
         <title>{chartLabel}</title>
         <defs>
-          <radialGradient id="flavor-fill" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(252,211,77,0.45)" />
+          <radialGradient id={gradientId} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={fillInner} />
             <stop offset="100%" stopColor="rgba(190,24,93,0.2)" />
           </radialGradient>
         </defs>
@@ -104,8 +124,8 @@ export function FlavorRadar({ flavor, lang, size = 220, kind = 'drink' }: Flavor
 
         <motion.path
           d={dataPath}
-          fill="url(#flavor-fill)"
-          stroke="rgba(252,211,77,0.85)"
+          fill={`url(#${gradientId})`}
+          stroke={strokeColor}
           strokeWidth={1.5}
           strokeLinejoin="round"
           initial={{ opacity: 0, scale: 0.4 }}
@@ -120,7 +140,7 @@ export function FlavorRadar({ flavor, lang, size = 220, kind = 'drink' }: Flavor
             cx={x}
             cy={y}
             r={3}
-            fill="rgba(252,211,77,0.95)"
+            fill={dotColor}
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 + i * 0.06 }}

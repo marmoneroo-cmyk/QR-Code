@@ -7,6 +7,7 @@ import { Layers, Play, Box } from 'lucide-react';
 import { getAccent, getFeatureVideo, formatPrice, findCocktailBySlug, MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
 import { FlavorRadar } from './FlavorRadar';
 import { SmartImage } from '@/components/ui/SmartImage';
+import { useApiData } from '@/lib/data/useApiData';
 import { track } from '@/lib/tracking/track';
 import { recordView } from '@/lib/tracking/revisit';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
@@ -513,7 +514,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
         <p className="mb-5 text-center text-11 tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
-        <FlavorRadar flavor={config.flavor} lang={lang} size={230} kind="food" />
+        <FlavorRadar flavor={config.flavor} lang={lang} size={230} kind="food" accent={accent} />
         {note && (
           <p className="mt-8 max-w-xs text-center text-13 italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
             ”{note}“{config.bartenderName ? ` — ${config.bartenderName}` : ''}
@@ -844,7 +845,7 @@ function ExplodedView({
         <p className="mb-5 text-center text-11 tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
-        <FlavorRadar flavor={flavor} lang={lang} size={230} />
+        <FlavorRadar flavor={flavor} lang={lang} size={230} accent={accent} />
         {note && (
           <p className="mt-8 max-w-xs text-center text-13 italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
             ”{note}“{noteName ? ` — ${noteName}` : ''}
@@ -875,49 +876,32 @@ interface AlsoExploredProps {
  */
 function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
   const isHe = lang === 'he';
-  const [picks, setPicks] = useState<CocktailConfig[] | null>(null);
-  const [fromGuests, setFromGuests] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      let found: CocktailConfig[] = [];
-      let behavioral = false;
-      try {
-        const res = await fetch('/api/analytics/recommendations', { cache: 'no-store' });
-        const json: {
-          success: boolean;
-          data?: { rows?: { slug: string; related?: { slug: string; coViews: number }[] }[] };
-        } = await res.json();
-        const row = json.success ? json.data?.rows?.find((r) => r.slug === currentSlug) : undefined;
-        const related = (row?.related ?? [])
-          .map((r) => findCocktailBySlug(r.slug))
-          .filter((c): c is CocktailConfig => Boolean(c) && c?.slug !== currentSlug);
-        if (related.length > 0) {
-          found = related.slice(0, 3);
-          behavioral = true;
-        }
-      } catch {
-        /* analytics never breaks the page — fall through to the curated list */
-      }
-      if (found.length === 0) {
-        const self = findCocktailBySlug(currentSlug);
-        const sameCategory = MENU.filter((c) => c.slug !== currentSlug && c.category === self?.category);
-        const others = MENU.filter((c) => c.slug !== currentSlug && !sameCategory.includes(c));
-        found = [...sameCategory, ...others].slice(0, 3);
-      }
-      if (!cancelled) {
-        setPicks(found);
-        setFromGuests(behavioral);
-      }
-    };
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [currentSlug]);
+  // Shared SWR primitive: dedupes/caches the co-view read across drinks and keeps
+  // last-good data on a failed refresh (analytics never breaks the page — a failed
+  // or empty read simply leaves `data` null, and we fall through to the curated list).
+  const { data, loading } = useApiData<{
+    rows?: { slug: string; related?: { slug: string; coViews: number }[] }[];
+  }>('/api/analytics/recommendations');
 
-  if (!picks || picks.length === 0) return null;
+  const { picks, fromGuests } = useMemo(() => {
+    const row = data?.rows?.find((r) => r.slug === currentSlug);
+    const related = (row?.related ?? [])
+      .map((r) => findCocktailBySlug(r.slug))
+      .filter((c): c is CocktailConfig => Boolean(c) && c?.slug !== currentSlug);
+    if (related.length > 0) {
+      return { picks: related.slice(0, 3), fromGuests: true };
+    }
+    const self = findCocktailBySlug(currentSlug);
+    const sameCategory = MENU.filter((c) => c.slug !== currentSlug && c.category === self?.category);
+    const others = MENU.filter((c) => c.slug !== currentSlug && !sameCategory.includes(c));
+    return { picks: [...sameCategory, ...others].slice(0, 3), fromGuests: false };
+  }, [data, currentSlug]);
+
+  // Nothing yet on the very first load (matches the old null-picks state); once the
+  // read settles (or errors), the curated fallback guarantees a non-empty list.
+  if (loading) return null;
+  if (picks.length === 0) return null;
 
   const title = fromGuests
     ? isHe ? 'אורחים שפתחו את זה התעניינו גם ב…' : 'Guests who opened this also explored…'

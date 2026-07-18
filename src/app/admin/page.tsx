@@ -10,24 +10,13 @@ import { useMenuOrder } from '@/lib/useMenuOrder';
 import { useLang } from '@/lib/useLang';
 import { BulkBreakdownButton } from '@/components/admin/BulkBreakdownButton';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { GlassImage } from '@/components/ui/dataviz';
+import { GlassImage, SectionLabel } from '@/components/ui/dataviz';
 
 const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 const heSerif = 'var(--font-frank-ruhl, serif)';
 const body = 'var(--font-garamond, serif)';
 const heBody = 'var(--font-heebo, sans-serif)';
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-4 mb-6">
-      <h2 className="text-amber-200/85 text-11 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
-        {children}
-      </h2>
-      <span className="flex-1 h-px bg-amber-200/12" />
-    </div>
-  );
-}
 
 interface DraftCardProps {
   index: number;

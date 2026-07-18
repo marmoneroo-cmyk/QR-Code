@@ -2,10 +2,10 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Sunrise, Flame, ArrowRight, Users, ShoppingBag, TrendingUp, TrendingDown, BadgeCheck, Share2, Check } from 'lucide-react';
+import { Sunrise, Flame, ArrowRight, ShoppingBag, TrendingUp, TrendingDown, BadgeCheck, Share2, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { Skeleton, SkeletonGrid, LiveDot, AreaChart, GlassImage, deltaPct } from '@/components/ui/dataviz';
+import { Skeleton, SkeletonGrid, LiveDot, AreaChart, GlassImage, deltaPct, Pill } from '@/components/ui/dataviz';
 import { Stagger, staggerItem, Reveal } from '@/components/ui/motion';
 import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
 import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
@@ -502,14 +502,6 @@ function MoneyHero({ potential, t, isHe }: { potential: { revenueILS: number; co
         </p>
       </div>
     </Link>
-  );
-}
-
-function Pill({ icon: Icon, text, accent }: { icon: typeof Users; text: string; accent?: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-xs" style={{ color: accent ?? 'rgba(255,255,255,0.8)', fontFamily: sans }}>
-      <Icon size={13} strokeWidth={1.8} /> {text}
-    </span>
   );
 }
 
