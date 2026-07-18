@@ -991,6 +991,10 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
   // H-A RAW SIGNAL ONLY: the max % of the video actually watched. No scoring/interpretation here.
   const maxPct = useRef(0);
   const flushed = useRef(false);
+  const skipRef = useRef<HTMLButtonElement>(null);
+  // Keep the latest onEnd without re-running the mount-once focus effect below.
+  const onEndRef = useRef(onEnd);
+  onEndRef.current = onEnd;
   const flushProgress = () => {
     if (flushed.current || !cocktailSlug) return;
     flushed.current = true;
@@ -1007,12 +1011,32 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cocktailSlug]);
 
+  // A11y: this player is a full-screen takeover, so move focus into it (the Skip
+  // control), let Escape dismiss it, and restore focus to wherever it was on close.
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    skipRef.current?.focus();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onEndRef.current();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      previouslyFocused?.focus?.();
+    };
+  }, []);
+
   return (
     <motion.section
       className="fixed inset-0 z-40 flex items-center justify-center bg-black"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.4 } }}
+      role="dialog"
+      aria-modal="true"
       aria-label={isHe ? 'וידאו הכנה' : 'Preparation video'}
     >
       {/* No poster — the footage itself appears immediately, not a still of the drink. */}
@@ -1038,9 +1062,10 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
         className="h-full w-full object-contain"
       />
       <button
+        ref={skipRef}
         type="button"
         onClick={onEnd}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-white/25 bg-black/50 px-7 py-2.5 text-[11px] tracking-[0.3em] uppercase text-white/85 backdrop-blur-md transition-colors hover:border-white/50"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-white/25 bg-black/50 px-7 py-2.5 text-[11px] tracking-[0.3em] uppercase text-white/85 backdrop-blur-md transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80"
         style={{ fontFamily: sans }}
       >
         {isHe ? 'דלג' : 'Skip'}
