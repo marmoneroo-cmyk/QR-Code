@@ -1,12 +1,13 @@
 import 'server-only';
-import { createAdminSupabase, type SupabaseServerClient } from '@/lib/supabase/server';
+import type { SupabaseServerClient } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 import type { Json } from '@/lib/supabase/types';
 import type { ExperienceConfig } from './types';
 
 /** All per-slug experience configs for a restaurant, keyed by slug. */
 export async function listExperience(restaurantSlug: string, db?: SupabaseServerClient): Promise<Record<string, ExperienceConfig>> {
-  const sb = db ?? createAdminSupabase();
+  const sb = db ?? (await readClient());
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return {};
   const { data, error } = await sb
@@ -27,7 +28,7 @@ export async function upsertExperience(
   config: ExperienceConfig,
   db?: SupabaseServerClient,
 ): Promise<void> {
-  const sb = db ?? createAdminSupabase();
+  const sb = db ?? (await readClient());
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) throw new Error(`Unknown restaurant: ${restaurantSlug}`);
   const { error } = await sb

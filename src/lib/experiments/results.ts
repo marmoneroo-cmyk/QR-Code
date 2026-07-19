@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { EXPERIMENTS } from './config';
 import type { ExperimentResult, ExperimentsResponse, VariantResult } from './results-types';
 
@@ -58,7 +58,7 @@ export async function getExperimentResults(
   };
 
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')

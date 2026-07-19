@@ -1,6 +1,6 @@
 import 'server-only';
 import { median } from '../math';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { log } from '@/lib/log';
 import { TRACK_EVENTS } from '@/lib/tracking/taxonomy';
 import { MENU, getEconomics } from '@/data/cocktail';
@@ -41,7 +41,7 @@ const LEAK_SAMPLE_MIN = 4; // need a few unique viewers before flagging
  */
 export async function getCocktailFunnels(restaurantSlug: string = TENANT_SLUG): Promise<FunnelRow[]> {
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')
@@ -150,7 +150,7 @@ export async function getAnalyticsOverview(
   restaurantSlug: string = TENANT_SLUG,
 ): Promise<AnalyticsOverview> {
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')
@@ -303,7 +303,7 @@ export async function getRawEvents(
 ): Promise<RawEventsResult> {
   const empty: RawEventsResult = { events: [], eventNames: [], total: 0 };
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')
@@ -349,7 +349,7 @@ export async function getRawEvents(
 export async function getIntegrityReport(restaurantSlug: string = TENANT_SLUG): Promise<IntegrityReport> {
   const empty: IntegrityReport = { totalEvents: 0, checks: [], issues: [] as IntegrityReport['issues'], allPassed: true };
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')
@@ -428,7 +428,7 @@ export async function getMenuEngineering(
 ): Promise<MenuEngineering> {
   const empty: MenuEngineering = { items: [], medianDemand: 0, medianMargin: 0, hasData: false };
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')

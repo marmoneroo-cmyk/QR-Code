@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { log } from '@/lib/log';
 import type {
   HealthItem, HealthStatus, PercentileStats, QualityCheck, SignalBlock, SignalVerification,
@@ -64,7 +64,7 @@ export async function getSignalVerification(restaurantSlug: string = TENANT_SLUG
   };
 
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants').select('id').eq('slug', restaurantSlug).maybeSingle();
     if (!restaurant?.id) return empty;

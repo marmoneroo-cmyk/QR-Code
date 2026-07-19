@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 
 export interface HeatmapSection {
@@ -20,7 +20,7 @@ export interface AttentionHeatmap {
  * Data an owner cannot get any other way.
  */
 export async function getAttentionHeatmap(restaurantSlug = 'diner'): Promise<AttentionHeatmap> {
-  const sb = await createAdminSupabase();
+  const sb = await readClient();
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return { sections: [], hasData: false };
 

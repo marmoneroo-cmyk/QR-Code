@@ -1,5 +1,6 @@
 import 'server-only';
-import { createAdminSupabase, type SupabaseServerClient } from '@/lib/supabase/server';
+import type { SupabaseServerClient } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 import type { Json } from '@/lib/supabase/types';
 import type { Promotion, DiscountType, PromotionScope } from './types';
@@ -53,7 +54,7 @@ export async function listPromotions(
   opts: { activeOnly?: boolean } = {},
   db?: SupabaseServerClient,
 ): Promise<Promotion[]> {
-  const sb = db ?? createAdminSupabase();
+  const sb = db ?? (await readClient());
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return [];
   let query = sb
@@ -72,7 +73,7 @@ export async function createPromotion(
   input: PromotionInput,
   db?: SupabaseServerClient,
 ): Promise<Promotion> {
-  const sb = db ?? createAdminSupabase();
+  const sb = db ?? (await readClient());
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) throw new Error(`Unknown restaurant: ${restaurantSlug}`);
   const { data, error } = await sb
@@ -102,7 +103,7 @@ export async function updatePromotion(
   patch: Partial<PromotionInput>,
   db?: SupabaseServerClient,
 ): Promise<Promotion> {
-  const sb = db ?? createAdminSupabase();
+  const sb = db ?? (await readClient());
   // Tenant scope: a promotion can only be edited by the restaurant that owns it —
   // guessing another tenant's promotion id must not allow a cross-tenant write.
   const restId = await getRestaurantId(restaurantSlug);
@@ -130,7 +131,7 @@ export async function updatePromotion(
 }
 
 export async function deletePromotion(restaurantSlug: string, id: string, db?: SupabaseServerClient): Promise<void> {
-  const sb = db ?? createAdminSupabase();
+  const sb = db ?? (await readClient());
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) throw new Error(`Unknown restaurant: ${restaurantSlug}`);
   const { error } = await sb

@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 import { listSalesByItem } from '@/lib/sales/repository';
 import { MENU } from '@/data/cocktail';
@@ -43,7 +43,7 @@ export async function getMenuSignals(restaurantSlug = 'diner'): Promise<MenuSign
   const categoryBySlug = new Map(MENU.map((c) => [c.slug, c.category]));
   const n = MENU.length;
 
-  const sb = await createAdminSupabase();
+  const sb = await readClient();
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return emptySignals();
 

@@ -1,5 +1,6 @@
 import 'server-only';
-import { createAdminSupabase, type SupabaseServerClient } from '@/lib/supabase/server';
+import type { SupabaseServerClient } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 import type { Json } from '@/lib/supabase/types';
 
@@ -33,7 +34,7 @@ export interface ChangeRecord {
  */
 export async function logChange(restaurantSlug: string, input: ChangeInput, db?: SupabaseServerClient): Promise<void> {
   try {
-    const sb = db ?? createAdminSupabase();
+    const sb = db ?? (await readClient());
     const restId = await getRestaurantId(restaurantSlug);
     if (!restId) return;
     await sb.from('changes').insert({
@@ -53,7 +54,7 @@ export async function logChange(restaurantSlug: string, input: ChangeInput, db?:
 }
 
 export async function listChanges(restaurantSlug: string, limit = 200, db?: SupabaseServerClient): Promise<ChangeRecord[]> {
-  const sb = db ?? createAdminSupabase();
+  const sb = db ?? (await readClient());
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return [];
   const { data, error } = await sb

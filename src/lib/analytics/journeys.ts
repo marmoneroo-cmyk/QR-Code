@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { log } from '@/lib/log';
 import { MENU } from '@/data/cocktail';
 import type { JourneyStep, SessionJourney, SessionJourneys } from './journey-types';
@@ -61,7 +61,7 @@ function originOf(r: Row): string | null {
  */
 export async function getSessionJourneys(limit = 40, restaurantSlug: string = TENANT_SLUG): Promise<SessionJourneys> {
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')

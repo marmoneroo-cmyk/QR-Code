@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 import { listChanges, type ChangeRecord } from '@/lib/changes/repository';
 import { MENU } from '@/data/cocktail';
@@ -68,7 +68,7 @@ export async function getClosedLoop(restaurantSlug = 'diner'): Promise<ClosedLoo
     return { measured: [], timeline: changes, hasData: changes.length > 0 };
   }
 
-  const sb = await createAdminSupabase();
+  const sb = await readClient();
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return { measured: [], timeline: changes, hasData: changes.length > 0 };
 

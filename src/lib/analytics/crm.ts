@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { log } from '@/lib/log';
 import type { CrmSignals } from './crm-types';
 
@@ -40,7 +40,7 @@ export async function getCrmSignals(
   restaurantSlug: string = TENANT_SLUG,
 ): Promise<CrmSignals> {
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')

@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { log } from '@/lib/log';
 import { MENU } from '@/data/cocktail';
 import type { TableIntelligence, TableRow } from './tables-types';
@@ -62,7 +62,7 @@ export async function getTableIntelligence(
   restaurantSlug: string = TENANT_SLUG,
 ): Promise<TableIntelligence> {
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')

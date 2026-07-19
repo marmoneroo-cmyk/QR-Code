@@ -1,5 +1,5 @@
 import 'server-only';
-import { createAdminSupabase } from '@/lib/supabase/server';
+import { readClient } from '@/lib/supabase/readClient';
 import { log } from '@/lib/log';
 import type { CoViewRow, Recommendations, RelatedItem } from './recommendations-types';
 
@@ -30,7 +30,7 @@ export async function getCoViews(
   restaurantSlug: string = TENANT_SLUG,
 ): Promise<Recommendations> {
   try {
-    const supabase = createAdminSupabase();
+    const supabase = await readClient();
     const { data: restaurant } = await supabase
       .from('restaurants')
       .select('id')
