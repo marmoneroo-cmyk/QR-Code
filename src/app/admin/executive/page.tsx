@@ -19,8 +19,6 @@ import { formatILS } from '@/lib/format';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 import { useApiData } from '@/lib/data/useApiData';
 
-const serif = 'var(--font-playfair, serif)';
-const sans = 'var(--font-inter, sans-serif)';
 const ils = formatILS;
 
 interface Enriched extends MenuEngineeringItem {
@@ -276,19 +274,19 @@ export default function ExecutiveSummaryPage() {
                     <Tilt className="w-full">
                       <GlassImage src={hero.hero} accent={hero.accent} className="w-full h-[420px] md:h-[600px]" />
                     </Tilt>
-                    <span className="absolute top-5 start-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-10 tracking-[0.2em] uppercase backdrop-blur-md" style={{ background: 'rgba(0,0,0,0.4)', color: hero.accent, fontFamily: sans, border: `1px solid ${hero.accent}55` }}>
+                    <span className="absolute top-5 start-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-10 tracking-[0.2em] uppercase backdrop-blur-md font-sans" style={{ background: 'rgba(0,0,0,0.4)', color: hero.accent, border: `1px solid ${hero.accent}55` }}>
                       <Flame size={12} strokeWidth={2} /> {t('Top opportunity', 'הזדמנות מובילה')}
                     </span>
                   </div>
                   <div className={`p-7 md:p-9 flex flex-col justify-center gap-5 text-center md:text-start ${isHe ? 'md:order-1' : ''}`}>
                     <div>
-                      <div className="inline-flex items-center gap-1.5 mb-2 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(52,211,153,0.4)', color: 'var(--success)', fontFamily: sans }}>
+                      <div className="inline-flex items-center gap-1.5 mb-2 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase font-sans" style={{ borderColor: 'rgba(52,211,153,0.4)', color: 'var(--success)' }}>
                         <BadgeCheck size={12} strokeWidth={2} /> {t('Confidence', 'ביטחון')} {p.confidence}%
                       </div>
-                      <h2 className="text-white leading-[1]" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 700, fontSize: 'clamp(2.2rem,5vw,3.4rem)' }}>
+                      <h2 className="text-white leading-[1] font-serif" style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 700, fontSize: 'clamp(2.2rem,5vw,3.4rem)' }}>
                         {hero.title[lang]}
                       </h2>
-                      <p className="text-white/65 text-sm mt-2.5 max-w-md mx-auto md:mx-0" style={{ fontFamily: sans }}>
+                      <p className="text-white/65 text-sm mt-2.5 max-w-md mx-auto md:mx-0 font-sans">
                         {leak
                           ? t(`${hero.attentionScore}/100 attention, only ${Math.round(hero.conversionPct)}% ordered.`, `${hero.attentionScore}/100 תשומת לב, רק ${Math.round(hero.conversionPct)}% הזמינו.`)
                           : t(`Best margin (${ils(hero.margin)}/glass), low visibility.`, `המרווח הכי טוב (${ils(hero.margin)} לכוס), נראוּת נמוכה.`)}
@@ -297,13 +295,13 @@ export default function ExecutiveSummaryPage() {
 
                     <div className="flex items-center gap-3 justify-center md:justify-start">
                       <div className="rounded-xl border border-white/10 bg-black/30 px-4 py-2.5">
-                        <p className="text-9 tracking-[0.25em] uppercase text-white/70" style={{ fontFamily: sans }}>{t('Today', 'היום')}</p>
-                        <p className="text-white/80 text-lg tabular-nums" style={{ fontFamily: serif, fontWeight: 600 }}>{ils(p.beforeRev)}<span className="text-11 text-white/70">/{t('mo', 'חודש')}</span></p>
+                        <p className="text-9 tracking-[0.25em] uppercase text-white/70 font-sans">{t('Today', 'היום')}</p>
+                        <p className="text-white/80 text-lg tabular-nums font-serif" style={{ fontWeight: 600 }}>{ils(p.beforeRev)}<span className="text-11 text-white/70">/{t('mo', 'חודש')}</span></p>
                       </div>
                       <ArrowRight size={20} className={`text-white/40 ${isHe ? 'rotate-180' : ''}`} strokeWidth={1.6} />
                       <div className="rounded-xl border px-4 py-2.5" style={{ borderColor: `${hero.accent}66`, background: `${hero.accent}14` }}>
-                        <p className="text-9 tracking-[0.25em] uppercase" style={{ color: hero.accent, fontFamily: sans }}>{t('Projected', 'תחזית')}</p>
-                        <p className="text-xl tabular-nums" style={{ color: hero.accent, fontFamily: serif, fontWeight: 700 }}>{ils(p.afterRev)}<span className="text-11 text-white/70">/{t('mo', 'חודש')}</span></p>
+                        <p className="text-9 tracking-[0.25em] uppercase font-sans" style={{ color: hero.accent }}>{t('Projected', 'תחזית')}</p>
+                        <p className="text-xl tabular-nums font-serif" style={{ color: hero.accent, fontWeight: 700 }}>{ils(p.afterRev)}<span className="text-11 text-white/70">/{t('mo', 'חודש')}</span></p>
                       </div>
                     </div>
 
@@ -311,13 +309,13 @@ export default function ExecutiveSummaryPage() {
                       {p.orders > 0 && <Pill icon={ShoppingBag} text={`+${p.orders} ${t('orders/mo', 'הזמנות/חודש')}`} />}
                       {p.revenue > 0 && <Pill icon={TrendingUp} text={`≈ +${ils(p.revenue)} ${t('potential', 'פוטנציאל')}`} accent={hero.accent} />}
                       {!p.hasUpside && (
-                        <span className="text-white/45 text-xs" style={{ fontFamily: sans }}>
+                        <span className="text-white/45 text-xs font-sans">
                           {t('Not enough data to quantify upside yet.', 'עדיין אין מספיק נתונים לכימות הפוטנציאל.')}
                         </span>
                       )}
                     </div>
 
-                    <Link href={leak ? '/admin/menu-analysis' : '/admin/experience'} className="inline-flex w-fit mx-auto md:mx-0 items-center gap-2 rounded-full px-6 py-3 text-11 tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04]" style={{ background: hero.accent, fontFamily: sans, fontWeight: 700 }}>
+                    <Link href={leak ? '/admin/menu-analysis' : '/admin/experience'} className="inline-flex w-fit mx-auto md:mx-0 items-center gap-2 rounded-full px-6 py-3 text-11 tracking-[0.2em] uppercase text-black transition-transform hover:scale-[1.04] font-sans" style={{ background: hero.accent, fontWeight: 700 }}>
                       {leak ? t('Fix the offer', 'תקנו את ההצעה') : t('Feature it', 'הדגישו אותו')}
                       <ArrowRight size={14} strokeWidth={2.2} className={isHe ? 'rotate-180' : ''} />
                     </Link>
@@ -332,10 +330,10 @@ export default function ExecutiveSummaryPage() {
           {(ov?.viewsByDay?.length ?? 0) > 1 && (
             <GlassCard static accent={hero.accent} className="p-5">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <p className="inline-flex items-center gap-2 text-amber-200/70 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+                <p className="inline-flex items-center gap-2 text-amber-200/70 text-10 tracking-[0.4em] uppercase font-sans">
                   <TrendingUp size={13} strokeWidth={2} /> {t('Demand trend', 'מגמת ביקוש')}
                 </p>
-                <p className="text-white/70 text-10 tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>{t('last 14 days', '14 ימים אחרונים')}</p>
+                <p className="text-white/70 text-10 tracking-[0.2em] uppercase font-sans">{t('last 14 days', '14 ימים אחרונים')}</p>
               </div>
               <AreaChart data={(ov?.viewsByDay ?? []).slice(-14)} color={hero.accent} height={120} />
             </GlassCard>
@@ -357,16 +355,16 @@ export default function ExecutiveSummaryPage() {
                     <Sunrise size={18} strokeWidth={1.9} className="text-amber-200" />
                   </span>
                   <div className="min-w-0">
-                    <p className="inline-flex items-center gap-1.5 text-amber-200/70 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+                    <p className="inline-flex items-center gap-1.5 text-amber-200/70 text-10 tracking-[0.4em] uppercase font-sans">
                       <Sunrise size={12} strokeWidth={2} /> {t('Morning Briefing', 'תקציר הבוקר')}
                     </p>
                     <p
-                      className="text-white/90 mt-2 text-base md:text-lg leading-relaxed break-words"
-                      style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic' }}
+                      className="text-white/90 mt-2 text-base md:text-lg leading-relaxed break-words font-serif"
+                      style={{ fontStyle: isHe ? 'normal' : 'italic' }}
                     >
                       {isHe ? briefing.he : briefing.en}
                     </p>
-                    <p className="text-white/70 text-10 mt-2 tracking-wide" style={{ fontFamily: sans }}>
+                    <p className="text-white/70 text-10 mt-2 tracking-wide font-sans">
                       {t('Projections shown elsewhere are estimates.', 'התחזיות המוצגות במקומות אחרים הן הערכות.')}
                     </p>
                   </div>
@@ -374,8 +372,8 @@ export default function ExecutiveSummaryPage() {
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-5 py-2.5 text-11 tracking-[0.2em] uppercase text-white/85 transition-colors hover:border-amber-200/50 hover:text-white"
-                  style={{ fontFamily: sans, fontWeight: 600 }}
+                  className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-5 py-2.5 text-11 tracking-[0.2em] uppercase text-white/85 transition-colors hover:border-amber-200/50 hover:text-white font-sans"
+                  style={{ fontWeight: 600 }}
                   aria-live="polite"
                 >
                   {copied ? <Check size={14} strokeWidth={2.2} className="text-emerald-300" /> : <Share2 size={14} strokeWidth={2} />}
@@ -396,7 +394,7 @@ export default function ExecutiveSummaryPage() {
           {/* More opportunities */}
           {more.length > 0 && (
             <section>
-              <p className="text-amber-200/70 text-10 tracking-[0.4em] uppercase mb-4" style={{ fontFamily: sans }}>{t('More opportunities', 'הזדמנויות נוספות')}</p>
+              <p className="text-amber-200/70 text-10 tracking-[0.4em] uppercase mb-4 font-sans">{t('More opportunities', 'הזדמנויות נוספות')}</p>
               <Stagger className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {more.map((it) => {
                   const p = project(it, bench);
@@ -406,8 +404,8 @@ export default function ExecutiveSummaryPage() {
                         <Link href="/admin/menu-analysis" className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-amber-200/40 transition-colors flex flex-col" dir={isHe ? 'rtl' : 'ltr'}>
                           <AccentWash accent={it.accent} opacity={0.14} />
                           <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 mb-3 transition-transform duration-300 group-hover:scale-105" />
-                          <p className="relative text-white/90 text-base text-center" style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
-                          <p className="relative text-center text-11 mt-2 mb-3" style={{ color: 'var(--success)', fontFamily: sans }}>
+                          <p className="relative text-white/90 text-base text-center font-serif" style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
+                          <p className="relative text-center text-11 mt-2 mb-3 font-sans" style={{ color: 'var(--success)' }}>
                             <BadgeCheck size={11} strokeWidth={2} className="inline mb-0.5" /> {t('Confidence', 'ביטחון')} {p.confidence}%
                           </p>
                           <div className="relative mt-auto grid grid-cols-2 gap-1 text-center">
@@ -425,7 +423,7 @@ export default function ExecutiveSummaryPage() {
 
           {/* Trending carousel */}
           <section>
-            <p className="inline-flex items-center gap-2 text-amber-200/70 text-10 tracking-[0.4em] uppercase mb-4" style={{ fontFamily: sans }}>
+            <p className="inline-flex items-center gap-2 text-amber-200/70 text-10 tracking-[0.4em] uppercase mb-4 font-sans">
               <Flame size={13} strokeWidth={2} className="text-rose-300" /> {t('Trending now', 'חם עכשיו')}
             </p>
             <Stagger className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -434,10 +432,10 @@ export default function ExecutiveSummaryPage() {
                   <HoverLift accent={it.accent} className="h-full">
                     <Link href="/admin/menu-analysis" className="group relative block h-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-5 hover:border-amber-200/40 transition-colors">
                       <AccentWash accent={it.accent} opacity={0.16} />
-                      <span className="absolute top-3 start-4 z-10 text-white/15 text-4xl font-bold leading-none" style={{ fontFamily: serif }}>{i + 1}</span>
+                      <span className="absolute top-3 start-4 z-10 text-white/15 text-4xl font-bold leading-none font-serif">{i + 1}</span>
                       <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 mb-3 transition-transform duration-300 group-hover:scale-110" />
-                      <p className="relative text-white/90 text-15 text-center leading-tight" style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
-                      <p className="relative text-amber-200/70 text-11 text-center mt-1 tabular-nums" style={{ fontFamily: sans }}>
+                      <p className="relative text-white/90 text-15 text-center leading-tight font-serif" style={{ fontStyle: 'italic', fontWeight: 600 }}>{it.title[lang]}</p>
+                      <p className="relative text-amber-200/70 text-11 text-center mt-1 tabular-nums font-sans">
                         <TrendingUp size={11} className="inline mb-0.5" strokeWidth={2} /> {it.views} {t('views', 'צפיות')} · {it.attentionScore}/100
                       </p>
                     </Link>
@@ -464,19 +462,19 @@ function MoneyHero({ potential, t, isHe }: { potential: { revenueILS: number; co
       <div className="rounded-[calc(1.75rem-1px)] bg-zinc-950/85 backdrop-blur-xl p-6 md:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <p className="inline-flex items-center gap-2 text-emerald-300/80 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+            <p className="inline-flex items-center gap-2 text-emerald-300/80 text-10 tracking-[0.4em] uppercase font-sans">
               <Flame size={12} strokeWidth={2} /> {t('Open opportunity', 'הזדמנות פתוחה')}
             </p>
             {hasUpside ? (
-              <p className="mt-2 leading-[1] text-emerald-300 tabular-nums" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,4rem)' }}>
+              <p className="mt-2 leading-[1] text-emerald-300 tabular-nums font-serif" style={{ fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,4rem)' }}>
                 {ils(potential.revenueILS)}
               </p>
             ) : (
-              <p className="mt-2 leading-tight text-white/85" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.5rem,3.5vw,2.2rem)' }}>
+              <p className="mt-2 leading-tight text-white/85 font-serif" style={{ fontWeight: 700, fontSize: 'clamp(1.5rem,3.5vw,2.2rem)' }}>
                 {t('Collect more traffic', 'אסוף עוד תנועה')}
               </p>
             )}
-            <p className="mt-2 text-white/55 text-13 md:text-sm break-words" style={{ fontFamily: sans }}>
+            <p className="mt-2 text-white/55 text-13 md:text-sm break-words font-sans">
               {hasUpside
                 ? t('Open potential — what to do now.', 'פוטנציאל פתוח — מה לעשות עכשיו.')
                 : t('Not enough real traffic to estimate upside yet.', 'אין עדיין מספיק תנועה אמיתית כדי להעריך פוטנציאל.')}
@@ -484,20 +482,20 @@ function MoneyHero({ potential, t, isHe }: { potential: { revenueILS: number; co
           </div>
           <div className="flex items-center gap-4 shrink-0">
             <div className="text-end">
-              <p className="text-emerald-300 leading-none tabular-nums" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.6rem,3vw,2.2rem)' }}>
+              <p className="text-emerald-300 leading-none tabular-nums font-serif" style={{ fontWeight: 700, fontSize: 'clamp(1.6rem,3vw,2.2rem)' }}>
                 {hasUpside ? potential.count : '—'}
               </p>
-              <p className="mt-1 text-white/50 text-11 tracking-wide" style={{ fontFamily: sans }}>
+              <p className="mt-1 text-white/50 text-11 tracking-wide font-sans">
                 {t('actions today', 'פעולות מומלצות היום')}
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/40 bg-emerald-300/10 px-4 py-2 text-11 tracking-[0.2em] uppercase text-emerald-200 transition-colors group-hover:border-emerald-300/70" style={{ fontFamily: sans, fontWeight: 600 }}>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/40 bg-emerald-300/10 px-4 py-2 text-11 tracking-[0.2em] uppercase text-emerald-200 transition-colors group-hover:border-emerald-300/70 font-sans" style={{ fontWeight: 600 }}>
               {t('Act now', 'פעלו עכשיו')}
               <ArrowRight size={13} strokeWidth={2.2} className={isHe ? 'rotate-180' : ''} />
             </span>
           </div>
         </div>
-        <p className="mt-4 text-white/70 text-10 tracking-wide" style={{ fontFamily: sans }}>
+        <p className="mt-4 text-white/70 text-10 tracking-wide font-sans">
           {t('Estimate · based on real data', 'צפי · מבוסס נתונים אמיתיים')}
         </p>
       </div>
@@ -508,8 +506,8 @@ function MoneyHero({ potential, t, isHe }: { potential: { revenueILS: number; co
 function Mini({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <div>
-      <p className="text-sm tabular-nums" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
-      <p className="text-white/70 text-9 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
+      <p className="text-sm tabular-nums font-serif" style={{ color: accent ?? 'rgba(255,255,255,0.9)', fontWeight: 700 }}>{v}</p>
+      <p className="text-white/70 text-9 tracking-wide font-sans">{l}</p>
     </div>
   );
 }
@@ -519,17 +517,17 @@ function KpiTrend({ label, value, delta, series, color, t }: { label: string; va
   return (
     <GlassCard accent={color} className="p-4">
       <div className="flex items-center justify-between mb-1.5">
-        <p className="text-white/45 text-11 tracking-wide" style={{ fontFamily: sans }}>{label}</p>
+        <p className="text-white/45 text-11 tracking-wide font-sans">{label}</p>
         {delta !== null && (
-          <span className={`inline-flex items-center gap-0.5 text-11 tabular-nums ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: sans }}>
+          <span className={`font-sans inline-flex items-center gap-0.5 text-11 tabular-nums ${up ? 'text-emerald-300' : 'text-rose-300'}`}>
             {up ? <TrendingUp size={12} strokeWidth={2} /> : <TrendingDown size={12} strokeWidth={2} />}
             {up ? '+' : ''}{delta}%
           </span>
         )}
       </div>
-      <p className="text-white text-2xl mb-2 tabular-nums" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
+      <p className="text-white text-2xl mb-2 tabular-nums font-serif" style={{ fontWeight: 700 }}>{value}</p>
       <AreaChart data={series} color={color} height={36} showDot={false} strokeWidth={1.75} />
-      <p className="text-white/70 text-9 mt-1.5 tracking-wide" style={{ fontFamily: sans }}>{t('vs last week', 'מול שבוע קודם')}</p>
+      <p className="text-white/70 text-9 mt-1.5 tracking-wide font-sans">{t('vs last week', 'מול שבוע קודם')}</p>
     </GlassCard>
   );
 }
@@ -538,8 +536,8 @@ function KpiStat({ label, value, color }: { label: string; value: string; color:
   return (
     <GlassCard accent={color} className="p-4 flex flex-col justify-center">
       <span className="w-1.5 h-1.5 rounded-full mb-3" style={{ background: color }} />
-      <p className="text-white text-2xl leading-tight tabular-nums" style={{ fontFamily: serif, fontWeight: 700 }}>{value}</p>
-      <p className="text-white/45 text-11 mt-1 tracking-wide" style={{ fontFamily: sans }}>{label}</p>
+      <p className="text-white text-2xl leading-tight tabular-nums font-serif" style={{ fontWeight: 700 }}>{value}</p>
+      <p className="text-white/45 text-11 mt-1 tracking-wide font-sans">{label}</p>
     </GlassCard>
   );
 }

@@ -12,9 +12,6 @@ interface MobileLabelSheetProps {
 
 export function MobileLabelSheet({ config, activeLayerId, onClose, lang }: MobileLabelSheetProps) {
   const isHebrew = lang === 'he';
-  const nameFont = isHebrew
-    ? 'var(--font-frank-ruhl, serif)'
-    : 'var(--font-playfair, serif)';
   const descFont = isHebrew
     ? 'var(--font-heebo, sans-serif)'
     : 'var(--font-garamond, serif)';
@@ -41,9 +38,8 @@ export function MobileLabelSheet({ config, activeLayerId, onClose, lang }: Mobil
             >
               <div className="flex items-start justify-between gap-3 mb-3">
                 <h3
-                  className="text-white text-xl drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]"
+                  className="text-white text-xl drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] font-serif"
                   style={{
-                    fontFamily: nameFont,
                     fontStyle: isHebrew ? 'normal' : 'italic',
                     fontWeight: 500,
                   }}
@@ -61,12 +57,7 @@ export function MobileLabelSheet({ config, activeLayerId, onClose, lang }: Mobil
               </div>
               {label.origin && (
                 <p
-                  className="text-amber-200/85 text-10 tracking-[0.25em] uppercase mb-2"
-                  style={{
-                    fontFamily: isHebrew
-                      ? 'var(--font-heebo, sans-serif)'
-                      : 'var(--font-inter, sans-serif)',
-                  }}
+                  className="text-amber-200/85 text-10 tracking-[0.25em] uppercase mb-2 font-sans"
                 >
                   {label.origin[lang]}
                 </p>

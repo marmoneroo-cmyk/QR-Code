@@ -23,9 +23,6 @@ interface FunnelRow {
   flag?: 'leak' | 'high_converter' | null;
 }
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 const STAGES = [
   { key: 'seen', en: 'Seen', he: 'נצפה' },
   { key: 'opened', en: 'Opened', he: 'נפתח' },
@@ -91,20 +88,19 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
   return (
     <section className="mb-12 rounded-2xl border border-amber-200/20 bg-gradient-to-b from-amber-950/10 to-black p-6">
       <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-        <p className="text-amber-200/80 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+        <p className="font-sans text-amber-200/80 text-10 tracking-[0.4em] uppercase">
           {t('Conversion funnel · live', 'משפך המרה · חי')}
         </p>
         <div className="flex items-center gap-3">
           {updatedAt !== null && (
-            <span className="text-white/70 text-9 tracking-wider" style={{ fontFamily: sans }}>
+            <span className="font-sans text-white/70 text-9 tracking-wider">
               {agoLabel}
             </span>
           )}
           <button
             type="button"
             onClick={load}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-300/30 hover:border-emerald-300/70 text-emerald-200/90 text-9 tracking-[0.3em] uppercase transition-colors"
-            style={{ fontFamily: sans }}
+            className="font-sans inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-300/30 hover:border-emerald-300/70 text-emerald-200/90 text-9 tracking-[0.3em] uppercase transition-colors"
           >
             <span className={`w-1.5 h-1.5 rounded-full bg-emerald-400 ${refreshing ? 'animate-ping' : 'animate-pulse'}`} />
             {t('refresh', 'רענון')}
@@ -113,7 +109,7 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
       </div>
 
       {/* Stage legend — clarifies what each step means */}
-      <p className="text-white/70 text-10 leading-relaxed mb-5" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
+      <p className="font-sans text-white/70 text-10 leading-relaxed mb-5" dir={isHebrew ? 'rtl' : 'ltr'}>
         {t(
           'Seen = card viewed in the menu · Opened = entered the drink page · Ingredients/360/Waiter = actions inside · Ordered = guests who ordered · units = total drinks.',
           'נצפה = הכרטיס נראה בתפריט · נפתח = כניסה לעמוד המשקה · מרכיבים/360/מלצר = פעולות בפנים · הוזמן = אורחים שהזמינו · יח׳ = סך הכוסות.',
@@ -121,19 +117,19 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
       </p>
 
       {error && (
-        <p className="text-white/70 text-sm" style={{ fontFamily: sans }}>
+        <p className="font-sans text-white/70 text-sm">
           {t('Could not load live data (is Supabase + migration 0004 applied?).', 'לא ניתן לטעון נתונים חיים (האם Supabase + migration 0004 הוחלו?).')}
         </p>
       )}
 
       {!error && rows === null && (
-        <p className="text-white/70 text-sm" style={{ fontFamily: sans }}>
+        <p className="font-sans text-white/70 text-sm">
           {t('Loading…', 'טוען…')}
         </p>
       )}
 
       {!error && rows !== null && rows.length === 0 && (
-        <p className="text-white/70 text-sm leading-relaxed" style={{ fontFamily: sans }}>
+        <p className="font-sans text-white/70 text-sm leading-relaxed">
           {t(
             'No interactions captured yet. Open the menu, view a cocktail, tap ingredients / 360 / order — events appear here within seconds.',
             'עדיין לא נקלטו אינטראקציות. פתח את התפריט, צפה בקוקטייל, לחץ מרכיבים / 360 / הזמנה — האירועים יופיעו כאן תוך שניות.',
@@ -153,16 +149,16 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
               <div key={row.cocktailSlug}>
                 <div className="flex items-baseline justify-between mb-2 gap-3" dir={isHebrew ? 'rtl' : 'ltr'}>
                   <span className="flex items-center gap-2 min-w-0">
-                    <span className="text-white/90 truncate" style={{ fontFamily: serif, fontStyle: isHebrew ? 'normal' : 'italic' }}>
+                    <span className="font-serif text-white/90 truncate" style={{ fontStyle: isHebrew ? 'normal' : 'italic' }}>
                       {titleBySlug.get(row.cocktailSlug) ?? row.cocktailSlug}
                     </span>
                     {row.flag === 'leak' && (
-                      <span className="shrink-0 text-rose-200 text-9 tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border border-rose-400/40" style={{ fontFamily: sans }}>
+                      <span className="font-sans shrink-0 text-rose-200 text-9 tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border border-rose-400/40">
                         ⚠ {t('leak', 'דליפה')}
                       </span>
                     )}
                     {row.flag === 'high_converter' && (
-                      <span className="shrink-0 text-emerald-200 text-9 tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border border-emerald-300/40" style={{ fontFamily: sans }}>
+                      <span className="font-sans shrink-0 text-emerald-200 text-9 tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border border-emerald-300/40">
                         ★ {t('high converter', 'שיעור הזמנות גבוה')}
                       </span>
                     )}
@@ -193,7 +189,7 @@ export function LiveFunnel({ lang }: { lang: Lang }) {
                             {value}
                           </span>
                         </div>
-                        <p className="text-white/70 text-8 tracking-wider uppercase mt-1 text-center truncate" style={{ fontFamily: sans }}>
+                        <p className="font-sans text-white/70 text-8 tracking-wider uppercase mt-1 text-center truncate">
                           {t(stage.en, stage.he)}
                         </p>
                       </div>

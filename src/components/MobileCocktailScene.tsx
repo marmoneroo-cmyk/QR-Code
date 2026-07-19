@@ -45,8 +45,6 @@ export function MobileCocktailScene({
   const isHebrew = lang === 'he';
   const [videoOpen, setVideoOpen] = useState(false);
   const featureVideo = getFeatureVideo(config.slug);
-  const titleFont = isHebrew ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
-  const sansFont = isHebrew ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
   const bodyFont = isHebrew ? 'var(--font-heebo, sans-serif)' : 'var(--font-garamond, serif)';
 
   const layerImage = (layerId: string): string | undefined =>
@@ -71,8 +69,7 @@ export function MobileCocktailScene({
       <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-black/70 backdrop-blur-xl border-b border-white/[0.07]">
         <Link
           href="/"
-          className="text-amber-200/80 hover:text-amber-100 text-10 tracking-[0.3em] uppercase"
-          style={{ fontFamily: sansFont }}
+          className="text-amber-200/80 hover:text-amber-100 text-10 tracking-[0.3em] uppercase font-sans"
         >
           {isHebrew ? 'תפריט ↩' : '← Menu'}
         </Link>
@@ -84,8 +81,7 @@ export function MobileCocktailScene({
                 setVideoOpen(true);
                 track({ event: 'cocktail_video_opened', cocktailSlug: config.slug });
               }}
-              className="px-3 py-1.5 rounded-full border border-amber-200/40 text-amber-200/85 text-9 tracking-[0.25em] uppercase inline-flex items-center gap-1.5"
-              style={{ fontFamily: sansFont }}
+              className="px-3 py-1.5 rounded-full border border-amber-200/40 text-amber-200/85 text-9 tracking-[0.25em] uppercase inline-flex items-center gap-1.5 font-sans"
             >
               <span className="text-8">▶</span>
               {isHebrew ? 'סרטון' : 'Video'}
@@ -93,8 +89,7 @@ export function MobileCocktailScene({
           )}
           <Link
             href={`/ar/${config.slug}`}
-            className="px-3 py-1.5 rounded-full border border-amber-200/40 text-amber-200/85 text-9 tracking-[0.25em] uppercase"
-            style={{ fontFamily: sansFont }}
+            className="px-3 py-1.5 rounded-full border border-amber-200/40 text-amber-200/85 text-9 tracking-[0.25em] uppercase font-sans"
           >
             AR
           </Link>
@@ -133,8 +128,8 @@ export function MobileCocktailScene({
         {/* Title */}
         <div className="px-5 pt-7 pb-1 text-center">
           <h1
-            className="text-white text-[2.4rem] leading-tight"
-            style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500 }}
+            className="text-white text-[2.4rem] leading-tight font-serif"
+            style={{ fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500 }}
           >
             {config.title[lang]}
           </h1>
@@ -144,8 +139,7 @@ export function MobileCocktailScene({
             <div className="w-8 h-px bg-amber-200/50" />
           </div>
           <p
-            className="text-amber-200/75 text-10 tracking-[0.45em] uppercase mt-3"
-            style={{ fontFamily: sansFont }}
+            className="text-amber-200/75 text-10 tracking-[0.45em] uppercase mt-3 font-sans"
           >
             {config.subtitle[lang]}
           </p>
@@ -172,8 +166,7 @@ export function MobileCocktailScene({
         <SectionAttention section="ingredients" slug={config.slug}>
         <section className="px-4 pt-6">
           <p
-            className="text-amber-200/70 text-10 tracking-[0.45em] uppercase mb-4 text-center"
-            style={{ fontFamily: sansFont }}
+            className="text-amber-200/70 text-10 tracking-[0.45em] uppercase mb-4 text-center font-sans"
           >
             {isHebrew ? 'מרכיבים' : 'Components'}
           </p>
@@ -200,12 +193,12 @@ export function MobileCocktailScene({
                     {/* Description beside it */}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-amber-200/45 text-10 tracking-[0.2em]" style={{ fontFamily: sansFont }}>
+                        <span className="text-amber-200/45 text-10 tracking-[0.2em] font-sans">
                           {label.number}
                         </span>
                         <h3
-                          className="uppercase tracking-[0.16em] text-xs truncate"
-                          style={{ fontFamily: sansFont, fontWeight: 500, color: 'var(--accent)' }}
+                          className="uppercase tracking-[0.16em] text-xs truncate font-sans"
+                          style={{ fontWeight: 500, color: 'var(--accent)' }}
                         >
                           {label.name[lang]}
                         </h3>
@@ -231,8 +224,7 @@ export function MobileCocktailScene({
         <SectionAttention section="flavor" slug={config.slug}>
         <section className="px-5 pt-9 mt-2 flex flex-col items-center">
           <p
-            className="text-amber-200/70 text-10 tracking-[0.45em] uppercase mb-3"
-            style={{ fontFamily: sansFont }}
+            className="text-amber-200/70 text-10 tracking-[0.45em] uppercase mb-3 font-sans"
           >
             {isHebrew ? 'פרופיל טעמים' : 'Flavor Profile'}
           </p>

@@ -3,9 +3,6 @@
 import Link from 'next/link';
 import { AlertTriangle, RotateCw } from 'lucide-react';
 
-const serif = 'var(--font-playfair, serif)';
-const serifHe = 'var(--font-frank-ruhl, serif)';
-const sans = 'var(--font-inter, sans-serif)';
 
 /**
  * Full-page, on-brand fallback for the App Router error boundaries + 404. Kept
@@ -46,10 +43,10 @@ export function ErrorScreen({
         <span className="grid h-14 w-14 place-items-center rounded-full border border-amber-200/20 text-amber-200/70">
           <AlertTriangle size={22} strokeWidth={1.5} />
         </span>
-        <h1 className="text-26 text-amber-50" style={{ fontFamily: isHe ? serifHe : serif }}>
+        <h1 className="text-26 text-amber-50 font-serif">
           {copy.title}
         </h1>
-        <p className="max-w-[34ch] text-13 leading-relaxed text-white/50" style={{ fontFamily: sans }}>
+        <p className="max-w-[34ch] text-13 leading-relaxed text-white/50 font-sans">
           {copy.message}
         </p>
         <div className="mt-1 flex items-center gap-3">
@@ -57,22 +54,20 @@ export function ErrorScreen({
             <button
               type="button"
               onClick={reset}
-              className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-6 py-3 text-13 font-semibold text-black transition-colors hover:bg-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/60"
-              style={{ fontFamily: sans }}
+              className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-6 py-3 text-13 font-semibold text-black transition-colors hover:bg-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/60 font-sans"
             >
               <RotateCw size={14} strokeWidth={2} /> {isHe ? 'נסו שוב' : 'Try again'}
             </button>
           )}
           <Link
             href="/"
-            className="rounded-full border border-white/15 px-6 py-3 text-13 text-white/70 transition-colors hover:border-white/30 hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-            style={{ fontFamily: sans }}
+            className="rounded-full border border-white/15 px-6 py-3 text-13 text-white/70 transition-colors hover:border-white/30 hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 font-sans"
           >
             {isHe ? 'חזרה לתפריט' : 'Back to menu'}
           </Link>
         </div>
         {digest && (
-          <p className="mt-2 font-mono text-10 text-white/60" style={{ fontFamily: sans }}>
+          <p className="mt-2 font-sans text-10 text-white/60">
             ref: {digest}
           </p>
         )}

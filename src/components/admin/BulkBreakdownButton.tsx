@@ -133,8 +133,7 @@ export function BulkBreakdownButton() {
         onClick={handleRun}
         disabled={running}
         whileTap={{ scale: 0.97 }}
-        className="px-5 py-2 rounded-full border border-amber-200/40 text-amber-100/85 hover:bg-amber-200/10 hover:border-amber-200/70 transition-colors text-10 tracking-[0.3em] uppercase disabled:opacity-40 disabled:cursor-not-allowed"
-        style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+        className="font-sans px-5 py-2 rounded-full border border-amber-200/40 text-amber-100/85 hover:bg-amber-200/10 hover:border-amber-200/70 transition-colors text-10 tracking-[0.3em] uppercase disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {running
           ? t(`Generating breakdowns…`, `מייצר פירוקים…`)
@@ -166,8 +165,7 @@ export function BulkBreakdownButton() {
             return (
               <li
                 key={p.slug}
-                className={`text-11 tracking-wider flex items-center gap-3 ${color}`}
-                style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+                className={`font-sans text-11 tracking-wider flex items-center gap-3 ${color}`}
               >
                 <span className="font-mono w-3">{icon}</span>
                 <span>{p.title}</span>

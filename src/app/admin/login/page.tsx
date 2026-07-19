@@ -8,8 +8,6 @@ import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { useLang } from '@/lib/useLang';
 import { GlassSheen } from '@/components/ui/visual';
 
-const sans = 'var(--font-inter, sans-serif)';
-
 /** Supabase Auth returns raw English error messages — map the common ones to a
  *  bilingual string instead of showing English verbatim in Hebrew mode; anything
  *  unrecognized falls back to a generic translated message rather than leaking
@@ -76,12 +74,12 @@ function LoginForm() {
           <span className="mx-auto mb-5 grid h-12 w-12 place-items-center rounded-full border border-amber-200/30 bg-amber-200/10 text-amber-200">
             <Lock size={18} strokeWidth={1.8} />
           </span>
-          <p className="text-amber-200/70 text-10 tracking-[0.45em] uppercase" style={{ fontFamily: sans }}>
+          <p className="font-sans text-amber-200/70 text-10 tracking-[0.45em] uppercase">
             {t('Restaurant Admin', 'ניהול מסעדה')}
           </p>
           <h1
-            className="mt-3 text-3xl text-white"
-            style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)', fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+            className="font-serif mt-3 text-3xl text-white"
+            style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
           >
             {t('Sign in', 'התחברות')}
           </h1>
@@ -89,7 +87,7 @@ function LoginForm() {
 
         <form onSubmit={onSubmit} className="relative flex flex-col gap-4">
           <div>
-            <label htmlFor="login-email" className="mb-1.5 block text-white/45 text-11 tracking-wide" style={{ fontFamily: sans }}>
+            <label htmlFor="login-email" className="font-sans mb-1.5 block text-white/45 text-11 tracking-wide">
               {t('Email', 'אימייל')}
             </label>
             <input
@@ -104,7 +102,7 @@ function LoginForm() {
             />
           </div>
           <div>
-            <label htmlFor="login-password" className="mb-1.5 block text-white/45 text-11 tracking-wide" style={{ fontFamily: sans }}>
+            <label htmlFor="login-password" className="font-sans mb-1.5 block text-white/45 text-11 tracking-wide">
               {t('Password', 'סיסמה')}
             </label>
             <input
@@ -120,7 +118,7 @@ function LoginForm() {
           </div>
 
           {error && (
-            <p role="alert" className="text-rose-300/90 text-13" style={{ fontFamily: sans }}>
+            <p role="alert" className="font-sans text-rose-300/90 text-13">
               {error}
             </p>
           )}
@@ -128,9 +126,8 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="group relative mt-2 inline-flex items-center justify-center gap-2 overflow-hidden rounded-full py-3.5 text-xs font-bold tracking-[0.28em] uppercase text-black transition-shadow disabled:opacity-50"
+            className="font-sans group relative mt-2 inline-flex items-center justify-center gap-2 overflow-hidden rounded-full py-3.5 text-xs font-bold tracking-[0.28em] uppercase text-black transition-shadow disabled:opacity-50"
             style={{
-              fontFamily: sans,
               background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
               boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
             }}
@@ -148,7 +145,7 @@ function LoginForm() {
         </form>
 
         <div className="relative mt-8 text-center">
-          <Link href="/" className="text-white/70 hover:text-white/90 text-10 tracking-[0.3em] uppercase transition-colors" style={{ fontFamily: sans }}>
+          <Link href="/" className="font-sans text-white/70 hover:text-white/90 text-10 tracking-[0.3em] uppercase transition-colors">
             {t('← Back to menu', '→ חזרה לתפריט')}
           </Link>
         </div>

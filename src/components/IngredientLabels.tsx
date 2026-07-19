@@ -32,9 +32,6 @@ export function IngredientLabels({
   // Labels always sit to the RIGHT of the centre column for both languages —
   // Hebrew simply renders right-to-left on the same side.
   const labelsOnRight = true;
-  const sansFont = isHebrew
-    ? 'var(--font-heebo, sans-serif)'
-    : 'var(--font-inter, sans-serif)';
   const descFont = isHebrew
     ? 'var(--font-heebo, sans-serif)'
     : 'var(--font-garamond, Georgia, serif)';
@@ -111,9 +108,8 @@ export function IngredientLabels({
               {/* Text block — label title in orange caps, description italic light */}
               <div className="w-[170px] overflow-hidden">
                 <span
-                  className="block uppercase tracking-[0.22em] transition-all duration-500 truncate"
+                  className="block uppercase tracking-[0.22em] transition-all duration-500 truncate font-sans"
                   style={{
-                    fontFamily: sansFont,
                     fontWeight: 500,
                     fontSize: isActive ? '16px' : '15px',
                     letterSpacing: '0.22em',
@@ -138,8 +134,8 @@ export function IngredientLabels({
                 )}
                 {label.origin && isActive && (
                   <p
-                    className="mt-1.5 text-10 tracking-[0.25em] uppercase"
-                    style={{ fontFamily: sansFont, color: 'var(--accent)', opacity: 0.75 }}
+                    className="mt-1.5 text-10 tracking-[0.25em] uppercase font-sans"
+                    style={{ color: 'var(--accent)', opacity: 0.75 }}
                   >
                     {label.origin[lang]}
                   </p>

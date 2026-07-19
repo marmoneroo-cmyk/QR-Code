@@ -39,8 +39,7 @@ export function PosterButton({ cocktail, lang }: PosterButtonProps) {
       onClick={handleDownload}
       disabled={working}
       whileTap={{ scale: 0.96 }}
-      className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-200/30 hover:border-amber-200/70 bg-black/40 backdrop-blur-sm text-amber-200/85 hover:text-amber-100 transition-all duration-300 text-10 tracking-[0.3em] uppercase disabled:opacity-40"
-      style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+      className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-200/30 hover:border-amber-200/70 bg-black/40 backdrop-blur-sm text-amber-200/85 hover:text-amber-100 transition-all duration-300 text-10 tracking-[0.3em] uppercase disabled:opacity-40 font-sans"
     >
       <svg width="11" height="12" viewBox="0 0 11 12" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
         <rect x="1.5" y="1.5" width="8" height="8" rx="0.5" />

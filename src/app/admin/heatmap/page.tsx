@@ -19,8 +19,6 @@ const SECTION_LABEL: Record<string, { en: string; he: string }> = {
   price: { en: 'Price', he: 'מחיר' },
 };
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
 const ACCENT = '#fbbf24';
 
 /** Canonical top-to-bottom order the sections appear to a guest on the cocktail page. */
@@ -155,13 +153,13 @@ export function HeatmapPanel() {
               ))}
             </div>
           </div>
-          <p className="mt-3 text-center text-white/70 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+          <p className="font-sans mt-3 text-center text-white/70 text-10 tracking-[0.25em] uppercase">
             {t('Top to bottom, as a guest sees it', 'מלמעלה למטה, כפי שאורח רואה')}
           </p>
         </div>
 
         {/* Horizontal heat legend: cold → hot */}
-        <div className="mx-auto mt-7 flex max-w-[360px] items-center gap-3" style={{ fontFamily: sans }}>
+        <div className="font-sans mx-auto mt-7 flex max-w-[360px] items-center gap-3">
           <span className="text-white/70 text-10 tracking-[0.25em] uppercase whitespace-nowrap">{t('Cold', 'קר')}</span>
           <div
             className="h-2 flex-1 rounded-full border border-white/[0.06]"
@@ -209,16 +207,16 @@ function MockupSection({ section, maxViews, isHottest, lang, isHe }: MockupSecti
         </span>
       )}
       <div className={`min-w-0 ${isHottest ? 'pe-7' : ''}`}>
-        <p className="text-13 leading-tight truncate" style={{ color: textColor, fontFamily: sans }}>
+        <p className="font-sans text-13 leading-tight truncate" style={{ color: textColor }}>
           {sectionLabel(section.section, lang)}
         </p>
-        <p className="text-10 mt-0.5 tracking-wide" style={{ color: metaColor, fontFamily: sans }}>
+        <p className="font-sans text-10 mt-0.5 tracking-wide" style={{ color: metaColor }}>
           {(section.avgDwellMs / 1000).toFixed(1)}s {isHe ? 'בממוצע' : 'avg dwell'}
         </p>
       </div>
       <p
-        className="shrink-0 text-xl leading-none tabular-nums"
-        style={{ color: bright ? '#fff' : 'rgba(255,255,255,0.85)', fontFamily: serif, fontWeight: 700 }}
+        className="font-serif shrink-0 text-xl leading-none tabular-nums"
+        style={{ color: bright ? '#fff' : 'rgba(255,255,255,0.85)', fontWeight: 700 }}
       >
         {section.views.toLocaleString()}
       </p>

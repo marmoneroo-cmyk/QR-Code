@@ -19,9 +19,6 @@ import { GlassCard, EmptyState, CtaPill } from '@/components/ui/premium';
 import { formatILS } from '@/lib/format';
 import type { AnalyticsOverview, MenuEngineeringItem } from '@/lib/analytics/types';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-const heSerif = 'var(--font-frank-ruhl, serif)';
 const ils = formatILS;
 
 /** Presentation-only: a drink's bar width as its share of the hero total (min 6% so it reads). */
@@ -49,7 +46,6 @@ export default function RevenueCenterPage() {
   const { lang } = useLang();
   const isHe = lang === 'he';
   const t = (en: string, he: string) => (isHe ? he : en);
-  const titleFont = isHe ? heSerif : serif;
 
   const [items, setItems] = useState<MenuEngineeringItem[] | null>(null);
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
@@ -194,7 +190,7 @@ export default function RevenueCenterPage() {
                   DOM position) so it lands in the RIGHT column for Hebrew, matching the rest
                   of the page's right-aligned convention, even when there's no hero image. */}
               <div className={`flex flex-col items-start gap-5 text-start ${isHe ? 'md:order-1' : ''}`}>
-                <p className="text-emerald-300/80 text-11 md:text-xs tracking-[0.35em] uppercase" style={{ fontFamily: sans }}>
+                <p className="text-emerald-300/80 text-11 md:text-xs tracking-[0.35em] uppercase font-sans">
                   {t('Available now · estimate', 'זמין עכשיו · צפי')}
                 </p>
 
@@ -204,22 +200,22 @@ export default function RevenueCenterPage() {
                     initial={{ opacity: 0, scale: 0.97 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}
-                    className="leading-[0.92] text-emerald-300"
-                    style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(3.4rem, 9vw, 7rem)' }}
+                    className="leading-[0.92] text-emerald-300 font-serif"
+                    style={{ fontWeight: 700, fontSize: 'clamp(3.4rem, 9vw, 7rem)' }}
                   >
                     <CountUpText text={ils(potential.revenueILS)} durationMs={1100} />
                   </motion.h2>
                 ) : (
                   <h2
-                    className="max-w-md leading-tight text-white/85"
-                    style={{ fontFamily: titleFont, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600, fontSize: 'clamp(1.6rem, 4vw, 2.6rem)' }}
+                    className="max-w-md leading-tight text-white/85 font-serif"
+                    style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600, fontSize: 'clamp(1.6rem, 4vw, 2.6rem)' }}
                   >
                     {t('Collect more guest visits to quantify opportunity', 'אספו עוד ביקורי אורחים כדי לכמת הזדמנות')}
                   </h2>
                 )}
 
                 {hasUpside && (
-                  <p className="text-white/55 text-13 md:text-sm" style={{ fontFamily: sans }}>
+                  <p className="text-white/55 text-13 md:text-sm font-sans">
                     {t(
                       `${potential.count} actions · ~${ils(potential.profitILS)} profit`,
                       `${potential.count} פעולות · רווח ~${ils(potential.profitILS)}`,
@@ -265,7 +261,7 @@ export default function RevenueCenterPage() {
                 <EmptyState title={t('No measured sales yet.', 'אין עדיין מכירות שנמדדו.')} />
               </GlassCard>
             )}
-            <p className="mt-2.5 text-white/70 text-10 tracking-wide" style={{ fontFamily: sans }}>
+            <p className="mt-2.5 text-white/70 text-10 tracking-wide font-sans">
               {t('Real measured revenue. Not attributed to the platform.', 'הכנסה אמיתית שנמדדה. לא מיוחסת לפלטפורמה.')}
             </p>
           </section>
@@ -290,12 +286,12 @@ export default function RevenueCenterPage() {
                         <div className="relative min-w-0 flex-1">
                           <div className="flex items-baseline justify-between gap-3">
                             <p
-                              className="truncate text-white/90 text-15 md:text-17"
-                              style={{ fontFamily: isHe ? heSerif : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+                              className="truncate text-white/90 text-15 md:text-17 font-serif"
+                              style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
                             >
                               {it.title[lang]}
                             </p>
-                            <p className="shrink-0 leading-none tabular-nums text-emerald-300" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.4rem, 4vw, 1.8rem)' }}>
+                            <p className="shrink-0 leading-none tabular-nums text-emerald-300 font-serif" style={{ fontWeight: 700, fontSize: 'clamp(1.4rem, 4vw, 1.8rem)' }}>
                               +{ils(it.potential.revenueILS)}
                             </p>
                           </div>
@@ -315,7 +311,7 @@ export default function RevenueCenterPage() {
                 ))}
               </Stagger>
 
-              <p className="mt-2.5 text-white/70 text-10 tracking-wide" style={{ fontFamily: sans }}>
+              <p className="mt-2.5 text-white/70 text-10 tracking-wide font-sans">
                 {t('Estimated upside per drink, from your data.', 'צפי הכנסה לכל קוקטייל, מהנתונים שלכם.')}
               </p>
             </section>
@@ -362,10 +358,10 @@ export default function RevenueCenterPage() {
 function ProvenStat({ value, label, accent }: { value: number | string; label: string; accent: string }) {
   return (
     <GlassCard accent={accent} sheen className="p-5 text-center">
-      <p className="relative leading-none" style={{ color: accent, fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.8rem, 5vw, 2.8rem)' }}>
+      <p className="relative leading-none font-serif" style={{ color: accent, fontWeight: 700, fontSize: 'clamp(1.8rem, 5vw, 2.8rem)' }}>
         <CountUpText text={String(value)} />
       </p>
-      <p className="relative mt-2 text-white/45 text-11 tracking-[0.1em] uppercase" style={{ fontFamily: sans }}>{label}</p>
+      <p className="relative mt-2 text-white/45 text-11 tracking-[0.1em] uppercase font-sans">{label}</p>
     </GlassCard>
   );
 }
@@ -375,10 +371,10 @@ function ActualStat({ value, label, accent }: { value: string; label: string; ac
   return (
     <GlassCard accent={accent} sheen className="p-4">
       <span className="relative mb-3 block h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-      <p className="relative leading-tight text-white text-2xl" style={{ fontFamily: serif, fontWeight: 700 }}>
+      <p className="relative leading-tight text-white text-2xl font-serif" style={{ fontWeight: 700 }}>
         <CountUpText text={value} />
       </p>
-      <p className="relative mt-1 text-white/45 text-11 tracking-wide" style={{ fontFamily: sans }}>{label}</p>
+      <p className="relative mt-1 text-white/45 text-11 tracking-wide font-sans">{label}</p>
     </GlassCard>
   );
 }
@@ -401,13 +397,13 @@ function LeverBar({
   return (
     <GlassCard accent={accent} static className="p-5">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-2 text-white/70 text-xs tracking-[0.05em]" style={{ fontFamily: sans }}>
+        <span className="inline-flex items-center gap-2 text-white/70 text-xs tracking-[0.05em] font-sans">
           <span className="grid h-7 w-7 place-items-center rounded-lg" style={{ color: accent, background: `${accent}1a` }}>
             <Icon size={14} strokeWidth={1.9} />
           </span>
           {label}
         </span>
-        <span className="text-lg tabular-nums" style={{ color: accent, fontFamily: serif, fontWeight: 700 }}>
+        <span className="text-lg tabular-nums font-serif" style={{ color: accent, fontWeight: 700 }}>
           +{ils(value)}
         </span>
       </div>

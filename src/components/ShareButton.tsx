@@ -42,8 +42,7 @@ export function ShareButton({ cocktail, lang }: ShareButtonProps) {
       type="button"
       onClick={handleShare}
       whileTap={{ scale: 0.96 }}
-      className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-200/30 hover:border-amber-200/70 bg-black/40 backdrop-blur-sm text-amber-200/85 hover:text-amber-100 transition-all duration-300 text-10 tracking-[0.3em] uppercase"
-      style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+      className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-200/30 hover:border-amber-200/70 bg-black/40 backdrop-blur-sm text-amber-200/85 hover:text-amber-100 transition-all duration-300 text-10 tracking-[0.3em] uppercase font-sans"
       aria-label={isHebrew ? 'שתף' : 'Share'}
     >
       <svg

@@ -14,7 +14,6 @@ import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import type { IntegrityReport, RawEvent, RawEventsResult } from '@/lib/analytics/types';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
 const mono = 'ui-monospace, SFMono-Regular, Menlo, monospace';
 
 function ago(iso: string, isHebrew: boolean): string {
@@ -172,7 +171,7 @@ export default function EventInspectorPage() {
           >
             {paused ? <Play size={13} strokeWidth={2} /> : <Pause size={13} strokeWidth={2} />}
           </button>
-          <span className="text-white/70 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+          <span className="text-white/70 text-10 tracking-[0.3em] uppercase font-sans">
             {integrity ? t(`${integrity.totalEvents} events`, `${integrity.totalEvents} אירועים`) : ''}
           </span>
         </span>
@@ -231,8 +230,7 @@ export default function EventInspectorPage() {
               <button
                 type="button"
                 onClick={() => setSelectedTypes(new Set())}
-                className="text-white/45 hover:text-white/80 text-10 tracking-[0.3em] uppercase transition-colors"
-                style={{ fontFamily: sans }}
+                className="text-white/45 hover:text-white/80 text-10 tracking-[0.3em] uppercase transition-colors font-sans"
               >
                 {t(`clear (${selectedTypes.size})`, `נקה (${selectedTypes.size})`)}
               </button>
@@ -250,9 +248,8 @@ export default function EventInspectorPage() {
                   type="button"
                   onClick={() => toggleType(k)}
                   aria-pressed={active}
-                  className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors font-sans"
                   style={{
-                    fontFamily: sans,
                     color: active ? '#0b0b0f' : accent,
                     background: active ? accent : 'rgba(255,255,255,0.04)',
                     borderColor: active ? accent : 'rgba(255,255,255,0.12)',
@@ -267,7 +264,7 @@ export default function EventInspectorPage() {
               (loading ? (
                 Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8 w-24 rounded-full" />)
               ) : (
-                <span className="text-white/70 text-xs" style={{ fontFamily: sans }}>
+                <span className="text-white/70 text-xs font-sans">
                   {t('No events in view.', 'אין אירועים בתצוגה.')}
                 </span>
               ))}
@@ -284,14 +281,14 @@ export default function EventInspectorPage() {
           >
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <span
-                className="inline-flex items-center gap-1.5 text-11 tracking-wider uppercase"
-                style={{ fontFamily: sans, color: allPassed ? 'var(--success-soft)' : 'var(--critical-light)' }}
+                className="inline-flex items-center gap-1.5 text-11 tracking-wider uppercase font-sans"
+                style={{ color: allPassed ? 'var(--success-soft)' : 'var(--critical-light)' }}
               >
                 {allPassed ? <ShieldCheck size={14} strokeWidth={2} /> : <ShieldAlert size={14} strokeWidth={2} />}
                 {integrity ? (allPassed ? t('all checks pass', 'כל הבדיקות עברו') : t('violations found', 'נמצאו הפרות')) : t('checking…', 'בודק…')}
               </span>
               {validPct !== null && (
-                <span className="text-11" style={{ fontFamily: sans, color: allPassed ? 'var(--success-soft)' : 'var(--critical-light)' }}>
+                <span className="text-11 font-sans" style={{ color: allPassed ? 'var(--success-soft)' : 'var(--critical-light)' }}>
                   {validPct}% {t('valid', 'תקין')}
                 </span>
               )}
@@ -300,10 +297,9 @@ export default function EventInspectorPage() {
               {checks.map((c) => (
                 <span
                   key={c.name}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-11 ${
+                  className={`font-sans inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-11 ${
                     c.passed ? 'text-emerald-200/90 border border-emerald-300/30' : 'text-rose-200 border border-rose-400/50'
                   }`}
-                  style={{ fontFamily: sans }}
                 >
                   {c.passed ? <ShieldCheck size={12} strokeWidth={2} /> : <ShieldAlert size={12} strokeWidth={2} />} {integrityRuleLabel(c.name, isHebrew)}
                 </span>
@@ -327,8 +323,7 @@ export default function EventInspectorPage() {
             value={eventFilter}
             onChange={(e) => setEventFilter(e.target.value)}
             aria-label={t('Event type', 'סוג אירוע')}
-            className="bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-white/80 text-sm"
-            style={{ fontFamily: sans }}
+            className="bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-white/80 text-sm font-sans"
           >
             <option value="">{t('All events', 'כל האירועים')}</option>
             {(raw?.eventNames ?? []).map((n) => (
@@ -349,8 +344,7 @@ export default function EventInspectorPage() {
           <button
             type="button"
             onClick={load}
-            className="px-4 py-2 rounded-lg border border-amber-200/40 hover:border-amber-200/80 text-amber-100 text-10 tracking-[0.3em] uppercase"
-            style={{ fontFamily: sans }}
+            className="px-4 py-2 rounded-lg border border-amber-200/40 hover:border-amber-200/80 text-amber-100 text-10 tracking-[0.3em] uppercase font-sans"
           >
             {t('refresh', 'רענון')}
           </button>
@@ -385,7 +379,7 @@ export default function EventInspectorPage() {
 
                   {/* Type + item label */}
                   <div className="min-w-0 flex-1">
-                    <p className="text-13 leading-tight truncate" style={{ fontFamily: sans, color: s.color }}>
+                    <p className="text-13 leading-tight truncate font-sans" style={{ color: s.color }}>
                       {e.event_name ? eventTypeLabel(e.event_name, lang) : t(s.en, s.he)}
                       {label && <span className="text-white/70"> · {label}</span>}
                     </p>
@@ -428,7 +422,7 @@ export default function EventInspectorPage() {
           </GlassCard>
         </section>
 
-        <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 mt-2 border-t border-white/10" style={{ fontFamily: sans }}>
+        <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 mt-2 border-t border-white/10 font-sans">
           {t('Showing latest 200 events · all metrics count UNIQUE sessions', 'מציג 200 אירועים אחרונים · כל המדדים סופרים sessions ייחודיים')}
         </p>
       </div>

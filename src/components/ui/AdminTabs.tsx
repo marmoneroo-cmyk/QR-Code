@@ -5,8 +5,6 @@ import type { ComponentType } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { useLang } from '@/lib/useLang';
 
-const sans = 'var(--font-inter, sans-serif)';
-
 export interface AdminTabDef {
   id: string;
   en: string;
@@ -91,13 +89,12 @@ export function AdminTabs({ tabs, initial }: AdminTabsProps) {
               aria-selected={isActive}
               tabIndex={isActive ? 0 : -1}
               onClick={() => setTabId(tb.id)}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-11 tracking-[0.18em] uppercase transition-all duration-200 ${
+              className={`font-sans inline-flex items-center gap-2 rounded-full px-4 py-2 text-11 tracking-[0.18em] uppercase transition-all duration-200 ${
                 isActive
                   ? 'text-black'
                   : 'text-white/50 hover:bg-white/[0.05] hover:text-white/85'
               }`}
               style={{
-                fontFamily: sans,
                 background: isActive ? 'linear-gradient(105deg, var(--champagne-bright), var(--champagne))' : undefined,
               }}
             >

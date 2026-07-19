@@ -94,9 +94,6 @@ function stateToConfig(s: ItemState): ExperienceConfig {
   return { badges, modules };
 }
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 export function ExperiencePanel() {
   const { lang } = useLang();
   const isHe = lang === 'he';
@@ -234,8 +231,8 @@ export function ExperiencePanel() {
                     Everything below is derived from `s` so it updates instantly as toggles change. */}
                 <div className="relative px-6 pt-6" style={{ background: `linear-gradient(150deg, ${accent}14, rgba(8,8,10,0.5) 75%)` }}>
                   <span
-                    className="absolute top-4 start-4 z-10 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-9 uppercase tracking-[0.22em] backdrop-blur-md"
-                    style={{ background: 'rgba(0,0,0,0.4)', color: accent, border: `1px solid ${accent}55`, fontFamily: sans }}
+                    className="absolute top-4 start-4 z-10 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-9 uppercase tracking-[0.22em] backdrop-blur-md font-sans"
+                    style={{ background: 'rgba(0,0,0,0.4)', color: accent, border: `1px solid ${accent}55` }}
                   >
                     <Eye size={11} strokeWidth={2} /> {isHe ? 'תצוגת אורח' : 'Guest view'}
                   </span>
@@ -262,7 +259,7 @@ export function ExperiencePanel() {
                           {cocktail ? (
                             <GlassImage src={cocktail.heroImage} accent={accent} className="w-full h-36" />
                           ) : (
-                            <div className="h-36 w-full grid place-items-center text-white/70 text-11" style={{ fontFamily: sans }}>
+                            <div className="h-36 w-full grid place-items-center text-white/70 text-11 font-sans">
                               {isHe ? 'אין תמונה' : 'No image'}
                             </div>
                           )}
@@ -271,8 +268,8 @@ export function ExperiencePanel() {
                               {previewBadges.map(({ kind, auto }) => (
                                 <span
                                   key={kind}
-                                  className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-8 uppercase tracking-[0.1em] backdrop-blur-sm"
-                                  style={{ background: `${accent}26`, color: accent, border: `1px solid ${accent}66`, fontFamily: sans }}
+                                  className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-8 uppercase tracking-[0.1em] backdrop-blur-sm font-sans"
+                                  style={{ background: `${accent}26`, color: accent, border: `1px solid ${accent}66` }}
                                 >
                                   {auto && <Zap size={7} strokeWidth={2.4} className="opacity-90" />}
                                   {BADGE_LABEL[kind][lang]}
@@ -285,9 +282,8 @@ export function ExperiencePanel() {
                         {/* title + tagline */}
                         <div className="px-3 pt-2">
                           <p
-                            className="truncate text-white/95 text-sm leading-tight"
+                            className="truncate text-white/95 text-sm leading-tight font-serif"
                             style={{
-                              fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif,
                               fontStyle: isHe ? 'normal' : 'italic',
                               fontWeight: 600,
                             }}
@@ -295,7 +291,7 @@ export function ExperiencePanel() {
                             {c.title[lang]}
                           </p>
                           {cocktail?.tagline && (
-                            <p className="mt-0.5 truncate text-white/70 text-9 tracking-wide" style={{ fontFamily: sans }}>
+                            <p className="mt-0.5 truncate text-white/70 text-9 tracking-wide font-sans">
                               {cocktail.tagline[lang]}
                             </p>
                           )}
@@ -308,7 +304,7 @@ export function ExperiencePanel() {
                               {previewModules.map((m) => {
                                 const Icon = MODULE_ICON[m];
                                 return (
-                                  <li key={m} className="flex items-center gap-2 text-white/70 text-10" style={{ fontFamily: sans }}>
+                                  <li key={m} className="flex items-center gap-2 text-white/70 text-10 font-sans">
                                     <span
                                       className="grid h-5 w-5 shrink-0 place-items-center rounded-md"
                                       style={{ background: `${accent}1a`, color: accent }}
@@ -321,7 +317,7 @@ export function ExperiencePanel() {
                               })}
                             </ul>
                           ) : (
-                            <p className="text-white/70 text-10" style={{ fontFamily: sans }}>
+                            <p className="text-white/70 text-10 font-sans">
                               {isHe ? 'אין מודולים פעילים' : 'No active modules'}
                             </p>
                           )}
@@ -335,12 +331,12 @@ export function ExperiencePanel() {
                 <div className="flex items-center justify-between gap-3 px-6 pt-1">
                   <div className="min-w-0">
                     <h3
-                      className="truncate text-white/95 text-19 leading-tight"
-                      style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+                      className="truncate text-white/95 text-19 leading-tight font-serif"
+                      style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
                     >
                       {c.title[lang]}
                     </h3>
-                    <p className="mt-0.5 text-white/70 text-10 tracking-wide" style={{ fontFamily: sans }}>
+                    <p className="mt-0.5 text-white/70 text-10 tracking-wide font-sans">
                       {activeBadges} {isHe ? 'תגיות' : 'badges'} · {liveModules}/{MODULES.length} {isHe ? 'מודולים' : 'modules'}
                     </p>
                   </div>
@@ -348,9 +344,8 @@ export function ExperiencePanel() {
                     type="button"
                     onClick={() => save(c.slug)}
                     disabled={isSaving}
-                    className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-full px-5 py-2 text-10 uppercase tracking-[0.2em] text-black transition-shadow disabled:opacity-50"
+                    className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-full px-5 py-2 text-10 uppercase tracking-[0.2em] text-black transition-shadow disabled:opacity-50 font-sans"
                     style={{
-                      fontFamily: sans,
                       fontWeight: 700,
                       background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
                       boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
@@ -374,7 +369,7 @@ export function ExperiencePanel() {
                   </button>
                 </div>
                 {isSaveError && (
-                  <p className="px-6 -mt-1 text-rose-300/80 text-11" style={{ fontFamily: sans }}>
+                  <p className="px-6 -mt-1 text-rose-300/80 text-11 font-sans">
                     {isHe ? 'לא ניתן היה לשמור — בדקו את החיבור ונסו שוב.' : 'Could not save — check your connection and try again.'}
                   </p>
                 )}
@@ -390,11 +385,11 @@ export function ExperiencePanel() {
                           key={k}
                           type="button"
                           onClick={() => toggleBadge(c.slug, k, auto)}
-                          className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-10 tracking-[0.08em] transition-colors"
+                          className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-10 tracking-[0.08em] transition-colors font-sans"
                           style={
                             on
-                              ? { borderColor: `${accent}99`, color: accent, background: `${accent}1f`, fontFamily: sans }
-                              : { borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.45)', fontFamily: sans }
+                              ? { borderColor: `${accent}99`, color: accent, background: `${accent}1f` }
+                              : { borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.45)' }
                           }
                         >
                           {auto && <Zap size={10} strokeWidth={2} className="opacity-80" />}
@@ -416,12 +411,11 @@ export function ExperiencePanel() {
                           key={m}
                           type="button"
                           onClick={() => toggleModule(c.slug, m)}
-                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-10 tracking-[0.08em] transition-colors ${
+                          className={`font-sans inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-10 tracking-[0.08em] transition-colors ${
                             on
                               ? 'border-emerald-300/40 text-emerald-100 bg-emerald-400/10'
                               : 'border-white/12 text-white/35 line-through'
                           }`}
-                          style={{ fontFamily: sans }}
                         >
                           <span className={`h-1.5 w-1.5 rounded-full ${on ? 'bg-emerald-300' : 'bg-white/25'}`} aria-hidden />
                           {MODULE_LABEL[m][lang]}

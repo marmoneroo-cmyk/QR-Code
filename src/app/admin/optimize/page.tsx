@@ -18,10 +18,6 @@ import { estimatePotential, buildMenuBenchmark } from '@/lib/value/potential';
 import { PotentialValue } from '@/components/ui/value';
 import { formatILS } from '@/lib/format';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-const serifHe = 'var(--font-frank-ruhl, serif)';
-
 /** Map qualitative confidence to a presentational % for the AI badge. */
 const CONFIDENCE_PCT: Record<Confidence, number> = { low: 60, medium: 78, high: 92 };
 
@@ -47,8 +43,8 @@ function ActionBadge({ action, lang }: { action: RecAction; lang: 'en' | 'he' })
   const Icon = a.icon;
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-10 tracking-[0.18em] uppercase"
-      style={{ color: a.color, background: `${a.color}1a`, border: `1px solid ${a.color}55`, fontFamily: sans, fontWeight: 600 }}
+      className="font-sans inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-10 tracking-[0.18em] uppercase"
+      style={{ color: a.color, background: `${a.color}1a`, border: `1px solid ${a.color}55`, fontWeight: 600 }}
     >
       <Icon size={12} strokeWidth={2} /> {a[lang]}
     </span>
@@ -93,8 +89,8 @@ function ApplyAction({ action, slug, lang }: { action: RecAction; slug: string; 
     // keep_position — nothing to change; show a calm disabled "Keep" chip.
     return (
       <span
-        className="inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs tracking-[0.12em] uppercase select-none"
-        style={{ color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: sans, fontWeight: 600 }}
+        className="font-sans inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs tracking-[0.12em] uppercase select-none"
+        style={{ color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', fontWeight: 600 }}
         aria-disabled
       >
         <ShieldCheck size={13} strokeWidth={2} className="shrink-0" />
@@ -106,8 +102,8 @@ function ApplyAction({ action, slug, lang }: { action: RecAction; slug: string; 
   return (
     <Link
       href={href}
-      className="group/apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs tracking-[0.12em] uppercase transition-colors hover:bg-amber-300/20"
-      style={{ color: 'var(--warning)', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.45)', fontFamily: sans, fontWeight: 600 }}
+      className="font-sans group/apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs tracking-[0.12em] uppercase transition-colors hover:bg-amber-300/20"
+      style={{ color: 'var(--warning)', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.45)', fontWeight: 600 }}
     >
       <Lightbulb size={13} strokeWidth={2} className="shrink-0" />
       {lang === 'he' ? 'החל' : 'Apply'}
@@ -182,7 +178,7 @@ export function OptimizePanel() {
       )}
 
       {!loading && error && (
-        <p className="text-rose-300/80 text-sm" style={{ fontFamily: sans }}>
+        <p className="font-sans text-rose-300/80 text-sm">
           {isHebrew ? 'טעינת הנתונים נכשלה.' : 'Failed to load data.'}
         </p>
       )}
@@ -237,9 +233,8 @@ export function OptimizePanel() {
                     <div className="relative flex flex-1 flex-col gap-2.5 p-5">
                       <div className="flex items-start justify-between gap-2">
                         <h3
-                          className="text-white/95 text-17 leading-tight"
+                          className="font-serif text-white/95 text-17 leading-tight"
                           style={{
-                            fontFamily: isHebrew ? serifHe : serif,
                             fontStyle: isHebrew ? 'normal' : 'italic',
                             fontWeight: 600,
                           }}
@@ -251,7 +246,7 @@ export function OptimizePanel() {
                         </span>
                       </div>
 
-                      <p className="text-white text-sm leading-snug" style={{ fontFamily: sans, fontWeight: 500 }}>
+                      <p className="font-sans text-white text-sm leading-snug" style={{ fontWeight: 500 }}>
                         {r.headline[lang]}
                       </p>
 

@@ -10,9 +10,6 @@ import { GlassImage } from './dataviz';
  * subtle parallax/hover motion, image-led story blocks, and visual before/after.
  */
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 function alphaHex(opacity: number): string {
   return Math.round(Math.max(0, Math.min(1, opacity)) * 255)
     .toString(16)
@@ -106,7 +103,7 @@ function CompareCol({
 }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col items-center gap-1.5">
-      <span className="text-9 uppercase tracking-[0.22em] text-white/70" style={{ fontFamily: sans }}>
+      <span className="font-sans text-9 uppercase tracking-[0.22em] text-white/70">
         {label}
       </span>
       <span className={`relative block w-full ${dim ? 'opacity-55 grayscale-[0.3]' : ''}`}>
@@ -193,11 +190,11 @@ export function StoryBlock({
       )}
       <div className="relative min-w-0" style={{ direction: isHe ? 'rtl' : 'ltr' }}>
         {eyebrow ? (
-          <p className="mb-2 text-10 uppercase tracking-[0.3em]" style={{ color: accent, fontFamily: sans }}>
+          <p className="font-sans mb-2 text-10 uppercase tracking-[0.3em]" style={{ color: accent }}>
             {eyebrow}
           </p>
         ) : null}
-        <h3 className="text-white text-2xl md:text-3xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}>
+        <h3 className="font-serif text-white text-2xl md:text-3xl leading-tight" style={{ fontWeight: 700 }}>
           {title}
         </h3>
         {children ? <div className="mt-3">{children}</div> : null}

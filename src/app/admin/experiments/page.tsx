@@ -11,9 +11,6 @@ import { findCocktailBySlug, getAccent } from '@/data/cocktail';
 import type { ExperimentResult, VariantResult, ExperimentsResponse } from '@/lib/experiments/results-types';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 /**
  * Optional mapping from an experiment id to the cocktail it is tested on.
  * Only experiments that visibly change a specific drink get an image; the
@@ -133,24 +130,24 @@ export default function ExperimentsPage() {
 
               {/* hypothesis / title + significance */}
               <div className="flex items-start justify-between gap-3 flex-wrap mb-1">
-                <p className="inline-flex items-center gap-2 text-white/90 text-lg" style={{ fontFamily: serif, fontStyle: isHebrew ? 'normal' : 'italic' }}>
+                <p className="font-serif inline-flex items-center gap-2 text-white/90 text-lg" style={{ fontStyle: isHebrew ? 'normal' : 'italic' }}>
                   <FlaskConical size={16} strokeWidth={1.8} className="text-amber-200/70 shrink-0" />
                   {cocktail ? cocktail.title[lang] : exp.attribute[lang]}
                 </p>
                 {exp.significant ? (
                   <ConfidenceBadge pct={Math.round(exp.confidencePct)} label={t('significance', 'מובהקות')} />
                 ) : exp.hasData ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)', fontFamily: sans }}>
+                  <span className="font-sans inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)' }}>
                     <Hourglass size={11} strokeWidth={2} /> {t('collecting data', 'אוסף נתונים')} · {Math.round(exp.confidencePct)}%
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)', fontFamily: sans }}>
+                  <span className="font-sans inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase" style={{ borderColor: 'rgba(251,191,36,0.4)', color: 'var(--warning)' }}>
                     <Hourglass size={11} strokeWidth={2} /> {t('collecting data', 'אוסף נתונים')}
                   </span>
                 )}
               </div>
               {cocktail && (
-                <p className="text-white/45 text-11 mb-3 tracking-wide" style={{ fontFamily: sans }}>{exp.attribute[lang]}</p>
+                <p className="font-sans text-white/45 text-11 mb-3 tracking-wide">{exp.attribute[lang]}</p>
               )}
 
               {/* A vs B variant mini-panels */}
@@ -163,19 +160,19 @@ export default function ExperimentsPage() {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2.5">
-                      <span className="inline-flex items-center gap-1.5 text-white/85 text-13" style={{ fontFamily: sans }}>
+                      <span className="font-sans inline-flex items-center gap-1.5 text-white/85 text-13">
                         {v.label[lang]}
                         {v.isControl && (
                           <span className="text-white/70 text-9 tracking-wider uppercase">{t('control', 'בקרה')}</span>
                         )}
                       </span>
                       {v.isWinner && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-0.5 text-9 tracking-[0.15em] uppercase text-emerald-300" style={{ fontFamily: sans }}>
+                        <span className="font-sans inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-0.5 text-9 tracking-[0.15em] uppercase text-emerald-300">
                           <Trophy size={11} strokeWidth={2} /> {t('winner', 'מנצח')}
                         </span>
                       )}
                     </div>
-                    <p className="text-2xl tabular-nums" style={{ fontFamily: serif, fontWeight: 700, color: v.isWinner ? 'var(--success-soft)' : 'var(--gold-pale)' }}>
+                    <p className="font-serif text-2xl tabular-nums" style={{ fontWeight: 700, color: v.isWinner ? 'var(--success-soft)' : 'var(--gold-pale)' }}>
                       {v.conversionPct.toFixed(1)}<span className="text-base text-white/60">%</span>
                     </p>
                     <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden my-2">
@@ -189,7 +186,7 @@ export default function ExperimentsPage() {
                         }}
                       />
                     </div>
-                    <p className="text-white/45 text-11 tabular-nums" style={{ fontFamily: sans }}>
+                    <p className="font-sans text-white/45 text-11 tabular-nums">
                       {v.conversions}/{v.exposures} {t('converted', 'המירו')}
                     </p>
                   </div>
@@ -199,10 +196,10 @@ export default function ExperimentsPage() {
               {/* headline lift */}
               {challenger && exp.hasData && challenger.exposures > 0 && (
                 <div className="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-white/10">
-                  <span className="text-white/70 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+                  <span className="font-sans text-white/70 text-10 tracking-[0.25em] uppercase">
                     {t('Lift vs control', 'שיפור מול בקרה')}
                   </span>
-                  <span className={`inline-flex items-center gap-1 text-3xl leading-none tabular-nums ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: serif, fontWeight: 700 }}>
+                  <span className={`font-serif inline-flex items-center gap-1 text-3xl leading-none tabular-nums ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontWeight: 700 }}>
                     {up ? <ArrowUpRight size={26} strokeWidth={2.2} /> : <ArrowDownRight size={26} strokeWidth={2.2} />}
                     {up ? '+' : '−'}{Math.abs(challenger.upliftPct).toFixed(0)}%
                   </span>
@@ -210,7 +207,7 @@ export default function ExperimentsPage() {
               )}
 
               {!exp.hasData && (
-                <p className="text-white/70 text-xs mt-4 pt-4 border-t border-white/10" style={{ fontFamily: sans }}>
+                <p className="font-sans text-white/70 text-xs mt-4 pt-4 border-t border-white/10">
                   {t(
                     'No exposures yet — open a cocktail and use the order bar; each session is split between variants and measured here.',
                     'עדיין אין חשיפות — פתח קוקטייל והשתמש בסרגל ההזמנה; כל session מפוצל בין הוריאציות ונמדד כאן.',
@@ -225,7 +222,7 @@ export default function ExperimentsPage() {
       </div>
       )}
 
-      <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-8 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
+      <p className="font-sans text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-8 mt-8 border-t border-white/10">
         {t('Sessions split deterministically · winner declared at 95% significance', 'פיצול דטרמיניסטי · מנצח נקבע ב-95% מובהקות')}
       </p>
     </AdminShell>

@@ -265,7 +265,7 @@ export default function ArPage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-8 text-center" dir={isHebrew ? 'rtl' : 'ltr'}>
         <p className="text-amber-200/70 text-10 tracking-[0.4em] uppercase mb-3">{t('AR not available', 'AR לא זמין')}</p>
-        <h1 className="text-2xl mb-6" style={{ fontFamily: isHebrew ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)', fontStyle: isHebrew ? 'normal' : 'italic' }}>
+        <h1 className="text-2xl mb-6 font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic' }}>
           {t(`Cocktail “${slug}” not found`, `הקוקטייל “${slug}” לא נמצא`)}
         </h1>
         <Link
@@ -331,15 +331,13 @@ export default function ArPage({ params }: PageProps) {
 
       <div className="absolute top-6 start-6 z-30" dir={isHebrew ? 'rtl' : 'ltr'}>
         <p
-          className="text-amber-200/85 text-10 tracking-[0.45em] uppercase mb-1"
-          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          className="text-amber-200/85 text-10 tracking-[0.45em] uppercase mb-1 font-sans"
         >
           {t('AR · Live', 'AR · חי')}
         </p>
         <h1
-          className="text-white text-2xl drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]"
+          className="text-white text-2xl drop-shadow-[0_0_10px_rgba(0,0,0,0.8)] font-serif"
           style={{
-            fontFamily: isHebrew ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)',
             fontStyle: isHebrew ? 'normal' : 'italic',
           }}
         >
@@ -353,8 +351,8 @@ export default function ArPage({ params }: PageProps) {
             <button
               type="button"
               onClick={handleSnap}
-              className="px-6 py-3 rounded-full bg-amber-200 text-black text-11 tracking-[0.3em] uppercase shadow-[0_10px_30px_rgba(252,211,77,0.4)]"
-              style={{ fontFamily: 'var(--font-inter, sans-serif)', fontWeight: 600 }}
+              className="px-6 py-3 rounded-full bg-amber-200 text-black text-11 tracking-[0.3em] uppercase shadow-[0_10px_30px_rgba(252,211,77,0.4)] font-sans"
+              style={{ fontWeight: 600 }}
             >
               {t('📸 Capture', '📸 צלם')}
             </button>
@@ -364,8 +362,7 @@ export default function ArPage({ params }: PageProps) {
                 setPos({ x: 0, y: 0 });
                 setScale(0.7);
               }}
-              className="px-5 py-2.5 rounded-full border border-amber-200/40 bg-black/40 backdrop-blur-md text-amber-100 text-10 tracking-[0.3em] uppercase"
-              style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+              className="px-5 py-2.5 rounded-full border border-amber-200/40 bg-black/40 backdrop-blur-md text-amber-100 text-10 tracking-[0.3em] uppercase font-sans"
             >
               {t('Reset', 'איפוס')}
             </button>
@@ -393,8 +390,7 @@ export default function ArPage({ params }: PageProps) {
 
       {status === 'ready' && (
         <p
-          className="absolute bottom-28 left-0 right-0 z-30 text-center text-white/60 text-10 tracking-[0.3em] uppercase select-none"
-          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          className="absolute bottom-28 left-0 right-0 z-30 text-center text-white/60 text-10 tracking-[0.3em] uppercase select-none font-sans"
         >
           {t('Drag to move · Pinch to scale', 'גרור להזזה · צבוט לשינוי גודל')}
         </p>

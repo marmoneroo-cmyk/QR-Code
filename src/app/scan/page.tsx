@@ -116,15 +116,13 @@ export default function ScanPage() {
 
       <div className="absolute top-6 start-6 z-30" dir={isHebrew ? 'rtl' : 'ltr'}>
         <p
-          className="text-amber-200/85 text-10 tracking-[0.45em] uppercase mb-1"
-          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          className="text-amber-200/85 text-10 tracking-[0.45em] uppercase mb-1 font-sans"
         >
           {t('Scan', 'סריקה')}
         </p>
         <h1
-          className="text-white text-2xl"
+          className="text-white text-2xl font-serif"
           style={{
-            fontFamily: isHebrew ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)',
             fontStyle: isHebrew ? 'normal' : 'italic',
           }}
         >
@@ -138,8 +136,7 @@ export default function ScanPage() {
         )}
         {status === 'scanning' && (
           <p
-            className="text-white/70 text-11 tracking-[0.3em] uppercase"
-            style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+            className="text-white/70 text-11 tracking-[0.3em] uppercase font-sans"
           >
             {t('Looking for a code…', 'מחפש קוד…')}
           </p>

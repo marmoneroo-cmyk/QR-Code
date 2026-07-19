@@ -29,7 +29,6 @@ import { buildGptImagePrompt } from '@/lib/heroPrompts';
 import type { CocktailConfig, Category } from '@/data/cocktail';
 import type { ParsedItem, ParsedMenu } from '@/lib/restaurant-scraper';
 
-const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-garamond, serif)';
 const inputClass =
   'w-full rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3 text-white text-15 outline-none transition-colors duration-300 placeholder:text-white/25 focus:border-amber-200/50 focus:bg-white/[0.06]';
@@ -133,7 +132,7 @@ function ImportStepper({ phase, isHebrew }: { phase: ImportPhase; isHebrew: bool
               <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border transition-all duration-500 ${ringClass} ${isActive ? 'shadow-[0_0_18px_-4px_rgba(251,191,36,0.5)]' : ''}`}>
                 <DotIcon size={16} strokeWidth={isDone ? 2.4 : 2} className={showSpinner ? 'animate-spin' : ''} />
               </span>
-              <span aria-current={isActive ? 'step' : undefined} className={`text-10 tracking-[0.2em] uppercase leading-tight transition-colors duration-500 ${labelClass}`} style={{ fontFamily: sans }}>
+              <span aria-current={isActive ? 'step' : undefined} className={`font-sans text-10 tracking-[0.2em] uppercase leading-tight transition-colors duration-500 ${labelClass}`}>
                 {isHebrew ? step.labelHe : step.label}
               </span>
             </div>
@@ -356,17 +355,17 @@ export default function ImportRestaurantPage() {
           <SectionLabel icon={Link2}>{t('Source', 'מקור')}</SectionLabel>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-white/45 text-11 tracking-wide mb-2" style={{ fontFamily: sans }}>
+              <label className="block text-white/45 text-11 tracking-wide mb-2 font-sans">
                 {t('Restaurant URL', 'כתובת אתר המסעדה')}
               </label>
               <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.restaurant.co.il/menus" dir="ltr" aria-label={t('Restaurant URL', 'כתובת אתר המסעדה')} className={inputClass} />
             </div>
             <div>
-              <label className="block text-white/45 text-11 tracking-wide mb-2" style={{ fontFamily: sans }}>
+              <label className="block text-white/45 text-11 tracking-wide mb-2 font-sans">
                 {t('Restaurant name', 'שם המסעדה')}
               </label>
               <input type="text" value={restaurantName} onChange={(e) => setRestaurantName(e.target.value)} placeholder={t('e.g. Diner', 'לדוגמה: Diner')} aria-label={t('Restaurant name', 'שם המסעדה')} className={inputClass} />
-              <p className="text-white/70 text-10 tracking-wider mt-2" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
+              <p className="text-white/70 text-10 tracking-wider mt-2 font-sans" dir={isHebrew ? 'rtl' : 'ltr'}>
                 {t('slug', 'מזהה')}: <code className="text-amber-100/80" dir="ltr">{restaurantSlug}</code>
               </p>
             </div>
@@ -396,16 +395,15 @@ export default function ImportRestaurantPage() {
                     </button>
                   )}
                 </div>
-                <p className="text-white/70 text-10 mt-2" style={{ fontFamily: sans }}>{t('Shown on the menu header. Stored on this device.', 'מוצג בכותרת התפריט. נשמר במכשיר זה.')}</p>
+                <p className="text-white/70 text-10 mt-2 font-sans">{t('Shown on the menu header. Stored on this device.', 'מוצג בכותרת התפריט. נשמר במכשיר זה.')}</p>
               </div>
             </div>
           </div>
 
           <div className="mt-7 pt-6 border-t border-white/8 flex flex-wrap items-center gap-x-5 gap-y-3">
             <motion.button type="button" onClick={handleScan} disabled={scanning || importing} whileTap={{ scale: 0.97 }}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-6 py-2.5 text-11 tracking-[0.3em] uppercase text-black transition-shadow disabled:opacity-40 disabled:cursor-not-allowed"
+              className="font-sans group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-6 py-2.5 text-11 tracking-[0.3em] uppercase text-black transition-shadow disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
-                fontFamily: sans,
                 fontWeight: 600,
                 background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
                 boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
@@ -423,7 +421,7 @@ export default function ImportRestaurantPage() {
         {menu && !imported && (
           <GlassCard static className="mb-10 rounded-[1.75rem] p-6 md:p-8">
             <SectionLabel icon={Store}>{t('Menu found', 'התפריט נמצא')}</SectionLabel>
-            <div className="mb-6 flex flex-wrap items-center gap-2 text-xs" style={{ fontFamily: sans }}>
+            <div className="mb-6 flex flex-wrap items-center gap-2 text-xs font-sans">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-emerald-200/90">
                 <Check size={12} strokeWidth={2.4} /> {menu.platform}
               </span>
@@ -439,7 +437,7 @@ export default function ImportRestaurantPage() {
               <>
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <SectionLabel icon={ListChecks}>{t('Select items by category', 'בחרו פריטים לפי קטגוריה')}</SectionLabel>
-                  <div className="flex items-center gap-2 text-10 tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>
+                  <div className="flex items-center gap-2 text-10 tracking-[0.2em] uppercase font-sans">
                     <button type="button" onClick={() => setItems((p) => p.map((it) => ({ ...it, selected: true })))} disabled={importing} className="text-amber-200/70 hover:text-amber-100 disabled:opacity-40">
                       {t('All', 'הכל')}
                     </button>
@@ -457,11 +455,11 @@ export default function ImportRestaurantPage() {
                   return (
                     <div key={cat.id} className="mb-7">
                       <div className="mb-3 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-2">
-                        <h4 className="text-amber-200/85 text-xs tracking-[0.28em] uppercase" style={{ fontFamily: sans }}>
+                        <h4 className="text-amber-200/85 text-xs tracking-[0.28em] uppercase font-sans">
                           {cat.name} <span className="text-white/70">({groupItems.length})</span>
                         </h4>
                         <button type="button" onClick={() => toggleGroup(cat.name, !allSelected)} disabled={importing}
-                          className="text-10 tracking-[0.2em] uppercase text-white/45 hover:text-amber-100 transition-colors disabled:opacity-40" style={{ fontFamily: sans }}>
+                          className="font-sans text-10 tracking-[0.2em] uppercase text-white/45 hover:text-amber-100 transition-colors disabled:opacity-40">
                           {allSelected ? t('Clear', 'נקה') : t('Select all', 'בחר הכל')}
                         </button>
                       </div>
@@ -474,14 +472,14 @@ export default function ImportRestaurantPage() {
                               {it.desc && <div className="mt-0.5 truncate text-white/70 text-xs italic" style={{ fontFamily: serif }}>{it.desc}</div>}
                             </div>
                             {it.price && (
-                              <span className="shrink-0 text-amber-100/90 text-sm tabular-nums" style={{ fontFamily: sans }} dir="ltr">₪{it.price}</span>
+                              <span className="shrink-0 text-amber-100/90 text-sm tabular-nums font-sans" dir="ltr">₪{it.price}</span>
                             )}
                             <select value={it.category} disabled={!it.selected || importing} onChange={(e) => updateItemCategory(it.uid, e.target.value as Category)}
                               aria-label={t(`Category for ${it.name}`, `קטגוריה עבור ${it.name}`)}
-                              className="shrink-0 rounded-lg border border-white/12 bg-black/40 px-2.5 py-1.5 text-amber-100/90 text-11 outline-none focus:border-amber-200/40 disabled:opacity-40" style={{ fontFamily: sans }}>
+                              className="font-sans shrink-0 rounded-lg border border-white/12 bg-black/40 px-2.5 py-1.5 text-amber-100/90 text-11 outline-none focus:border-amber-200/40 disabled:opacity-40">
                               {CATEGORY_OPTIONS.map((c) => (<option key={c.id} value={c.id} className="bg-black">{t(c.label, c.labelHe)}</option>))}
                             </select>
-                            <div className="w-20 shrink-0 text-end text-11 tracking-wider uppercase" style={{ fontFamily: sans }}>
+                            <div className="w-20 shrink-0 text-end text-11 tracking-wider uppercase font-sans">
                               {it.status === 'in_progress' && <span className="inline-flex items-center gap-1 text-amber-200"><Loader2 size={12} strokeWidth={2.2} className="animate-spin" /> {t('working', 'עובד')}</span>}
                               {it.status === 'done' && <span className="inline-flex items-center gap-1 text-emerald-300"><Check size={12} strokeWidth={2.4} /> {t('done', 'הושלם')}</span>}
                               {it.status === 'error' && <span className="inline-flex items-center gap-1 text-rose-300" title={it.errorMessage}><X size={12} strokeWidth={2.4} /> {t('failed', 'נכשל')}</span>}
@@ -501,16 +499,15 @@ export default function ImportRestaurantPage() {
         {/* ── Import action ──────────────────────────────────────────────── */}
         {items.length > 0 && !imported && (
           <section className="flex flex-wrap items-center justify-between gap-4 pt-5 mt-2 border-t border-white/10">
-            <div className="text-white/55 text-sm" style={{ fontFamily: sans }}>
+            <div className="text-white/55 text-sm font-sans">
               {t(`${selectedCount} of ${items.length} selected`, `${selectedCount} מתוך ${items.length} נבחרו`)}
               {importing && progress.total > 0 && (
                 <span className="ms-3 text-amber-200/80">{t(`· ${progress.done}/${progress.total} done`, `· ${progress.done}/${progress.total} הושלמו`)}</span>
               )}
             </div>
             <motion.button type="button" onClick={handleImport} disabled={importing || selectedCount === 0} whileTap={{ scale: 0.97 }}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-8 py-3 text-xs tracking-[0.3em] uppercase text-black transition-shadow disabled:opacity-40 disabled:cursor-not-allowed"
+              className="font-sans group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-8 py-3 text-xs tracking-[0.3em] uppercase text-black transition-shadow disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
-                fontFamily: sans,
                 fontWeight: 600,
                 background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
                 boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
@@ -531,10 +528,10 @@ export default function ImportRestaurantPage() {
                 {t(`${imported.length} item${imported.length === 1 ? '' : 's'} imported`, `${imported.length} פריטים יובאו`)}
               </SectionLabel>
               <div className="flex items-center gap-3">
-                <button type="button" onClick={resetForMore} className="text-white/45 hover:text-white/80 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+                <button type="button" onClick={resetForMore} className="text-white/45 hover:text-white/80 text-10 tracking-[0.25em] uppercase font-sans">
                   {t('Import more', 'ייבוא נוסף')}
                 </button>
-                <Link href="/admin" className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-5 py-2 text-10 tracking-[0.25em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100" style={{ fontFamily: sans, fontWeight: 600 }}>
+                <Link href="/admin" className="font-sans group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-5 py-2 text-10 tracking-[0.25em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100" style={{ fontWeight: 600 }}>
                   {t('Open composer', 'פתח את העורך')}
                 </Link>
               </div>
@@ -554,15 +551,14 @@ export default function ImportRestaurantPage() {
                       <div className="min-w-0">
                         <div className="text-white/90 text-15">{draft.title[lang] || draft.title.en}</div>
                         {draft.tagline && <div className="mt-0.5 text-white/70 text-xs italic" style={{ fontFamily: serif }}>{draft.tagline[lang] || draft.tagline.en}</div>}
-                        {draft.priceILS !== undefined && <div className="mt-1 text-amber-100/90 text-13 tabular-nums" style={{ fontFamily: sans }} dir="ltr">₪{draft.priceILS}</div>}
+                        {draft.priceILS !== undefined && <div className="mt-1 text-amber-100/90 text-13 tabular-nums font-sans" dir="ltr">₪{draft.priceILS}</div>}
                         {needsImage && (
-                          <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-0.5 text-10 tracking-wide text-amber-200/85" style={{ fontFamily: sans }}>
+                          <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-0.5 text-10 tracking-wide text-amber-200/85 font-sans">
                             <ImagePlus size={11} strokeWidth={2} /> {t('needs a photo', 'צריך תמונה')}
                           </span>
                         )}
                       </div>
-                      <Link href={`/admin/${draft.slug}/edit`} className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-2 text-10 tracking-[0.25em] uppercase text-black transition-shadow" style={{
-                        fontFamily: sans,
+                      <Link href={`/admin/${draft.slug}/edit`} className="font-sans group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-5 py-2 text-10 tracking-[0.25em] uppercase text-black transition-shadow" style={{
                         fontWeight: 700,
                         background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
                         boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
@@ -572,12 +568,12 @@ export default function ImportRestaurantPage() {
                     </div>
 
                     <div className="mt-3">
-                      <label className="block text-white/70 text-10 tracking-[0.2em] uppercase mb-1.5" style={{ fontFamily: sans }}>
+                      <label className="block text-white/70 text-10 tracking-[0.2em] uppercase mb-1.5 font-sans">
                         {t('ChatGPT image prompt', 'פרומפט תמונה ל-ChatGPT')}
                       </label>
                       <textarea readOnly value={gpt} rows={2} onFocus={(e) => e.currentTarget.select()} aria-label={t('ChatGPT image prompt', 'פרומפט תמונה ל-ChatGPT')} className={`${inputClass} resize-y text-white/65 text-13`} />
                       <button type="button" onClick={() => copyPrompt(draft.slug, gpt)}
-                        className="mt-2 inline-flex items-center gap-2 rounded-full border border-amber-200/40 px-4 py-1.5 text-amber-100 hover:bg-amber-200/10 transition-colors text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+                        className="font-sans mt-2 inline-flex items-center gap-2 rounded-full border border-amber-200/40 px-4 py-1.5 text-amber-100 hover:bg-amber-200/10 transition-colors text-10 tracking-[0.25em] uppercase">
                         {copiedSlug === draft.slug ? <Check size={12} strokeWidth={2.4} /> : <ClipboardCopy size={12} strokeWidth={2} />}
                         {copiedSlug === draft.slug ? t('Copied', 'הועתק') : t('Copy prompt', 'העתק פרומפט')}
                       </button>
@@ -590,7 +586,7 @@ export default function ImportRestaurantPage() {
         )}
 
         {error && (
-          <p role="status" aria-live="polite" className="mt-6 flex items-center gap-2 text-rose-300/90 text-sm" style={{ fontFamily: sans }}>
+          <p role="status" aria-live="polite" className="mt-6 flex items-center gap-2 text-rose-300/90 text-sm font-sans">
             <X size={14} strokeWidth={2.2} className="shrink-0" /> {error}
           </p>
         )}

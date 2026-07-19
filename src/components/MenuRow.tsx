@@ -22,9 +22,6 @@ import type { ExperienceConfig } from '@/lib/experience/types';
  * tracking, badge/price resolution and hover-video behavior are unchanged.
  */
 
-const serif = 'var(--font-playfair, serif)';
-const serifHe = 'var(--font-frank-ruhl, serif)';
-const sans = 'var(--font-inter, sans-serif)';
 
 export interface MenuSection {
   key: string;
@@ -86,14 +83,14 @@ export function MenuRow({ section, lang, currency, promotions, experience, index
     >
       <div className="mx-auto mb-5 flex max-w-[1500px] items-baseline gap-4 px-6 md:px-10">
         <h2
-          className="shrink-0 text-white text-xl md:text-2xl"
-          style={{ fontFamily: isHe ? serifHe : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+          className="shrink-0 text-white text-xl md:text-2xl font-serif"
+          style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
         >
           {section.title}
         </h2>
         <span aria-hidden className="h-px flex-1 self-center" style={{ background: 'linear-gradient(90deg, rgba(232,201,135,0.22), rgba(255,255,255,0.06) 55%, transparent)' }} />
         {section.items.length > 1 && (
-          <span className="shrink-0 text-11 tracking-[0.25em] tabular-nums" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.55)' }}>
+          <span className="shrink-0 text-11 tracking-[0.25em] tabular-nums font-sans" style={{ color: 'rgba(232,201,135,0.55)' }}>
             {section.items.length}
           </span>
         )}
@@ -252,23 +249,23 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
             >
               <div className="pointer-events-none absolute inset-x-0 -top-10 bottom-0 -z-10" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 45%, transparent)' }} />
               <h3
-                className={`line-clamp-2 text-white leading-tight ${featured ? 'text-17 md:text-2xl' : 'text-base'}`}
-                style={{ fontFamily: isHe ? serifHe : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+                className={`line-clamp-2 text-white leading-tight font-serif ${featured ? 'text-17 md:text-2xl' : 'text-base'}`}
+                style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
               >
                 {cocktail.title[lang]}
               </h3>
               {featured && cocktail.tagline && (
-                <p className="mt-1 hidden md:block text-white/50 text-xs leading-snug line-clamp-1" style={{ fontFamily: sans }}>
+                <p className="mt-1 hidden md:block text-white/50 text-xs leading-snug line-clamp-1 font-sans">
                   {cocktail.tagline[lang]}
                 </p>
               )}
               {priced && priced.discounted ? (
-                <p className="mt-1 inline-flex items-baseline gap-1.5" style={{ fontFamily: sans }} dir="ltr">
+                <p className="mt-1 inline-flex items-baseline gap-1.5 font-sans" dir="ltr">
                   <span className="text-xs line-through opacity-40">{formatPrice(priced.original, currency)}</span>
                   <span className={`text-amber-300 font-semibold ${featured ? 'text-15 md:text-lg' : 'text-15'}`}>{formatPrice(priced.price, currency)}</span>
                 </p>
               ) : cocktail.priceILS !== undefined ? (
-                <p className={`mt-1 text-amber-100/90 ${featured ? 'text-15 md:text-lg' : 'text-15'}`} style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
+                <p className={`mt-1 text-amber-100/90 font-sans ${featured ? 'text-15 md:text-lg' : 'text-15'}`} style={{ fontWeight: 600 }} dir="ltr">
                   {formatPrice(cocktail.priceILS, currency)}
                 </p>
               ) : null}

@@ -26,9 +26,6 @@ import type { ImpactStatus, MetricKey, Confidence } from '@/lib/closedloop/types
 import type { ClosedLoopItem, ClosedLoopReport } from '@/lib/closedloop/server';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 /** Visual treatment per measured-result status: icon, accent color, arrow glyph. */
 interface StatusStyle {
   en: string;
@@ -164,11 +161,11 @@ export function ClosedLoopPanel() {
             <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ color: 'var(--warning)', background: 'rgba(251,191,36,0.1)' }}>
               <Wrench size={15} strokeWidth={1.8} />
             </span>
-            <h3 className="text-white text-15" style={{ fontFamily: serif, fontWeight: 600 }}>
+            <h3 className="font-serif text-white text-15" style={{ fontWeight: 600 }}>
               {t('Log an external change', 'רישום שינוי חיצוני')}
             </h3>
           </div>
-          <p className="mb-4 text-white/45 text-xs" style={{ fontFamily: sans }}>
+          <p className="font-sans mb-4 text-white/45 text-xs">
             {t(
               'For actions the platform can’t see (printed menu, Instagram campaign, new photo shoot).',
               'לפעולות שהמערכת לא רואה (תפריט מודפס, קמפיין אינסטגרם, צילום חדש).'
@@ -197,9 +194,8 @@ export function ClosedLoopPanel() {
               type="button"
               onClick={submitManual}
               disabled={saving}
-              className="group relative inline-flex w-fit shrink-0 items-center justify-center gap-2 self-start overflow-hidden rounded-full px-6 py-3 text-11 tracking-[0.25em] uppercase text-black transition-shadow disabled:opacity-50"
+              className="font-sans group relative inline-flex w-fit shrink-0 items-center justify-center gap-2 self-start overflow-hidden rounded-full px-6 py-3 text-11 tracking-[0.25em] uppercase text-black transition-shadow disabled:opacity-50"
               style={{
-                fontFamily: sans,
                 fontWeight: 700,
                 background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
                 boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
@@ -216,7 +212,7 @@ export function ClosedLoopPanel() {
               </span>
             </button>
             {msg && (
-              <p role="status" aria-live="polite" className="text-amber-200/80 text-xs" style={{ fontFamily: sans }}>
+              <p role="status" aria-live="polite" className="font-sans text-amber-200/80 text-xs">
                 {msg}
               </p>
             )}
@@ -231,7 +227,7 @@ export function ClosedLoopPanel() {
               {data.timeline.slice(0, 30).map((c) => {
                 const manual = c.source === 'manual';
                 return (
-                  <div key={c.id} className="flex items-center gap-3 px-5 py-3 text-xs" style={{ fontFamily: sans }}>
+                  <div key={c.id} className="font-sans flex items-center gap-3 px-5 py-3 text-xs">
                     <span
                       className="grid h-6 w-6 shrink-0 place-items-center rounded-full"
                       style={{
@@ -330,8 +326,8 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
         {/* Status badge */}
         <div className="px-5 pt-3">
           <span
-            className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-10 uppercase tracking-[0.2em]"
-            style={{ borderColor: `${st.color}66`, color: st.color, background: `${st.color}14`, fontFamily: sans, fontWeight: 600 }}
+            className="font-sans inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-10 uppercase tracking-[0.2em]"
+            style={{ borderColor: `${st.color}66`, color: st.color, background: `${st.color}14`, fontWeight: 600 }}
           >
             <StatusIcon size={13} strokeWidth={2} /> {st[lang]}
           </span>
@@ -340,8 +336,8 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
         <div className="flex flex-1 flex-col gap-2.5 p-5 pt-2.5">
           {title && (
             <h4
-              className="text-white text-17 leading-tight"
-              style={{ fontFamily: isHe ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+              className="font-serif text-white text-17 leading-tight"
+              style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
             >
               {title}
             </h4>
@@ -349,7 +345,7 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
 
           {/* Big delta with arrow */}
           {delta !== null ? (
-            <p className="inline-flex items-baseline gap-1.5" style={{ color: down ? 'var(--critical-soft)' : 'var(--success)', fontFamily: serif, fontWeight: 700 }}>
+            <p className="font-serif inline-flex items-baseline gap-1.5" style={{ color: down ? 'var(--critical-soft)' : 'var(--success)', fontWeight: 700 }}>
               <DeltaArrow size={26} strokeWidth={2.4} className="self-center" />
               <span style={{ fontSize: 'clamp(1.8rem,4vw,2.6rem)', lineHeight: 1 }}>
                 {delta > 0 ? '+' : ''}
@@ -357,7 +353,7 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
               </span>
             </p>
           ) : (
-            <p className="text-white/70 text-sm italic" style={{ fontFamily: sans }}>
+            <p className="font-sans text-white/70 text-sm italic">
               {t('No delta yet', 'אין דלתא')}
             </p>
           )}
@@ -373,7 +369,7 @@ function ResultCard({ item: m, lang, isHe, t, titleBySlug }: ResultCardProps) {
           )}
 
           {/* Metric · window (compact) */}
-          <p className="text-white/50 text-11" style={{ fontFamily: sans }}>
+          <p className="font-sans text-white/50 text-11">
             {METRIC[m.metric][lang]} · {m.observationDays}
             {t('d', 'י')}
             {m.stillAccumulating ? t(' · live', ' · נצבר') : ''}

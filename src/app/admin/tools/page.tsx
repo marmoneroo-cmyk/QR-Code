@@ -58,12 +58,12 @@ export default function ToolsPage() {
             </span>
             <span className="min-w-0 flex-1">
               <span
-                className="block text-white/90 text-sm"
-                style={{ fontFamily: 'var(--font-inter, sans-serif)', fontWeight: 500 }}
+                className="font-sans block text-white/90 text-sm"
+                style={{ fontWeight: 500 }}
               >
                 {isHe ? c.he : c.en}
               </span>
-              <span className="block text-white/45 text-xs mt-0.5" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+              <span className="font-sans block text-white/45 text-xs mt-0.5">
                 {isHe ? c.dHe : c.dEn}
               </span>
             </span>

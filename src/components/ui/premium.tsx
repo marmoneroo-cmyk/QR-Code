@@ -13,9 +13,6 @@ import { GlassSheen } from './visual';
  * the global CSS kill-switch. Compose these instead of restyling per screen.
  */
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 export const LUX_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /* ─── Ambient stage ─────────────────────────────────────────────────────── */
@@ -104,14 +101,13 @@ interface PanelHeaderProps {
 export function PanelHeader({ label, href, cta, isHe }: PanelHeaderProps) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <h3 className="text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.85)' }}>
+      <h3 className="font-sans text-10 tracking-[0.3em] uppercase" style={{ color: 'rgba(232,201,135,0.85)' }}>
         {label}
       </h3>
       {href && cta && (
         <Link
           href={href}
-          className="group/link inline-flex items-center gap-1 text-10 tracking-[0.2em] uppercase text-white/70 hover:text-amber-100 transition-colors"
-          style={{ fontFamily: sans }}
+          className="font-sans group/link inline-flex items-center gap-1 text-10 tracking-[0.2em] uppercase text-white/70 hover:text-amber-100 transition-colors"
         >
           {cta}
           <span className="transition-transform group-hover/link:translate-x-0.5 rtl:group-hover/link:-translate-x-0.5">{isHe ? '←' : '→'}</span>
@@ -137,8 +133,8 @@ export function CtaPill({ href, children, className, tone = 'champagne' }: CtaPi
     return (
       <Link
         href={href}
-        className={`group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-xs tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100 ${className ?? ''}`}
-        style={{ fontFamily: sans, fontWeight: 600 }}
+        className={`font-sans group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-xs tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100 ${className ?? ''}`}
+        style={{ fontWeight: 600 }}
       >
         {children}
       </Link>
@@ -147,9 +143,8 @@ export function CtaPill({ href, children, className, tone = 'champagne' }: CtaPi
   return (
     <Link
       href={href}
-      className={`group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-13 tracking-[0.16em] uppercase text-black transition-shadow ${className ?? ''}`}
+      className={`font-sans group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-13 tracking-[0.16em] uppercase text-black transition-shadow ${className ?? ''}`}
       style={{
-        fontFamily: sans,
         fontWeight: 700,
         background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
         boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
@@ -181,8 +176,8 @@ export function EmptyState({ title, hint, icon, className }: EmptyStateProps) {
       <span className="grid place-items-center w-10 h-10 rounded-full border border-white/10 text-amber-200/50">
         {icon ?? <Sparkles size={16} strokeWidth={1.4} />}
       </span>
-      <p className="text-white/55 text-xs" style={{ fontFamily: sans }}>{title}</p>
-      {hint && <p className="text-white/70 text-11 max-w-[26ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
+      <p className="font-sans text-white/55 text-xs">{title}</p>
+      {hint && <p className="font-sans text-white/70 text-11 max-w-[26ch] leading-relaxed">{hint}</p>}
     </div>
   );
 }
@@ -211,14 +206,13 @@ export function ErrorState({ title, hint, onRetry, retryLabel = 'Try again', cla
       <span className="grid place-items-center w-10 h-10 rounded-full border border-rose-400/25 text-rose-300/70">
         <AlertTriangle size={16} strokeWidth={1.5} />
       </span>
-      <p className="text-rose-200/80 text-xs" style={{ fontFamily: sans }}>{title}</p>
-      {hint && <p className="text-white/70 text-11 max-w-[28ch] leading-relaxed" style={{ fontFamily: sans }}>{hint}</p>}
+      <p className="font-sans text-rose-200/80 text-xs">{title}</p>
+      {hint && <p className="font-sans text-white/70 text-11 max-w-[28ch] leading-relaxed">{hint}</p>}
       {onRetry && (
         <button
           type="button"
           onClick={onRetry}
-          className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-11 text-white/70 transition-colors hover:border-white/30 hover:text-white/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
-          style={{ fontFamily: sans }}
+          className="font-sans mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1 text-11 text-white/70 transition-colors hover:border-white/30 hover:text-white/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
         >
           <RotateCw size={12} strokeWidth={2} /> {retryLabel}
         </button>
@@ -250,9 +244,8 @@ export function StatBlock({ value, label, size = 'default', tone = 'white', clas
   return (
     <div className={`min-w-0 ${className ?? ''}`}>
       <div
-        className="leading-none"
+        className="font-serif leading-none"
         style={{
-          fontFamily: serif,
           fontWeight: 700,
           color: TONE_COLOR[tone],
           fontSize: size === 'hero' ? 'clamp(2.4rem, 5.5vw, 3.6rem)' : 'clamp(1.5rem, 3vw, 2.1rem)',
@@ -260,7 +253,7 @@ export function StatBlock({ value, label, size = 'default', tone = 'white', clas
       >
         {value}
       </div>
-      <p className="mt-2 text-11 tracking-[0.14em] uppercase" style={{ fontFamily: sans, color: 'var(--ink-mid)' }}>
+      <p className="font-sans mt-2 text-11 tracking-[0.14em] uppercase" style={{ color: 'var(--ink-mid)' }}>
         {label}
       </p>
     </div>

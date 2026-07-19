@@ -15,7 +15,6 @@ interface SettingsToolbarProps {
 }
 
 const CURRENCIES: ReadonlyArray<Currency> = ['ILS', 'USD', 'EUR'];
-const sans = 'var(--font-inter, sans-serif)';
 
 // Inline SVG flags (render identically on every OS, unlike flag emoji).
 function FlagEN() {
@@ -108,7 +107,7 @@ export function SettingsToolbar({
     scan: isHebrew ? 'סריקת QR' : 'Scan QR',
   };
 
-  const rowLabel = 'text-white/70 text-11 tracking-[0.12em] mb-2.5';
+  const rowLabel = 'text-white/70 text-11 tracking-[0.12em] mb-2.5 font-sans';
 
   return (
     <div ref={rootRef} className="fixed top-6 start-6 z-50 flex items-center gap-2.5">
@@ -131,7 +130,7 @@ export function SettingsToolbar({
               dir={isHebrew ? 'rtl' : 'ltr'}
             >
               <div className="px-6 pt-5 pb-4 border-b border-white/[0.06]">
-                <p className="text-amber-200/75 text-11 tracking-[0.28em] uppercase" style={{ fontFamily: sans, fontWeight: 500 }}>
+                <p className="text-amber-200/75 text-11 tracking-[0.28em] uppercase font-sans" style={{ fontWeight: 500 }}>
                   {t.settings}
                 </p>
               </div>
@@ -139,7 +138,7 @@ export function SettingsToolbar({
               <div className="px-6 py-5 space-y-6">
                 {/* Language — country flags */}
                 <div>
-                  <p className={rowLabel} style={{ fontFamily: sans }}>{t.language}</p>
+                  <p className={rowLabel}>{t.language}</p>
                   <div className="flex gap-3">
                     {LANGS.map((l) => {
                       const selected = lang === l.value;
@@ -165,7 +164,7 @@ export function SettingsToolbar({
 
                 {/* Currency — full-width segmented */}
                 <div>
-                  <p className={rowLabel} style={{ fontFamily: sans }}>{t.currency}</p>
+                  <p className={rowLabel}>{t.currency}</p>
                   <div className="flex w-full rounded-full border border-white/10 bg-white/[0.03] p-0.5">
                     {CURRENCIES.map((c) => {
                       const selected = currency === c;
@@ -179,8 +178,8 @@ export function SettingsToolbar({
                             selected
                               ? 'bg-amber-100 text-black shadow-[0_2px_10px_rgba(252,211,77,0.25)]'
                               : 'text-white/50 hover:text-white/90'
-                          }`}
-                          style={{ fontFamily: sans, fontWeight: 500 }}
+                          } font-sans`}
+                          style={{ fontWeight: 500 }}
                         >
                           {CURRENCY_SYMBOL[c]} {c}
                         </button>
@@ -191,15 +190,14 @@ export function SettingsToolbar({
 
                 {/* Restaurant name */}
                 <div>
-                  <label htmlFor="restaurant-name-input" className={rowLabel} style={{ fontFamily: sans }}>{t.restaurant}</label>
+                  <label htmlFor="restaurant-name-input" className={rowLabel}>{t.restaurant}</label>
                   <input
                     id="restaurant-name-input"
                     type="text"
                     value={restaurantName}
                     onChange={(e) => onRestaurantChange(e.target.value)}
                     placeholder={isHebrew ? 'שם המסעדה' : 'Restaurant name'}
-                    className="w-full bg-transparent border-b border-white/15 focus:border-amber-200/60 outline-none text-white text-15 py-1.5 transition-colors duration-300 placeholder:text-white/60"
-                    style={{ fontFamily: sans }}
+                    className="w-full bg-transparent border-b border-white/15 focus:border-amber-200/60 outline-none text-white text-15 py-1.5 transition-colors duration-300 placeholder:text-white/60 font-sans"
                     dir={isHebrew ? 'rtl' : 'ltr'}
                   />
                 </div>

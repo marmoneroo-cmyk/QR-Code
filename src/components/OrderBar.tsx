@@ -37,8 +37,6 @@ export function OrderBar({ cocktailSlug, accent, lang, priceILS, costILS }: Orde
   const ctaVariant = useExperiment('order-cta');
   const addLabel = ctaVariant ? ctaVariant.value[lang] : isHebrew ? 'הוסף לבחירות שלי' : 'Add to my picks';
 
-  const labelFont = 'var(--font-inter, sans-serif)';
-
   const handleAdd = () => {
     setConfirmed(false);
     setCount((c) => {
@@ -85,8 +83,8 @@ export function OrderBar({ cocktailSlug, accent, lang, priceILS, costILS }: Orde
         <button
           type="button"
           onClick={handleAdd}
-          className="px-5 py-2 rounded-full text-10 tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03]"
-          style={{ fontFamily: labelFont, backgroundColor: accent }}
+          className="px-5 py-2 rounded-full text-10 tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03] font-sans"
+          style={{ backgroundColor: accent }}
         >
           {confirmed ? (isHebrew ? 'בבחירות שלך ✓' : 'In your picks ✓') : addLabel}
         </button>
@@ -103,8 +101,8 @@ export function OrderBar({ cocktailSlug, accent, lang, priceILS, costILS }: Orde
           <button
             type="button"
             onClick={handleConfirm}
-            className="px-5 py-2 rounded-full text-10 tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03]"
-            style={{ fontFamily: labelFont, backgroundColor: accent }}
+            className="px-5 py-2 rounded-full text-10 tracking-[0.25em] uppercase text-black transition-transform hover:scale-[1.03] font-sans"
+            style={{ backgroundColor: accent }}
           >
             {isHebrew ? `הראה למלצר · ${count}` : `Show waiter · ${count}`}
           </button>

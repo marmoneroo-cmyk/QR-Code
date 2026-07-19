@@ -19,9 +19,6 @@ import type { CoViewRow, Recommendations } from '@/lib/analytics/recommendations
 import type { MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-const serifHe = 'var(--font-frank-ruhl, serif)';
 const PAIR_ACCENT = '#7dd3fc';
 
 /**
@@ -196,8 +193,8 @@ export function RecommendationsPanel() {
                 {isTopPick && (
                   <div className="pointer-events-none absolute -end-12 top-5 z-20 rotate-45">
                     <span
-                      className="block px-12 py-1 text-center text-10 tracking-[0.16em] uppercase shadow-lg"
-                      style={{ background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))', color: '#1a1205', fontFamily: sans, fontWeight: 800 }}
+                      className="font-sans block px-12 py-1 text-center text-10 tracking-[0.16em] uppercase shadow-lg"
+                      style={{ background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))', color: '#1a1205', fontWeight: 800 }}
                     >
                       {t('Top pick', 'המלצה מובילה')}
                     </span>
@@ -210,12 +207,11 @@ export function RecommendationsPanel() {
                   {/* Rank badge — bold standing in the ranking. */}
                   <span className="absolute top-4 start-4 z-10">
                     <span
-                      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-11 tracking-[0.14em] uppercase"
+                      className="font-sans inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-11 tracking-[0.14em] uppercase"
                       style={{
                         color: isTopPick ? '#1a1205' : 'var(--champagne)',
                         background: isTopPick ? 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))' : 'rgba(232,201,135,0.14)',
                         border: '1px solid rgba(232,201,135,0.55)',
-                        fontFamily: sans,
                         fontWeight: 800,
                       }}
                     >
@@ -229,8 +225,8 @@ export function RecommendationsPanel() {
 
                 <div className="relative flex flex-1 flex-col gap-3 p-5">
                   <h3
-                    className={`text-white/95 leading-tight ${isTopPick ? 'text-22' : 'text-lg'}`}
-                    style={{ fontFamily: isHebrew ? serifHe : serif, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 600 }}
+                    className={`font-serif text-white/95 leading-tight ${isTopPick ? 'text-22' : 'text-lg'}`}
+                    style={{ fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 600 }}
                   >
                     {title}
                   </h3>
@@ -239,13 +235,13 @@ export function RecommendationsPanel() {
                   <PotentialValue potential={potential} lang={lang} size="lg" accent="#fbbf24" />
 
                   {top ? (
-                    <p className="text-white/85 text-13 leading-snug" style={{ fontFamily: sans, fontWeight: 500 }}>
+                    <p className="font-sans text-white/85 text-13 leading-snug" style={{ fontWeight: 500 }}>
                       <Link2 size={12} strokeWidth={2} className="inline mb-0.5 me-1" style={{ color: PAIR_ACCENT }} />
                       {titleOf(top.slug)}
                       <span className="text-white/70 font-mono text-11 ms-1">×{top.coViews}</span>
                     </p>
                   ) : (
-                    <p className="text-white/70 text-13 italic" style={{ fontFamily: sans }}>
+                    <p className="font-sans text-white/70 text-13 italic">
                       {t('No pairing yet.', 'אין שילוב.')}
                     </p>
                   )}
@@ -253,8 +249,8 @@ export function RecommendationsPanel() {
                   <div className="mt-auto pt-1">
                     <Link
                       href={`/admin/promote?cocktail=${encodeURIComponent(row.slug)}`}
-                      className="group/apply inline-flex w-full items-center justify-center gap-1.5 rounded-full px-3.5 py-2.5 text-xs tracking-[0.12em] uppercase transition-colors hover:bg-[#e8c987]/20"
-                      style={{ color: 'var(--champagne)', background: 'rgba(232,201,135,0.12)', border: '1px solid rgba(232,201,135,0.45)', fontFamily: sans, fontWeight: 600 }}
+                      className="font-sans group/apply inline-flex w-full items-center justify-center gap-1.5 rounded-full px-3.5 py-2.5 text-xs tracking-[0.12em] uppercase transition-colors hover:bg-[#e8c987]/20"
+                      style={{ color: 'var(--champagne)', background: 'rgba(232,201,135,0.12)', border: '1px solid rgba(232,201,135,0.45)', fontWeight: 600 }}
                     >
                       <Lightbulb size={13} strokeWidth={2} className="shrink-0" />
                       {t('Create promotion', 'צור מבצע')}
@@ -272,7 +268,7 @@ export function RecommendationsPanel() {
       )}
 
       {hasData && (
-        <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
+        <p className="font-sans text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10">
           {t('Co-views counted per guest session · use for pairings & upsell', 'צפיות משותפות נספרות לכל ביקור · לשילובים והגדלת מכירה')}
         </p>
       )}

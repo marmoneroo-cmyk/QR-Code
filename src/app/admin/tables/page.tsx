@@ -16,9 +16,6 @@ import { formatILS } from '@/lib/format';
 import type { TableIntelligence, TableRow } from '@/lib/analytics/tables-types';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 const ils = formatILS;
 
 const QR_OPTIONS: QRCode.QRCodeToDataURLOptions = {
@@ -107,7 +104,7 @@ export function TablesPanel() {
       <GlassCard className="mb-10 p-6 no-print" static>
         <SectionLabel icon={QrCode}>{t('Generate table QR codes', 'ייצר קודי QR לשולחנות')}</SectionLabel>
         <div className="flex flex-wrap items-center gap-3 mb-2" dir={isHebrew ? 'rtl' : 'ltr'}>
-          <label className="text-white/60 text-sm" style={{ fontFamily: sans }}>
+          <label className="text-white/60 text-sm font-sans">
             {t('Number of tables', 'מספר שולחנות')}
           </label>
           <input
@@ -124,8 +121,8 @@ export function TablesPanel() {
             type="button"
             onClick={generateQrs}
             disabled={generating || !origin}
-            className="px-5 py-2 rounded-full text-10 tracking-[0.25em] uppercase text-black disabled:opacity-50"
-            style={{ fontFamily: sans, background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))' }}
+            className="px-5 py-2 rounded-full text-10 tracking-[0.25em] uppercase text-black disabled:opacity-50 font-sans"
+            style={{ background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))' }}
           >
             {generating ? t('Generating…', 'מייצר…') : t('Generate', 'ייצר')}
           </button>
@@ -133,14 +130,13 @@ export function TablesPanel() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="px-5 py-2 rounded-full border border-amber-200/40 hover:border-amber-200/80 text-amber-100 text-10 tracking-[0.25em] uppercase"
-              style={{ fontFamily: sans }}
+              className="px-5 py-2 rounded-full border border-amber-200/40 hover:border-amber-200/80 text-amber-100 text-10 tracking-[0.25em] uppercase font-sans"
             >
               {t('Print sheet', 'הדפס גיליון')}
             </button>
           )}
         </div>
-        <p className="text-white/70 text-11" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
+        <p className="text-white/70 text-11 font-sans" dir={isHebrew ? 'rtl' : 'ltr'}>
           {t('Every scan, view and order is attributed to its table.', 'כל סריקה, צפייה והזמנה מיוחסות לשולחן.')}
         </p>
       </GlassCard>
@@ -151,7 +147,7 @@ export function TablesPanel() {
             <div key={q.table} className="rounded-xl border border-white/10 bg-black/30 p-3 flex flex-col items-center break-inside-avoid">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={q.dataUrl} alt={`${t('Table', 'שולחן')} ${q.table}`} className="w-full rounded-md mb-2" />
-              <span className="text-white/80 text-sm" style={{ fontFamily: serif, fontStyle: 'italic' }}>
+              <span className="text-white/80 text-sm font-serif" style={{ fontStyle: 'italic' }}>
                 {t('Table', 'שולחן')} {q.table}
               </span>
             </div>
@@ -192,7 +188,7 @@ export function TablesPanel() {
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <SectionLabel icon={LayoutGrid}>{t('Floor plan', 'מפת רצפה')}</SectionLabel>
           {tables.length > 0 && (
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-10 text-white/70" style={{ fontFamily: sans }}>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-10 text-white/70 font-sans">
               <span className="inline-flex items-center gap-1.5">
                 <span className="inline-flex items-end gap-0.5" aria-hidden>
                   <span className="block h-2 w-2 rounded-[3px] bg-white/25" />
@@ -241,15 +237,15 @@ export function TablesPanel() {
                         )}
                         {/* Big serif table numeral */}
                         <span
-                          className="absolute top-4 start-5 leading-none text-white/90"
-                          style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 700, fontSize: 'clamp(3rem,6vw,4rem)' }}
+                          className="absolute top-4 start-5 leading-none text-white/90 font-serif"
+                          style={{ fontStyle: 'italic', fontWeight: 700, fontSize: 'clamp(3rem,6vw,4rem)' }}
                         >
                           {row.tableId}
                         </span>
                         {isBest && (
                           <span
-                            className="absolute top-5 end-5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-9 tracking-[0.2em] uppercase"
-                            style={{ color: accent, background: `${accent}1a`, border: `1px solid ${accent}55`, fontFamily: sans }}
+                            className="absolute top-5 end-5 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-9 tracking-[0.2em] uppercase font-sans"
+                            style={{ color: accent, background: `${accent}1a`, border: `1px solid ${accent}55` }}
                           >
                             <Crown size={11} strokeWidth={2} /> {t('Top', 'מוביל')}
                           </span>
@@ -306,8 +302,8 @@ export function TablesPanel() {
 function MiniStat({ v, l, accent }: { v: string; l: string; accent?: string }) {
   return (
     <div>
-      <p className="text-lg leading-none" style={{ color: accent ?? 'rgba(255,255,255,0.92)', fontFamily: serif, fontWeight: 700 }}>{v}</p>
-      <p className="text-white/70 text-10 mt-1 tracking-wide" style={{ fontFamily: sans }}>{l}</p>
+      <p className="text-lg leading-none font-serif" style={{ color: accent ?? 'rgba(255,255,255,0.92)', fontWeight: 700 }}>{v}</p>
+      <p className="text-white/70 text-10 mt-1 tracking-wide font-sans">{l}</p>
     </div>
   );
 }
@@ -378,10 +374,10 @@ function FloorPlan({
             <span className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl border border-amber-200/25 text-amber-200/70">
               <QrCode size={24} strokeWidth={1.6} />
             </span>
-            <p className="text-white/70" style={{ fontFamily: serif, fontStyle: 'italic', fontSize: '1.3rem' }}>
+            <p className="text-white/70 font-serif" style={{ fontStyle: 'italic', fontSize: '1.3rem' }}>
               {t('An empty floor — for now.', 'רצפה ריקה — לבינתיים.')}
             </p>
-            <p className="mt-2 text-xs leading-relaxed text-white/70" style={{ fontFamily: sans }}>
+            <p className="mt-2 text-xs leading-relaxed text-white/70 font-sans">
               {t(
                 'Place a QR on each table. As guests scan, tables light up by revenue and orders.',
                 'הנח QR על כל שולחן. ככל שאורחים סורקים, השולחנות נדלקים לפי הכנסה והזמנות.',
@@ -455,8 +451,8 @@ function FloorNode({
           </span>
         )}
         <span
-          className="leading-none text-white"
-          style={{ fontFamily: serif, fontStyle: 'italic', fontWeight: 700, fontSize: `clamp(1.1rem, ${size / 44}rem, 2rem)` }}
+          className="leading-none text-white font-serif"
+          style={{ fontStyle: 'italic', fontWeight: 700, fontSize: `clamp(1.1rem, ${size / 44}rem, 2rem)` }}
         >
           {row.tableId}
         </span>
@@ -467,15 +463,15 @@ function FloorNode({
           className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-10 w-max -translate-x-1/2 scale-95 rounded-xl border border-white/12 bg-zinc-900/95 px-3 py-2 text-left opacity-0 shadow-xl backdrop-blur transition-all duration-200 group-hover/node:scale-100 group-hover/node:opacity-100 group-focus-within/node:scale-100 group-focus-within/node:opacity-100"
           dir="ltr"
         >
-          <span className="block text-11 text-white/55" style={{ fontFamily: sans }}>
+          <span className="block text-11 text-white/55 font-sans">
             {t('Table', 'שולחן')} {row.tableId}
           </span>
-          <span className="mt-1 block whitespace-nowrap text-xs text-white/85" style={{ fontFamily: sans }}>
+          <span className="mt-1 block whitespace-nowrap text-xs text-white/85 font-sans">
             {row.views.toLocaleString()} {t('views', 'צפיות')}
             <span className="text-white/30"> · </span>
             {row.orders.toLocaleString()} {t('orders', 'הזמנות')}
           </span>
-          <span className="mt-0.5 block whitespace-nowrap text-xs" style={{ fontFamily: sans }}>
+          <span className="mt-0.5 block whitespace-nowrap text-xs font-sans">
             <span className="text-emerald-300">{ils(row.revenue)}</span>
             <span className="text-white/30"> · </span>
             <span style={{ color: accent }}>{row.conversionPct.toFixed(1)}%</span>
@@ -484,7 +480,7 @@ function FloorNode({
       </button>
 
       {/* always-visible key stat (touch-friendly) */}
-      <span className="text-10 leading-none text-white/45" style={{ fontFamily: sans }}>
+      <span className="text-10 leading-none text-white/45 font-sans">
         {row.revenue > 0 ? ils(row.revenue) : `${row.views.toLocaleString()} ${t('views', 'צפיות')}`}
       </span>
     </motion.div>

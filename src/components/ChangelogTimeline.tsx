@@ -3,9 +3,6 @@
 import { renderInline, type ChangelogVersion } from '@/lib/parseChangelog';
 import { useLang } from '@/lib/useLang';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-const heSerif = 'var(--font-frank-ruhl, serif)';
 const body = 'var(--font-garamond, serif)';
 const heBody = 'var(--font-heebo, sans-serif)';
 
@@ -24,7 +21,6 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
   const { lang } = useLang();
   const isHebrew = lang === 'he';
   const versions = isHebrew && he.length > 0 ? he : en;
-  const titleFont = isHebrew ? heSerif : serif;
   const bodyFont = isHebrew ? heBody : body;
 
   return (
@@ -32,11 +28,11 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
       {versions.map((v) => (
         <article key={v.version} className="relative">
           <div className="flex items-baseline gap-4 mb-3">
-            <h2 className="text-white text-3xl tracking-[0.05em]" style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500 }}>
+            <h2 className="text-white text-3xl tracking-[0.05em] font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500 }}>
               v{v.version}
             </h2>
             {v.date && (
-              <span className="text-amber-200/60 text-xs tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+              <span className="text-amber-200/60 text-xs tracking-[0.3em] uppercase font-sans">
                 {v.date}
               </span>
             )}
@@ -51,7 +47,7 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
           <div className="space-y-10">
             {v.sections.map((section) => (
               <section key={section.title}>
-                <h3 className="text-amber-200/85 text-11 tracking-[0.4em] uppercase mb-6 flex items-center gap-3" style={{ fontFamily: sans }}>
+                <h3 className="text-amber-200/85 text-11 tracking-[0.4em] uppercase mb-6 flex items-center gap-3 font-sans">
                   <span>{section.title}</span>
                   <span className="flex-1 h-px bg-amber-200/15" />
                 </h3>
@@ -60,7 +56,7 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
                   {section.groups.map((group, gi) => (
                     <div key={gi}>
                       {group.heading && (
-                        <h4 className="text-white/90 text-sm mb-3 tracking-wide" style={{ fontFamily: titleFont, fontWeight: 500 }}>
+                        <h4 className="text-white/90 text-sm mb-3 tracking-wide font-serif" style={{ fontWeight: 500 }}>
                           {group.heading}
                         </h4>
                       )}
@@ -72,7 +68,7 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
                               {renderInline(item).map((part, pi) => {
                                 if (part.kind === 'bold') {
                                   return (
-                                    <span key={pi} className="text-white/90" style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500 }}>
+                                    <span key={pi} className="text-white/90 font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500 }}>
                                       {part.value}
                                     </span>
                                   );
@@ -100,7 +96,7 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
       ))}
 
       <footer className="mt-24 pt-12 border-t border-white/10 text-center">
-        <p className="text-white/70 text-11 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+        <p className="text-white/70 text-11 tracking-[0.4em] uppercase font-sans">
           {isHebrew ? 'סוף היומן' : 'End of log'}
         </p>
       </footer>

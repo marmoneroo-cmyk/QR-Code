@@ -11,12 +11,6 @@ interface PairingsProps {
 export function Pairings({ cocktail, lang }: PairingsProps) {
   if (!cocktail.pairings || cocktail.pairings.length === 0) return null;
   const isHebrew = lang === 'he';
-  const sansFont = isHebrew
-    ? 'var(--font-heebo, sans-serif)'
-    : 'var(--font-inter, sans-serif)';
-  const serifFont = isHebrew
-    ? 'var(--font-frank-ruhl, serif)'
-    : 'var(--font-playfair, serif)';
 
   return (
     <motion.div
@@ -28,15 +22,13 @@ export function Pairings({ cocktail, lang }: PairingsProps) {
       lang={lang}
     >
       <p
-        className="text-amber-200/70 text-9 tracking-[0.5em] uppercase mb-2"
-        style={{ fontFamily: sansFont }}
+        className="text-amber-200/70 text-9 tracking-[0.5em] uppercase mb-2 font-sans"
       >
         {isHebrew ? 'משתלב עם' : 'Pairs with'}
       </p>
       <p
-        className="text-white/70 text-13 tracking-[0.05em]"
+        className="text-white/70 text-13 tracking-[0.05em] font-serif"
         style={{
-          fontFamily: serifFont,
           fontStyle: isHebrew ? 'normal' : 'italic',
           fontWeight: 400,
         }}

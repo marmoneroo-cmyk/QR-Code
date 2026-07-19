@@ -19,8 +19,6 @@ import type { Promotion } from '@/lib/promotions/types';
 import type { ClosedLoopReport } from '@/lib/closedloop/server';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
-
 const OPP_LABEL: Record<OpportunityType, { en: string; he: string }> = {
   fix_offer: { en: 'Review offer', he: 'בדקו הצעה' },
   promote_position: { en: 'Move up', he: 'העלו במיקום' },
@@ -164,12 +162,12 @@ export default function HomeDashboardPage() {
               <ul className="flex flex-col gap-2.5">
                 {opps.slice(0, 3).map((o, i) => (
                   <li key={`${o.slug}:${o.type}:${i}`} className="flex items-start gap-3 rounded-xl border border-transparent px-2 py-1.5 -mx-2 transition-colors hover:border-white/[0.06] hover:bg-white/[0.02]">
-                    <span className="mt-0.5 shrink-0 text-9 tracking-[0.18em] uppercase px-2 py-1 rounded-full border border-amber-200/30 text-amber-200/90" style={{ fontFamily: sans }}>
+                    <span className="font-sans mt-0.5 shrink-0 text-9 tracking-[0.18em] uppercase px-2 py-1 rounded-full border border-amber-200/30 text-amber-200/90">
                       {OPP_LABEL[o.type][lang]}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-white/90 text-13 leading-snug" style={{ fontFamily: sans }}>{t(o.slug)}</p>
-                      <p className="text-white/50 text-xs leading-snug truncate" style={{ fontFamily: sans }}>{o.action[lang]}</p>
+                      <p className="font-sans text-white/90 text-13 leading-snug">{t(o.slug)}</p>
+                      <p className="font-sans text-white/50 text-xs leading-snug truncate">{o.action[lang]}</p>
                     </div>
                   </li>
                 ))}
@@ -184,7 +182,7 @@ export default function HomeDashboardPage() {
             ) : (
               <ul className="flex flex-col gap-2">
                 {wins.map((m) => (
-                  <li key={m.change.id} className="text-xs" style={{ fontFamily: sans }}>
+                  <li key={m.change.id} className="font-sans text-xs">
                     <span className="text-white/80">{t(m.change.entityId)}</span>{' '}
                     <span className={m.result.direction === 'down' ? 'text-rose-200' : 'text-emerald-200'}>
                       {m.result.deltaPct !== null ? `${m.result.deltaPct > 0 ? '+' : ''}${m.result.deltaPct}%` : (isHe ? 'עלייה' : 'up')}
@@ -217,7 +215,7 @@ export default function HomeDashboardPage() {
             ) : (
               <div className="flex flex-col gap-2">
                 <AreaChart data={traffic.series} color="var(--champagne)" height={64} />
-                <p className="text-xs" style={{ fontFamily: sans }}>
+                <p className="font-sans text-xs">
                   {traffic.deltaPct === null ? (
                     <span className="text-white/70">{isHe ? 'אין מספיק היסטוריה' : 'Not enough history'}</span>
                   ) : (
@@ -235,7 +233,7 @@ export default function HomeDashboardPage() {
             {promos.length === 0 ? (
               <EmptyState title={isHe ? 'אין מבצעים פעילים.' : 'No active promotions.'} />
             ) : (
-              <ul className="flex flex-col gap-1.5 text-xs" style={{ fontFamily: sans }}>
+              <ul className="font-sans flex flex-col gap-1.5 text-xs">
                 {promos.slice(0, 4).map((p) => (
                   <li key={p.id} className="text-white/80">
                     {p.name} <span className="text-amber-200/80">−{p.value}{p.type === 'percentage' ? '%' : '₪'}</span>
@@ -250,7 +248,7 @@ export default function HomeDashboardPage() {
             {!menuTop ? (
               <EmptyState title={isHe ? 'אין עדיין נתונים.' : 'No data yet.'} />
             ) : (
-              <div className="flex flex-col gap-2 text-xs" style={{ fontFamily: sans }}>
+              <div className="font-sans flex flex-col gap-2 text-xs">
                 <p><span className="text-emerald-200/90">★ {isHe ? 'מוביל: ' : 'Best: '}</span><span className="text-white/85">{t(menuTop.slug)}</span></p>
                 {menuWeak && menuWeak.slug !== menuTop.slug && (
                   <p><span className="text-rose-200/80">↓ {isHe ? 'חלש: ' : 'Weakest: '}</span><span className="text-white/85">{t(menuWeak.slug)}</span></p>
@@ -264,7 +262,7 @@ export default function HomeDashboardPage() {
             {!loop || loop.timeline.length === 0 ? (
               <EmptyState title={isHe ? 'אין שינויים שתועדו.' : 'No changes logged.'} />
             ) : (
-              <ul className="flex flex-col gap-1.5 text-xs" style={{ fontFamily: sans }}>
+              <ul className="font-sans flex flex-col gap-1.5 text-xs">
                 {loop.timeline.slice(0, 4).map((c) => (
                   <li key={c.id} className="text-white/75 flex justify-between gap-2">
                     <span className="truncate">{c.summary ?? c.changeType}</span>
@@ -327,8 +325,8 @@ function MoneyHero({ potential, isHe }: { potential: { revenueILS: number; count
                   value={
                     <CountUpText
                       text={availableText}
-                      className="block leading-none"
-                      style={{ fontFamily: 'var(--font-playfair, serif)', fontWeight: 700 }}
+                      className="font-serif block leading-none"
+                      style={{ fontWeight: 700 }}
                     />
                   }
                   label={t('available now · est.', 'זמין כעת · צפי')}
@@ -375,8 +373,8 @@ function Widget({ title, href, cta, children, className, isHe }: { title: string
 function Kpi({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-white text-xl leading-none" style={{ fontFamily: 'var(--font-playfair, serif)', fontWeight: 600 }}>{value}</p>
-      <p className="mt-1.5 text-10 tracking-[0.12em] uppercase text-white/70" style={{ fontFamily: sans }}>{label}</p>
+      <p className="font-serif text-white text-xl leading-none" style={{ fontWeight: 600 }}>{value}</p>
+      <p className="font-sans mt-1.5 text-10 tracking-[0.12em] uppercase text-white/70">{label}</p>
     </div>
   );
 }

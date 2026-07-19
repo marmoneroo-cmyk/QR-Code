@@ -17,8 +17,6 @@ const TABS: ReadonlyArray<{ id: Tab; en: string; he: string; icon: LucideIcon }>
   { id: 'heatmap', en: 'Heatmap', he: 'מפת חום', icon: Flame },
 ];
 
-const sans = 'var(--font-inter, sans-serif)';
-
 /** Menu Analysis — the "why does this drink behave this way?" workspace. */
 export default function MenuAnalysisPage() {
   const { lang } = useLang();
@@ -50,12 +48,11 @@ export default function MenuAnalysisPage() {
               role="tab"
               aria-selected={isActive}
               onClick={() => setTab(tb.id)}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-11 tracking-[0.18em] uppercase transition-all duration-200 ${
+              className={`font-sans inline-flex items-center gap-2 rounded-full px-4 py-2 text-11 tracking-[0.18em] uppercase transition-all duration-200 ${
                 isActive
                   ? 'border border-amber-300/60 bg-amber-300/10 text-amber-100 shadow-[0_0_24px_-6px_rgba(251,191,36,0.55)]'
                   : 'border border-transparent text-white/50 hover:bg-white/[0.04] hover:text-white/80'
               }`}
-              style={{ fontFamily: sans }}
             >
               <Icon size={14} strokeWidth={isActive ? 2.2 : 1.8} className={isActive ? 'text-amber-200' : 'text-white/40'} />
               {isHe ? tb.he : tb.en}

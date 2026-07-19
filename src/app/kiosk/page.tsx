@@ -117,7 +117,7 @@ export default function KioskPage() {
         delay={0.3}
         className="absolute bottom-6 right-6 z-50 text-amber-200/50 text-10 tracking-[0.4em] uppercase select-none"
       >
-        <span style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+        <span className="font-sans">
           {String(index + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
           {scheduleEnabled && items.length !== MENU.length && (
             <span className="ml-3 text-amber-100">· {MENU.length - items.length} hidden</span>
@@ -130,7 +130,7 @@ export default function KioskPage() {
         delay={0.4}
         className="absolute bottom-6 left-6 z-50 text-amber-200/40 text-9 tracking-[0.35em] uppercase select-none"
       >
-        <span style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+        <span className="font-sans">
           ESC to exit · ← → to switch · space to pause · S to {scheduleEnabled ? 'show all' : 'apply schedule'}
           {now && scheduleEnabled && (
             <span className="ml-3 text-amber-200/60">

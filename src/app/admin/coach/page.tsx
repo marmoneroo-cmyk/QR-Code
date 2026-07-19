@@ -19,7 +19,6 @@ import { useLang } from '@/lib/useLang';
 import type { Opportunity } from '@/lib/opportunities/types';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
 
-const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 const serifHe = 'var(--font-frank-ruhl, serif)';
 
@@ -185,8 +184,8 @@ function HeroAction({
       <Stagger className="relative z-[1] mt-2 flex w-full max-w-2xl flex-col items-center">
         <motion.p
           variants={staggerItem}
-          className="inline-flex items-center gap-2 text-10 uppercase tracking-[0.45em]"
-          style={{ color: accent, fontFamily: sans }}
+          className="font-sans inline-flex items-center gap-2 text-10 uppercase tracking-[0.45em]"
+          style={{ color: accent }}
         >
           <Sunrise size={13} strokeWidth={2} />
           {isHe ? 'תדריך הערב · מהלך אחד' : "Tonight's briefing · one move"}
@@ -224,7 +223,7 @@ function HeroAction({
           <PotentialValue potential={action.potential} lang={lang} size="lg" accent="#34d399" />
           <div className="flex flex-wrap items-center justify-center gap-4">
             <ConfidenceMeter pct={action.confidencePct} lang={lang} />
-            <span className="inline-flex items-center gap-1.5 text-11 text-white/70" style={{ fontFamily: sans }}>
+            <span className="font-sans inline-flex items-center gap-1.5 text-11 text-white/70">
               <Clock size={12} strokeWidth={1.8} />
               {isHe ? `~${action.effortMin} דק'` : `~${action.effortMin} min`}
             </span>
@@ -233,7 +232,7 @@ function HeroAction({
 
         {/* The one LARGE primary CTA — "Act now" */}
         <motion.div variants={staggerItem} className="mt-9">
-          <Link href={action.executeHref} className={primaryBtn} style={{ fontFamily: sans }}>
+          <Link href={action.executeHref} className={`font-sans ${primaryBtn}`}>
             {isHe ? 'בצע עכשיו' : 'Act now'}
             <ArrowRight
               size={17}
@@ -260,7 +259,7 @@ function NextUpStrip({
 }) {
   return (
     <Stagger className="mt-10 flex flex-wrap items-center justify-center gap-3 opacity-60 transition-opacity hover:opacity-100">
-      <span className="text-10 uppercase tracking-[0.32em] text-white/70" style={{ fontFamily: sans }}>
+      <span className="font-sans text-10 uppercase tracking-[0.32em] text-white/70">
         {isHe ? 'גם על הרשימה הערב' : "Also on tonight's list"}
       </span>
       {actions.map((a) => {
@@ -343,7 +342,7 @@ function EmptyHero({
         >
           {heading}
         </h2>
-        <p className="mt-4 text-sm leading-relaxed text-white/45" style={{ fontFamily: sans }}>
+        <p className="font-sans mt-4 text-sm leading-relaxed text-white/45">
           {body}
         </p>
       </div>

@@ -128,8 +128,6 @@ const STATUS_STYLE: Record<PromoStatus, { en: string; he: string; cls: string; d
   off: { en: 'Off', he: 'כבוי', cls: 'border-white/20 text-white/40 bg-white/[0.03]', dot: '#6b7280' },
 };
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
 const inputCls =
   'bg-white/[0.04] border border-white/12 rounded-xl px-3.5 py-2.5 text-white text-sm outline-none transition-colors focus:border-amber-200/50 placeholder:text-white/30';
 
@@ -148,7 +146,7 @@ function Time24({ value, onChange, label }: { value: string; onChange: (v: strin
   const selCls = 'bg-transparent text-white text-sm outline-none cursor-pointer';
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-white/70 text-10 tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>{label}</span>
+      <span className="font-sans text-white/70 text-10 tracking-[0.15em] uppercase">{label}</span>
       <span className="inline-flex items-center gap-0.5 rounded-xl border border-white/12 bg-black/40 px-2.5 py-2">
         <select aria-label={`${label} HH`} className={selCls} value={h} onChange={(e) => onChange(`${e.target.value}:${m}`)}>
           {HOURS.map((hh) => (
@@ -190,7 +188,7 @@ function LivePreview({ form, lang, isHe }: { form: FormState; lang: Lang; isHe: 
 
   return (
     <div className="flex flex-col gap-3 min-w-0" dir={isHe ? 'rtl' : 'ltr'}>
-      <div className="flex items-center gap-2 text-white/70 text-10 tracking-[0.18em] uppercase" style={{ fontFamily: sans }}>
+      <div className="flex items-center gap-2 text-white/70 text-10 tracking-[0.18em] uppercase font-sans">
         <Eye size={12} strokeWidth={2} />
         {t('Guest preview', 'תצוגת אורח')}
       </div>
@@ -208,14 +206,14 @@ function LivePreview({ form, lang, isHe }: { form: FormState; lang: Lang; isHe: 
         {/* Floating badge — mirrors how the live menu badge appears */}
         <div className="absolute top-3 end-3 z-10 flex flex-wrap items-center gap-1.5">
           <span
-            className="inline-flex items-center rounded-full px-2.5 py-1 text-10 tracking-[0.14em] uppercase"
-            style={{ color: accent, background: `${accent}1f`, border: `1px solid ${accent}55`, fontFamily: sans, fontWeight: 700 }}
+            className="inline-flex items-center rounded-full px-2.5 py-1 text-10 tracking-[0.14em] uppercase font-sans"
+            style={{ color: accent, background: `${accent}1f`, border: `1px solid ${accent}55`, fontWeight: 700 }}
           >
             {badge}
           </span>
           <span
-            className="inline-flex items-center rounded-full px-2.5 py-1 text-xs"
-            style={{ color: accent, background: `${accent}1a`, border: `1px solid ${accent}40`, fontFamily: serif, fontWeight: 700 }}
+            className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-serif"
+            style={{ color: accent, background: `${accent}1a`, border: `1px solid ${accent}40`, fontWeight: 700 }}
           >
             {discount}
           </span>
@@ -227,7 +225,7 @@ function LivePreview({ form, lang, isHe }: { form: FormState; lang: Lang; isHe: 
               <GlassImage key={c.slug} src={c.heroImage} accent={getAccent(c.slug)} className="h-20 flex-1 min-w-0" />
             ))}
             {picked.length > 4 && (
-              <span className="grid h-20 w-9 shrink-0 place-items-center rounded-xl border border-white/10 text-white/55 text-11" style={{ fontFamily: sans }}>
+              <span className="grid h-20 w-9 shrink-0 place-items-center rounded-xl border border-white/10 text-white/55 text-11 font-sans">
                 +{picked.length - 4}
               </span>
             )}
@@ -243,10 +241,10 @@ function LivePreview({ form, lang, isHe }: { form: FormState; lang: Lang; isHe: 
           </div>
         )}
 
-        <h4 className="text-white text-base leading-tight truncate" style={{ fontFamily: serif, fontWeight: 600 }}>
+        <h4 className="text-white text-base leading-tight truncate font-serif" style={{ fontWeight: 600 }}>
           {form.name.trim() || cardName}
         </h4>
-        <p className="mt-1 text-white/45 text-11 truncate" style={{ fontFamily: sans }}>
+        <p className="mt-1 text-white/45 text-11 truncate font-sans">
           {form.name.trim() ? cardName : t('Untitled promotion', 'מבצע ללא שם')}
         </p>
 
@@ -459,7 +457,7 @@ export function PromotionsPanel() {
 
             {form.scope === 'item' && (
               <div className="flex flex-col gap-2">
-                <p className="text-white/70 text-10 tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>
+                <p className="text-white/70 text-10 tracking-[0.15em] uppercase font-sans">
                   {t(`Pick items · ${form.targetSlugs.length} selected`, `בחרו פריטים · ${form.targetSlugs.length} נבחרו`)}
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -488,8 +486,7 @@ export function PromotionsPanel() {
                           )}
                         </span>
                         <span
-                          className={`text-10 leading-tight text-center line-clamp-2 ${on ? 'text-amber-100' : 'text-white/55'}`}
-                          style={{ fontFamily: sans }}
+                          className={`font-sans text-10 leading-tight text-center line-clamp-2 ${on ? 'text-amber-100' : 'text-white/55'}`}
                         >
                           {c.title[lang]}
                         </span>
@@ -560,9 +557,8 @@ export function PromotionsPanel() {
                 type="button"
                 onClick={submit}
                 disabled={saving}
-                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden px-6 py-3 rounded-full text-black text-11 tracking-[0.25em] uppercase transition-shadow disabled:opacity-50"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden px-6 py-3 rounded-full text-black text-11 tracking-[0.25em] uppercase transition-shadow disabled:opacity-50 font-sans"
                 style={{
-                  fontFamily: sans,
                   fontWeight: 700,
                   background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
                   boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
@@ -582,14 +578,13 @@ export function PromotionsPanel() {
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="px-5 py-3 rounded-full border border-white/15 text-white/60 hover:text-white hover:border-white/30 text-11 tracking-[0.2em] uppercase transition-colors"
-                  style={{ fontFamily: sans }}
+                  className="px-5 py-3 rounded-full border border-white/15 text-white/60 hover:text-white hover:border-white/30 text-11 tracking-[0.2em] uppercase transition-colors font-sans"
                 >
                   {t('Cancel', 'ביטול')}
                 </button>
               )}
             </div>
-            {msg && <p role="status" aria-live="polite" className="text-amber-200/80 text-xs" style={{ fontFamily: sans }}>{msg}</p>}
+            {msg && <p role="status" aria-live="polite" className="text-amber-200/80 text-xs font-sans">{msg}</p>}
           </section>
 
           {/* List */}
@@ -661,7 +656,7 @@ export function PromotionsPanel() {
                     )}
 
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-white text-17 leading-tight min-w-0" style={{ fontFamily: serif, fontWeight: 600 }}>
+                      <h4 className="text-white text-17 leading-tight min-w-0 font-serif" style={{ fontWeight: 600 }}>
                         {p.name}
                       </h4>
                       <div className="flex shrink-0 items-center gap-2">
@@ -692,24 +687,24 @@ export function PromotionsPanel() {
 
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <span
-                        className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-13"
-                        style={{ color: accent, background: `${accent}1a`, border: `1px solid ${accent}40`, fontFamily: serif, fontWeight: 700 }}
+                        className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-13 font-serif"
+                        style={{ color: accent, background: `${accent}1a`, border: `1px solid ${accent}40`, fontWeight: 700 }}
                       >
                         {discountLabel(p)}
                       </span>
-                      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-9 tracking-[0.18em] uppercase ${st.cls}`} style={{ fontFamily: sans }}>
+                      <span className={`font-sans inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-9 tracking-[0.18em] uppercase ${st.cls}`}>
                         <span className="w-1.5 h-1.5 rounded-full" style={{ background: st.dot }} />
                         {st[isHe ? 'he' : 'en']}
                       </span>
                     </div>
 
-                    <p className="mt-3 text-white/45 text-11" style={{ fontFamily: sans }}>
+                    <p className="mt-3 text-white/45 text-11 font-sans">
                       {p.scope === 'all' ? t('All items', 'כל התפריט') : slugs.map((s) => findCocktailBySlug(s)?.title[lang] ?? s).join(', ')}
                     </p>
 
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <Pill icon={CalendarClock} text={scheduleSummary(p.schedule, isHe)} />
-                      <span className="text-white/70 text-10 tracking-[0.15em] uppercase" style={{ fontFamily: sans }}>
+                      <span className="text-white/70 text-10 tracking-[0.15em] uppercase font-sans">
                         {badgeKindLabel(p.badgeKind ?? 'happy_hour', isHe)}
                       </span>
                     </div>
@@ -717,10 +712,9 @@ export function PromotionsPanel() {
                     <button
                       type="button"
                       onClick={() => toggleActive(p as Promotion & { active?: boolean })}
-                      className={`mt-4 inline-flex w-fit items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-10 tracking-[0.18em] uppercase transition-colors ${
+                      className={`mt-4 inline-flex w-fit items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-10 tracking-[0.18em] uppercase transition-colors font-sans ${
                         isActive ? 'border-emerald-300/40 text-emerald-200 hover:bg-emerald-300/10' : 'border-white/20 text-white/45 hover:bg-white/[0.04]'
                       }`}
-                      style={{ fontFamily: sans }}
                     >
                       <Power size={12} strokeWidth={2} />
                       {isActive ? t('Active', 'פעיל') : t('Off', 'כבוי')}

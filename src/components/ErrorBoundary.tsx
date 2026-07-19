@@ -51,16 +51,14 @@ export class ErrorBoundary extends Component<Props, State> {
     return (
       <div className="flex flex-col items-center justify-center gap-4 p-8 text-center">
         <p
-          className="text-amber-200/70 text-10 tracking-[0.4em] uppercase"
-          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          className="text-amber-200/70 text-10 tracking-[0.4em] uppercase font-sans"
         >
           Something went wrong
         </p>
         <button
           type="button"
           onClick={this.handleReset}
-          className="px-5 py-2 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-11 tracking-[0.3em] uppercase"
-          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          className="px-5 py-2 rounded-full border border-amber-200/40 text-amber-100 hover:bg-amber-200/10 transition-colors text-11 tracking-[0.3em] uppercase font-sans"
         >
           Try again
         </button>

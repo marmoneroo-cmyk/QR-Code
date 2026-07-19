@@ -36,9 +36,6 @@ import type { JourneyStep, SessionJourney, SessionJourneys } from '@/lib/analyti
 import { formatILS } from '@/lib/format';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 const STEP_LABEL: Record<string, { en: string; he: string }> = {
   menu_opened: { en: 'Opened menu', he: 'פתח תפריט' },
   menu_closed: { en: 'Left menu', he: 'עזב תפריט' },
@@ -275,8 +272,8 @@ function FunnelStepper({ nodes, total, isHebrew, t }: FunnelStepperProps) {
                     <Icon size={20} strokeWidth={1.8} />
                   </span>
                   <p
-                    className="text-white text-22 leading-none"
-                    style={{ fontFamily: serif, fontWeight: 700 }}
+                    className="text-white text-22 leading-none font-serif"
+                    style={{ fontWeight: 700 }}
                   >
                     <CountUpText text={count.toLocaleString()} />
                   </p>
@@ -284,8 +281,7 @@ function FunnelStepper({ nodes, total, isHebrew, t }: FunnelStepperProps) {
                     {pctOfTotal}%
                   </p>
                   <p
-                    className="text-white/70 text-11 leading-tight mt-1.5 px-1"
-                    style={{ fontFamily: sans }}
+                    className="text-white/70 text-11 leading-tight mt-1.5 px-1 font-sans"
                   >
                     {isHebrew ? stage.he : stage.en}
                   </p>
@@ -327,8 +323,7 @@ function FunnelStepper({ nodes, total, isHebrew, t }: FunnelStepperProps) {
         </div>
 
         <p
-          className="text-white/70 text-10 tracking-[0.25em] uppercase text-center mt-5 pt-4 border-t border-white/10"
-          style={{ fontFamily: sans }}
+          className="text-white/70 text-10 tracking-[0.25em] uppercase text-center mt-5 pt-4 border-t border-white/10 font-sans"
         >
           {t(
             `${total.toLocaleString()} sessions · real events`,
@@ -498,10 +493,10 @@ export function JourneysPanel() {
                       <SrcIcon size={18} strokeWidth={1.8} />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-white/90 text-sm leading-tight" style={{ fontFamily: serif, fontWeight: 600 }}>
+                      <p className="text-white/90 text-sm leading-tight font-serif" style={{ fontWeight: 600 }}>
                         {isHebrew ? src.he : src.en}
                       </p>
-                      <p className="flex items-center gap-1.5 text-white/70 text-11 mt-0.5" style={{ fontFamily: sans }}>
+                      <p className="flex items-center gap-1.5 text-white/70 text-11 mt-0.5 font-sans">
                         <DeviceIcon size={12} strokeWidth={1.8} />
                         {deviceLabel(s.device, lang) ?? t('device', 'מכשיר')}
                         {s.tableId && (
@@ -513,10 +508,10 @@ export function JourneysPanel() {
 
                   {/* facts: duration · steps · revenue */}
                   <div className="flex items-center gap-4 shrink-0">
-                    <span className="inline-flex items-center gap-1.5 text-white/55 text-xs" style={{ fontFamily: sans }}>
+                    <span className="inline-flex items-center gap-1.5 text-white/55 text-xs font-sans">
                       <Clock size={13} strokeWidth={1.8} /> {duration(s.durationMs, isHebrew)}
                     </span>
-                    <span className="text-white/70 text-xs" style={{ fontFamily: sans }}>
+                    <span className="text-white/70 text-xs font-sans">
                       {s.steps.length} {t('steps', 'צעדים')}
                     </span>
                     {s.ordered ? (
@@ -538,9 +533,8 @@ export function JourneysPanel() {
                     return (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-10 max-w-full"
+                        className="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-10 max-w-full font-sans"
                         style={{
-                          fontFamily: sans,
                           borderColor: isOrder ? 'rgba(52,211,153,0.4)' : 'rgba(255,255,255,0.1)',
                           color: isOrder ? 'var(--success)' : 'rgba(255,255,255,0.7)',
                           background: isOrder ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.03)',
@@ -562,7 +556,7 @@ export function JourneysPanel() {
                       return (
                         <div key={slug} className="flex flex-col items-center w-[5.5rem]">
                           <GlassImage src={c.heroImage} accent={getAccent(slug)} className="w-[5.5rem] h-28" />
-                          <span className="text-white/55 text-10 text-center mt-1.5 leading-tight truncate w-full" style={{ fontFamily: sans }}>
+                          <span className="text-white/55 text-10 text-center mt-1.5 leading-tight truncate w-full font-sans">
                             {c.title[lang]}
                           </span>
                         </div>
@@ -586,7 +580,7 @@ export function JourneysPanel() {
                       { label: t('Revenue', 'הכנסה'), value: formatILS(s.revenue), accent: true },
                     ].map((m) => (
                       <div key={m.label}>
-                        <p className="text-white/70 text-9 tracking-[0.2em] uppercase mb-1" style={{ fontFamily: sans }}>
+                        <p className="text-white/70 text-9 tracking-[0.2em] uppercase mb-1 font-sans">
                           {m.label}
                         </p>
                         <p className={`text-sm font-mono ${m.accent ? 'text-emerald-200/90' : 'text-white/85'}`}>
@@ -596,7 +590,7 @@ export function JourneysPanel() {
                     ))}
                     {s.profit > 0 && (
                       <div>
-                        <p className="text-white/70 text-9 tracking-[0.2em] uppercase mb-1" style={{ fontFamily: sans }}>
+                        <p className="text-white/70 text-9 tracking-[0.2em] uppercase mb-1 font-sans">
                           {t('Profit', 'רווח')}
                         </p>
                         <p className="text-sm font-mono text-emerald-300/90">{formatILS(s.profit)}</p>
@@ -617,7 +611,7 @@ export function JourneysPanel() {
                           />
                           <div className="flex items-baseline gap-3">
                             <span className="text-white/70 text-11 font-mono w-16 shrink-0">{clock(step.at)}</span>
-                            <span className={`inline-flex items-center gap-1.5 text-sm ${isOrder ? 'text-emerald-200' : 'text-white/85'}`} style={{ fontFamily: sans }}>
+                            <span className={`font-sans inline-flex items-center gap-1.5 text-sm ${isOrder ? 'text-emerald-200' : 'text-white/85'}`}>
                               <Icon size={13} strokeWidth={1.8} className="shrink-0 opacity-70" />
                               {stepText(step)}
                             </span>
@@ -635,7 +629,7 @@ export function JourneysPanel() {
         })}
       </Stagger>
 
-      <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 mt-8 border-t border-white/10" style={{ fontFamily: sans }}>
+      <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 mt-8 border-t border-white/10 font-sans">
         {t('Latest 40 · anonymous', '40 אחרונים · אנונימי')}
       </p>
     </>

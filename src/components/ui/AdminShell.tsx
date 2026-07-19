@@ -9,9 +9,6 @@ import { AdminLauncher } from './AdminLauncher';
 import { AuthStatus } from '@/components/admin/AuthStatus';
 import { AmbientBackdrop, GlowDivider, LUX_EASE } from './premium';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-const heSerif = 'var(--font-frank-ruhl, serif)';
 const body = 'var(--font-garamond, serif)';
 const heBody = 'var(--font-heebo, sans-serif)';
 
@@ -50,7 +47,6 @@ export function AdminShell({
   const [launcherOpen, setLauncherOpen] = useState(false);
   const reduce = useReducedMotion();
   const isHebrew = lang === 'he';
-  const titleFont = isHebrew ? heSerif : serif;
   const bodyFont = isHebrew ? heBody : body;
 
   const shownTitle = isHebrew ? titleHe ?? title : title;
@@ -116,15 +112,14 @@ export function AdminShell({
         <div className="glass-chrome backdrop-blur-2xl mx-auto max-w-6xl rounded-2xl px-4 sm:px-5 min-h-14 py-2.5 flex items-center justify-between gap-3">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-amber-200/80 hover:text-amber-100 transition-colors text-10 tracking-[0.3em] uppercase shrink-0"
-            style={{ fontFamily: sans }}
+            className="font-sans inline-flex items-center gap-2 text-amber-200/80 hover:text-amber-100 transition-colors text-10 tracking-[0.3em] uppercase shrink-0"
           >
             <span className="transition-transform group-hover:-translate-x-0.5">{isHebrew ? '→' : '←'}</span>
             <span>{isHebrew ? 'תפריט' : 'Menu'}</span>
           </Link>
 
           <div className="flex items-center gap-2">
-            <Link href="/admin/home" className={pill} style={{ fontFamily: sans }} aria-label={isHebrew ? 'בית' : 'Home'}>
+            <Link href="/admin/home" className={`font-sans ${pill}`} aria-label={isHebrew ? 'בית' : 'Home'}>
               <Home size={13} strokeWidth={1.6} />
               <span className="hidden sm:inline">{isHebrew ? 'בית' : 'Home'}</span>
             </Link>
@@ -132,8 +127,7 @@ export function AdminShell({
               type="button"
               ref={launcherTriggerRef}
               onClick={() => setLauncherOpen(true)}
-              className={pill}
-              style={{ fontFamily: sans }}
+              className={`font-sans ${pill}`}
               aria-haspopup="dialog"
             >
               <LayoutGrid size={13} strokeWidth={1.6} />
@@ -146,11 +140,10 @@ export function AdminShell({
                   type="button"
                   onClick={() => setLang(l)}
                   aria-pressed={lang === l}
-                  className={`px-2.5 py-1 rounded-full text-9 tracking-[0.15em] uppercase transition-all ${
+                  className={`font-sans px-2.5 py-1 rounded-full text-9 tracking-[0.15em] uppercase transition-all ${
                     lang === l ? 'text-black' : 'text-white/50 hover:text-white/90'
                   }`}
                   style={{
-                    fontFamily: sans,
                     background: lang === l ? 'linear-gradient(105deg, var(--champagne-bright), var(--champagne))' : undefined,
                   }}
                 >
@@ -192,13 +185,13 @@ export function AdminShell({
               <div className="mx-auto max-w-5xl">
                 <div className="flex items-center justify-between mb-10">
                   <div>
-                    <p className="text-10 tracking-[0.42em] uppercase mb-3" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.7)' }}>
+                    <p className="font-sans text-10 tracking-[0.42em] uppercase mb-3" style={{ color: 'rgba(232,201,135,0.7)' }}>
                       {isHebrew ? 'ניווט' : 'Navigate'}
                     </p>
                     <h2
                       id="admin-launcher-title"
-                      className="text-white tracking-[0.02em]"
-                      style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500, fontSize: 'clamp(1.8rem,4.5vw,2.8rem)' }}
+                      className="font-serif text-white tracking-[0.02em]"
+                      style={{ fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500, fontSize: 'clamp(1.8rem,4.5vw,2.8rem)' }}
                     >
                       {isHebrew ? 'כל המסכים' : 'All Sections'}
                     </h2>
@@ -225,8 +218,8 @@ export function AdminShell({
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={reduce ? { duration: 0 } : { duration: 0.5, ease: LUX_EASE }}
-          className="text-10 tracking-[0.45em] uppercase mb-4"
-          style={{ fontFamily: sans, color: 'rgba(232,201,135,0.72)' }}
+          className="font-sans text-10 tracking-[0.45em] uppercase mb-4"
+          style={{ color: 'rgba(232,201,135,0.72)' }}
         >
           {shownEyebrow}
         </motion.p>
@@ -235,9 +228,8 @@ export function AdminShell({
             initial={reduce ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={reduce ? { duration: 0 } : { duration: 0.6, delay: 0.06, ease: LUX_EASE }}
-            className="text-white leading-[1.05] tracking-[0.02em]"
+            className="font-serif text-white leading-[1.05] tracking-[0.02em]"
             style={{
-              fontFamily: titleFont,
               fontStyle: isHebrew ? 'normal' : 'italic',
               fontWeight: 500,
               fontSize: 'clamp(2.4rem, 6vw, 4rem)',

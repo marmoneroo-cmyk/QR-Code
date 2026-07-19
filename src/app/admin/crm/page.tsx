@@ -12,9 +12,6 @@ import { useLang } from '@/lib/useLang';
 import type { CrmSignals } from '@/lib/analytics/crm-types';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 interface SplitRow {
   label: string;
   count: number;
@@ -33,7 +30,7 @@ function ShareBar({ rows }: { rows: SplitRow[] }) {
       </div>
       <div className="flex flex-wrap gap-x-5 gap-y-2">
         {rows.map((r) => (
-          <span key={r.label} className="inline-flex items-center gap-2 text-11" style={{ fontFamily: sans }}>
+          <span key={r.label} className="inline-flex items-center gap-2 text-11 font-sans">
             <span className="h-2 w-2 rounded-full" style={{ background: r.color }} />
             <span className="text-white/70">{r.label}</span>
             <span className="text-white/70 font-mono">{((r.count / total) * 100).toFixed(0)}%</span>
@@ -62,18 +59,18 @@ function SegmentCard({ icon: Icon, accent, title, count, total, meaning }: Segme
         <span className="grid place-items-center w-9 h-9 rounded-xl" style={{ color: accent, background: `${accent}1a` }}>
           <Icon size={17} strokeWidth={1.8} />
         </span>
-        <span className="text-white/70 text-11 font-mono" style={{ fontFamily: sans }}>{share.toFixed(0)}%</span>
+        <span className="text-white/70 text-11 font-sans">{share.toFixed(0)}%</span>
       </div>
       <div>
-        <p className="text-white leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2rem,4vw,2.6rem)' }}>
+        <p className="text-white leading-none font-serif" style={{ fontWeight: 700, fontSize: 'clamp(2rem,4vw,2.6rem)' }}>
           {count.toLocaleString()}
         </p>
-        <p className="text-white/55 text-xs mt-2 tracking-wide" style={{ fontFamily: sans }}>{title}</p>
+        <p className="text-white/55 text-xs mt-2 tracking-wide font-sans">{title}</p>
       </div>
       <div className="h-1.5 w-full rounded-full bg-white/[0.06] overflow-hidden" dir="ltr">
         <div className="h-full rounded-full" style={{ width: `${Math.max(2, share)}%`, background: accent }} />
       </div>
-      <p className="text-white/45 text-xs leading-relaxed" style={{ fontFamily: sans }}>{meaning}</p>
+      <p className="text-white/45 text-xs leading-relaxed font-sans">{meaning}</p>
     </GlassCard>
   );
 }
@@ -140,10 +137,10 @@ function DonutChart({ segments, centerValue, centerLabel }: { segments: DonutSeg
         </svg>
         <div className="absolute inset-0 grid place-items-center text-center">
           <div>
-            <p className="text-white leading-none" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(1.8rem,3vw,2.4rem)' }}>
+            <p className="text-white leading-none font-serif" style={{ fontWeight: 700, fontSize: 'clamp(1.8rem,3vw,2.4rem)' }}>
               {centerValue}
             </p>
-            <p className="text-white/45 text-10 uppercase tracking-[0.3em] mt-2" style={{ fontFamily: sans }}>
+            <p className="text-white/45 text-10 uppercase tracking-[0.3em] mt-2 font-sans">
               {centerLabel}
             </p>
           </div>
@@ -155,8 +152,8 @@ function DonutChart({ segments, centerValue, centerLabel }: { segments: DonutSeg
           return (
             <li key={s.label} className="flex items-center gap-3">
               <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.color }} />
-              <span className="flex-1 text-white/70 text-13" style={{ fontFamily: sans }}>{s.label}</span>
-              <span className="text-white text-13 font-medium tabular-nums" style={{ fontFamily: sans }}>{s.count.toLocaleString()}</span>
+              <span className="flex-1 text-white/70 text-13 font-sans">{s.label}</span>
+              <span className="text-white text-13 font-medium tabular-nums font-sans">{s.count.toLocaleString()}</span>
               <span className="w-10 text-end text-white/70 text-11 font-mono tabular-nums">{pct.toFixed(0)}%</span>
             </li>
           );
@@ -385,7 +382,7 @@ export default function CrmPage() {
       <GlassCard className="mb-12 p-6" accent="#e8c987" static style={{ borderColor: 'rgba(232,201,135,0.25)' }}>
         <div dir={isHebrew ? 'rtl' : 'ltr'}>
           <PanelHeader label={t('On returning guests', 'לגבי אורחים חוזרים')} isHe={isHebrew} />
-          <p className="text-white/55 text-sm leading-relaxed mt-3" style={{ fontFamily: sans }}>
+          <p className="text-white/55 text-sm leading-relaxed mt-3 font-sans">
             {t(
               'Every signal here is scoped to a single session. Events carry no persistent visitor id, so cross-visit "returning guest" profiles await a future visitor-id migration.',
               'כל אות כאן מתייחס למושב בודד. לאירועים אין מזהה מבקר קבוע, ולכן פרופילי "אורח חוזר" בין ביקורים ממתינים למיגרציה עתידית של מזהה-מבקר.',
@@ -394,7 +391,7 @@ export default function CrmPage() {
         </div>
       </GlassCard>
 
-      <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
+      <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10 font-sans">
         {t('Anonymous session signals · no PII · refreshes automatically', 'אותות מושב אנונימיים · ללא מידע אישי · מתעדכן אוטומטית')}
       </p>
         </>

@@ -269,12 +269,7 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
             <div className="shrink-0 border-b border-white/[0.08] bg-[#08080a]/95 backdrop-blur px-6 py-5 sm:px-8">
               <div className="flex items-center justify-between gap-4">
                 <h2
-                  className="text-xl sm:text-2xl text-amber-50/95"
-                  style={{
-                    fontFamily: isHebrew
-                      ? 'var(--font-frank-ruhl, serif)'
-                      : 'var(--font-playfair, serif)',
-                  }}
+                  className="font-serif text-xl sm:text-2xl text-amber-50/95"
                 >
                   {t('Media Library', 'ספריית מדיה')}
                 </h2>
@@ -305,12 +300,11 @@ export function MediaLibrary({ open, onClose, onSelect, lang }: MediaLibraryProp
                       aria-selected={tab === tabKey}
                       aria-controls="media-library-panel"
                       onClick={() => setTab(tabKey)}
-                      className={`px-4 py-1.5 rounded-full text-11 tracking-[0.2em] uppercase border transition-colors ${
+                      className={`font-sans px-4 py-1.5 rounded-full text-11 tracking-[0.2em] uppercase border transition-colors ${
                         tab === tabKey
                           ? 'bg-amber-200 text-black border-amber-200'
                           : 'text-white/55 border-white/12 hover:text-amber-100 hover:border-amber-200/40'
                       }`}
-                      style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
                     >
                       {TAB_LABEL[tabKey](isHebrew)}
                     </button>
@@ -412,8 +406,7 @@ function MediaThumb({
         }}
       >
         <p
-          className="text-white text-xs truncate"
-          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          className="font-sans text-white text-xs truncate"
         >
           {displayName}
         </p>
@@ -428,7 +421,7 @@ function EmptyState({ t }: { t: (en: string, he: string) => string }) {
       <div className="w-12 h-12 rounded-full border border-white/12 flex items-center justify-center text-white/30">
         <ImageOff size={20} strokeWidth={1.5} />
       </div>
-      <p className="text-white/45 text-sm" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+      <p className="font-sans text-white/45 text-sm">
         {t('No images found', 'לא נמצאו תמונות')}
       </p>
     </div>
@@ -479,10 +472,10 @@ function UploadPane({
           <Upload size={18} strokeWidth={2} />
         </div>
         <div>
-          <p className="text-white/85 text-sm" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+          <p className="font-sans text-white/85 text-sm">
             {t('Drag & drop an image here', 'גררו תמונה לכאן')}
           </p>
-          <p className="text-white/70 text-xs mt-1" style={{ fontFamily: 'var(--font-inter, sans-serif)' }}>
+          <p className="font-sans text-white/70 text-xs mt-1">
             {t('or click to browse · up to 4MB', 'או לחצו לבחירה · עד 4MB')}
           </p>
         </div>

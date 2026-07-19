@@ -12,9 +12,6 @@ import { BulkBreakdownButton } from '@/components/admin/BulkBreakdownButton';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel } from '@/components/ui/dataviz';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-const heSerif = 'var(--font-frank-ruhl, serif)';
 const body = 'var(--font-garamond, serif)';
 const heBody = 'var(--font-heebo, sans-serif)';
 
@@ -97,7 +94,6 @@ export default function AdminPage() {
   const { order, setOrder, apply: applyMenuOrder } = useMenuOrder();
   const { lang } = useLang();
   const isHebrew = lang === 'he';
-  const titleFont = isHebrew ? heSerif : serif;
   const bodyFont = isHebrew ? heBody : body;
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
@@ -161,17 +157,16 @@ export default function AdminPage() {
             <button
               type="button"
               onClick={copyAllDrafts}
-              className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-xs tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100"
-              style={{ fontFamily: sans, fontWeight: 600 }}
+              className="font-sans group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-xs tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100"
+              style={{ fontWeight: 600 }}
             >
               {copiedAll ? t('Copied!', 'הועתק!') : t('Export JSON', 'ייצוא JSON')}
             </button>
           )}
           <Link
             href="/admin/new"
-            className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-13 tracking-[0.16em] uppercase text-black transition-shadow"
+            className="font-sans group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-13 tracking-[0.16em] uppercase text-black transition-shadow"
             style={{
-              fontFamily: sans,
               fontWeight: 700,
               background: 'linear-gradient(105deg, var(--champagne-bright), var(--champagne) 55%, var(--champagne-deep))',
               boxShadow: '0 10px 34px rgba(232, 201, 135, 0.26)',
@@ -202,8 +197,7 @@ export default function AdminPage() {
           </p>
           <Link
             href="/admin/new"
-            className="text-amber-200/90 hover:text-amber-100 transition-colors text-11 tracking-[0.3em] uppercase"
-            style={{ fontFamily: sans }}
+            className="font-sans text-amber-200/90 hover:text-amber-100 transition-colors text-11 tracking-[0.3em] uppercase"
           >
             {t('Create your first cocktail →', '← צור את הקוקטייל הראשון שלך')}
           </Link>
@@ -235,7 +229,7 @@ export default function AdminPage() {
                   className="w-full h-48 mb-4 transition-transform duration-300 group-hover:scale-[1.04]"
                 />
               )}
-              <h3 className="text-white text-xl mb-1" style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>
+              <h3 className="text-white text-xl mb-1 font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic' }}>
                 {draft.title[lang] || draft.title.en || t('Untitled', 'ללא שם')}
               </h3>
               <p className="text-amber-200/60 text-10 tracking-[0.3em] uppercase mb-3">
@@ -249,15 +243,13 @@ export default function AdminPage() {
               <div className="flex items-center gap-2 pt-3 border-t border-white/[0.08] flex-wrap">
                 <Link
                   href={`/drafts/${draft.slug}`}
-                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-10 tracking-[0.3em] uppercase"
-                  style={{ fontFamily: sans }}
+                  className="font-sans inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-10 tracking-[0.3em] uppercase"
                 >
                   {t('Preview', 'תצוגה')}
                 </Link>
                 <Link
                   href={`/admin/${draft.slug}/edit`}
-                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-10 tracking-[0.3em] uppercase"
-                  style={{ fontFamily: sans }}
+                  className="font-sans inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-10 tracking-[0.3em] uppercase"
                 >
                   {t('Edit', 'עריכה')}
                 </Link>
@@ -273,8 +265,7 @@ export default function AdminPage() {
                       alert(t('Clipboard copy failed.', 'העתקה ללוח נכשלה.'));
                     }
                   }}
-                  className="inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-10 tracking-[0.3em] uppercase"
-                  style={{ fontFamily: sans }}
+                  className="font-sans inline-flex items-center rounded-full border border-white/15 px-3.5 py-1.5 text-amber-200/80 hover:text-amber-100 hover:border-amber-200/40 transition-colors text-10 tracking-[0.3em] uppercase"
                 >
                   {copiedSlug === draft.slug ? t('Copied!', 'הועתק!') : t('Copy JSON', 'העתק JSON')}
                 </button>
@@ -284,8 +275,7 @@ export default function AdminPage() {
                     if (confirm(t(`Delete draft "${draft.title[lang] || draft.title.en}"?`, `למחוק את הטיוטה "${draft.title[lang] || draft.title.en}"?`)))
                       remove(draft.slug);
                   }}
-                  className="inline-flex items-center rounded-full border border-rose-300/20 px-3.5 py-1.5 text-rose-300/70 hover:text-rose-300 hover:border-rose-300/40 transition-colors text-10 tracking-[0.3em] uppercase ms-auto"
-                  style={{ fontFamily: sans }}
+                  className="font-sans inline-flex items-center rounded-full border border-rose-300/20 px-3.5 py-1.5 text-rose-300/70 hover:text-rose-300 hover:border-rose-300/40 transition-colors text-10 tracking-[0.3em] uppercase ms-auto"
                 >
                   {t('Delete', 'מחיקה')}
                 </button>
@@ -296,22 +286,21 @@ export default function AdminPage() {
       )}
 
       <div className="flex items-center gap-4 mb-3">
-        <h2 className="text-amber-200/85 text-11 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+        <h2 className="text-amber-200/85 text-11 tracking-[0.4em] uppercase font-sans">
           {t('Published', 'פורסמו')} ({MENU.length})
         </h2>
         {order.length > 0 && (
           <button
             type="button"
             onClick={() => setOrder([])}
-            className="text-white/45 hover:text-amber-100 transition-colors text-9 tracking-[0.25em] uppercase"
-            style={{ fontFamily: sans }}
+            className="font-sans text-white/45 hover:text-amber-100 transition-colors text-9 tracking-[0.25em] uppercase"
           >
             {t('Custom order · Reset', 'סדר מותאם · אפס')}
           </button>
         )}
         <span className="flex-1 h-px bg-amber-200/12" />
       </div>
-      <p className="text-white/70 text-11 mb-6" style={{ fontFamily: sans }}>
+      <p className="text-white/70 text-11 mb-6 font-sans">
         {t(
           'Drag the handle to set how items appear on the guest menu (saved on this device).',
           'גררו מהידית כדי לקבוע את סדר הופעת הפריטים בתפריט הסועד (נשמר במכשיר זה).'
@@ -340,7 +329,7 @@ export default function AdminPage() {
                 className="w-full h-48 mb-4 transition-transform duration-300 group-hover:scale-[1.04]"
               />
             )}
-            <h3 className="text-white text-xl mb-1" style={{ fontFamily: titleFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>
+            <h3 className="text-white text-xl mb-1 font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic' }}>
               {cocktail.title[lang]}
             </h3>
             <p className="text-amber-200/60 text-10 tracking-[0.3em] uppercase mb-3">

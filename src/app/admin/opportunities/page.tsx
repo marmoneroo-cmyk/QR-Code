@@ -21,7 +21,6 @@ import { useNow } from '@/lib/useNow';
 import { useOppStatuses } from '@/lib/useOppStatuses';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
 const serif = 'var(--font-playfair, serif)';
 const serifHe = 'var(--font-frank-ruhl, serif)';
 
@@ -143,7 +142,7 @@ export function OpportunitiesPanel() {
         </div>
       )}
       {!loading && error && (
-        <p className="text-rose-300/80 text-sm" style={{ fontFamily: sans }}>{isHe ? 'טעינה נכשלה.' : 'Failed to load.'}</p>
+        <p className="text-rose-300/80 text-sm font-sans">{isHe ? 'טעינה נכשלה.' : 'Failed to load.'}</p>
       )}
 
       {!loading && !error && data && (
@@ -154,7 +153,7 @@ export function OpportunitiesPanel() {
               <SectionLabel icon={Lightbulb}>{isHe ? 'הזדמנויות היום' : "Today's opportunities"}</SectionLabel>
             </div>
             {data.opportunities.length > 0 && (
-              <p className="text-white/70 text-xs mb-4" style={{ fontFamily: sans }}>
+              <p className="text-white/70 text-xs mb-4 font-sans">
                 {isHe
                   ? `${active.length} פעולות פתוחות · ${handled.length} טופלו`
                   : `${active.length} open ${active.length === 1 ? 'action' : 'actions'} · ${handled.length} handled`}
@@ -223,7 +222,7 @@ export function OpportunitiesPanel() {
 
               {data.layout.categoryReach.length > 0 && (
                 <div className="mt-7">
-                  <p className="text-amber-200/70 text-10 tracking-[0.3em] uppercase mb-3" style={{ fontFamily: sans }}>
+                  <p className="text-amber-200/70 text-10 tracking-[0.3em] uppercase mb-3 font-sans">
                     {isHe ? 'חשיפת קטגוריות' : 'Category reach'}
                   </p>
                   <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
@@ -236,7 +235,7 @@ export function OpportunitiesPanel() {
 
               {data.layout.rarelyReached.length > 0 && (
                 <div className="mt-7">
-                  <p className="inline-flex items-center gap-2 text-rose-200/70 text-10 tracking-[0.3em] uppercase mb-3" style={{ fontFamily: sans }}>
+                  <p className="inline-flex items-center gap-2 text-rose-200/70 text-10 tracking-[0.3em] uppercase mb-3 font-sans">
                     <EyeOff size={12} strokeWidth={2} /> {isHe ? 'כמעט לא נראים' : 'Rarely reached'}
                   </p>
                   <div className="flex flex-wrap gap-4">
@@ -315,8 +314,8 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
 
       <div className="relative flex items-center justify-between gap-2 flex-wrap">
         <span
-          className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-9 tracking-[0.18em] uppercase"
-          style={{ borderColor: `${meta.color}55`, color: meta.color, background: `${meta.color}14`, fontFamily: sans }}
+          className="font-sans inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-9 tracking-[0.18em] uppercase"
+          style={{ borderColor: `${meta.color}55`, color: meta.color, background: `${meta.color}14` }}
         >
           <Icon size={12} strokeWidth={2} /> {TYPE_LABEL[o.type][lang]}
         </span>
@@ -324,8 +323,8 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
           <ConfidenceBadge pct={Math.round(sampleConfidence(item.views) * 100)} label={CONF_LABEL[o.confidence][lang]} />
         ) : (
           <span
-            className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase"
-            style={{ borderColor: `${meta.color}66`, color: meta.color, fontFamily: sans }}
+            className="font-sans inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-10 tracking-[0.18em] uppercase"
+            style={{ borderColor: `${meta.color}66`, color: meta.color }}
           >
             <BadgeCheck size={12} strokeWidth={2} /> {CONF_LABEL[o.confidence][lang]}
           </span>
@@ -357,7 +356,7 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
       )}
 
       {/* Suggested action — secondary now; the ₪ value above leads. */}
-      <p className="relative text-white/70 text-13 leading-snug line-clamp-2" style={{ fontFamily: sans }}>
+      <p className="relative text-white/70 text-13 leading-snug line-clamp-2 font-sans">
         {o.action[lang]}
       </p>
 
@@ -366,8 +365,7 @@ function OpportunityCard({ o, item, bench, lang, isHe, headFont, onDone, onDismi
           {o.evidence.slice(0, 2).map((e, j) => (
             <span
               key={j}
-              className="inline-flex items-center gap-1 text-11 text-white/55 border border-white/10 bg-white/[0.03] rounded-full px-2.5 py-1"
-              style={{ fontFamily: sans }}
+              className="font-sans inline-flex items-center gap-1 text-11 text-white/55 border border-white/10 bg-white/[0.03] rounded-full px-2.5 py-1"
             >
               {e.label[lang]}: <span className="text-white/85">{localizeEvidenceValue(e.value, isHe)}</span>
             </span>
@@ -413,8 +411,7 @@ function CardActionButton({ icon: ActionIcon, label, tone, onClick }: CardAction
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2 py-1.5 text-11 text-white/65 transition-colors hover:text-white hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
-      style={{ fontFamily: sans }}
+      className="font-sans inline-flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2 py-1.5 text-11 text-white/65 transition-colors hover:text-white hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
     >
       <ActionIcon size={13} strokeWidth={2} style={{ color: tone }} />
       <span className="truncate">{label}</span>
@@ -450,7 +447,7 @@ function HandledSection({ items, statuses, lang, isHe, headFont, onRestore }: Ha
         aria-expanded={open}
         className="flex w-full items-center justify-between gap-3 px-5 py-4 text-start transition-colors hover:bg-white/[0.02] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/20 rounded-3xl"
       >
-        <span className="inline-flex items-center gap-2 text-white/70 text-xs tracking-[0.18em] uppercase" style={{ fontFamily: sans }}>
+        <span className="inline-flex items-center gap-2 text-white/70 text-xs tracking-[0.18em] uppercase font-sans">
           <CheckCircle2 size={14} strokeWidth={2} className="text-emerald-300/70" />
           {isHe ? `טופל (${items.length})` : `Handled (${items.length})`}
           {snoozedCount > 0 && (
@@ -483,15 +480,15 @@ function HandledSection({ items, statuses, lang, isHe, headFont, onRestore }: Ha
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span
-                    className="shrink-0 rounded-full px-2 py-0.5 text-9 tracking-[0.16em] uppercase"
-                    style={{ color: meta.tone, background: `${meta.tone}1f`, fontFamily: sans }}
+                    className="font-sans shrink-0 rounded-full px-2 py-0.5 text-9 tracking-[0.16em] uppercase"
+                    style={{ color: meta.tone, background: `${meta.tone}1f` }}
                   >
                     {meta[lang]}
                   </span>
                   <span className="truncate text-white/80 text-sm" style={{ fontFamily: headFont }}>
                     {title}
                   </span>
-                  <span className="truncate text-white/70 text-11 hidden sm:inline" style={{ fontFamily: sans }}>
+                  <span className="truncate text-white/70 text-11 hidden sm:inline font-sans">
                     {TYPE_LABEL[o.type][lang]}
                   </span>
                 </div>
@@ -499,8 +496,7 @@ function HandledSection({ items, statuses, lang, isHe, headFont, onRestore }: Ha
                   type="button"
                   onClick={() => onRestore(oppId(o))}
                   aria-label={isHe ? 'החזר' : 'Restore'}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-11 text-white/65 transition-colors hover:text-white hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
-                  style={{ fontFamily: sans }}
+                  className="font-sans inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-11 text-white/65 transition-colors hover:text-white hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30"
                 >
                   <RotateCcw size={12} strokeWidth={2} />
                   {isHe ? 'החזר' : 'Restore'}
@@ -530,8 +526,8 @@ function ReachBar({ label, pct, isHe }: { label: string; pct: number; isHe: bool
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-white/65 text-xs" style={{ fontFamily: sans }}>{label}</span>
-        <span className="text-white/85 text-xs" style={{ fontFamily: sans, fontWeight: 600 }}>{pct}%</span>
+        <span className="text-white/65 text-xs font-sans">{label}</span>
+        <span className="text-white/85 text-xs font-sans" style={{ fontWeight: 600 }}>{pct}%</span>
       </div>
       <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
         <div

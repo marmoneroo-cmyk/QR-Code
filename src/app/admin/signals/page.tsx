@@ -25,9 +25,6 @@ import { useLang } from '@/lib/useLang';
 import type { HealthStatus, SignalBlock, SignalVerification } from '@/lib/analytics/signals-types';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
-
 /**
  * The /api/signals/verify payload carries English, machine-stable identifiers
  * (signal names, trend/drift metrics) and English human sentences (per-block
@@ -268,11 +265,11 @@ function ReadinessRing({
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">
         <div>
-          <p className="leading-none tabular-nums" style={{ fontFamily: serif, fontWeight: 700 }}>
+          <p className="leading-none tabular-nums font-serif" style={{ fontWeight: 700 }}>
             <span style={{ fontSize: 'clamp(2.6rem,7vw,3.4rem)', color }}>{value}</span>
             <span className="text-white/60 text-2xl">/{target}</span>
           </p>
-          <p className="mt-2 inline-flex items-center gap-1.5 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans, color: ready ? color : 'rgba(255,255,255,0.45)' }}>
+          <p className="mt-2 inline-flex items-center gap-1.5 text-10 tracking-[0.25em] uppercase font-sans" style={{ color: ready ? color : 'rgba(255,255,255,0.45)' }}>
             {ready ? <CheckCircle2 size={12} strokeWidth={2.4} /> : null}
             {caption}
           </p>
@@ -293,7 +290,7 @@ function GoGreenChecklist({ blockers, t, isHe }: { blockers: string[]; t: Tr; is
   const allClear = blockers.length === 0;
   return (
     <GlassCard static className="p-5 backdrop-blur-sm">
-      <p className="mb-4 inline-flex items-center gap-2 text-10 tracking-[0.3em] uppercase text-white/55" style={{ fontFamily: sans }}>
+      <p className="mb-4 inline-flex items-center gap-2 text-10 tracking-[0.3em] uppercase text-white/55 font-sans">
         <ListChecks size={13} strokeWidth={2} />
         {t('How to go green', 'מה צריך כדי להגיע לירוק')}
       </p>
@@ -301,7 +298,7 @@ function GoGreenChecklist({ blockers, t, isHe }: { blockers: string[]; t: Tr; is
         {allClear ? (
           <li className="flex items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-950/20 px-3.5 py-2.5">
             <CheckCircle2 size={16} strokeWidth={2.2} style={{ color: STATUS.healthy.color }} className="shrink-0" />
-            <span className="text-emerald-200/90 text-13" style={{ fontFamily: sans }}>
+            <span className="text-emerald-200/90 text-13 font-sans">
               {t('All criteria met — the gate is green.', 'כל הקריטריונים מולאו — השער ירוק.')}
             </span>
           </li>
@@ -309,7 +306,7 @@ function GoGreenChecklist({ blockers, t, isHe }: { blockers: string[]; t: Tr; is
           blockers.map((b) => (
             <li key={b} className="flex items-center gap-3 rounded-xl border border-amber-300/15 bg-amber-950/15 px-3.5 py-2.5">
               <Circle size={16} strokeWidth={2.2} style={{ color: STATUS.warning.color }} className="shrink-0" />
-              <span className="text-amber-100/85 text-13 leading-snug" style={{ fontFamily: sans }}>
+              <span className="text-amber-100/85 text-13 leading-snug font-sans">
                 {localizeBlocker(b, isHe)}
               </span>
             </li>
@@ -330,7 +327,7 @@ function Direction({ dir, value }: { dir: 'up' | 'down' | 'flat'; value: string 
       : { color: '#9ca3af', Icon: Minus };
   const { Icon } = conf;
   return (
-    <span className="inline-flex items-center gap-1.5 text-sm tabular-nums" style={{ color: conf.color, fontFamily: sans }}>
+    <span className="inline-flex items-center gap-1.5 text-sm tabular-nums font-sans" style={{ color: conf.color }}>
       <Icon size={15} strokeWidth={2.2} />
       {value}
     </span>
@@ -368,7 +365,7 @@ function DistCard({
           <span className="grid h-9 w-9 place-items-center rounded-xl" style={{ color: cfg.color, background: cfg.soft }}>
             <Icon size={17} strokeWidth={1.9} />
           </span>
-          <span className="text-amber-200/80 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+          <span className="text-amber-200/80 text-10 tracking-[0.3em] uppercase font-sans">
             {title}
           </span>
         </span>
@@ -376,7 +373,7 @@ function DistCard({
       </div>
 
       {s.count === 0 ? (
-        <p className="py-6 text-center text-white/70 text-sm" style={{ fontFamily: sans }}>
+        <p className="py-6 text-center text-white/70 text-sm font-sans">
           {t('not collected yet', 'עדיין לא נאסף')}
         </p>
       ) : (
@@ -384,20 +381,20 @@ function DistCard({
           {/* Gauge-style headline number: P95 */}
           <div className="mb-5 flex items-end justify-between">
             <div>
-              <p className="leading-none tabular-nums" style={{ fontFamily: serif, fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,3.2rem)', color: cfg.color }}>
+              <p className="leading-none tabular-nums font-serif" style={{ fontWeight: 700, fontSize: 'clamp(2.4rem,6vw,3.2rem)', color: cfg.color }}>
                 {s.p95}
                 <span className="text-white/60 text-lg">{unit}</span>
               </p>
-              <p className="mt-1 text-white/70 text-10 tracking-[0.25em] uppercase" style={{ fontFamily: sans }}>
+              <p className="mt-1 text-white/70 text-10 tracking-[0.25em] uppercase font-sans">
                 P95 · {t('samples', 'דגימות')} {s.count.toLocaleString()}
               </p>
             </div>
             <div className="text-end">
-              <p className="text-white/70 text-xl tabular-nums" style={{ fontFamily: serif, fontWeight: 600 }}>
+              <p className="text-white/70 text-xl tabular-nums font-serif" style={{ fontWeight: 600 }}>
                 {s.avg}
                 <span className="text-white/70 text-sm">{unit}</span>
               </p>
-              <p className="text-white/70 text-10 tracking-[0.2em] uppercase" style={{ fontFamily: sans }}>
+              <p className="text-white/70 text-10 tracking-[0.2em] uppercase font-sans">
                 {t('avg', 'ממוצע')}
               </p>
             </div>
@@ -407,8 +404,8 @@ function DistCard({
           <div className="mb-5 grid grid-cols-4 gap-2 text-center">
             {([['P50', s.p50], ['P75', s.p75], ['P90', s.p90], ['max', s.max]] as const).map(([k, v]) => (
               <div key={k} className="rounded-xl border border-white/[0.06] bg-white/[0.02] py-2">
-                <p className="text-white/70 text-9 uppercase tracking-wider" style={{ fontFamily: sans }}>{k}</p>
-                <p className="text-white/90 text-sm tabular-nums" style={{ fontFamily: serif, fontWeight: 600 }}>{v}{unit}</p>
+                <p className="text-white/70 text-9 uppercase tracking-wider font-sans">{k}</p>
+                <p className="text-white/90 text-sm tabular-nums font-serif" style={{ fontWeight: 600 }}>{v}{unit}</p>
               </div>
             ))}
           </div>
@@ -416,11 +413,11 @@ function DistCard({
           {/* Clean-data bar */}
           <div className="flex items-center gap-3">
             <HealthBar pct={clean} color={cfg.color} />
-            <span className="shrink-0 text-11 tabular-nums" style={{ color: cfg.color, fontFamily: sans }}>
+            <span className="shrink-0 text-11 tabular-nums font-sans" style={{ color: cfg.color }}>
               {clean}% {t('clean', 'תקין')}
             </span>
           </div>
-          <p className="mt-2 text-white/70 text-10" style={{ fontFamily: sans }}>
+          <p className="mt-2 text-white/70 text-10 font-sans">
             {t('invalid', 'לא תקין')} {block.invalidPct}% · {t('missing', 'חסר')} {block.missingPct}%{extra ? ` · ${extra}` : ''}
           </p>
         </>
@@ -470,7 +467,7 @@ export default function SignalsPage() {
       actions={
         <>
           <LiveDot label={isHebrew ? 'חי' : 'Live'} />
-          <span className="text-white/70 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+          <span className="text-white/70 text-10 tracking-[0.3em] uppercase font-sans">
             {d ? t(`${d.totalEvents.toLocaleString()} events · ${d.collectedSinceDays ?? 0}d`, `${d.totalEvents.toLocaleString()} אירועים · ${d.collectedSinceDays ?? 0}י`) : ''}
           </span>
         </>
@@ -497,16 +494,16 @@ export default function SignalsPage() {
           <div className="relative z-10 grid items-center gap-8 md:grid-cols-[1.1fr_1fr]">
             {/* Verdict */}
             <div>
-              <p className="inline-flex items-center gap-2 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans, color: heroColor }}>
+              <p className="inline-flex items-center gap-2 text-10 tracking-[0.4em] uppercase font-sans" style={{ color: heroColor }}>
                 <Gauge size={14} strokeWidth={2} /> {t('Engine Readiness', 'מוכנות המנוע')}
               </p>
               <div className="mt-3 flex items-center gap-4">
                 {ready ? <CheckCircle2 size={56} strokeWidth={1.6} style={{ color: heroColor }} /> : <AlertTriangle size={56} strokeWidth={1.6} style={{ color: heroColor }} />}
-                <p className="leading-[0.9]" style={{ fontFamily: serif, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 700, fontSize: 'clamp(3rem,8vw,5rem)', color: heroColor }}>
+                <p className="leading-[0.9] font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 700, fontSize: 'clamp(3rem,8vw,5rem)', color: heroColor }}>
                   {d ? (ready ? t('READY', 'מוכן') : t('NOT READY', 'לא מוכן')) : '—'}
                 </p>
               </div>
-              <p className="mt-3 max-w-md text-white/55 text-sm" style={{ fontFamily: sans }}>
+              <p className="mt-3 max-w-md text-white/55 text-sm font-sans">
                 {ready
                   ? t('All instruments verified. The scoring engine can be built on these signals.', 'כל המכשירים אומתו. ניתן לבנות את מנוע הניקוד על הסיגנלים האלה.')
                   : t('Hold. One or more signals are not yet proven. No score is computed until the gate is green.', 'המתן. סיגנל אחד או יותר עדיין לא אומת. לא מחושב ציון עד שהשער ירוק.')}
@@ -515,7 +512,7 @@ export default function SignalsPage() {
 
             {/* Readiness ring gauge + health roll-up */}
             <div className="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-sm">
-              <p className="mb-4 text-center text-white/70 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>{t('Green streak', 'רצף ירוק')}</p>
+              <p className="mb-4 text-center text-white/70 text-10 tracking-[0.3em] uppercase font-sans">{t('Green streak', 'רצף ירוק')}</p>
               <ReadinessRing
                 value={streak}
                 target={required}
@@ -528,8 +525,8 @@ export default function SignalsPage() {
               <div className="mt-6 grid grid-cols-3 gap-2 text-center">
                 {([['healthy', counts.healthy], ['warning', counts.warning], ['fail', counts.fail]] as const).map(([k, n]) => (
                   <div key={k} className="rounded-xl py-2.5" style={{ background: STATUS[k].soft }}>
-                    <p className="text-2xl tabular-nums" style={{ fontFamily: serif, fontWeight: 700, color: STATUS[k].color }}>{n}</p>
-                    <p className="text-9 tracking-[0.15em] uppercase text-white/45" style={{ fontFamily: sans }}>
+                    <p className="text-2xl tabular-nums font-serif" style={{ fontWeight: 700, color: STATUS[k].color }}>{n}</p>
+                    <p className="text-9 tracking-[0.15em] uppercase text-white/45 font-sans">
                       {k === 'healthy' ? t('healthy', 'בריא') : k === 'warning' ? t('warning', 'אזהרה') : t('fail', 'כשל')}
                     </p>
                   </div>
@@ -557,8 +554,8 @@ export default function SignalsPage() {
                   <GlassCard static accent={cfg.color} className="flex items-start gap-3 p-4" style={{ borderColor: cfg.ring }}>
                     <StatusRing status={h.status} />
                     <div className="min-w-0">
-                      <p className="truncate text-white/90 text-sm" style={{ fontFamily: sans, fontWeight: 600 }}>{localizeSignal(h.signal, isHebrew)}</p>
-                      <p className="mt-0.5 text-white/45 text-11 leading-snug" style={{ fontFamily: sans }}>{localizeDetail(h.signal, h.detail, isHebrew)}</p>
+                      <p className="truncate text-white/90 text-sm font-sans" style={{ fontWeight: 600 }}>{localizeSignal(h.signal, isHebrew)}</p>
+                      <p className="mt-0.5 text-white/45 text-11 leading-snug font-sans">{localizeDetail(h.signal, h.detail, isHebrew)}</p>
                     </div>
                   </GlassCard>
                 </motion.div>
@@ -575,7 +572,7 @@ export default function SignalsPage() {
                       </div>
                     </div>
                   ))
-                : <p className="text-white/40 text-sm" style={{ fontFamily: sans }}>—</p>)}
+                : <p className="text-white/40 text-sm font-sans">—</p>)}
           </Stagger>
         </section>
 
@@ -602,14 +599,14 @@ export default function SignalsPage() {
             <div className="space-y-2.5">
               {(d?.trends ?? []).map((tr) => (
                 <div key={tr.metric} className="flex items-center justify-between rounded-xl bg-white/[0.02] px-4 py-3">
-                  <span className="text-white/75 text-sm" style={{ fontFamily: sans }}>{localizeTrendMetric(tr.metric, isHebrew)}</span>
+                  <span className="text-white/75 text-sm font-sans">{localizeTrendMetric(tr.metric, isHebrew)}</span>
                   <span className="flex items-center gap-3">
-                    <span className="text-white/70 text-xs tabular-nums" style={{ fontFamily: sans }}>{tr.priorPct}%</span>
+                    <span className="text-white/70 text-xs tabular-nums font-sans">{tr.priorPct}%</span>
                     <Direction dir={tr.trend} value={`${tr.recentPct}%`} />
                   </span>
                 </div>
               ))}
-              {(!d || d.trends.length === 0) && <p className="text-white/35 text-sm" style={{ fontFamily: sans }}>—</p>}
+              {(!d || d.trends.length === 0) && <p className="text-white/35 text-sm font-sans">—</p>}
             </div>
           </GlassCard>
 
@@ -622,11 +619,11 @@ export default function SignalsPage() {
                   <div key={dr.signal} className="flex items-center justify-between rounded-xl bg-white/[0.02] px-4 py-3">
                     <span className="flex items-center gap-2.5">
                       <StatusRing status={dr.status} size={22} />
-                      <span className="text-white/75 text-sm" style={{ fontFamily: sans }}>{localizeDriftMetric(dr.signal, isHebrew)}</span>
+                      <span className="text-white/75 text-sm font-sans">{localizeDriftMetric(dr.signal, isHebrew)}</span>
                     </span>
                     <span className="flex items-center gap-3">
-                      <span className="text-white/70 text-xs tabular-nums" style={{ fontFamily: sans }}>{dr.baseline} {isHebrew ? '←' : '→'} {dr.recent}</span>
-                      <span className="inline-flex items-center gap-1 text-sm tabular-nums" style={{ color: cfg.color, fontFamily: sans }}>
+                      <span className="text-white/70 text-xs tabular-nums font-sans">{dr.baseline} {isHebrew ? '←' : '→'} {dr.recent}</span>
+                      <span className="inline-flex items-center gap-1 text-sm tabular-nums font-sans" style={{ color: cfg.color }}>
                         {dr.deltaPct >= 0 ? <TrendingUp size={14} strokeWidth={2.2} /> : <TrendingDown size={14} strokeWidth={2.2} />}
                         {dr.deltaPct >= 0 ? '+' : ''}{dr.deltaPct}%
                       </span>
@@ -634,7 +631,7 @@ export default function SignalsPage() {
                   </div>
                 );
               })}
-              {(!d || d.drift.length === 0) && <p className="text-white/35 text-sm" style={{ fontFamily: sans }}>—</p>}
+              {(!d || d.drift.length === 0) && <p className="text-white/35 text-sm font-sans">—</p>}
             </div>
           </GlassCard>
         </section>
@@ -653,7 +650,7 @@ export default function SignalsPage() {
             <motion.div variants={staggerItem}><StatTile label={t('Max events/session', 'מקס/ביקור')} value={id?.maxEventsPerSession ?? 0} /></motion.div>
           </Stagger>
           {d && !d.hasVisitorColumn && (
-            <p className="mt-4 inline-flex items-start gap-2 rounded-xl border border-amber-300/20 bg-amber-950/10 px-4 py-3 text-amber-200/70 text-xs" style={{ fontFamily: sans }} dir={isHebrew ? 'rtl' : 'ltr'}>
+            <p className="mt-4 inline-flex items-start gap-2 rounded-xl border border-amber-300/20 bg-amber-950/10 px-4 py-3 text-amber-200/70 text-xs font-sans" dir={isHebrew ? 'rtl' : 'ltr'}>
               <AlertTriangle size={14} strokeWidth={2} className="mt-0.5 shrink-0" />
               {t('visitor_id column not present yet — reading from metadata (Phase A). Run migration 0006 → Phase B.', 'עמודת visitor_id עדיין לא קיימת — נקרא מ-metadata (Phase A). הרץ migration 0006 ← Phase B.')}
             </p>
@@ -671,7 +668,7 @@ export default function SignalsPage() {
           </Stagger>
         </section>
 
-        <p className="inline-flex items-center justify-center gap-2 border-t border-white/10 pt-6 text-center text-white/70 text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans }}>
+        <p className="inline-flex items-center justify-center gap-2 border-t border-white/10 pt-6 text-center text-white/70 text-10 tracking-[0.4em] uppercase font-sans">
           <Users size={12} strokeWidth={2} />
           {t('Internal QA · the engine is built only after every signal here is healthy', 'QA פנימי · המנוע נבנה רק אחרי שכל סיגנל כאן בריא')}
         </p>

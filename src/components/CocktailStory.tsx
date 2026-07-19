@@ -6,12 +6,11 @@ export function CocktailStory({ slug, lang }: { slug: string; lang: Lang }) {
   const story = getStory(slug);
   if (!story) return null;
   const isHebrew = lang === 'he';
-  const sans = isHebrew ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
   const serif = isHebrew ? 'var(--font-frank-ruhl, serif)' : 'var(--font-garamond, serif)';
 
   return (
     <section className="px-6 pt-9 flex flex-col items-center text-center max-w-xl mx-auto" dir={isHebrew ? 'rtl' : 'ltr'}>
-      <p className="text-amber-200/70 text-10 tracking-[0.45em] uppercase mb-3" style={{ fontFamily: sans }}>
+      <p className="text-amber-200/70 text-10 tracking-[0.45em] uppercase mb-3 font-sans">
         {isHebrew ? 'הסיפור' : 'The Story'}
       </p>
       <p

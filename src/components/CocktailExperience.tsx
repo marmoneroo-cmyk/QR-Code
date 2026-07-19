@@ -59,9 +59,6 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
   const accent = getAccent(config.slug);
   const featureVideo = getFeatureVideo(config.slug);
 
-  const serif = isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
-  const sans = isHe ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
-
   // The floating ingredients = every label except the final "glass" one (that IS the drink).
   const { ingredients, glassLabel } = useMemo(() => {
     const float = config.labels.filter((l) => l.layerId !== 'glass');
@@ -127,8 +124,7 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
         <button
           type="button"
           onClick={() => setLang(isHe ? 'en' : 'he')}
-          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-11 tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white"
-          style={{ fontFamily: sans }}
+          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-11 tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white font-sans"
         >
           {isHe ? 'EN' : 'עב'}
         </button>
@@ -141,8 +137,6 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
             config={config}
             lang={lang}
             accent={accent}
-            serif={serif}
-            sans={sans}
             reduce={!!reduce}
             hasVideo={Boolean(featureVideo)}
             onIngredients={openIngredients}
@@ -163,8 +157,6 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
             currentSlug={config.slug}
             lang={lang}
             accent={accent}
-            serif={serif}
-            sans={sans}
             reduce={!!reduce}
           />
         )}
@@ -174,7 +166,6 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
             key="video"
             src={featureVideo}
             lang={lang}
-            sans={sans}
             cocktailSlug={config.slug}
             onEnd={() => setMode('hero')}
           />
@@ -196,8 +187,6 @@ function FoodExperience({ config }: CocktailExperienceProps) {
   const accent = getAccent(config.slug);
   const featureVideo = getFeatureVideo(config.slug);
   const hasComponents = config.labels.length > 0;
-  const serif = isHe ? 'var(--font-frank-ruhl, serif)' : 'var(--font-playfair, serif)';
-  const sans = isHe ? 'var(--font-heebo, sans-serif)' : 'var(--font-inter, sans-serif)';
 
   useEffect(() => {
     setRestaurantSlug('diner');
@@ -232,7 +221,7 @@ function FoodExperience({ config }: CocktailExperienceProps) {
           </button>
         )}
         <button type="button" onClick={() => setLang(isHe ? 'en' : 'he')}
-          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-11 tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white" style={{ fontFamily: sans }}>
+          className="h-10 rounded-full border border-white/15 bg-black/40 px-4 text-11 tracking-[0.18em] text-white/75 backdrop-blur-md transition-colors hover:text-white font-sans">
           {isHe ? 'EN' : 'עב'}
         </button>
       </header>
@@ -244,8 +233,6 @@ function FoodExperience({ config }: CocktailExperienceProps) {
             config={config}
             lang={lang}
             accent={accent}
-            serif={serif}
-            sans={sans}
             reduce={!!reduce}
             hasVideo={Boolean(featureVideo)}
             hasComponents={hasComponents}
@@ -260,14 +247,12 @@ function FoodExperience({ config }: CocktailExperienceProps) {
             config={config}
             lang={lang}
             accent={accent}
-            serif={serif}
-            sans={sans}
             reduce={!!reduce}
           />
         )}
 
         {mode === 'video' && featureVideo && (
-          <VideoStage key="video" src={featureVideo} lang={lang} sans={sans} cocktailSlug={config.slug} onEnd={() => setMode('hero')} />
+          <VideoStage key="video" src={featureVideo} lang={lang} cocktailSlug={config.slug} onEnd={() => setMode('hero')} />
         )}
       </AnimatePresence>
     </div>
@@ -280,8 +265,6 @@ interface FoodHeroProps {
   config: CocktailConfig;
   lang: Lang;
   accent: string;
-  serif: string;
-  sans: string;
   reduce: boolean;
   hasVideo: boolean;
   hasComponents: boolean;
@@ -289,7 +272,7 @@ interface FoodHeroProps {
   onVideo: () => void;
 }
 
-function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComponents, onIngredients, onVideo }: FoodHeroProps) {
+function FoodHero({ config, lang, accent, reduce, hasVideo, hasComponents, onIngredients, onVideo }: FoodHeroProps) {
   const isHe = lang === 'he';
   const dietary = [
     { on: config.dietary.vegan, en: 'Vegan', he: 'טבעוני' },
@@ -311,23 +294,23 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
       >
         {(config.course?.[lang] || config.course?.en || config.course?.he) && (
-          <p className="mb-3 text-11 tracking-[0.4em] uppercase text-amber-200/70" style={{ fontFamily: sans }}>
+          <p className="mb-3 text-11 tracking-[0.4em] uppercase text-amber-200/70 font-sans">
             {config.course[lang] || config.course.en || config.course.he}
           </p>
         )}
         <h1
-          className="text-[2.6rem] leading-[1.05] md:text-6xl"
-          style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+          className="text-[2.6rem] leading-[1.05] md:text-6xl font-serif"
+          style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
         >
           {config.title[lang]}
         </h1>
         {config.tagline && (
-          <p className="mt-3 text-13 tracking-[0.12em] text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+          <p className="mt-3 text-13 tracking-[0.12em] text-white/55 md:text-sm font-sans">
             {config.tagline[lang]}
           </p>
         )}
         {config.priceILS !== undefined && (
-          <p className="mt-2 text-xl text-amber-100/90" style={{ fontFamily: sans, fontWeight: 600 }} dir="ltr">
+          <p className="mt-2 text-xl text-amber-100/90 font-sans" style={{ fontWeight: 600 }} dir="ltr">
             {formatPrice(config.priceILS, 'ILS')}
           </p>
         )}
@@ -369,8 +352,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         </motion.span>
         {hasComponents && (
           <span
-            className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-10 tracking-[0.45em] uppercase text-white/60 transition-colors group-hover:text-white/70"
-            style={{ fontFamily: sans }}
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-10 tracking-[0.45em] uppercase text-white/60 transition-colors group-hover:text-white/70 font-sans"
           >
             {isHe ? 'גע לגילוי המרכיבים' : 'Tap to explore'}
           </span>
@@ -380,7 +362,7 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
       {dietary.length > 0 && (
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
           {dietary.map((d) => (
-            <span key={d.en} className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-11 tracking-wide text-emerald-200/90" style={{ fontFamily: sans }}>
+            <span key={d.en} className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-11 tracking-wide text-emerald-200/90 font-sans">
               {isHe ? d.he : d.en}
             </span>
           ))}
@@ -394,12 +376,12 @@ function FoodHero({ config, lang, accent, serif, sans, reduce, hasVideo, hasComp
         transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
       >
         {hasComponents && (
-          <ActionTile label={isHe ? 'מרכיבים' : 'Ingredients'} icon={<Layers size={20} strokeWidth={1.6} aria-hidden />} onClick={onIngredients} sans={sans} className="flex-1 min-w-[92px] max-w-[160px]" />
+          <ActionTile label={isHe ? 'מרכיבים' : 'Ingredients'} icon={<Layers size={20} strokeWidth={1.6} aria-hidden />} onClick={onIngredients} className="flex-1 min-w-[92px] max-w-[160px]" />
         )}
         {hasVideo && (
-          <ActionTile label={isHe ? 'וידאו' : 'Video'} icon={<Play size={20} strokeWidth={1.6} aria-hidden />} onClick={onVideo} sans={sans} className="flex-1 min-w-[92px] max-w-[160px]" />
+          <ActionTile label={isHe ? 'וידאו' : 'Video'} icon={<Play size={20} strokeWidth={1.6} aria-hidden />} onClick={onVideo} className="flex-1 min-w-[92px] max-w-[160px]" />
         )}
-        <ActionTile label={isHe ? 'תצוגת AR' : 'View in AR'} icon={<Box size={20} strokeWidth={1.6} aria-hidden />} href={`/ar/${config.slug}`} sans={sans} className="flex-1 min-w-[92px] max-w-[160px]" />
+        <ActionTile label={isHe ? 'תצוגת AR' : 'View in AR'} icon={<Box size={20} strokeWidth={1.6} aria-hidden />} href={`/ar/${config.slug}`} className="flex-1 min-w-[92px] max-w-[160px]" />
       </motion.div>
     </motion.main>
   );
@@ -411,12 +393,10 @@ interface FoodExplodedViewProps {
   config: CocktailConfig;
   lang: Lang;
   accent: string;
-  serif: string;
-  sans: string;
   reduce: boolean;
 }
 
-function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExplodedViewProps) {
+function FoodExplodedView({ config, lang, accent, reduce }: FoodExplodedViewProps) {
   const isHe = lang === 'he';
   const components = config.labels;
   const note = config.bartenderNote?.[lang];
@@ -430,8 +410,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
       aria-label={isHe ? 'פירוק מרכיבים' : 'Ingredient breakdown'}
     >
       <motion.h1
-        className="mb-10 text-center text-11 tracking-[0.5em] uppercase text-white/60"
-        style={{ fontFamily: sans }}
+        className="mb-10 text-center text-11 tracking-[0.5em] uppercase text-white/60 font-sans"
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE }}
@@ -474,13 +453,13 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
               </motion.span>
 
               <div className="min-w-0 flex-1">
-                <p className="text-10 tracking-[0.4em] text-white/55" style={{ fontFamily: sans }}>
+                <p className="text-10 tracking-[0.4em] text-white/55 font-sans">
                   {label.number}
                 </p>
-                <h3 className="mt-1 text-xl leading-tight text-white md:text-2xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
+                <h3 className="mt-1 text-xl leading-tight text-white md:text-2xl font-serif" style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
                   {label.name[lang]}
                 </h3>
-                <p className="mt-1 text-xs leading-relaxed text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+                <p className="mt-1 text-xs leading-relaxed text-white/55 md:text-sm font-sans">
                   {label.description[lang]}
                 </p>
               </div>
@@ -500,7 +479,7 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={config.heroImage} alt={config.title[lang]} className="relative h-60 w-auto object-contain md:h-72" style={{ filter: 'drop-shadow(0 30px 50px rgba(0,0,0,0.8))' }} loading="lazy" decoding="async" />
         <figcaption className="mt-4 text-center">
-          <p className="text-lg text-white" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
+          <p className="text-lg text-white font-serif" style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
             {config.title[lang]}
           </p>
         </figcaption>
@@ -513,18 +492,18 @@ function FoodExplodedView({ config, lang, accent, serif, sans, reduce }: FoodExp
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 + components.length * 0.1, ease: EASE }}
       >
-        <p className="mb-5 text-center text-11 tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
+        <p className="mb-5 text-center text-11 tracking-[0.5em] uppercase text-white/60 font-sans">
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
         <FlavorRadar flavor={config.flavor} lang={lang} size={230} kind="food" accent={accent} />
         {note && (
-          <p className="mt-8 max-w-xs text-center text-13 italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
+          <p className="mt-8 max-w-xs text-center text-13 italic leading-relaxed text-white/55 font-serif">
             ”{note}“{config.bartenderName ? ` — ${config.bartenderName}` : ''}
           </p>
         )}
       </motion.div>
 
-      <AlsoExplored currentSlug={config.slug} lang={lang} serif={serif} sans={sans} />
+      <AlsoExplored currentSlug={config.slug} lang={lang} />
     </motion.section>
   );
 }
@@ -535,8 +514,6 @@ interface HeroStageProps {
   config: CocktailConfig;
   lang: Lang;
   accent: string;
-  serif: string;
-  sans: string;
   reduce: boolean;
   hasVideo: boolean;
   onIngredients: () => void;
@@ -544,7 +521,7 @@ interface HeroStageProps {
 }
 
 function HeroStage({
-  config, lang, accent, serif, sans, reduce, hasVideo,
+  config, lang, accent, reduce, hasVideo,
   onIngredients, onVideo,
 }: HeroStageProps) {
   const isHe = lang === 'he';
@@ -577,18 +554,18 @@ function HeroStage({
         transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
       >
         <h1
-          className="text-[2.6rem] leading-[1.05] md:text-6xl"
-          style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+          className="text-[2.6rem] leading-[1.05] md:text-6xl font-serif"
+          style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
         >
           {config.title[lang]}
         </h1>
         {config.tagline && (
-          <p className="mt-3 text-13 tracking-[0.2em] text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+          <p className="mt-3 text-13 tracking-[0.2em] text-white/55 md:text-sm font-sans">
             {config.tagline[lang]}
           </p>
         )}
         {config.priceILS !== undefined && (
-          <p className="mt-2 text-xl text-amber-100/90" style={{ fontFamily: sans, fontWeight: 600 }}>
+          <p className="mt-2 text-xl text-amber-100/90 font-sans" style={{ fontWeight: 600 }}>
             {formatPrice(config.priceILS, 'ILS')}
           </p>
         )}
@@ -655,8 +632,7 @@ function HeroStage({
           })()}
         </motion.span>
         <span
-          className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-10 tracking-[0.45em] uppercase text-white/70 transition-colors group-hover:text-white"
-          style={{ fontFamily: sans }}
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-10 tracking-[0.45em] uppercase text-white/70 transition-colors group-hover:text-white font-sans"
         >
           {isHe ? 'גע בכוס לגילוי' : 'Tap to explore'}
         </span>
@@ -674,7 +650,6 @@ function HeroStage({
           label={isHe ? 'מרכיבים' : 'Ingredients'}
           icon={<Layers size={20} strokeWidth={1.6} aria-hidden />}
           onClick={onIngredients}
-          sans={sans}
           className="flex-1 min-w-[92px] max-w-[160px]"
         />
         {hasVideo && (
@@ -682,7 +657,6 @@ function HeroStage({
             label={isHe ? 'וידאו' : 'Video'}
             icon={<Play size={20} strokeWidth={1.6} aria-hidden />}
             onClick={onVideo}
-            sans={sans}
             className="flex-1 min-w-[92px] max-w-[160px]"
           />
         )}
@@ -690,7 +664,6 @@ function HeroStage({
           label={isHe ? 'תצוגת AR' : 'View in AR'}
           icon={<Box size={20} strokeWidth={1.6} aria-hidden />}
           href={`/ar/${config.slug}`}
-          sans={sans}
           className="flex-1 min-w-[92px] max-w-[160px]"
         />
       </motion.div>
@@ -703,7 +676,6 @@ function ActionTile({
   icon,
   onClick,
   href,
-  sans,
   className,
 }: {
   label: string;
@@ -711,14 +683,13 @@ function ActionTile({
   onClick?: () => void;
   /** When set, the tile is a link (e.g. the AR view lives at its own route). */
   href?: string;
-  sans: string;
   className?: string;
 }) {
   const cls = `flex flex-col items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.04] px-3 py-4 backdrop-blur-sm transition-transform hover:-translate-y-0.5 hover:border-white/30 disabled:opacity-35 ${className ?? ''}`;
   const inner = (
     <>
       <span aria-hidden className="leading-none text-amber-100/90">{icon}</span>
-      <span className="text-11 tracking-[0.14em] uppercase text-white/80" style={{ fontFamily: sans }}>
+      <span className="text-11 tracking-[0.14em] uppercase text-white/80 font-sans">
         {label}
       </span>
     </>
@@ -747,13 +718,11 @@ interface ExplodedViewProps {
   currentSlug: string;
   lang: Lang;
   accent: string;
-  serif: string;
-  sans: string;
   reduce: boolean;
 }
 
 function ExplodedView({
-  ingredients, glassLabel, glassImage, imageForLayer, flavor, note, noteName, currentSlug, lang, accent, serif, sans, reduce,
+  ingredients, glassLabel, glassImage, imageForLayer, flavor, note, noteName, currentSlug, lang, accent, reduce,
 }: ExplodedViewProps) {
   const isHe = lang === 'he';
   // Natural label order = physical explosion order: 01 garnish floats highest,
@@ -769,8 +738,7 @@ function ExplodedView({
       aria-label={isHe ? 'פירוק מרכיבים' : 'Ingredient breakdown'}
     >
       <motion.h1
-        className="mb-10 text-center text-11 tracking-[0.5em] uppercase text-white/60"
-        style={{ fontFamily: sans }}
+        className="mb-10 text-center text-11 tracking-[0.5em] uppercase text-white/60 font-sans"
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE }}
@@ -814,13 +782,13 @@ function ExplodedView({
 
               {/* Number + name + ONE line */}
               <div className="min-w-0 flex-1">
-                <p className="text-10 tracking-[0.4em] text-white/55" style={{ fontFamily: sans }}>
+                <p className="text-10 tracking-[0.4em] text-white/55 font-sans">
                   {label.number}
                 </p>
-                <h3 className="mt-1 text-xl leading-tight text-white md:text-2xl" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
+                <h3 className="mt-1 text-xl leading-tight text-white md:text-2xl font-serif" style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
                   {label.name[lang]}
                 </h3>
-                <p className="mt-1 text-xs leading-relaxed text-white/55 md:text-sm" style={{ fontFamily: sans }}>
+                <p className="mt-1 text-xs leading-relaxed text-white/55 md:text-sm font-sans">
                   {label.description[lang]}
                 </p>
               </div>
@@ -841,10 +809,10 @@ function ExplodedView({
         <img src={glassImage} alt={glassLabel?.name[lang] ?? ''} className="relative h-56 w-auto object-contain md:h-64" style={{ filter: 'drop-shadow(0 30px 50px rgba(0,0,0,0.8))' }} loading="lazy" decoding="async" />
         {glassLabel && (
           <figcaption className="mt-4 text-center">
-            <p className="text-lg text-white" style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
+            <p className="text-lg text-white font-serif" style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}>
               {glassLabel.name[lang]}
             </p>
-            <p className="mt-1 max-w-xs text-xs text-white/50" style={{ fontFamily: sans }}>
+            <p className="mt-1 max-w-xs text-xs text-white/50 font-sans">
               {glassLabel.description[lang]}
             </p>
           </figcaption>
@@ -858,19 +826,19 @@ function ExplodedView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.3 + stack.length * 0.12, ease: EASE }}
       >
-        <p className="mb-5 text-center text-11 tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
+        <p className="mb-5 text-center text-11 tracking-[0.5em] uppercase text-white/60 font-sans">
           {isHe ? 'פרופיל הטעמים' : 'Flavor profile'}
         </p>
         <FlavorRadar flavor={flavor} lang={lang} size={230} accent={accent} />
         {note && (
-          <p className="mt-8 max-w-xs text-center text-13 italic leading-relaxed text-white/55" style={{ fontFamily: serif }}>
+          <p className="mt-8 max-w-xs text-center text-13 italic leading-relaxed text-white/55 font-serif">
             ”{note}“{noteName ? ` — ${noteName}` : ''}
           </p>
         )}
       </motion.div>
 
       {/* What other guests explored — the recommendation, right below the profile. */}
-      <AlsoExplored currentSlug={currentSlug} lang={lang} serif={serif} sans={sans} />
+      <AlsoExplored currentSlug={currentSlug} lang={lang} />
     </motion.section>
   );
 }
@@ -880,8 +848,6 @@ function ExplodedView({
 interface AlsoExploredProps {
   currentSlug: string;
   lang: Lang;
-  serif: string;
-  sans: string;
 }
 
 /**
@@ -890,7 +856,7 @@ interface AlsoExploredProps {
  * have it for this drink; otherwise a curated same-category fallback labelled as
  * a plain suggestion ("you might also like") — never a fabricated behavior claim.
  */
-function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
+function AlsoExplored({ currentSlug, lang }: AlsoExploredProps) {
   const isHe = lang === 'he';
 
   // Shared SWR primitive: dedupes/caches the co-view read across drinks and keeps
@@ -931,7 +897,7 @@ function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
       transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
       aria-label={title}
     >
-      <p className="mb-6 text-center text-11 tracking-[0.5em] uppercase text-white/60" style={{ fontFamily: sans }}>
+      <p className="mb-6 text-center text-11 tracking-[0.5em] uppercase text-white/60 font-sans">
         {title}
       </p>
       <div className="flex items-stretch justify-center gap-3">
@@ -960,13 +926,13 @@ function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
                 />
               </span>
               <span
-                className="block w-full truncate text-13 leading-tight text-white/90"
-                style={{ fontFamily: serif, fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
+                className="block w-full truncate text-13 leading-tight text-white/90 font-serif"
+                style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600 }}
               >
                 {c.title[lang]}
               </span>
               {c.priceILS !== undefined && (
-                <span className="text-11 text-amber-100/80" style={{ fontFamily: sans }}>
+                <span className="text-11 text-amber-100/80 font-sans">
                   {formatPrice(c.priceILS, 'ILS')}
                 </span>
               )}
@@ -983,13 +949,12 @@ function AlsoExplored({ currentSlug, lang, serif, sans }: AlsoExploredProps) {
 interface VideoStageProps {
   src: string;
   lang: Lang;
-  sans: string;
   /** When set, emits the raw `cocktail_video_progress` (max % watched) signal. */
   cocktailSlug?: string;
   onEnd: () => void;
 }
 
-function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
+function VideoStage({ src, lang, cocktailSlug, onEnd }: VideoStageProps) {
   const isHe = lang === 'he';
   // H-A RAW SIGNAL ONLY: the max % of the video actually watched. No scoring/interpretation here.
   const maxPct = useRef(0);
@@ -1092,8 +1057,7 @@ function VideoStage({ src, lang, sans, cocktailSlug, onEnd }: VideoStageProps) {
         ref={skipRef}
         type="button"
         onClick={onEnd}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-white/25 bg-black/50 px-7 py-2.5 text-11 tracking-[0.3em] uppercase text-white/85 backdrop-blur-md transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80"
-        style={{ fontFamily: sans }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border border-white/25 bg-black/50 px-7 py-2.5 text-11 tracking-[0.3em] uppercase text-white/85 backdrop-blur-md transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 font-sans"
       >
         {isHe ? 'דלג' : 'Skip'}
       </button>

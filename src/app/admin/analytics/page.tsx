@@ -17,8 +17,6 @@ import { formatILS } from '@/lib/format';
 import type { AnalyticsOverview, MenuEngineering, MenuEngineeringItem } from '@/lib/analytics/types';
 import { useApiData } from '@/lib/data/useApiData';
 
-const sans = 'var(--font-inter, sans-serif)';
-const serif = 'var(--font-playfair, serif)';
 const ils = formatILS;
 
 interface PerformerCard extends MenuEngineeringItem {
@@ -70,14 +68,14 @@ function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, l
             <Icon size={15} strokeWidth={1.8} />
           </span>
           <div className="min-w-0">
-            <p className="text-white/45 text-11 tracking-wide truncate" style={{ fontFamily: sans }}>{title}</p>
-            <p className="text-white text-2xl leading-tight" style={{ fontFamily: serif, fontWeight: 700 }}>
+            <p className="text-white/45 text-11 tracking-wide truncate font-sans">{title}</p>
+            <p className="text-white text-2xl leading-tight font-serif" style={{ fontWeight: 700 }}>
               {total.toLocaleString()}
             </p>
           </div>
         </div>
         {delta !== null && (
-          <span className={`inline-flex items-center gap-0.5 text-11 shrink-0 ${up ? 'text-emerald-300' : 'text-rose-300'}`} style={{ fontFamily: sans }}>
+          <span className={`font-sans inline-flex items-center gap-0.5 text-11 shrink-0 ${up ? 'text-emerald-300' : 'text-rose-300'}`}>
             {up ? <TrendingUp size={12} strokeWidth={2} /> : <TrendingDown size={12} strokeWidth={2} />}
             {up ? '+' : ''}
             {delta}%
@@ -89,11 +87,11 @@ function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, l
         {hasData ? (
           <AreaChart data={data} color={color} height={160} />
         ) : (
-          <div className="h-[160px] grid place-items-center text-white/25 text-xs" style={{ fontFamily: sans }}>—</div>
+          <div className="h-[160px] grid place-items-center text-white/25 text-xs font-sans">—</div>
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-10 text-white/70 tracking-wide" style={{ fontFamily: sans }}>
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-10 text-white/70 tracking-wide font-sans">
         <span>{peakLabel} {peak.toLocaleString()}</span>
         <span>{lastLabel} {last.toLocaleString()}</span>
       </div>
@@ -168,7 +166,7 @@ export default function AnalyticsPage() {
       subtitle="What your diners scan, view, and order — live."
       subtitleHe="מה שהאורחים סורקים, צופים ומזמינים — בזמן אמת."
       actions={
-        <span className="inline-flex items-center gap-2 text-emerald-300/80 text-10 tracking-[0.3em] uppercase" style={{ fontFamily: sans }}>
+        <span className="inline-flex items-center gap-2 text-emerald-300/80 text-10 tracking-[0.3em] uppercase font-sans">
           <LiveDot label={isHebrew ? 'חי' : 'Live'} />
           {t('auto-refresh', 'רענון אוטומטי')}
         </span>
@@ -254,14 +252,14 @@ export default function AnalyticsPage() {
                   <HoverLift accent={it.accent} className="h-full">
                     <div className="group relative h-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5">
                       <AccentWash accent={it.accent} />
-                      <span className="absolute top-3 start-4 z-10 text-white/15 text-5xl font-bold leading-none" style={{ fontFamily: serif }}>
+                      <span className="absolute top-3 start-4 z-10 text-white/15 text-5xl font-bold leading-none font-serif">
                         {i + 1}
                       </span>
                       <GlassImage src={it.hero} accent={it.accent} className="relative w-full h-72 lg:h-80 mb-4 transition-transform duration-500 group-hover:scale-[1.04]" />
-                      <p className="relative text-white/95 text-17 text-center leading-tight" style={{ fontFamily: isHebrew ? 'var(--font-frank-ruhl, serif)' : serif, fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 600 }}>
+                      <p className="relative text-white/95 text-17 text-center leading-tight font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 600 }}>
                         {it.title[lang]}
                       </p>
-                      <div className="relative mt-3 flex items-center justify-center gap-4 text-xs" style={{ fontFamily: sans }}>
+                      <div className="relative mt-3 flex items-center justify-center gap-4 text-xs font-sans">
                         <span className="inline-flex items-center gap-1 text-amber-200/80">
                           <Eye size={13} strokeWidth={2} /> {it.views.toLocaleString()}
                         </span>
@@ -294,10 +292,9 @@ export default function AnalyticsPage() {
                     type="button"
                     onClick={() => setTrendPeriod(p.key)}
                     aria-pressed={isActive}
-                    className={`rounded-full px-3 py-1 text-11 tracking-wide transition-colors duration-200 ${
+                    className={`font-sans rounded-full px-3 py-1 text-11 tracking-wide transition-colors duration-200 ${
                       isActive ? 'bg-amber-400/90 text-black' : 'text-white/55 hover:text-white/85'
                     }`}
-                    style={{ fontFamily: sans }}
                   >
                     {t(p.en, p.he)}
                   </button>
@@ -350,7 +347,7 @@ export default function AnalyticsPage() {
                   {overview.topItems.map((row) => (
                     <tr key={row.slug} className="border-t border-white/[0.06]">
                       <td className="py-3 text-white/90">
-                        <span style={{ fontFamily: serif, fontStyle: isHebrew ? 'normal' : 'italic' }}>
+                        <span className="font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic' }}>
                           {titleBySlug.get(row.slug) ?? row.slug}
                         </span>
                       </td>
@@ -383,7 +380,7 @@ export default function AnalyticsPage() {
               <div key={h} className="flex-1 flex flex-col items-center gap-1" title={`${h}:00 — ${(v * 100).toFixed(0)}%`}>
                 <div className="w-full rounded-sm" style={{ height: `${Math.max(2, v * 100)}%`, background: `rgba(232, 201, 135, ${0.25 + v * 0.65})` }} />
                 {(h === 0 || h === 6 || h === 12 || h === 18 || h === 23) && (
-                  <span className="text-white/70 text-9 font-mono" style={{ fontFamily: sans }}>
+                  <span className="text-white/70 text-9 font-sans">
                     {h.toString().padStart(2, '0')}
                   </span>
                 )}
@@ -392,7 +389,7 @@ export default function AnalyticsPage() {
           </div>
         </GlassCard>
 
-        <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10" style={{ fontFamily: sans }}>
+        <p className="text-center text-white/70 text-10 tracking-[0.4em] uppercase pt-6 border-t border-white/10 font-sans">
           {t('Live · anonymized events', 'בזמן אמת · אירועים אנונימיים')}
         </p>
       </div>

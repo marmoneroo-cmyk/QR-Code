@@ -7,7 +7,6 @@ import { ADMIN_GROUPS } from './adminNav';
 import { LUX_EASE } from './premium';
 import type { Lang } from '@/data/cocktail';
 
-const sans = 'var(--font-inter, sans-serif)';
 const ADV_KEY = 'cocktail-demo:admin-advanced';
 
 interface AdminLauncherProps {
@@ -51,11 +50,11 @@ export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) 
       {groups.map((g) => (
         <section key={g.en}>
           <div className="flex items-center gap-3 mb-4">
-            <p className="text-10 tracking-[0.4em] uppercase" style={{ fontFamily: sans, color: 'rgba(232,201,135,0.6)' }}>
+            <p className="font-sans text-10 tracking-[0.4em] uppercase" style={{ color: 'rgba(232,201,135,0.6)' }}>
               {isHe ? g.he : g.en}
             </p>
             <span className="h-px flex-1" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.08), transparent)' }} />
-            <span className="text-9 tabular-nums" style={{ fontFamily: sans, color: 'rgba(255,255,255,0.25)' }}>
+            <span className="font-sans text-9 tabular-nums" style={{ color: 'rgba(255,255,255,0.25)' }}>
               {g.items.length}
             </span>
           </div>
@@ -95,10 +94,10 @@ export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) 
                       <Icon size={19} strokeWidth={1.5} />
                     </span>
                     <span className="relative min-w-0 flex-1">
-                      <span className="block text-white/90 text-13 tracking-wide" style={{ fontFamily: sans, fontWeight: 500 }}>
+                      <span className="font-sans block text-white/90 text-13 tracking-wide" style={{ fontWeight: 500 }}>
                         {isHe ? it.he : it.en}
                       </span>
-                      <span className="block text-white/70 text-11 leading-snug mt-0.5" style={{ fontFamily: sans }}>
+                      <span className="font-sans block text-white/70 text-11 leading-snug mt-0.5">
                         {isHe ? it.descHe : it.descEn}
                       </span>
                     </span>
@@ -125,8 +124,7 @@ export function AdminLauncher({ lang, active, onNavigate }: AdminLauncherProps) 
           type="button"
           onClick={toggleAdvanced}
           aria-pressed={showAdvanced}
-          className="inline-flex items-center gap-2.5 text-10 tracking-[0.24em] uppercase text-white/70 hover:text-amber-100 transition-colors"
-          style={{ fontFamily: sans }}
+          className="font-sans inline-flex items-center gap-2.5 text-10 tracking-[0.24em] uppercase text-white/70 hover:text-amber-100 transition-colors"
         >
           <span
             className={`relative inline-flex h-4 w-7 items-center rounded-full border transition-colors ${

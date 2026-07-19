@@ -92,12 +92,6 @@ export function CocktailScene({ config }: CocktailSceneProps) {
   const isHebrew = lang === 'he';
   const accent = getAccent(config.slug);
   const effervescent = isEffervescent(config);
-  const titleFont = isHebrew
-    ? 'var(--font-frank-ruhl, Georgia, serif)'
-    : 'var(--font-playfair, Georgia, serif)';
-  const subtitleFont = isHebrew
-    ? 'var(--font-heebo, sans-serif)'
-    : 'var(--font-inter, sans-serif)';
 
   // Only render layers that have a matching label (drops unlabeled duplicates like
   // an extra soda crown), then evenly redistribute their Y so gaps stay equal
@@ -152,16 +146,14 @@ export function CocktailScene({ config }: CocktailSceneProps) {
       >
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-amber-200/70 hover:text-amber-200 transition-colors text-10 tracking-[0.3em] uppercase mb-5"
-          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          className="inline-flex items-center gap-2 text-amber-200/70 hover:text-amber-200 transition-colors text-10 tracking-[0.3em] uppercase mb-5 font-sans"
         >
           <span>{isHebrew ? '↩' : '←'}</span>
           <span>{isHebrew ? 'תפריט' : 'Menu'}</span>
         </Link>
         <h1
-          className="text-white text-3xl md:text-5xl tracking-[0.08em]"
+          className="text-white text-3xl md:text-5xl tracking-[0.08em] font-serif"
           style={{
-            fontFamily: titleFont,
             fontWeight: isHebrew ? 500 : 500,
             fontStyle: isHebrew ? 'normal' : 'italic',
           }}
@@ -176,8 +168,8 @@ export function CocktailScene({ config }: CocktailSceneProps) {
           <div className="w-10 h-px bg-amber-200/50" />
         </div>
         <p
-          className="text-amber-200/75 text-10 tracking-[0.5em] uppercase mt-3"
-          style={{ fontFamily: subtitleFont, fontWeight: 400 }}
+          className="text-amber-200/75 text-10 tracking-[0.5em] uppercase mt-3 font-sans"
+          style={{ fontWeight: 400 }}
           dir={isHebrew ? 'rtl' : 'ltr'}
           lang={lang}
         >
@@ -194,8 +186,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
         <Link
           href={`/ar/${config.slug}`}
           onClick={() => track({ event: 'ar_opened', cocktailSlug: config.slug })}
-          className="md:hidden inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-200/40 hover:border-amber-200/80 bg-black/40 backdrop-blur-sm text-amber-200/85 hover:text-amber-100 transition-all duration-300 text-10 tracking-[0.3em] uppercase"
-          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          className="md:hidden inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-200/40 hover:border-amber-200/80 bg-black/40 backdrop-blur-sm text-amber-200/85 hover:text-amber-100 transition-all duration-300 text-10 tracking-[0.3em] uppercase font-sans"
         >
           {isHebrew ? 'AR' : 'View in AR'}
         </Link>
@@ -206,8 +197,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
               setVideoOpen(true);
               track({ event: 'cocktail_video_opened', cocktailSlug: config.slug });
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-200/40 hover:border-amber-200/80 bg-black/40 backdrop-blur-sm text-amber-200/85 hover:text-amber-100 transition-all duration-300 text-10 tracking-[0.3em] uppercase"
-            style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-200/40 hover:border-amber-200/80 bg-black/40 backdrop-blur-sm text-amber-200/85 hover:text-amber-100 transition-all duration-300 text-10 tracking-[0.3em] uppercase font-sans"
             title={isHebrew ? 'נגן סרטון' : 'Play video'}
           >
             <span className="text-8">▶</span>
@@ -245,8 +235,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
           {modules.taste_profile && (
             <div className="text-start">
               <p
-                className="text-amber-200/70 text-11 tracking-[0.45em] uppercase mb-4"
-                style={{ fontFamily: subtitleFont }}
+                className="text-amber-200/70 text-11 tracking-[0.45em] uppercase mb-4 font-sans"
               >
                 {isHebrew ? 'פרופיל טעמים' : 'Flavor Profile'}
               </p>
@@ -345,8 +334,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
         {modules.taste_profile && (
           <div className="text-start">
             <p
-              className="text-amber-200/70 text-11 tracking-[0.45em] uppercase mb-3"
-              style={{ fontFamily: subtitleFont }}
+              className="text-amber-200/70 text-11 tracking-[0.45em] uppercase mb-3 font-sans"
             >
               {isHebrew ? 'פרופיל טעמים' : 'Flavor Profile'}
             </p>
@@ -373,8 +361,7 @@ export function CocktailScene({ config }: CocktailSceneProps) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.0 }}
-          className="md:hidden fixed bottom-6 end-6 z-40 px-4 py-2 rounded-full border border-amber-200/40 bg-black/60 backdrop-blur-sm text-amber-100 text-10 tracking-[0.3em] uppercase"
-          style={{ fontFamily: 'var(--font-inter, sans-serif)' }}
+          className="md:hidden fixed bottom-6 end-6 z-40 px-4 py-2 rounded-full border border-amber-200/40 bg-black/60 backdrop-blur-sm text-amber-100 text-10 tracking-[0.3em] uppercase font-sans"
         >
           {isHebrew ? 'הפעל הטיה' : 'Enable tilt'}
         </motion.button>

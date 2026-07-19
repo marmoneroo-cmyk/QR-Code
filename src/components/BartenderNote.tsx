@@ -10,12 +10,6 @@ interface BartenderNoteProps {
 
 export function BartenderNote({ cocktail, lang }: BartenderNoteProps) {
   const isHebrew = lang === 'he';
-  const serifFont = isHebrew
-    ? 'var(--font-frank-ruhl, serif)'
-    : 'var(--font-playfair, serif)';
-  const sansFont = isHebrew
-    ? 'var(--font-heebo, sans-serif)'
-    : 'var(--font-inter, sans-serif)';
 
   return (
     <motion.figure
@@ -33,16 +27,14 @@ export function BartenderNote({ cocktail, lang }: BartenderNoteProps) {
       </div>
 
       <p
-        className="text-amber-100/80 text-10 tracking-[0.45em] uppercase mb-3"
-        style={{ fontFamily: sansFont }}
+        className="text-amber-100/80 text-10 tracking-[0.45em] uppercase mb-3 font-sans"
       >
         {isHebrew ? 'הערת הבארמן' : "Bartender's note"}
       </p>
 
       <blockquote
-        className="text-white/85 text-19 leading-snug"
+        className="text-white/85 text-19 leading-snug font-serif"
         style={{
-          fontFamily: serifFont,
           fontStyle: isHebrew ? 'normal' : 'italic',
           fontWeight: 400,
         }}
@@ -52,8 +44,7 @@ export function BartenderNote({ cocktail, lang }: BartenderNoteProps) {
 
       {cocktail.bartenderName && (
         <figcaption
-          className="mt-3 text-white/70 text-10 tracking-[0.35em] uppercase"
-          style={{ fontFamily: sansFont }}
+          className="mt-3 text-white/70 text-10 tracking-[0.35em] uppercase font-sans"
         >
           — {cocktail.bartenderName}
         </figcaption>
