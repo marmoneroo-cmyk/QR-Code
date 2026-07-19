@@ -60,7 +60,6 @@ export default function ArPage({ params }: PageProps) {
     (async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
         setStatus('unsupported');
-        setError(t('Camera is not supported in this browser.', 'המצלמה אינה נתמכת בדפדפן זה.'));
         return;
       }
       try {
@@ -83,10 +82,11 @@ export default function ArPage({ params }: PageProps) {
         const name = err instanceof Error ? err.name : '';
         if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
           setStatus('denied');
-          setError(t('Camera access denied.', 'הגישה למצלמה נדחתה.'));
         } else {
           setStatus('unsupported');
-          setError(err instanceof Error ? err.message : t('Camera failed.', 'המצלמה נכשלה בהפעלה.'));
+          // Only a raw browser message is stored (not localizable); fixed copy is
+          // translated at render time so it follows the CURRENT language, not mount-time.
+          setError(err instanceof Error ? err.message : null);
         }
       }
     })();
@@ -373,7 +373,7 @@ export default function ArPage({ params }: PageProps) {
         )}
         {status === 'denied' && (
           <div className="text-center">
-            <p className="text-rose-300/90 text-sm mb-3" aria-live="polite">{error}</p>
+            <p className="text-rose-300/90 text-sm mb-3" aria-live="polite">{t('Camera access denied.', 'הגישה למצלמה נדחתה.')}</p>
             <button
               type="button"
               onClick={() => window.location.reload()}
@@ -384,7 +384,7 @@ export default function ArPage({ params }: PageProps) {
           </div>
         )}
         {status === 'unsupported' && (
-          <p className="text-rose-300/90 text-sm text-center" aria-live="polite">{error}</p>
+          <p className="text-rose-300/90 text-sm text-center" aria-live="polite">{error ?? t('Camera is not supported in this browser.', 'המצלמה אינה נתמכת בדפדפן זה.')}</p>
         )}
       </div>
 

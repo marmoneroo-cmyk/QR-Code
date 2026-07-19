@@ -52,7 +52,6 @@ export default function ScanPage() {
     (async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
         setStatus('unsupported');
-        setError(t('Camera is not supported in this browser.', 'המצלמה אינה נתמכת בדפדפן זה.'));
         return;
       }
 
@@ -80,10 +79,11 @@ export default function ScanPage() {
         const name = err instanceof Error ? err.name : '';
         if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
           setStatus('denied');
-          setError(t('Camera permission was denied. Allow camera access and reload.', 'הגישה למצלמה נדחתה. אשרו גישה למצלמה וטענו מחדש.'));
         } else {
           setStatus('unsupported');
-          setError(err instanceof Error ? err.message : t('Camera failed to start.', 'המצלמה נכשלה בהפעלה.'));
+          // Store only a raw browser message; fixed copy is translated at render time so
+          // it follows the CURRENT language rather than freezing at mount-time language.
+          setError(err instanceof Error ? err.message : null);
         }
       }
     })();
@@ -146,7 +146,7 @@ export default function ScanPage() {
         )}
         {status === 'denied' && (
           <div className="space-y-2">
-            <p className="text-rose-300/90 text-sm">{error}</p>
+            <p className="text-rose-300/90 text-sm">{t('Camera permission was denied. Allow camera access and reload.', 'הגישה למצלמה נדחתה. אשרו גישה למצלמה וטענו מחדש.')}</p>
             <button
               type="button"
               onClick={() => window.location.reload()}

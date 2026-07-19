@@ -25,8 +25,8 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
 
   return (
     <div className="max-w-3xl mx-auto space-y-20" dir={isHebrew ? 'rtl' : 'ltr'} lang={lang}>
-      {versions.map((v) => (
-        <article key={v.version} className="relative">
+      {versions.map((v, vi) => (
+        <article key={`${v.version}-${vi}`} className="relative">
           <div className="flex items-baseline gap-4 mb-3">
             <h2 className="text-white text-3xl tracking-[0.05em] font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 500 }}>
               v{v.version}
@@ -45,8 +45,8 @@ export function ChangelogTimeline({ en, he }: ChangelogTimelineProps) {
           )}
 
           <div className="space-y-10">
-            {v.sections.map((section) => (
-              <section key={section.title}>
+            {v.sections.map((section, si) => (
+              <section key={`${section.title}-${si}`}>
                 <h3 className="text-amber-200/85 text-11 tracking-[0.4em] uppercase mb-6 flex items-center gap-3 font-sans">
                   <span>{section.title}</span>
                   <span className="flex-1 h-px bg-amber-200/15" />
