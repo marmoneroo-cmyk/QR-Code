@@ -45,6 +45,20 @@ const LANGS: ReadonlyArray<{ value: Lang; flag: React.ReactNode; aria: string }>
   { value: 'he', flag: <FlagIL />, aria: 'עברית' },
 ];
 
+/**
+ * The round icon-chrome, shared by the toolbar's real buttons and by controls that are
+ * actually links. Kept as a class helper rather than baked into IconButton so a link can
+ * wear the same chrome WITHOUT nesting a <button> inside an <a> — that nesting is invalid
+ * HTML and gave one visual control two tab stops and a doubled screen-reader announcement.
+ */
+function iconChromeClass(active?: boolean): string {
+  return `w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-md border ${
+    active
+      ? 'border-amber-200/50 bg-amber-200/10 text-amber-100'
+      : 'border-white/10 bg-white/[0.04] text-white/60 hover:border-amber-200/40 hover:text-amber-100'
+  }`;
+}
+
 function IconButton({
   onClick,
   ariaLabel,
@@ -57,16 +71,7 @@ function IconButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={ariaLabel}
-      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-md border ${
-        active
-          ? 'border-amber-200/50 bg-amber-200/10 text-amber-100'
-          : 'border-white/10 bg-white/[0.04] text-white/60 hover:border-amber-200/40 hover:text-amber-100'
-      }`}
-    >
+    <button type="button" onClick={onClick} aria-label={ariaLabel} className={iconChromeClass(active)}>
       {children}
     </button>
   );
@@ -197,6 +202,12 @@ export function SettingsToolbar({
                     value={restaurantName}
                     onChange={(e) => onRestaurantChange(e.target.value)}
                     placeholder={isHebrew ? 'שם המסעדה' : 'Restaurant name'}
+                    /* This name renders as the menu header, so an unbounded value pushes
+                       the whole menu down the page (300 chars added ~920px of heading
+                       before the first item). Every other stored name in the app is
+                       capped; maxLength also stops the input at the limit rather than
+                       accepting text that silently degrades the guest view. */
+                    maxLength={60}
                     className="w-full bg-transparent border-b border-white/15 focus:border-amber-200/60 outline-none text-white text-15 py-1.5 transition-colors duration-300 placeholder:text-white/60 font-sans"
                     dir={isHebrew ? 'rtl' : 'ltr'}
                   />
@@ -210,15 +221,15 @@ export function SettingsToolbar({
       {/* Admin is intentionally NOT linked from the public guest menu — the owner reaches
           /admin directly (it lives behind auth). Exposing it here let any guest at the table
           open the revenue dashboard. */}
-      <Link href="/scan" aria-label={t.scan}>
-        <IconButton ariaLabel={t.scan}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="6" height="6" rx="1" />
-            <rect x="15" y="3" width="6" height="6" rx="1" />
-            <rect x="3" y="15" width="6" height="6" rx="1" />
-            <path d="M15 15h2v2M21 15v6M15 21h2M19 19h2" />
-          </svg>
-        </IconButton>
+      {/* The link IS the control — it wears the icon chrome itself instead of wrapping a
+          button, so this is one element, one tab stop, one announcement. */}
+      <Link href="/scan" aria-label={t.scan} className={iconChromeClass()}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="6" height="6" rx="1" />
+          <rect x="15" y="3" width="6" height="6" rx="1" />
+          <rect x="3" y="15" width="6" height="6" rx="1" />
+          <path d="M15 15h2v2M21 15v6M15 21h2M19 19h2" />
+        </svg>
       </Link>
     </div>
   );
