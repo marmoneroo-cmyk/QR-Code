@@ -1,5 +1,51 @@
 import { describe, expect, it } from 'vitest';
-import { DISH_LAYERS, SHARED_LAYERS, layersForKind } from './cocktail';
+import { DISH_LAYERS, SHARED_LAYERS, hasLayerImage, layersForKind } from './cocktail';
+
+describe('hasLayerImage', () => {
+  it('reports every dish layer as un-generated until its art exists', () => {
+    // There is no stock plate art. Reusing the cocktail PNGs put a GLASS where a
+    // dish's plate belongs, so these ship blank and renderers skip them.
+    expect(DISH_LAYERS.every((l) => !hasLayerImage(l))).toBe(true);
+  });
+
+  it('reports every drink layer as present — their template art is real', () => {
+    expect(SHARED_LAYERS.every(hasLayerImage)).toBe(true);
+  });
+
+  it('treats a whitespace-only image as absent', () => {
+    expect(hasLayerImage({ ...SHARED_LAYERS[0]!, image: '   ' })).toBe(false);
+  });
+
+  it('reports a generated draft image as present', () => {
+    expect(hasLayerImage({ ...DISH_LAYERS[0]!, image: '/cocktail/drafts/x-plate.png' })).toBe(true);
+  });
+
+  // Mirrors the filter CocktailScene applies before handing layers to the 3D
+  // viewer. Pinned here because that scene needs requestAnimationFrame and so
+  // cannot be exercised in the headless preview.
+  const renderable = (layers: typeof DISH_LAYERS, labelledIds: readonly string[]) =>
+    layers.filter((l) => labelledIds.includes(l.id)).filter(hasLayerImage);
+
+  it('renders nothing for a dish whose layers were never generated', () => {
+    // The bug this replaces: these fell back to the cocktail PNGs, so a plated
+    // dish showed a GLASS. Skipping beats substituting someone else's art.
+    const ids = DISH_LAYERS.map((l) => l.id);
+    expect(renderable(DISH_LAYERS, ids)).toEqual([]);
+  });
+
+  it('renders only the layers that came back when generation partly succeeded', () => {
+    const partly = DISH_LAYERS.map((l) =>
+      l.id === 'main' || l.id === 'sauce' ? { ...l, image: `/cocktail/drafts/d-${l.id}.png` } : l
+    );
+
+    expect(renderable(partly, partly.map((l) => l.id)).map((l) => l.id)).toEqual(['sauce', 'main']);
+  });
+
+  it('still renders every drink layer — nothing about drinks changed', () => {
+    const ids = SHARED_LAYERS.map((l) => l.id);
+    expect(renderable(SHARED_LAYERS, ids)).toHaveLength(SHARED_LAYERS.length);
+  });
+});
 
 describe('layersForKind', () => {
   it('gives a dish the plated template, not the cocktail one', () => {

@@ -12,7 +12,7 @@ import { ShareButton } from './ShareButton';
 import { LanguageToggle } from './LanguageToggle';
 import { OrderBar } from './OrderBar';
 import { track } from '@/lib/tracking/track';
-import { getFeatureVideo, getEconomics, type CocktailConfig, type Lang, type LayerConfig } from '@/data/cocktail';
+import { getFeatureVideo, getEconomics, type CocktailConfig, type Lang, type LayerConfig, hasLayerImage } from '@/data/cocktail';
 import type { ActiveModules } from '@/lib/experience/resolve';
 
 interface MobileCocktailSceneProps {
@@ -47,8 +47,13 @@ export function MobileCocktailScene({
   const featureVideo = getFeatureVideo(config.slug);
   const bodyFont = isHebrew ? 'var(--font-rubik, sans-serif)' : 'var(--font-garamond, serif)';
 
-  const layerImage = (layerId: string): string | undefined =>
-    config.layers.find((l) => l.id === layerId)?.image;
+  // Un-generated layers report undefined, not '' — the callers already treat a
+  // missing image as "no part to show", and a dish has no stock art to fall back
+  // on (reusing the cocktail PNGs put a glass on a plated dish).
+  const layerImage = (layerId: string): string | undefined => {
+    const layer = config.layers.find((l) => l.id === layerId);
+    return layer && hasLayerImage(layer) ? layer.image : undefined;
+  };
 
   return (
     <div

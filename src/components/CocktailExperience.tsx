@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { Layers, Play, Box } from 'lucide-react';
-import { getAccent, getFeatureVideo, formatPrice, findCocktailBySlug, MENU, type CocktailConfig, type Lang } from '@/data/cocktail';
+import { getAccent, getFeatureVideo, formatPrice, findCocktailBySlug, MENU, type CocktailConfig, type Lang, hasLayerImage } from '@/data/cocktail';
 import Image from 'next/image';
 import { FlavorRadar } from './FlavorRadar';
 import { SmartImage } from '@/components/ui/SmartImage';
@@ -117,7 +117,12 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
 
   const imageForLayer = useMemo(() => {
     const map = new Map<string, string>();
-    for (const layer of config.layers) map.set(layer.id, layer.image);
+    // Un-generated layers are left OUT rather than mapped to '': consumers fall
+    // back with `?? heroImage`, and '' is not nullish, so a blank entry would win
+    // that check and render an empty <img> instead of the hero.
+    for (const layer of config.layers) {
+      if (hasLayerImage(layer)) map.set(layer.id, layer.image);
+    }
     return map;
   }, [config.layers]);
 

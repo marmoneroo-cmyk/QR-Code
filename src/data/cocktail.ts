@@ -195,7 +195,7 @@ export const SHARED_LAYERS: LayerConfig[] = [
 export const DISH_LAYERS: LayerConfig[] = [
   {
     id: 'plate',
-    image: '/cocktail/glass.png',
+    image: '',
     y: -1.4,
     z: 0,
     scale: 0.5,
@@ -206,7 +206,7 @@ export const DISH_LAYERS: LayerConfig[] = [
   },
   {
     id: 'sauce',
-    image: '/cocktail/splash_clear.png',
+    image: '',
     y: -0.933,
     z: 0.15,
     scale: 0.5,
@@ -217,7 +217,7 @@ export const DISH_LAYERS: LayerConfig[] = [
   },
   {
     id: 'base',
-    image: '/cocktail/splash_soda.png',
+    image: '',
     y: -0.467,
     z: 0.1,
     scale: 0.5,
@@ -228,7 +228,7 @@ export const DISH_LAYERS: LayerConfig[] = [
   },
   {
     id: 'main',
-    image: '/cocktail/splash_pink.png',
+    image: '',
     y: 0,
     z: 0.2,
     scale: 0.5,
@@ -239,7 +239,7 @@ export const DISH_LAYERS: LayerConfig[] = [
   },
   {
     id: 'topping',
-    image: '/cocktail/ice.png',
+    image: '',
     y: 0.467,
     z: 0.3,
     scale: 0.35,
@@ -250,7 +250,7 @@ export const DISH_LAYERS: LayerConfig[] = [
   },
   {
     id: 'garnish',
-    image: '/cocktail/lime.png',
+    image: '',
     y: 0.933,
     z: 0.4,
     scale: 0.35,
@@ -261,7 +261,7 @@ export const DISH_LAYERS: LayerConfig[] = [
   },
   {
     id: 'herbs',
-    image: '/cocktail/peel.png',
+    image: '',
     y: 1.4,
     z: 0.5,
     scale: 0.28,
@@ -271,6 +271,19 @@ export const DISH_LAYERS: LayerConfig[] = [
     generationPrompt: `A small scattering of delicate fresh herb leaves and microgreens suspended in mid-air, a few individual leaves drifting apart, pure black void, no surface, no shadow, ${STYLE_SUFFIX}`,
   },
 ];
+
+/**
+ * Has this layer's art actually been generated?
+ *
+ * DISH_LAYERS ship with `image: ''` because there is no stock plate art to fall
+ * back on — a dish that reused the cocktail PNGs showed guests a GLASS where its
+ * plate should be. Every renderer skips a layer that answers false, so a partly
+ * generated dish explodes with the components it really has and nothing invented.
+ * Drink layers keep their real template art, so they are unaffected.
+ */
+export function hasLayerImage(layer: LayerConfig): boolean {
+  return layer.image.trim().length > 0;
+}
 
 /** Layer template for an item — a plate is not built like a glass. */
 export function layersForKind(kind: ItemKind | undefined): LayerConfig[] {

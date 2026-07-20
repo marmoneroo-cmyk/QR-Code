@@ -30,7 +30,7 @@ import { useViewHistory } from '@/lib/useViewHistory';
 import { useIsMobile } from '@/lib/useMediaQuery';
 import { useMenuConfig } from '@/lib/useMenuConfig';
 import { resolveModules, type ActiveModules } from '@/lib/experience/resolve';
-import { getAccent, isEffervescent, getEconomics, getFeatureVideo } from '@/data/cocktail';
+import { getAccent, isEffervescent, getEconomics, getFeatureVideo, hasLayerImage } from '@/data/cocktail';
 import type { CocktailConfig } from '@/data/cocktail';
 import { useLang } from '@/lib/useLang';
 
@@ -100,6 +100,10 @@ export function CocktailScene({ config }: CocktailSceneProps) {
     const labeledIds = new Set(config.labels.map((l) => l.layerId));
     const visible = config.layers
       .filter((l) => labeledIds.has(l.id))
+      // Skip layers whose art was never generated. useTexture('') throws, and a
+      // dish falling back to the cocktail PNGs showed a glass where its plate
+      // belongs. The even re-spacing below then closes the gap on its own.
+      .filter(hasLayerImage)
       .sort((a, b) => a.y - b.y); // bottom → top by original Y
     const n = visible.length;
     const RANGE_BOTTOM = -1.4;
