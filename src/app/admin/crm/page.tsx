@@ -5,7 +5,7 @@ import type { LucideIcon } from 'lucide-react';
 import { Users, Repeat, CalendarCheck, Activity, Flame, Eye, ShoppingBag, Languages, Smartphone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { KpiCard, Pill, Skeleton, SkeletonGrid, LiveDot } from '@/components/ui/dataviz';
+import { KpiCard, Pill, Skeleton, SkeletonGrid, LiveDot, NO_MEASUREMENT } from '@/components/ui/dataviz';
 import { GlassCard, PanelHeader, EmptyState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { useLang } from '@/lib/useLang';
@@ -48,10 +48,12 @@ interface SegmentCardProps {
   count: number;
   total: number;
   meaning: string;
+  /** True when the payload never arrived, so the count must not be rendered as a real 0. */
+  unavailable?: boolean;
 }
 
 /** Premium behavior-segment card: icon, big serif count, share bar, one-line meaning. */
-function SegmentCard({ icon: Icon, accent, title, count, total, meaning }: SegmentCardProps) {
+function SegmentCard({ icon: Icon, accent, title, count, total, meaning, unavailable }: SegmentCardProps) {
   const share = total > 0 ? (count / total) * 100 : 0;
   return (
     <GlassCard accent={accent} className="p-6 flex flex-col gap-4">
@@ -59,11 +61,11 @@ function SegmentCard({ icon: Icon, accent, title, count, total, meaning }: Segme
         <span className="grid place-items-center w-9 h-9 rounded-xl" style={{ color: accent, background: `${accent}1a` }}>
           <Icon size={17} strokeWidth={1.8} />
         </span>
-        <span className="text-white/70 text-11 font-sans">{share.toFixed(0)}%</span>
+        <span className="text-white/70 text-11 font-sans">{unavailable ? NO_MEASUREMENT : `${share.toFixed(0)}%`}</span>
       </div>
       <div>
         <p className="text-white leading-none font-serif" style={{ fontWeight: 700, fontSize: 'clamp(2rem,4vw,2.6rem)' }}>
-          {count.toLocaleString()}
+          {unavailable ? NO_MEASUREMENT : count.toLocaleString()}
         </p>
         <p className="text-white/55 text-xs mt-2 tracking-wide font-sans">{title}</p>
       </div>
@@ -103,8 +105,10 @@ function arcPath(cx: number, cy: number, rOuter: number, rInner: number, startDe
   ].join(' ');
 }
 
-/** Luxury donut: each segment a proportional arc, total in the center, legend below. */
-function DonutChart({ segments, centerValue, centerLabel }: { segments: DonutSegment[]; centerValue: string; centerLabel: string }) {
+/** Luxury donut: each segment a proportional arc, total in the center, legend below.
+ *  `unavailable` means the payload never arrived — legend figures then read as "no measurement"
+ *  instead of a fabricated 0 / 0%. */
+function DonutChart({ segments, centerValue, centerLabel, unavailable }: { segments: DonutSegment[]; centerValue: string; centerLabel: string; unavailable?: boolean }) {
   const total = segments.reduce((sum, s) => sum + s.count, 0);
   const SIZE = 240;
   const cx = SIZE / 2;
@@ -153,8 +157,8 @@ function DonutChart({ segments, centerValue, centerLabel }: { segments: DonutSeg
             <li key={s.label} className="flex items-center gap-3">
               <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.color }} />
               <span className="flex-1 text-white/70 text-13 font-sans">{s.label}</span>
-              <span className="text-white text-13 font-medium tabular-nums font-sans">{s.count.toLocaleString()}</span>
-              <span className="w-10 text-end text-white/70 text-11 font-mono tabular-nums">{pct.toFixed(0)}%</span>
+              <span className="text-white text-13 font-medium tabular-nums font-sans">{unavailable ? NO_MEASUREMENT : s.count.toLocaleString()}</span>
+              <span className="w-10 text-end text-white/70 text-11 font-mono tabular-nums">{unavailable ? NO_MEASUREMENT : `${pct.toFixed(0)}%`}</span>
             </li>
           );
         })}
@@ -278,10 +282,10 @@ export default function CrmPage() {
         <>
       {/* KPI strip */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12">
-        <KpiCard icon={Users} accent="#fbbf24" label={t('Total guests', 'סך אורחים')} value={sessions.toLocaleString()} hint={t('distinct sessions', 'מושבים ייחודיים')} />
-        <KpiCard icon={Repeat} accent="#34d399" label={t('Order rate', 'שיעור הזמנה')} value={`${orderRate.toFixed(0)}%`} hint={t('ordered / visited', 'הזמינו / ביקרו')} />
-        <KpiCard icon={CalendarCheck} accent="#7dd3fc" label={t('Ordering guests', 'אורחים מזמינים')} value={ordering.toLocaleString()} hint={t('completed an order', 'השלימו הזמנה')} />
-        <KpiCard icon={Activity} accent="#f59e0b" label={t('Avg actions', 'פעולות ממוצעות')} value={avgEvents.toFixed(1)} hint={t('per session', 'למושב')} />
+        <KpiCard icon={Users} accent="#fbbf24" label={t('Total guests', 'סך אורחים')} value={data ? sessions.toLocaleString() : NO_MEASUREMENT} hint={t('distinct sessions', 'מושבים ייחודיים')} />
+        <KpiCard icon={Repeat} accent="#34d399" label={t('Order rate', 'שיעור הזמנה')} value={data ? `${orderRate.toFixed(0)}%` : NO_MEASUREMENT} hint={t('ordered / visited', 'הזמינו / ביקרו')} />
+        <KpiCard icon={CalendarCheck} accent="#7dd3fc" label={t('Ordering guests', 'אורחים מזמינים')} value={data ? ordering.toLocaleString() : NO_MEASUREMENT} hint={t('completed an order', 'השלימו הזמנה')} />
+        <KpiCard icon={Activity} accent="#f59e0b" label={t('Avg actions', 'פעולות ממוצעות')} value={data ? avgEvents.toFixed(1) : NO_MEASUREMENT} hint={t('per session', 'למושב')} />
       </section>
 
       {/* Empty state */}
@@ -298,8 +302,9 @@ export default function CrmPage() {
         <GlassCard className="p-6 mb-3 mt-3" static sheen>
           <DonutChart
             segments={donutSegments}
-            centerValue={sessions.toLocaleString()}
+            centerValue={data ? sessions.toLocaleString() : NO_MEASUREMENT}
             centerLabel={t('Guests', 'אורחים')}
+            unavailable={!data}
           />
         </GlassCard>
         <Stagger className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -311,6 +316,7 @@ export default function CrmPage() {
               count={ordering}
               total={sessions}
               meaning={t('Reached checkout and completed an order — your most valuable visitors.', 'הגיעו לקופה והשלימו הזמנה — המבקרים היקרים ביותר.')}
+              unavailable={!data}
             />
           </motion.div>
           <motion.div variants={staggerItem}>
@@ -321,6 +327,7 @@ export default function CrmPage() {
               count={browsing}
               total={sessions}
               meaning={t('Explored the menu but did not order — the guests worth winning over next.', 'עיינו בתפריט אך לא הזמינו — האורחים ששווה לשכנע להזמין בהמשך.')}
+              unavailable={!data}
             />
           </motion.div>
           <motion.div variants={staggerItem}>
@@ -330,7 +337,12 @@ export default function CrmPage() {
               title={t('Deep visits', 'ביקורים עמוקים')}
               count={engaged}
               total={sessions}
-              meaning={t(`Averaged ${avgEvents.toFixed(1)} actions per visit — deep, attentive sessions.`, `ממוצע ${avgEvents.toFixed(1)} פעולות לביקור — מושבים עמוקים וקשובים.`)}
+              meaning={
+                data
+                  ? t(`Averaged ${avgEvents.toFixed(1)} actions per visit — deep, attentive sessions.`, `ממוצע ${avgEvents.toFixed(1)} פעולות לביקור — מושבים עמוקים וקשובים.`)
+                  : t('Guest activity couldn’t be loaded right now.', 'לא הצלחנו לטעון את פעילות האורחים כרגע.')
+              }
+              unavailable={!data}
             />
           </motion.div>
         </Stagger>
@@ -344,12 +356,17 @@ export default function CrmPage() {
             <PanelHeader label={t('Language', 'שפה')} isHe={isHebrew} />
           </div>
           <div className="mt-4">
-            <ShareBar
-              rows={[
-                { label: t('English', 'אנגלית'), count: data?.languageSplit.en ?? 0, color: 'var(--warning-light)' },
-                { label: t('Hebrew', 'עברית'), count: data?.languageSplit.he ?? 0, color: 'var(--success)' },
-              ]}
-            />
+            {data ? (
+              <ShareBar
+                rows={[
+                  { label: t('English', 'אנגלית'), count: data.languageSplit.en, color: 'var(--warning-light)' },
+                  { label: t('Hebrew', 'עברית'), count: data.languageSplit.he, color: 'var(--success)' },
+                ]}
+              />
+            ) : (
+              // The payload never arrived — a 0% / 0% split would claim something we never measured.
+              <EmptyState title={t('Couldn’t load the language split — check your connection.', 'טעינת פילוח השפות נכשלה — בדקו את החיבור.')} />
+            )}
           </div>
         </GlassCard>
         <GlassCard className="p-6">
@@ -358,13 +375,18 @@ export default function CrmPage() {
             <PanelHeader label={t('Device', 'מכשיר')} isHe={isHebrew} />
           </div>
           <div className="mt-4">
-            <ShareBar
-              rows={[
-                { label: t('Mobile', 'נייד'), count: data?.deviceSplit.mobile ?? 0, color: 'var(--warning-light)' },
-                { label: t('Tablet', 'טאבלט'), count: data?.deviceSplit.tablet ?? 0, color: '#38bdf8' },
-                { label: t('Desktop', 'שולחני'), count: data?.deviceSplit.desktop ?? 0, color: 'var(--success)' },
-              ]}
-            />
+            {data ? (
+              <ShareBar
+                rows={[
+                  { label: t('Mobile', 'נייד'), count: data.deviceSplit.mobile, color: 'var(--warning-light)' },
+                  { label: t('Tablet', 'טאבלט'), count: data.deviceSplit.tablet, color: '#38bdf8' },
+                  { label: t('Desktop', 'שולחני'), count: data.deviceSplit.desktop, color: 'var(--success)' },
+                ]}
+              />
+            ) : (
+              // The payload never arrived — a 0% split across devices is not a measurement.
+              <EmptyState title={t('Couldn’t load the device split — check your connection.', 'טעינת פילוח המכשירים נכשלה — בדקו את החיבור.')} />
+            )}
           </div>
         </GlassCard>
       </section>

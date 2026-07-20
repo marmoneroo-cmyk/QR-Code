@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Sunrise, Flame, ArrowRight, ShoppingBag, TrendingUp, TrendingDown, BadgeCheck, Share2, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { Skeleton, SkeletonGrid, LiveDot, AreaChart, GlassImage, deltaPct, Pill } from '@/components/ui/dataviz';
+import { Skeleton, SkeletonGrid, LiveDot, AreaChart, GlassImage, deltaPct, Pill, NO_MEASUREMENT } from '@/components/ui/dataviz';
 import { Stagger, staggerItem, Reveal } from '@/components/ui/motion';
 import { HoverLift, Tilt, AccentWash } from '@/components/ui/visual';
 import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
@@ -385,10 +385,12 @@ export default function ExecutiveSummaryPage() {
 
           {/* KPI cards with real trend */}
           <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <motion.div variants={staggerItem}><KpiTrend label={t('Demand', 'ביקוש')} value={(ov?.totalViews ?? 0).toLocaleString()} delta={viewsDelta} series={(ov?.viewsByDay ?? []).slice(-14)} color="#e8c987" t={t} /></motion.div>
-            <motion.div variants={staggerItem}><KpiTrend label={t('Orders', 'הזמנות')} value={(ov?.totalOrders ?? 0).toLocaleString()} delta={ordersDelta} series={(ov?.ordersByDay ?? []).slice(-14)} color="#34d399" t={t} /></motion.div>
-            <motion.div variants={staggerItem}><KpiStat label={t('Revenue', 'הכנסה')} value={ils(ov?.totalRevenue ?? 0)} color="#7dd3fc" /></motion.div>
-            <motion.div variants={staggerItem}><KpiStat label={t('Conversion', 'המרה')} value={`${Math.round(ov?.conversionPct ?? 0)}%`} color="#f59e0b" /></motion.div>
+            {/* `ov` is a whole fetched payload: when it never arrived these are not zeros, they
+                are unknowns. A hard ₪0 reads to an owner as "we sold nothing" — never fabricate it. */}
+            <motion.div variants={staggerItem}><KpiTrend label={t('Demand', 'ביקוש')} value={ov ? ov.totalViews.toLocaleString() : NO_MEASUREMENT} delta={viewsDelta} series={(ov?.viewsByDay ?? []).slice(-14)} color="#e8c987" t={t} /></motion.div>
+            <motion.div variants={staggerItem}><KpiTrend label={t('Orders', 'הזמנות')} value={ov ? ov.totalOrders.toLocaleString() : NO_MEASUREMENT} delta={ordersDelta} series={(ov?.ordersByDay ?? []).slice(-14)} color="#34d399" t={t} /></motion.div>
+            <motion.div variants={staggerItem}><KpiStat label={t('Revenue', 'הכנסה')} value={ov ? ils(ov.totalRevenue) : NO_MEASUREMENT} color="#7dd3fc" /></motion.div>
+            <motion.div variants={staggerItem}><KpiStat label={t('Conversion', 'המרה')} value={ov ? `${Math.round(ov.conversionPct)}%` : NO_MEASUREMENT} color="#f59e0b" /></motion.div>
           </Stagger>
 
           {/* More opportunities */}

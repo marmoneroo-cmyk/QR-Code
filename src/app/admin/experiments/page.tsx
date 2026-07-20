@@ -34,7 +34,7 @@ export default function ExperimentsPage() {
   const { lang } = useLang();
   const isHebrew = lang === 'he';
   const t = (en: string, he: string): string => (isHebrew ? he : en);
-  const { data, loading, error, reload } = useApiData<ExperimentsResponse>(
+  const { data, loading, reload } = useApiData<ExperimentsResponse>(
     '/api/experiments/results',
     { refreshInterval: 15000 },
   );
@@ -80,7 +80,8 @@ export default function ExperimentsPage() {
         </div>
       )}
 
-      {!loading && error && experiments.length === 0 && (
+      {/* The payload never arrived — never assert "no experiments" from a failed load. */}
+      {!loading && !data && experiments.length === 0 && (
         <GlassCard static className="p-10">
           <div dir={isHebrew ? 'rtl' : 'ltr'}>
             <ErrorState
@@ -92,7 +93,7 @@ export default function ExperimentsPage() {
         </GlassCard>
       )}
 
-      {!loading && !error && experiments.length === 0 && (
+      {!loading && data && experiments.length === 0 && (
         <GlassCard static className="p-10">
           <div dir={isHebrew ? 'rtl' : 'ltr'}>
             <EmptyState

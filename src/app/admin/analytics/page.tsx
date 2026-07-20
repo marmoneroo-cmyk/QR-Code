@@ -7,7 +7,7 @@ import type { LucideIcon } from 'lucide-react';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { LiveFunnel } from '@/components/admin/LiveFunnel';
-import { AreaChart, GlassImage, KpiCard, deltaPct, SectionLabel, LiveDot, Skeleton } from '@/components/ui/dataviz';
+import { AreaChart, GlassImage, KpiCard, deltaPct, SectionLabel, LiveDot, Skeleton, NO_MEASUREMENT } from '@/components/ui/dataviz';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { HoverLift, AccentWash } from '@/components/ui/visual';
 import { GlassCard, PanelHeader, EmptyState, ErrorState } from '@/components/ui/premium';
@@ -52,11 +52,16 @@ interface TrendPanelProps {
   icon: LucideIcon;
   peakLabel: string;
   lastLabel: string;
+  /** True when the payload never arrived, so totals must not be rendered as 0. */
+  unavailable?: boolean;
 }
 
 /** A single day-trend panel: title + window total + WoW delta + real AreaChart + peak/last annotation. */
-function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, lastLabel }: TrendPanelProps) {
+function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, lastLabel, unavailable }: TrendPanelProps) {
   const hasData = data.length > 0;
+  // An empty series after a SUCCESSFUL load is a real zero and prints as 0; an empty
+  // series because the request failed is not a measurement and prints as a dash.
+  const stat = (n: number): string => (unavailable ? NO_MEASUREMENT : n.toLocaleString());
   const peak = hasData ? Math.max(...data) : 0;
   const last = hasData ? data[data.length - 1] : 0;
   const up = (delta ?? 0) >= 0;
@@ -70,7 +75,7 @@ function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, l
           <div className="min-w-0">
             <p className="text-white/45 text-11 tracking-wide truncate font-sans">{title}</p>
             <p className="text-white text-2xl leading-tight font-serif" style={{ fontWeight: 700 }}>
-              {total.toLocaleString()}
+              {stat(total)}
             </p>
           </div>
         </div>
@@ -92,8 +97,8 @@ function TrendPanel({ title, total, data, color, delta, icon: Icon, peakLabel, l
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-10 text-white/70 tracking-wide font-sans">
-        <span>{peakLabel} {peak.toLocaleString()}</span>
-        <span>{lastLabel} {last.toLocaleString()}</span>
+        <span>{peakLabel} {stat(peak)}</span>
+        <span>{lastLabel} {stat(last)}</span>
       </div>
     </GlassCard>
   );
@@ -194,14 +199,14 @@ export default function AnalyticsPage() {
         >
           <KpiCard
             label={t('Revenue', 'הכנסה')}
-            value={ils(overview?.totalRevenue ?? 0)}
+            value={overview ? ils(overview.totalRevenue) : NO_MEASUREMENT}
             accent="#7dd3fc"
             icon={Coins}
             hint={t('total in window', 'סה״כ בחלון')}
           />
           <KpiCard
             label={t('Demand · views', 'ביקוש · צפיות')}
-            value={(overview?.totalViews ?? 0).toLocaleString()}
+            value={overview ? overview.totalViews.toLocaleString() : NO_MEASUREMENT}
             accent="#fbbf24"
             icon={Eye}
             delta={viewsDelta}
@@ -210,7 +215,7 @@ export default function AnalyticsPage() {
           />
           <KpiCard
             label={t('Orders', 'הזמנות')}
-            value={(overview?.totalOrders ?? 0).toLocaleString()}
+            value={overview ? overview.totalOrders.toLocaleString() : NO_MEASUREMENT}
             accent="#34d399"
             icon={ShoppingBag}
             delta={ordersDelta}
@@ -219,14 +224,18 @@ export default function AnalyticsPage() {
           />
           <KpiCard
             label={t('Conversion', 'המרה')}
-            value={hasConfidentSample(overview?.totalViews ?? 0) ? `${Math.round(overview?.conversionPct ?? 0)}%` : '—'}
+            value={
+              overview && hasConfidentSample(overview.totalViews)
+                ? `${Math.round(overview.conversionPct)}%`
+                : NO_MEASUREMENT
+            }
             accent="#f59e0b"
             icon={Percent}
             hint={t('ordered / viewed', 'הזמינו / צפו')}
           />
           <KpiCard
             label={t('Profit', 'רווח')}
-            value={ils(overview?.totalProfit ?? 0)}
+            value={overview ? ils(overview.totalProfit) : NO_MEASUREMENT}
             accent="#a78bfa"
             icon={TrendingUp}
             hint={t('revenue − pour cost', 'הכנסה − עלות מזיגה')}
@@ -313,6 +322,7 @@ export default function AnalyticsPage() {
               icon={Eye}
               peakLabel={t('peak', 'שיא')}
               lastLabel={t('today', 'היום')}
+              unavailable={!overview}
             />
             <TrendPanel
               title={t('Orders', 'הזמנות')}
@@ -323,6 +333,7 @@ export default function AnalyticsPage() {
               icon={ShoppingBag}
               peakLabel={t('peak', 'שיא')}
               lastLabel={t('today', 'היום')}
+              unavailable={!overview}
             />
           </div>
         </section>
@@ -367,8 +378,18 @@ export default function AnalyticsPage() {
                 <Skeleton key={i} className="h-7 w-full rounded-md" />
               ))}
             </div>
-          ) : (
+          ) : me ? (
+            // The payload genuinely arrived and had no rows — a real "nothing yet".
             <EmptyState title={t('No items yet.', 'עדיין אין פריטים.')} />
+          ) : (
+            // The payload never arrived. Saying "no items" here would assert something
+            // about the menu that we did not actually measure.
+            <EmptyState
+              title={t(
+                'Couldn’t load menu items — check your connection.',
+                'טעינת פריטי התפריט נכשלה — בדקו את החיבור.',
+              )}
+            />
           )}
         </GlassCard>
 

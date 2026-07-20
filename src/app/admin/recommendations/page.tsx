@@ -52,16 +52,13 @@ export function RecommendationsPanel() {
   const {
     data,
     loading,
-    error: recError,
     reload: reloadRec,
   } = useApiData<Recommendations>('/api/analytics/recommendations', { refreshInterval: 20000 });
   const {
     data: meData,
-    error: meError,
     reload: reloadMenu,
   } = useApiData<MenuEngineering>('/api/analytics/menu-engineering', { refreshInterval: 20000 });
   const menuItems: MenuEngineeringItem[] = useMemo(() => meData?.items ?? [], [meData]);
-  const error = Boolean(recError || meError);
   const load = useCallback(() => {
     reloadRec();
     reloadMenu();
@@ -118,7 +115,8 @@ export function RecommendationsPanel() {
         </section>
       )}
 
-      {!loading && !hasData && error && (
+      {/* The co-view payload never arrived — never assert "no co-views" from a failed load. */}
+      {!loading && !hasData && !data && (
         <GlassCard className="p-10" static>
           <div dir={isHebrew ? 'rtl' : 'ltr'}>
             <ErrorState
@@ -130,7 +128,7 @@ export function RecommendationsPanel() {
         </GlassCard>
       )}
 
-      {!loading && !hasData && !error && (
+      {!loading && !hasData && data && (
         <GlassCard className="p-10" static>
           <div dir={isHebrew ? 'rtl' : 'ltr'}>
             <EmptyState

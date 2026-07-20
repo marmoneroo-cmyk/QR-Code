@@ -9,6 +9,17 @@ import { TrendingUp, TrendingDown, BadgeCheck } from 'lucide-react';
  * Use these everywhere so every screen feels like one premium product.
  */
 
+/**
+ * What a stat shows when there is NO measurement — because the data failed to load,
+ * not because the number is genuinely zero.
+ *
+ * Never render a fabricated `0` / `₪0` on a failed load: an owner reads "₪0 revenue"
+ * as "my restaurant sold nothing", which is a lie the moment the real cause is a
+ * dropped request. Zero is a claim about the business; this dash is an admission that
+ * we do not know. Only render a real 0 when the payload actually arrived and said 0.
+ */
+export const NO_MEASUREMENT = '—';
+
 /** A whole, contained cocktail glass (transparent PNG on dark) with an accent glow.
  *  Pass a DEFINITE height in className (e.g. "w-full h-40"); the image never crops. */
 export function GlassImage({

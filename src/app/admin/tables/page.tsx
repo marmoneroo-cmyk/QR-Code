@@ -207,7 +207,7 @@ export function TablesPanel() {
             </div>
           )}
         </div>
-        <FloorPlan tables={tables} bestTableId={bestTable?.tableId ?? null} loading={loading} t={t} />
+        <FloorPlan tables={tables} bestTableId={bestTable?.tableId ?? null} loading={loading} unavailable={!data} t={t} />
       </section>
 
       {/* Per-table premium cards */}
@@ -287,10 +287,17 @@ export function TablesPanel() {
         ) : (
           <div dir={isHebrew ? 'rtl' : 'ltr'}>
             <EmptyState
-              title={t(
-                'No table data yet. Print a QR per table — scans attribute here automatically.',
-                'עדיין אין נתוני שולחנות. הדפס QR לכל שולחן — סריקות ייוחסו כאן אוטומטית.',
-              )}
+              title={
+                data
+                  ? t(
+                      'No table data yet. Print a QR per table — scans attribute here automatically.',
+                      'עדיין אין נתוני שולחנות. הדפס QR לכל שולחן — סריקות ייוחסו כאן אוטומטית.',
+                    )
+                  : t(
+                      'Couldn’t load the table data — check your connection.',
+                      'טעינת נתוני השולחנות נכשלה — בדקו את החיבור.',
+                    )
+              }
             />
           </div>
         )}
@@ -330,11 +337,14 @@ function FloorPlan({
   tables,
   bestTableId,
   loading,
+  unavailable,
   t,
 }: {
   tables: TableRow[];
   bestTableId: string | null;
   loading: boolean;
+  /** True when the payload never arrived, so an empty floor must not be asserted. */
+  unavailable: boolean;
   t: Translate;
 }) {
   // Scale basis: prefer revenue across the floor; fall back to views if the
@@ -375,13 +385,20 @@ function FloorPlan({
               <QrCode size={24} strokeWidth={1.6} />
             </span>
             <p className="text-white/70 font-serif" style={{ fontStyle: 'italic', fontSize: '1.3rem' }}>
-              {t('An empty floor — for now.', 'רצפה ריקה — לבינתיים.')}
+              {unavailable
+                ? t('The floor didn’t load.', 'המפה לא נטענה.')
+                : t('An empty floor — for now.', 'רצפה ריקה — לבינתיים.')}
             </p>
             <p className="mt-2 text-xs leading-relaxed text-white/70 font-sans">
-              {t(
-                'Place a QR on each table. As guests scan, tables light up by revenue and orders.',
-                'הנח QR על כל שולחן. ככל שאורחים סורקים, השולחנות נדלקים לפי הכנסה והזמנות.',
-              )}
+              {unavailable
+                ? t(
+                    'This is a loading problem, not an empty room — check your connection and try again.',
+                    'זו תקלת טעינה, לא חדר ריק — בדקו את החיבור ונסו שוב.',
+                  )
+                : t(
+                    'Place a QR on each table. As guests scan, tables light up by revenue and orders.',
+                    'הנח QR על כל שולחן. ככל שאורחים סורקים, השולחנות נדלקים לפי הכנסה והזמנות.',
+                  )}
             </p>
           </div>
         </div>

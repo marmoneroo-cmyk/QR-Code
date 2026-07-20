@@ -9,6 +9,7 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  MinusCircle,
   Users,
   Fingerprint,
   Heart,
@@ -17,7 +18,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { LiveDot, SectionLabel, Skeleton } from '@/components/ui/dataviz';
+import { LiveDot, SectionLabel, Skeleton, NO_MEASUREMENT } from '@/components/ui/dataviz';
 import { GlassCard, StatBlock } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { motion } from 'framer-motion';
@@ -167,6 +168,18 @@ const STATUS = {
   fail: { color: '#fb7185', soft: 'rgba(251,113,133,0.14)', ring: 'rgba(251,113,133,0.45)', icon: AlertTriangle },
 } satisfies Record<HealthStatus, { color: string; soft: string; ring: string; icon: LucideIcon }>;
 
+/**
+ * Tone for "we could not read this measurement". Deliberately neutral: amber or red
+ * would read as a VERDICT about signal health, when the truth is no verdict exists —
+ * the payload never arrived. A colour is a claim; grey is an honest shrug.
+ */
+const UNKNOWN_TONE = {
+  color: '#94a3b8',
+  soft: 'rgba(148,163,184,0.14)',
+  ring: 'rgba(148,163,184,0.35)',
+  icon: MinusCircle,
+};
+
 const EMPTY_BLOCK: SignalBlock = {
   stats: { count: 0, avg: 0, p50: 0, p75: 0, p90: 0, p95: 0, min: 0, max: 0 },
   invalidPct: 0,
@@ -177,8 +190,8 @@ const EMPTY_BLOCK: SignalBlock = {
 type Tr = (en: string, he: string) => string;
 
 /** Small colored ring around a status glyph — the recurring "health dot" motif. */
-function StatusRing({ status, size = 30 }: { status: HealthStatus; size?: number }) {
-  const s = STATUS[status];
+function StatusRing({ status, size = 30, unavailable }: { status: HealthStatus; size?: number; unavailable?: boolean }) {
+  const s = unavailable ? UNKNOWN_TONE : STATUS[status];
   const Icon = s.icon;
   return (
     <span
@@ -216,6 +229,7 @@ function ReadinessRing({
   color,
   caption,
   isHe,
+  unavailable,
 }: {
   value: number;
   target: number;
@@ -223,13 +237,15 @@ function ReadinessRing({
   color: string;
   caption: string;
   isHe: boolean;
+  /** True when the payload never arrived, so the streak must not be rendered as 0/7. */
+  unavailable?: boolean;
 }) {
   const SIZE = 184;
   const STROKE = 12;
   const radius = (SIZE - STROKE) / 2;
   const circumference = 2 * Math.PI * radius;
   const safeTarget = target > 0 ? target : 1;
-  const pct = Math.max(0, Math.min(1, value / safeTarget));
+  const pct = unavailable ? 0 : Math.max(0, Math.min(1, value / safeTarget));
   const dash = circumference * pct;
 
   return (
@@ -237,7 +253,7 @@ function ReadinessRing({
       className="relative mx-auto shrink-0"
       style={{ width: SIZE, height: SIZE, maxWidth: '100%' }}
       role="img"
-      aria-label={`${value} / ${target}`}
+      aria-label={unavailable ? NO_MEASUREMENT : `${value} / ${target}`}
     >
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="h-full w-full" aria-hidden>
         {/* Start arc at 12 o'clock; flip horizontally in RTL so it fills "forward". */}
@@ -266,8 +282,14 @@ function ReadinessRing({
       <div className="absolute inset-0 grid place-items-center text-center">
         <div>
           <p className="leading-none tabular-nums font-serif" style={{ fontWeight: 700 }}>
-            <span style={{ fontSize: 'clamp(2.6rem,7vw,3.4rem)', color }}>{value}</span>
-            <span className="text-white/60 text-2xl">/{target}</span>
+            {unavailable ? (
+              <span style={{ fontSize: 'clamp(2.6rem,7vw,3.4rem)', color }}>{NO_MEASUREMENT}</span>
+            ) : (
+              <>
+                <span style={{ fontSize: 'clamp(2.6rem,7vw,3.4rem)', color }}>{value}</span>
+                <span className="text-white/60 text-2xl">/{target}</span>
+              </>
+            )}
           </p>
           <p className="mt-2 inline-flex items-center gap-1.5 text-10 tracking-[0.25em] uppercase font-sans" style={{ color: ready ? color : 'rgba(255,255,255,0.45)' }}>
             {ready ? <CheckCircle2 size={12} strokeWidth={2.4} /> : null}
@@ -342,6 +364,7 @@ function DistCard({
   icon: Icon,
   extra,
   t,
+  unavailable,
 }: {
   title: string;
   unit: string;
@@ -349,9 +372,11 @@ function DistCard({
   icon: LucideIcon;
   extra?: string;
   t: Tr;
+  /** True when the payload never arrived — an empty block is then not a real "nothing collected". */
+  unavailable?: boolean;
 }) {
   const s = block.stats;
-  const cfg = STATUS[block.status];
+  const cfg = unavailable ? UNKNOWN_TONE : STATUS[block.status];
   const clean = Math.max(0, 100 - block.invalidPct - block.missingPct);
   return (
     <GlassCard
@@ -369,10 +394,16 @@ function DistCard({
             {title}
           </span>
         </span>
-        <StatusRing status={block.status} size={26} />
+        <StatusRing status={block.status} size={26} unavailable={unavailable} />
       </div>
 
-      {s.count === 0 ? (
+      {unavailable ? (
+        // The payload never arrived. Saying "not collected yet" here would assert that
+        // nothing was measured, when in truth we simply could not read the measurement.
+        <p className="py-6 text-center text-white/70 text-sm font-sans">
+          {t('couldn’t load — check your connection', 'הטעינה נכשלה — בדקו את החיבור')}
+        </p>
+      ) : s.count === 0 ? (
         <p className="py-6 text-center text-white/70 text-sm font-sans">
           {t('not collected yet', 'עדיין לא נאסף')}
         </p>
@@ -443,8 +474,11 @@ export default function SignalsPage() {
 
   const id = d?.identity;
   const ready = d?.readiness.ready ?? false;
-  const heroColor = ready ? '#34d399' : '#fbbf24';
-  const heroSoft = ready ? 'rgba(52,211,153,0.10)' : 'rgba(251,191,36,0.10)';
+  // No payload means no verdict. Amber here would assert "NOT READY" — a real go/no-go
+  // call about the engine — when in truth the verification never came back.
+  const heroColor = !d ? UNKNOWN_TONE.color : ready ? '#34d399' : '#fbbf24';
+  const heroSoft = !d ? 'rgba(148,163,184,0.10)' : ready ? 'rgba(52,211,153,0.10)' : 'rgba(251,191,36,0.10)';
+  const heroRing = !d ? UNKNOWN_TONE.ring : ready ? 'rgba(52,211,153,0.45)' : 'rgba(251,191,36,0.45)';
   const streak = d?.readiness.consecutiveReadyDays ?? 0;
   const required = d?.readiness.requiredDays ?? 7;
 
@@ -480,7 +514,7 @@ export default function SignalsPage() {
           accent={heroColor}
           className="p-8 md:p-10"
           style={{
-            borderColor: ready ? 'rgba(52,211,153,0.45)' : 'rgba(251,191,36,0.45)',
+            borderColor: heroRing,
             boxShadow: `0 50px 140px -60px ${heroColor}`,
           }}
         >
@@ -498,13 +532,22 @@ export default function SignalsPage() {
                 <Gauge size={14} strokeWidth={2} /> {t('Engine Readiness', 'מוכנות המנוע')}
               </p>
               <div className="mt-3 flex items-center gap-4">
-                {ready ? <CheckCircle2 size={56} strokeWidth={1.6} style={{ color: heroColor }} /> : <AlertTriangle size={56} strokeWidth={1.6} style={{ color: heroColor }} />}
+                {!d ? (
+                  <MinusCircle size={56} strokeWidth={1.6} style={{ color: heroColor }} />
+                ) : ready ? (
+                  <CheckCircle2 size={56} strokeWidth={1.6} style={{ color: heroColor }} />
+                ) : (
+                  <AlertTriangle size={56} strokeWidth={1.6} style={{ color: heroColor }} />
+                )}
                 <p className="leading-[0.9] font-serif" style={{ fontStyle: isHebrew ? 'normal' : 'italic', fontWeight: 700, fontSize: 'clamp(3rem,8vw,5rem)', color: heroColor }}>
                   {d ? (ready ? t('READY', 'מוכן') : t('NOT READY', 'לא מוכן')) : '—'}
                 </p>
               </div>
               <p className="mt-3 max-w-md text-white/55 text-sm font-sans">
-                {ready
+                {!d
+                  ? // No payload arrived — state the loading failure instead of a verdict we never received.
+                    t('Couldn’t load the verification — this is a loading problem, not a verdict.', 'טעינת האימות נכשלה — זו תקלת טעינה, לא תוצאה.')
+                  : ready
                   ? t('All instruments verified. The scoring engine can be built on these signals.', 'כל המכשירים אומתו. ניתן לבנות את מנוע הניקוד על הסיגנלים האלה.')
                   : t('Hold. One or more signals are not yet proven. No score is computed until the gate is green.', 'המתן. סיגנל אחד או יותר עדיין לא אומת. לא מחושב ציון עד שהשער ירוק.')}
               </p>
@@ -520,12 +563,13 @@ export default function SignalsPage() {
                 color={heroColor}
                 caption={t('consecutive days', 'ימים רצופים')}
                 isHe={isHebrew}
+                unavailable={!d}
               />
 
               <div className="mt-6 grid grid-cols-3 gap-2 text-center">
                 {([['healthy', counts.healthy], ['warning', counts.warning], ['fail', counts.fail]] as const).map(([k, n]) => (
                   <div key={k} className="rounded-xl py-2.5" style={{ background: STATUS[k].soft }}>
-                    <p className="text-2xl tabular-nums font-serif" style={{ fontWeight: 700, color: STATUS[k].color }}>{n}</p>
+                    <p className="text-2xl tabular-nums font-serif" style={{ fontWeight: 700, color: STATUS[k].color }}>{d ? n : NO_MEASUREMENT}</p>
                     <p className="text-9 tracking-[0.15em] uppercase text-white/45 font-sans">
                       {k === 'healthy' ? t('healthy', 'בריא') : k === 'warning' ? t('warning', 'אזהרה') : t('fail', 'כשל')}
                     </p>
@@ -580,7 +624,7 @@ export default function SignalsPage() {
         <section>
           <SectionLabel icon={Gauge}>{t('Signal Distributions', 'התפלגויות סיגנל')}</SectionLabel>
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <DistCard title={t('Active dwell', 'שהייה פעילה')} unit="s" icon={Activity} block={d?.dwell ?? EMPTY_BLOCK} t={t} />
+            <DistCard title={t('Active dwell', 'שהייה פעילה')} unit="s" icon={Activity} block={d?.dwell ?? EMPTY_BLOCK} t={t} unavailable={!d} />
             <DistCard
               title={t('Scroll depth', 'עומק גלילה')}
               unit="%"
@@ -588,6 +632,7 @@ export default function SignalsPage() {
               block={d?.scrollDepth ?? EMPTY_BLOCK}
               extra={d ? `${t('100% rate', 'שיעור 100%')} ${d.scrollDepth.full100Pct}%` : undefined}
               t={t}
+              unavailable={!d}
             />
           </div>
         </section>
@@ -640,14 +685,14 @@ export default function SignalsPage() {
         <section>
           <SectionLabel icon={Fingerprint}>{t('Visitor identity & pollution', 'זהות מבקר וזיהום')}</SectionLabel>
           <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <motion.div variants={staggerItem}><StatTile label={t('Visitors', 'מבקרים')} value={(id?.uniqueVisitors ?? 0).toLocaleString()} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('Sessions', 'ביקורים')} value={(id?.uniqueSessions ?? 0).toLocaleString()} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('Sessions / visitor', 'ביקורים/מבקר')} value={id?.sessionsPerVisitor ?? 0} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('Return visitors', 'חוזרים')} value={id?.returnVisitors ?? 0} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('visitor_id coverage', 'כיסוי visitor_id')} value={`${id?.visitorCoveragePct ?? 0}%`} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('Avg events/session', 'ממוצע/ביקור')} value={id?.avgEventsPerSession ?? 0} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('Max events/visitor', 'מקס/מבקר')} value={id?.maxEventsPerVisitor ?? 0} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('Max events/session', 'מקס/ביקור')} value={id?.maxEventsPerSession ?? 0} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Visitors', 'מבקרים')} value={id ? id.uniqueVisitors.toLocaleString() : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Sessions', 'ביקורים')} value={id ? id.uniqueSessions.toLocaleString() : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Sessions / visitor', 'ביקורים/מבקר')} value={id ? id.sessionsPerVisitor : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Return visitors', 'חוזרים')} value={id ? id.returnVisitors : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('visitor_id coverage', 'כיסוי visitor_id')} value={id ? `${id.visitorCoveragePct}%` : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Avg events/session', 'ממוצע/ביקור')} value={id ? id.avgEventsPerSession : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Max events/visitor', 'מקס/מבקר')} value={id ? id.maxEventsPerVisitor : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Max events/session', 'מקס/ביקור')} value={id ? id.maxEventsPerSession : NO_MEASUREMENT} /></motion.div>
           </Stagger>
           {d && !d.hasVisitorColumn && (
             <p className="mt-4 inline-flex items-start gap-2 rounded-xl border border-amber-300/20 bg-amber-950/10 px-4 py-3 text-amber-200/70 text-xs font-sans" dir={isHebrew ? 'rtl' : 'ltr'}>
@@ -661,10 +706,10 @@ export default function SignalsPage() {
         <section>
           <SectionLabel icon={Heart}>{t('Favorites', 'מועדפים')}</SectionLabel>
           <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <motion.div variants={staggerItem}><StatTile label={t('Events', 'אירועים')} value={(d?.favorites.events ?? 0).toLocaleString()} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('Unique items', 'פריטים')} value={d?.favorites.distinctItems ?? 0} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('Add rate', 'שיעור הוספה')} value={`${d?.favorites.addRatePct ?? 0}%`} /></motion.div>
-            <motion.div variants={staggerItem}><StatTile label={t('Remove rate', 'שיעור הסרה')} value={`${d?.favorites.removeRatePct ?? 0}%`} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Events', 'אירועים')} value={d ? d.favorites.events.toLocaleString() : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Unique items', 'פריטים')} value={d ? d.favorites.distinctItems : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Add rate', 'שיעור הוספה')} value={d ? `${d.favorites.addRatePct}%` : NO_MEASUREMENT} /></motion.div>
+            <motion.div variants={staggerItem}><StatTile label={t('Remove rate', 'שיעור הסרה')} value={d ? `${d.favorites.removeRatePct}%` : NO_MEASUREMENT} /></motion.div>
           </Stagger>
         </section>
 

@@ -210,7 +210,12 @@ export default function RevenueCenterPage() {
                     className="max-w-md leading-tight text-white/85 font-serif"
                     style={{ fontStyle: isHe ? 'normal' : 'italic', fontWeight: 600, fontSize: 'clamp(1.6rem, 4vw, 2.6rem)' }}
                   >
-                    {t('Collect more guest visits to quantify opportunity', 'אספו עוד ביקורי אורחים כדי לכמת הזדמנות')}
+                    {items
+                      ? // The menu payload arrived and simply carries no quantified upside yet.
+                        t('Collect more guest visits to quantify opportunity', 'אספו עוד ביקורי אורחים כדי לכמת הזדמנות')
+                      : // Nothing arrived — telling the owner to "collect more visits" would blame
+                        // their business for what is actually a loading failure.
+                        t('Couldn’t load your menu data — check your connection', 'טעינת נתוני התפריט נכשלה — בדקו את החיבור')}
                   </h2>
                 )}
 
@@ -236,7 +241,13 @@ export default function RevenueCenterPage() {
             <SectionLabel icon={ShieldCheck}>{t('Proven · measured', 'מוכח · נמדד')}</SectionLabel>
             {proven.total === 0 ? (
               <GlassCard static className="px-6 py-7">
-                <EmptyState title={t('0 — act to generate measurable wins', '0 — בצעו פעולות כדי לייצר תוצאות מדידות')} />
+                {measured ? (
+                  // Measured results arrived and genuinely contain nothing yet.
+                  <EmptyState title={t('0 — act to generate measurable wins', '0 — בצעו פעולות כדי לייצר תוצאות מדידות')} />
+                ) : (
+                  // Nothing arrived: printing "0" here would deny wins we never actually checked.
+                  <EmptyState title={t('Couldn’t load measured results — check your connection.', 'טעינת התוצאות שנמדדו נכשלה — בדקו את החיבור.')} />
+                )}
               </GlassCard>
             ) : (
               <div className="grid grid-cols-3 gap-3">
@@ -258,7 +269,13 @@ export default function RevenueCenterPage() {
               </div>
             ) : (
               <GlassCard static className="px-6 py-7">
-                <EmptyState title={t('No measured sales yet.', 'אין עדיין מכירות שנמדדו.')} />
+                {overview ? (
+                  // Sales data arrived and there genuinely are no sales in the window.
+                  <EmptyState title={t('No measured sales yet.', 'אין עדיין מכירות שנמדדו.')} />
+                ) : (
+                  // Sales data never arrived — "no sales" would be a claim about the business.
+                  <EmptyState title={t('Couldn’t load your sales — check your connection.', 'טעינת המכירות נכשלה — בדקו את החיבור.')} />
+                )}
               </GlassCard>
             )}
             <p className="mt-2.5 text-white/70 text-10 tracking-wide font-sans">

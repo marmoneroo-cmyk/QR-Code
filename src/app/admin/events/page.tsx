@@ -2,9 +2,9 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { Eye, Heart, Share2, ShoppingBag, MousePointerClick, Target, ShieldCheck, ShieldAlert, Activity, Fingerprint, Hash, Pause, Play, ListFilter } from 'lucide-react';
+import { Eye, Heart, Share2, ShoppingBag, MousePointerClick, Target, Shield, ShieldCheck, ShieldAlert, Activity, Fingerprint, Hash, Pause, Play, ListFilter } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { KpiCard, SectionLabel, GlassImage, Skeleton, LiveDot } from '@/components/ui/dataviz';
+import { KpiCard, SectionLabel, GlassImage, Skeleton, LiveDot, NO_MEASUREMENT } from '@/components/ui/dataviz';
 import { GlassCard, EmptyState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { motion } from 'framer-motion';
@@ -146,6 +146,32 @@ export default function EventInspectorPage() {
   const validPct = checks.length > 0 ? Math.round((passedChecks / checks.length) * 100) : null;
   const allPassed = integrity?.allPassed ?? false;
 
+  /**
+   * Integrity has THREE states, not two: passed, failed, and "we never got to check".
+   * Falling back to `false` painted the whole validator red — telling the owner their
+   * data has violations when in truth the check never ran. Unknown gets a neutral tone.
+   */
+  const integrityTone = !integrity
+    ? {
+        accent: '#94a3b8',
+        color: 'rgba(255,255,255,0.5)',
+        Icon: Shield,
+        panel: 'border-white/12 bg-white/[0.03]',
+      }
+    : allPassed
+      ? {
+          accent: '#34d399',
+          color: 'var(--success-soft)',
+          Icon: ShieldCheck,
+          panel: 'border-emerald-300/25 bg-emerald-950/10',
+        }
+      : {
+          accent: '#fb7185',
+          color: 'var(--critical-light)',
+          Icon: ShieldAlert,
+          panel: 'border-rose-400/30 bg-rose-950/15',
+        };
+
   return (
     <AdminShell
       title="Event Inspector"
@@ -183,7 +209,7 @@ export default function EventInspectorPage() {
           <motion.div variants={staggerItem}>
             <KpiCard
               label={t('Total events', 'סך אירועים')}
-              value={(integrity?.totalEvents ?? events.length).toLocaleString()}
+              value={integrity ? integrity.totalEvents.toLocaleString() : raw ? events.length.toLocaleString() : NO_MEASUREMENT}
               accent="#7dd3fc"
               icon={Activity}
               hint={t('captured all-time', 'נקלטו בסך הכל')}
@@ -192,7 +218,7 @@ export default function EventInspectorPage() {
           <motion.div variants={staggerItem}>
             <KpiCard
               label={t('Unique sessions', 'סשנים ייחודיים')}
-              value={summary.uniqueSessions.toLocaleString()}
+              value={raw ? summary.uniqueSessions.toLocaleString() : NO_MEASUREMENT}
               accent="#a78bfa"
               icon={Fingerprint}
               hint={t('in current view', 'בתצוגה הנוכחית')}
@@ -202,15 +228,15 @@ export default function EventInspectorPage() {
             <KpiCard
               label={t('Integrity', 'תקינות')}
               value={validPct === null ? '—' : `${validPct}%`}
-              accent={allPassed ? '#34d399' : '#fb7185'}
-              icon={allPassed ? ShieldCheck : ShieldAlert}
+              accent={integrityTone.accent}
+              icon={integrityTone.Icon}
               hint={checks.length > 0 ? t(`${passedChecks}/${checks.length} checks pass`, `${passedChecks}/${checks.length} בדיקות עברו`) : t('checking…', 'בודק…')}
             />
           </motion.div>
           <motion.div variants={staggerItem}>
             <KpiCard
               label={t('Shown', 'מוצגים')}
-              value={visibleEvents.length.toLocaleString()}
+              value={raw ? visibleEvents.length.toLocaleString() : NO_MEASUREMENT}
               accent="#e8c987"
               icon={Hash}
               hint={
@@ -265,7 +291,9 @@ export default function EventInspectorPage() {
                 Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8 w-24 rounded-full" />)
               ) : (
                 <span className="text-white/70 text-xs font-sans">
-                  {t('No events in view.', 'אין אירועים בתצוגה.')}
+                  {raw
+                    ? t('No events in view.', 'אין אירועים בתצוגה.')
+                    : t('Couldn’t load the events — check your connection.', 'טעינת האירועים נכשלה — בדקו את החיבור.')}
                 </span>
               ))}
           </div>
@@ -273,22 +301,22 @@ export default function EventInspectorPage() {
 
         {/* Data Integrity Validator */}
         <section>
-          <SectionLabel icon={allPassed ? ShieldCheck : ShieldAlert}>{t('Data integrity validator', 'מאמת תקינות נתונים')}</SectionLabel>
+          <SectionLabel icon={integrityTone.Icon}>{t('Data integrity validator', 'מאמת תקינות נתונים')}</SectionLabel>
           <GlassCard
             static
-            accent={allPassed ? '#34d399' : '#fb7185'}
-            className={`p-6 ${allPassed ? 'border-emerald-300/25 bg-emerald-950/10' : 'border-rose-400/30 bg-rose-950/15'}`}
+            accent={integrityTone.accent}
+            className={`p-6 ${integrityTone.panel}`}
           >
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <span
                 className="inline-flex items-center gap-1.5 text-11 tracking-wider uppercase font-sans"
-                style={{ color: allPassed ? 'var(--success-soft)' : 'var(--critical-light)' }}
+                style={{ color: integrityTone.color }}
               >
-                {allPassed ? <ShieldCheck size={14} strokeWidth={2} /> : <ShieldAlert size={14} strokeWidth={2} />}
+                <integrityTone.Icon size={14} strokeWidth={2} />
                 {integrity ? (allPassed ? t('all checks pass', 'כל הבדיקות עברו') : t('violations found', 'נמצאו הפרות')) : t('checking…', 'בודק…')}
               </span>
               {validPct !== null && (
-                <span className="text-11 font-sans" style={{ color: allPassed ? 'var(--success-soft)' : 'var(--critical-light)' }}>
+                <span className="text-11 font-sans" style={{ color: integrityTone.color }}>
                   {validPct}% {t('valid', 'תקין')}
                 </span>
               )}
@@ -415,7 +443,13 @@ export default function EventInspectorPage() {
                 ))
               ) : (
                 <li>
-                  <EmptyState title={t('No events match.', 'אין אירועים תואמים.')} />
+                  <EmptyState
+                    title={
+                      raw
+                        ? t('No events match.', 'אין אירועים תואמים.')
+                        : t('Couldn’t load the events — check your connection.', 'טעינת האירועים נכשלה — בדקו את החיבור.')
+                    }
+                  />
                 </li>
               ))}
           </ul>

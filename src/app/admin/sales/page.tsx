@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState, type DragEvent } from 'react';
 import { Coins, Boxes, UploadCloud, AlertTriangle, LayoutGrid } from 'lucide-react';
 import { AdminShell } from '@/components/ui/AdminShell';
-import { GlassImage, KpiCard, SectionLabel, Skeleton, SkeletonGrid } from '@/components/ui/dataviz';
+import { GlassImage, KpiCard, SectionLabel, Skeleton, SkeletonGrid, NO_MEASUREMENT } from '@/components/ui/dataviz';
 import { GlassCard, EmptyState, ErrorState } from '@/components/ui/premium';
 import { Stagger, staggerItem } from '@/components/ui/motion';
 import { motion } from 'framer-motion';
@@ -116,6 +116,8 @@ export function SalesPanel() {
   const { data: rawSales, loading, error: fetchError, reload } = useApiData<SalesByItem[]>('/api/sales');
   const sales = rawSales ?? [];
   const error = Boolean(fetchError);
+  /** A count of 0 would claim nothing was ever imported; show a dash until the payload lands. */
+  const importedCount: string | number = rawSales ? sales.length : NO_MEASUREMENT;
 
   const readDroppedFile = useCallback((file: File) => {
     if (typeof window === 'undefined' || typeof FileReader === 'undefined') return;
@@ -314,7 +316,7 @@ export function SalesPanel() {
 
           {/* Aggregated sales cards */}
           <section className="lg:col-span-3 flex flex-col gap-4">
-            <SectionLabel icon={Coins}>{t(`Imported sales · ${sales.length}`, `מכירות שנקלטו · ${sales.length}`)}</SectionLabel>
+            <SectionLabel icon={Coins}>{t(`Imported sales · ${importedCount}`, `מכירות שנקלטו · ${importedCount}`)}</SectionLabel>
             {sales.length === 0 && loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {Array.from({ length: 4 }).map((_, i) => (

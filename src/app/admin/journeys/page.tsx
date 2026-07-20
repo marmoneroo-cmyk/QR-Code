@@ -423,7 +423,13 @@ export function JourneysPanel() {
       )}
 
       {sessions.length === 0 && !loading && (
-        <EmptyState title={t('No sessions captured yet.', 'עדיין לא נקלטו ביקורים.')} />
+        <EmptyState
+          title={
+            data
+              ? t('No sessions captured yet.', 'עדיין לא נקלטו ביקורים.')
+              : t('Couldn’t load the sessions — check your connection.', 'טעינת הביקורים נכשלה — בדקו את החיבור.')
+          }
+        />
       )}
 
       {sessions.length > 0 && topSlugs.length > 0 && (
