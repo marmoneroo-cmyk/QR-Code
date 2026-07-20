@@ -69,7 +69,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         entityType: single ? 'cocktail' : 'menu',
         entityId: single,
         after: { name: data.name, type: data.type, value: data.value, scope: data.scope },
-        summary: `Promotion: ${data.name} (−${data.value}${data.type === 'percentage' ? '%' : '₪'})`,
+        // Language-neutral: the owner's promo name + the discount (digits/%, no words).
+        // The action ("added") is carried by changeType and localized at render time,
+        // so this reads correctly in either language on the owner-facing timeline.
+        summary: `${data.name} · −${data.value}${data.type === 'percentage' ? '%' : '₪'}`,
       },
       db,
     );
@@ -133,7 +136,8 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
         entityType: single ? 'cocktail' : 'menu',
         entityId: single,
         after: { name: data.name },
-        summary: `Promotion updated: ${data.name}`,
+        // Just the name — the "updated" verb is the changeType, localized at render.
+        summary: data.name,
       },
       db,
     );
@@ -156,7 +160,9 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
         changeType: 'promotion_deleted',
         entityType: 'promotion',
         entityId: id,
-        summary: 'Promotion deleted',
+        // No name available at delete time; changeType carries the "removed" meaning,
+        // localized at render. (English "Promotion deleted" was owner-facing jargon.)
+        summary: undefined,
       },
       db,
     );

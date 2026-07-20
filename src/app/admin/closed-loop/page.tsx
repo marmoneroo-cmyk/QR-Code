@@ -13,8 +13,12 @@ import {
   PlusCircle,
   Wrench,
   Zap,
+  ChevronDown,
+  List,
+  Table as TableIcon,
   type LucideIcon,
 } from 'lucide-react';
+import { describeChange } from '@/lib/changes/describe';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, ConfidenceBadge, SectionLabel, Skeleton } from '@/components/ui/dataviz';
@@ -74,6 +78,11 @@ export function ClosedLoopPanel() {
   const [date, setDate] = useState('');
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+
+  // The change timeline is a long audit log — kept COLLAPSED so it doesn't bury the
+  // measured results, and offered in two shapes (rows or a table) per the owner's ask.
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [timelineView, setTimelineView] = useState<'list' | 'table'>('list');
 
   const titleBySlug = useMemo(() => new Map(MENU.map((c) => [c.slug, c.title])), []);
 
@@ -219,32 +228,145 @@ export function ClosedLoopPanel() {
           </div>
         </GlassCard>
 
-        {/* Timeline */}
+        {/* Change timeline — collapsed by default; a long audit log shouldn't bury
+            the measured results above it. Opens via the chevron header, then the
+            owner picks rows or a table. */}
         {data && data.timeline.length > 0 && (
           <section>
-            <SectionLabel icon={Clock}>{t('Change timeline', 'ציר הזמן של השינויים')}</SectionLabel>
-            <GlassCard static className="divide-y divide-white/[0.06]">
-              {data.timeline.slice(0, 30).map((c) => {
-                const manual = c.source === 'manual';
-                return (
-                  <div key={c.id} className="font-sans flex items-center gap-3 px-5 py-3 text-xs">
-                    <span
-                      className="grid h-6 w-6 shrink-0 place-items-center rounded-full"
-                      style={{
-                        color: manual ? 'var(--warning)' : 'rgba(255,255,255,0.55)',
-                        background: manual ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)',
-                      }}
-                    >
-                      {manual ? <Wrench size={11} strokeWidth={2} /> : <Zap size={11} strokeWidth={2} />}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate text-white/75">{c.summary ?? c.changeType}</span>
-                    <span className="shrink-0 text-white/70">
-                      {manual ? t('manual', 'ידני') : t('auto', 'אוטו')} · {fmtDate(c.createdAt)}
-                    </span>
-                  </div>
-                );
-              })}
-            </GlassCard>
+            <button
+              type="button"
+              onClick={() => setTimelineOpen((v) => !v)}
+              aria-expanded={timelineOpen}
+              className="group flex w-full items-center gap-3 py-2 text-start"
+            >
+              <SectionLabel icon={Clock}>{t('Change timeline', 'ציר הזמן של השינויים')}</SectionLabel>
+              <span className="text-white/45 text-11 font-sans tabular-nums">
+                {data.timeline.length}
+              </span>
+              <span className="flex-1" />
+              <ChevronDown
+                size={18}
+                className={`text-white/55 transition-transform group-hover:text-white ${timelineOpen ? 'rotate-180' : ''}`}
+                aria-hidden
+              />
+            </button>
+
+            {timelineOpen && (
+              <div className="mt-3 flex flex-col gap-3">
+                {/* rows / table view toggle */}
+                <div className="flex items-center gap-2 self-end">
+                  {([
+                    { key: 'list' as const, icon: List, en: 'List', he: 'רשימה' },
+                    { key: 'table' as const, icon: TableIcon, en: 'Table', he: 'טבלה' },
+                  ]).map((opt) => {
+                    const active = timelineView === opt.key;
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => setTimelineView(opt.key)}
+                        aria-pressed={active}
+                        className={`font-sans inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-11 tracking-[0.12em] uppercase transition-colors ${
+                          active ? 'bg-amber-200 text-black' : 'border border-white/15 text-white/55 hover:text-white'
+                        }`}
+                        style={{ fontWeight: 600 }}
+                      >
+                        <Icon size={13} strokeWidth={2} />
+                        {t(opt.en, opt.he)}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {timelineView === 'list' ? (
+                  <GlassCard static className="divide-y divide-white/[0.06]">
+                    {data.timeline.slice(0, 30).map((c) => {
+                      const manual = c.source === 'manual';
+                      const { label, detail } = describeChange(c, isHe);
+                      return (
+                        <div key={c.id} className="font-sans flex items-center gap-3 px-5 py-3 text-xs">
+                          <span
+                            className="grid h-6 w-6 shrink-0 place-items-center rounded-full"
+                            style={{
+                              color: manual ? 'var(--warning)' : 'rgba(255,255,255,0.55)',
+                              background: manual ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)',
+                            }}
+                          >
+                            {manual ? <Wrench size={11} strokeWidth={2} /> : <Zap size={11} strokeWidth={2} />}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate text-white/75">
+                            {label && <span className="text-white/90">{label}</span>}
+                            {label && detail ? ' · ' : ''}
+                            {detail}
+                          </span>
+                          <span className="shrink-0 text-white/70">
+                            {manual ? t('manual', 'ידני') : t('auto', 'אוטו')} · {fmtDate(c.createdAt)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </GlassCard>
+                ) : (
+                  <GlassCard static className="overflow-x-auto p-0">
+                    <table className="w-full min-w-[32rem] font-sans text-xs">
+                      <thead>
+                        <tr className="border-b border-white/10 text-white/50">
+                          <th className="px-5 py-3 text-start font-normal tracking-[0.12em] uppercase text-10">
+                            {t('Date', 'תאריך')}
+                          </th>
+                          <th className="px-3 py-3 text-start font-normal tracking-[0.12em] uppercase text-10">
+                            {t('Source', 'מקור')}
+                          </th>
+                          <th className="px-5 py-3 text-start font-normal tracking-[0.12em] uppercase text-10">
+                            {t('Change', 'שינוי')}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.timeline.slice(0, 30).map((c) => {
+                          const manual = c.source === 'manual';
+                          const { label, detail } = describeChange(c, isHe);
+                          return (
+                            <tr key={c.id} className="border-b border-white/[0.05] last:border-0">
+                              <td className="whitespace-nowrap px-5 py-3 text-white/60 tabular-nums">
+                                {fmtDate(c.createdAt)}
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-3">
+                                <span
+                                  className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-10"
+                                  style={{
+                                    color: manual ? 'var(--warning)' : 'rgba(255,255,255,0.6)',
+                                    background: manual ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)',
+                                  }}
+                                >
+                                  {manual ? <Wrench size={10} strokeWidth={2} /> : <Zap size={10} strokeWidth={2} />}
+                                  {manual ? t('manual', 'ידני') : t('auto', 'אוטו')}
+                                </span>
+                              </td>
+                              <td className="px-5 py-3 text-white/80">
+                                {label && <span className="text-white/95">{label}</span>}
+                                {label && detail ? ' · ' : ''}
+                                {detail}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </GlassCard>
+                )}
+
+                {data.timeline.length > 30 && (
+                  <p className="text-white/40 text-11 font-sans">
+                    {t(
+                      `Showing the 30 most recent of ${data.timeline.length} changes.`,
+                      `מוצגים 30 השינויים האחרונים מתוך ${data.timeline.length}.`,
+                    )}
+                  </p>
+                )}
+              </div>
+            )}
           </section>
         )}
       </div>
