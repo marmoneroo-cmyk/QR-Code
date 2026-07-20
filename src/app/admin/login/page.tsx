@@ -33,8 +33,40 @@ function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
 
   const configured = isSupabaseConfigured();
+
+  /**
+   * Send a recovery mail pointing at /admin/reset-password. The confirmation is
+   * deliberately identical whether or not the address exists — otherwise this form
+   * becomes an oracle for which emails have accounts.
+   */
+  const onForgotPassword = async () => {
+    const target = email.trim();
+    if (!configured) {
+      setError(t('Supabase is not configured.', 'Supabase לא מוגדר.'));
+      return;
+    }
+    if (!target) {
+      setError(t('Enter your email first, then choose “Forgot password”.', 'הזינו אימייל תחילה, ואז בחרו "שכחתי סיסמה".'));
+      return;
+    }
+    setSendingReset(true);
+    setError(null);
+    try {
+      const sb = createClient();
+      await sb.auth.resetPasswordForEmail(target, {
+        redirectTo: `${window.location.origin}/admin/reset-password`,
+      });
+      setResetSent(true);
+    } catch {
+      setError(t('Could not send the reset email.', 'לא הצלחנו לשלוח את מייל האיפוס.'));
+    } finally {
+      setSendingReset(false);
+    }
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +155,15 @@ function LoginForm() {
             </p>
           )}
 
+          {resetSent && (
+            <p role="status" className="font-sans text-emerald-300/90 text-13 leading-relaxed">
+              {t(
+                'If that email has an account, a reset link is on its way. Open it to choose a new password.',
+                'אם קיים חשבון לאימייל הזה, נשלח אליו קישור לאיפוס. פתחו אותו כדי לבחור סיסמה חדשה.',
+              )}
+            </p>
+          )}
+
           <button
             type="submit"
             disabled={loading}
@@ -144,7 +185,18 @@ function LoginForm() {
           </button>
         </form>
 
-        <div className="relative mt-8 text-center">
+        <div className="relative mt-6 text-center">
+          <button
+            type="button"
+            onClick={onForgotPassword}
+            disabled={sendingReset}
+            className="font-sans text-white/45 hover:text-amber-200/80 text-11 tracking-wide underline underline-offset-4 transition-colors disabled:opacity-50"
+          >
+            {sendingReset ? t('Sending…', 'שולח…') : t('Forgot password?', 'שכחתם סיסמה?')}
+          </button>
+        </div>
+
+        <div className="relative mt-6 text-center">
           <Link href="/" className="font-sans text-white/70 hover:text-white/90 text-10 tracking-[0.3em] uppercase transition-colors">
             {t('← Back to menu', '→ חזרה לתפריט')}
           </Link>
