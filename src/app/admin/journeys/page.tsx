@@ -53,6 +53,9 @@ const STEP_LABEL: Record<string, { en: string; he: string }> = {
   cocktail_video_opened: { en: 'Watched video', he: 'צפה בווידאו' },
   ingredients_opened: { en: 'Opened ingredients', he: 'פתח מרכיבים' },
   ar_opened: { en: 'Opened AR', he: 'פתח AR' },
+  // These two were leaking as raw event names in the step list ("cocktail_revisited").
+  cocktail_revisited: { en: 'Revisited', he: 'צפייה חוזרת' },
+  cocktail_ar_dwell: { en: 'AR dwell', he: 'שהה ב-AR' },
   '360_opened': { en: 'Opened 360°', he: 'פתח 360°' },
   call_waiter_clicked: { en: 'Called waiter', he: 'קרא למלצר' },
   add_to_order_clicked: { en: 'Added to order', he: 'הוסיף להזמנה' },
