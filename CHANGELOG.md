@@ -156,7 +156,7 @@ Ran four read-only audits in parallel (database/scalability · API design · AI-
 
 ---
 
-## [Unreleased] — 2026-06-09
+## [2026-06-09]
 
 ### Added — Netflix-style sectioned menu (the public landing)
 
@@ -643,9 +643,9 @@ Design-system overhaul — site-wide consistency, fixed CSS cascade bug, and a f
 
 ---
 
-## [Unreleased]
+## [Planned]
 
-### Planned (Sprint 4 Phase B — blocked on user setup)
+### Sprint 4 Phase B — blocked on user setup
 - Wire `useDrafts` to Supabase instead of localStorage
 - Auth pages `/login` + `/signup` with email + Google
 - Restaurant onboarding (signup → create restaurant → invite team)
