@@ -199,7 +199,12 @@ export default function AdminPage() {
             href="/admin/new"
             className="font-sans text-amber-200/90 hover:text-amber-100 transition-colors text-11 tracking-[0.3em] uppercase"
           >
-            {t('Create your first cocktail →', '← צור את הקוקטייל הראשון שלך')}
+            {/* This sits in the DRAFTS empty state, which is empty independently of the
+                published menu. "Your first cocktail" told an owner with ten live items
+                that they had none — the copy has to speak about drafts, not the menu. */}
+            {publishedList.length > 0
+              ? t('Draft a new item →', '← נסחו פריט חדש כטיוטה')
+              : t('Create your first cocktail →', '← צור את הקוקטייל הראשון שלך')}
           </Link>
         </div>
       ) : (
