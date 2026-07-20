@@ -60,7 +60,7 @@ export function FlavorRadar({ flavor, lang, size = 220, kind = 'drink', accent }
 
   const isHebrew = lang === 'he';
   const labelFont = isHebrew
-    ? 'var(--font-heebo, sans-serif)'
+    ? 'var(--font-rubik, sans-serif)'
     : 'var(--font-inter, sans-serif)';
 
   // Accessible summary of the same data the polygon draws (screen readers can't

@@ -4,7 +4,7 @@ import { renderInline, type ChangelogVersion } from '@/lib/parseChangelog';
 import { useLang } from '@/lib/useLang';
 
 const body = 'var(--font-garamond, serif)';
-const heBody = 'var(--font-heebo, sans-serif)';
+const heBody = 'var(--font-rubik, sans-serif)';
 
 interface ChangelogTimelineProps {
   en: ChangelogVersion[];

@@ -20,7 +20,7 @@ import type { Opportunity } from '@/lib/opportunities/types';
 import type { MenuEngineeringItem } from '@/lib/analytics/types';
 
 const serif = 'var(--font-playfair, serif)';
-const serifHe = 'var(--font-frank-ruhl, serif)';
+const serifHe = 'var(--font-rubik, sans-serif)';
 
 /** Auto-refresh cadence — the coach is a live surface that re-reads on each tick. */
 const POLL_MS = 20_000;

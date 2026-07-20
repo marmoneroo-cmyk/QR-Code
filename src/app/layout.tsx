@@ -3,8 +3,7 @@ import {
   Playfair_Display,
   EB_Garamond,
   Inter,
-  Frank_Ruhl_Libre,
-  Heebo,
+  Rubik,
 } from 'next/font/google';
 import './globals.css';
 import { DirectionSync } from '@/components/DirectionSync';
@@ -33,17 +32,16 @@ const inter = Inter({
   display: 'swap',
 });
 
-const frankRuhl = Frank_Ruhl_Libre({
+/**
+ * Rubik is the single Hebrew face — it serves BOTH body and display, matching the
+ * brand's other surfaces (site + customer emails). It replaced Heebo (body) and
+ * Frank Ruhl Libre (display), so Hebrew headings are now sans rather than serif.
+ * One family instead of two also means one less font payload on every Hebrew load.
+ */
+const rubik = Rubik({
   subsets: ['hebrew', 'latin'],
   weight: ['300', '400', '500', '700'],
-  variable: '--font-frank-ruhl',
-  display: 'swap',
-});
-
-const heebo = Heebo({
-  subsets: ['hebrew', 'latin'],
-  weight: ['300', '400', '500'],
-  variable: '--font-heebo',
+  variable: '--font-rubik',
   display: 'swap',
 });
 
@@ -75,7 +73,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${garamond.variable} ${inter.variable} ${frankRuhl.variable} ${heebo.variable}`}
+      className={`${playfair.variable} ${garamond.variable} ${inter.variable} ${rubik.variable}`}
     >
       <body className="bg-black text-white font-sans">
         <DirectionSync />

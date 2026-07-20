@@ -13,7 +13,7 @@ import { AdminShell } from '@/components/ui/AdminShell';
 import { GlassImage, SectionLabel } from '@/components/ui/dataviz';
 
 const body = 'var(--font-garamond, serif)';
-const heBody = 'var(--font-heebo, sans-serif)';
+const heBody = 'var(--font-rubik, sans-serif)';
 
 interface DraftCardProps {
   index: number;

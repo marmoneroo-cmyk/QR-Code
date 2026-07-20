@@ -25,7 +25,7 @@ import type { MenuEngineeringItem } from '@/lib/analytics/types';
 import { useApiData } from '@/lib/data/useApiData';
 
 const serif = 'var(--font-playfair, serif)';
-const serifHe = 'var(--font-frank-ruhl, serif)';
+const serifHe = 'var(--font-rubik, sans-serif)';
 
 /** How many focus actions we surface at once — the whole point is to NOT overwhelm. */
 const FOCUS_COUNT = 3;

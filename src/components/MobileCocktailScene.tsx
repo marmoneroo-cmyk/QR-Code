@@ -45,7 +45,7 @@ export function MobileCocktailScene({
   const isHebrew = lang === 'he';
   const [videoOpen, setVideoOpen] = useState(false);
   const featureVideo = getFeatureVideo(config.slug);
-  const bodyFont = isHebrew ? 'var(--font-heebo, sans-serif)' : 'var(--font-garamond, serif)';
+  const bodyFont = isHebrew ? 'var(--font-rubik, sans-serif)' : 'var(--font-garamond, serif)';
 
   const layerImage = (layerId: string): string | undefined =>
     config.layers.find((l) => l.id === layerId)?.image;

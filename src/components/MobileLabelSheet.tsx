@@ -13,7 +13,7 @@ interface MobileLabelSheetProps {
 export function MobileLabelSheet({ config, activeLayerId, onClose, lang }: MobileLabelSheetProps) {
   const isHebrew = lang === 'he';
   const descFont = isHebrew
-    ? 'var(--font-heebo, sans-serif)'
+    ? 'var(--font-rubik, sans-serif)'
     : 'var(--font-garamond, serif)';
 
   const label = activeLayerId

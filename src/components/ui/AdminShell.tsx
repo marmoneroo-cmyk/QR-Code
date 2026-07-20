@@ -10,7 +10,7 @@ import { AuthStatus } from '@/components/admin/AuthStatus';
 import { AmbientBackdrop, GlowDivider, LUX_EASE } from './premium';
 
 const body = 'var(--font-garamond, serif)';
-const heBody = 'var(--font-heebo, sans-serif)';
+const heBody = 'var(--font-rubik, sans-serif)';
 
 interface AdminShellProps {
   title: string;

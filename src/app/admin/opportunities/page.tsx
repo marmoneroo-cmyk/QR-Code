@@ -22,7 +22,7 @@ import { useOppStatuses } from '@/lib/useOppStatuses';
 import { useApiData } from '@/lib/data/useApiData';
 
 const serif = 'var(--font-playfair, serif)';
-const serifHe = 'var(--font-frank-ruhl, serif)';
+const serifHe = 'var(--font-rubik, sans-serif)';
 
 const TYPE_LABEL: Record<OpportunityType, { en: string; he: string }> = {
   fix_offer: { en: 'Review the offer', he: 'בדקו את ההצעה' },

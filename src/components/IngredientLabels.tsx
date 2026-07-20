@@ -33,7 +33,7 @@ export function IngredientLabels({
   // Hebrew simply renders right-to-left on the same side.
   const labelsOnRight = true;
   const descFont = isHebrew
-    ? 'var(--font-heebo, sans-serif)'
+    ? 'var(--font-rubik, sans-serif)'
     : 'var(--font-garamond, Georgia, serif)';
 
   return (

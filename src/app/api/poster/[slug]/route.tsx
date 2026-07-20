@@ -71,10 +71,12 @@ export async function GET(req: Request, context: RouteContext): Promise<Response
 
   // Load a font covering the rendered text (Latin + Hebrew).
   const allText = `${title}${category}${subtitle}${tagline}${note}${brand}${flavorVals.map((f) => f.label).join('')}1234567890`;
-  const titleFontData = await loadFont(isHebrew ? 'Frank+Ruhl+Libre:wght@500' : 'Playfair+Display:ital@1', allText);
-  const bodyFontData = await loadFont(isHebrew ? 'Heebo:wght@400' : 'Inter:wght@400', allText);
-  const titleFamily = isHebrew ? 'Frank Ruhl Libre' : 'Playfair Display';
-  const bodyFamily = isHebrew ? 'Heebo' : 'Inter';
+  // Hebrew uses Rubik for BOTH title and body — one family across the whole brand, so the
+  // shared poster matches the menu instead of drifting to a different Hebrew face.
+  const titleFontData = await loadFont(isHebrew ? 'Rubik:wght@500' : 'Playfair+Display:ital@1', allText);
+  const bodyFontData = await loadFont(isHebrew ? 'Rubik:wght@400' : 'Inter:wght@400', allText);
+  const titleFamily = isHebrew ? 'Rubik' : 'Playfair Display';
+  const bodyFamily = isHebrew ? 'Rubik' : 'Inter';
 
   const fonts: { name: string; data: ArrayBuffer; weight?: 400 | 500; style?: 'normal' | 'italic' }[] = [];
   if (titleFontData) fonts.push({ name: titleFamily, data: titleFontData, weight: 500, style: isHebrew ? 'normal' : 'italic' });
