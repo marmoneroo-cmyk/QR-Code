@@ -251,6 +251,10 @@ function Toggle<T extends string | number>({
               key={String(opt)}
               type="button"
               onClick={() => onChange(opt)}
+              // The selected option was shown by background colour alone, so a
+              // screen-reader user could not tell which cards-per-page, theme or note
+              // setting was active — and this Toggle backs every option group here.
+              aria-pressed={isActive}
               className={`font-sans px-3.5 py-1.5 rounded-full text-11 tracking-[0.08em] transition-all duration-300 ${
                 isActive ? 'bg-amber-100 text-black' : 'text-white/55 hover:text-white/90'
               }`}
