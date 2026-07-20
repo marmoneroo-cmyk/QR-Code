@@ -18,6 +18,7 @@ import { useLang } from '@/lib/useLang';
 import { useCurrency } from '@/lib/useCurrency';
 import { useMenuConfig } from '@/lib/useMenuConfig';
 import { resolveDinerPrice } from '@/data/experience';
+import { useExperiment } from '@/lib/experiments/useExperiment';
 
 /**
  * CocktailExperience — a full-screen, cinematic "dedicated landing page" for ONE drink.
@@ -578,6 +579,11 @@ function HeroStage({
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(0);
   const px = useSpring(useTransform(mx, [-0.5, 0.5], [-10, 10]), { stiffness: 120, damping: 20 });
+  // A/B: the Ingredients CTA label is under experiment (see lib/experiments/config).
+  // Rendering the assigned variant here also fires the one exposure event that the
+  // dashboard measures `ingredients_opened` against.
+  const ctaVariant = useExperiment('ingredients-cta');
+  const ingredientsLabel = ctaVariant ? ctaVariant.value[lang] : isHe ? 'מרכיבים' : 'Ingredients';
 
   return (
     <motion.main
@@ -693,7 +699,7 @@ function HeroStage({
         transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
       >
         <ActionTile
-          label={isHe ? 'מרכיבים' : 'Ingredients'}
+          label={ingredientsLabel}
           icon={<Layers size={20} strokeWidth={1.6} aria-hidden />}
           onClick={onIngredients}
           className="flex-1 min-w-[92px] max-w-[160px]"

@@ -3,7 +3,6 @@
 import { useState, type CSSProperties } from 'react';
 import { motion } from 'framer-motion';
 import { track } from '@/lib/tracking/track';
-import { useExperiment } from '@/lib/experiments/useExperiment';
 import type { Lang } from '@/data/cocktail';
 
 /**
@@ -33,9 +32,10 @@ export function OrderBar({ cocktailSlug, accent, lang, priceILS, costILS }: Orde
   const [count, setCount] = useState(0);
   const [confirmed, setConfirmed] = useState(false);
 
-  // A/B: the pick CTA label is under experiment (see lib/experiments/config).
-  const ctaVariant = useExperiment('order-cta');
-  const addLabel = ctaVariant ? ctaVariant.value[lang] : isHebrew ? 'הוסף לבחירות שלי' : 'Add to my picks';
+  // Static label. This bar only exists in the kiosk view; the A/B experiment that
+  // once varied this label was repointed to the main page's Ingredients CTA
+  // (order-based conversion can't fill — this product has no ordering).
+  const addLabel = isHebrew ? 'הוסף לבחירות שלי' : 'Add to my picks';
 
   const handleAdd = () => {
     setConfirmed(false);

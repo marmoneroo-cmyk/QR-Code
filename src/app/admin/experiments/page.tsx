@@ -49,8 +49,8 @@ export default function ExperimentsPage() {
       eyebrow="A/B Testing"
       eyebrowHe="בדיקות A/B"
       active="/admin/experiments"
-      subtitle="Live split tests with conversion uplift and statistical significance — sessions are split deterministically and measured against real orders."
-      subtitleHe="בדיקות פיצול חיות עם שיפור המרה ומובהקות סטטיסטית — ה-sessions מפוצלים דטרמיניסטית ונמדדים מול הזמנות אמיתיות."
+      subtitle="Live split tests with uplift and statistical significance — sessions are split deterministically and measured against real guest interest (which button label gets more guests to open the breakdown)."
+      subtitleHe="בדיקות פיצול חיות עם שיפור ומובהקות סטטיסטית — ה-sessions מפוצלים דטרמיניסטית ונמדדים מול עניין אמיתי של אורחים (איזו תווית כפתור גורמת ליותר אורחים לפתוח את הפירוק)."
       actions={<LiveDot label={t('Live', 'חי')} />}
     >
       {loading && experiments.length === 0 && (
@@ -210,8 +210,8 @@ export default function ExperimentsPage() {
               {!exp.hasData && (
                 <p className="font-sans text-white/70 text-xs mt-4 pt-4 border-t border-white/10">
                   {t(
-                    'No exposures yet — open a cocktail and use the order bar; each session is split between variants and measured here.',
-                    'עדיין אין חשיפות — פתח קוקטייל והשתמש בסרגל ההזמנה; כל session מפוצל בין הוריאציות ונמדד כאן.',
+                    'No exposures yet — open a cocktail and tap the Ingredients button; each session is split between variants and measured here.',
+                    'עדיין אין חשיפות — פתחו קוקטייל ולחצו על כפתור המרכיבים; כל session מפוצל בין הוריאציות ונמדד כאן.',
                   )}
                 </p>
               )}
