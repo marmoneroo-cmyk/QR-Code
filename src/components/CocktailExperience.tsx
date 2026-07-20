@@ -15,6 +15,9 @@ import { recordView } from '@/lib/tracking/revisit';
 import { setRestaurantSlug } from '@/lib/tracking/queue';
 import { useEngagement } from '@/lib/tracking/useEngagement';
 import { useLang } from '@/lib/useLang';
+import { useCurrency } from '@/lib/useCurrency';
+import { useMenuConfig } from '@/lib/useMenuConfig';
+import { resolveDinerPrice } from '@/data/experience';
 
 /**
  * CocktailExperience — a full-screen, cinematic "dedicated landing page" for ONE drink.
@@ -40,6 +43,52 @@ interface CocktailExperienceProps {
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 /** Dispatch by item kind — a dish gets a dish layout, a drink gets the cinematic one. */
+/**
+ * The guest-facing price for one item, resolved the SAME way the menu resolves it.
+ *
+ * Every price on this screen used to render `formatPrice(config.priceILS, 'ILS')` — the
+ * raw price with the currency hardcoded. So a guest who saw "62 → 50 · Happy Hour" on the
+ * menu tapped the drink and was shown 62, and a guest who chose USD kept seeing shekels.
+ * A price quoted to a guest must never disagree between two screens.
+ */
+function DinerPrice({
+  cocktail,
+  className,
+  compact,
+}: {
+  cocktail: Pick<CocktailConfig, 'slug' | 'priceILS' | 'costILS' | 'category'>;
+  className?: string;
+  compact?: boolean;
+}) {
+  const { currency } = useCurrency();
+  const { promotions } = useMenuConfig('diner');
+  // Time-based promotions are resolved only AFTER mount so the server render and the first
+  // client render agree — the same deferral MenuRow uses to avoid a hydration mismatch.
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => setNow(new Date()), []);
+
+  if (cocktail.priceILS === undefined) return null;
+  const priced = now ? resolveDinerPrice(cocktail, now, { promotions }) : null;
+
+  if (priced?.discounted) {
+    return (
+      <span className={`inline-flex items-baseline gap-1.5 font-sans ${className ?? ''}`} dir="ltr">
+        <span className={`line-through opacity-40 ${compact ? 'text-10' : 'text-sm'}`}>
+          {formatPrice(priced.original, currency)}
+        </span>
+        <span className="text-amber-300" style={{ fontWeight: 600 }}>
+          {formatPrice(priced.price, currency)}
+        </span>
+      </span>
+    );
+  }
+  return (
+    <span className={`inline-flex font-sans ${className ?? ''}`} dir="ltr" style={{ fontWeight: 600 }}>
+      {formatPrice(priced?.price ?? cocktail.priceILS, currency)}
+    </span>
+  );
+}
+
 export function CocktailExperience({ config }: CocktailExperienceProps) {
   return config.kind === 'food'
     ? <FoodExperience config={config} />
@@ -309,11 +358,7 @@ function FoodHero({ config, lang, accent, reduce, hasVideo, hasComponents, onIng
             {config.tagline[lang]}
           </p>
         )}
-        {config.priceILS !== undefined && (
-          <p className="mt-2 text-xl text-amber-100/90 font-sans" style={{ fontWeight: 600 }} dir="ltr">
-            {formatPrice(config.priceILS, 'ILS')}
-          </p>
-        )}
+        <DinerPrice cocktail={config} className="mt-2 text-xl text-amber-100/90" />
       </motion.div>
 
       {/* The dish — tap to explore its components. No reflection (a photo, not a transparent glass). */}
@@ -564,11 +609,7 @@ function HeroStage({
             {config.tagline[lang]}
           </p>
         )}
-        {config.priceILS !== undefined && (
-          <p className="mt-2 text-xl text-amber-100/90 font-sans" style={{ fontWeight: 600 }}>
-            {formatPrice(config.priceILS, 'ILS')}
-          </p>
-        )}
+        <DinerPrice cocktail={config} className="mt-2 text-xl text-amber-100/90" />
       </motion.div>
 
       {/* THE DRINK — ~55vh, glow, reflection, slow float. Tap = explore. */}
@@ -931,11 +972,7 @@ function AlsoExplored({ currentSlug, lang }: AlsoExploredProps) {
               >
                 {c.title[lang]}
               </span>
-              {c.priceILS !== undefined && (
-                <span className="text-11 text-amber-100/80 font-sans">
-                  {formatPrice(c.priceILS, 'ILS')}
-                </span>
-              )}
+              <DinerPrice cocktail={c} className="text-11 text-amber-100/80" compact />
             </Link>
           );
         })}
