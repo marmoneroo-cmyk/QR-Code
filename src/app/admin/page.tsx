@@ -24,6 +24,10 @@ interface DraftCardProps {
   onDragOver: () => void;
   onDrop: () => void;
   onDragEnd: () => void;
+  /** Move this card by one position. Supplied so the handle is operable without a mouse. */
+  onMove?: (delta: -1 | 1) => void;
+  /** Stable id used to return focus to this same handle after the list re-orders. */
+  reorderId?: string;
   children: React.ReactNode;
 }
 
@@ -42,9 +46,36 @@ function DraftCard({
   onDragOver,
   onDrop,
   onDragEnd,
+  onMove,
+  reorderId,
   children,
 }: DraftCardProps) {
   const [canDrag, setCanDrag] = useState(false);
+
+  /*
+   * Reordering used to be drag-only. The handle renders as a <button> announcing
+   * "Reorder <item>", so it promises an operable control — but no key did anything,
+   * leaving keyboard and screen-reader users unable to order the menu at all.
+   *
+   * Arrow keys move the card one position. Left/Right are mapped by writing direction
+   * so "next" is the same physical key in Hebrew as in English, and focus is returned
+   * to this same handle afterwards so repeated presses keep walking the item along.
+   */
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (!onMove) return;
+    const rtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
+    const earlier = e.key === 'ArrowUp' || e.key === (rtl ? 'ArrowRight' : 'ArrowLeft');
+    const later = e.key === 'ArrowDown' || e.key === (rtl ? 'ArrowLeft' : 'ArrowRight');
+    if (!earlier && !later) return;
+    e.preventDefault();
+    onMove(earlier ? -1 : 1);
+    if (reorderId) {
+      // The list re-renders under us, so re-find this handle by its stable id.
+      window.setTimeout(() => {
+        document.querySelector<HTMLButtonElement>(`[data-reorder-id="${reorderId}"]`)?.focus();
+      }, 0);
+    }
+  };
 
   return (
     <motion.div
@@ -77,9 +108,11 @@ function DraftCard({
         type="button"
         aria-label={dragLabel}
         title={dragLabel}
+        data-reorder-id={reorderId}
         onPointerDown={() => setCanDrag(true)}
         onPointerUp={() => setCanDrag(false)}
         onPointerLeave={() => setCanDrag(false)}
+        onKeyDown={handleKeyDown}
         className="absolute start-1.5 top-1/2 -translate-y-1/2 flex h-9 w-7 cursor-grab touch-none items-center justify-center rounded-md text-white/25 transition-colors hover:text-amber-200/80 active:cursor-grabbing"
       >
         <GripVertical size={16} aria-hidden="true" />
@@ -131,6 +164,35 @@ export default function AdminPage() {
   };
 
   const t = (en: string, he: string) => (isHebrew ? he : en);
+
+  /*
+   * Keyboard reordering. A move is silent for a screen-reader user unless the new
+   * position is spoken, so each move also writes to a polite live region.
+   */
+  const [reorderStatus, setReorderStatus] = useState('');
+  const announceMove = (title: string, to: number, total: number) => {
+    setReorderStatus(
+      t(`${title} moved to position ${to} of ${total}`, `${title} הועבר למקום ${to} מתוך ${total}`),
+    );
+  };
+
+  const moveDraft = (from: number, delta: -1 | 1) => {
+    const to = from + delta;
+    if (to < 0 || to >= drafts.length) return;
+    reorderDrafts(from, to);
+    const d = drafts[from];
+    announceMove(d?.title?.[lang] || d?.title?.en || '', to + 1, drafts.length);
+  };
+
+  const movePublished = (from: number, delta: -1 | 1) => {
+    const to = from + delta;
+    if (to < 0 || to >= publishedList.length) return;
+    const next = [...publishedList];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setOrder(next.map((c) => c.slug));
+    announceMove(moved.title[lang], to + 1, publishedList.length);
+  };
 
   const copyAllDrafts = async () => {
     const clean = drafts.map(({ draftCreatedAt: _c, draftUpdatedAt: _u, ...rest }) => rest);
@@ -190,6 +252,13 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* Announces each keyboard move, which is otherwise silent for a screen reader.
+          Lives at the top level, NOT inside the drafts branch — the published list is
+          reorderable even when there are no drafts, and that branch does not render. */}
+      <p aria-live="polite" className="sr-only">
+        {reorderStatus}
+      </p>
+
       {hydrated && drafts.length === 0 ? (
         <div className="glass-panel rounded-2xl p-12 text-center mb-16">
           <p className="text-white/55 text-lg mb-4" style={{ fontFamily: bodyFont, fontStyle: isHebrew ? 'normal' : 'italic' }}>
@@ -222,6 +291,8 @@ export default function AdminPage() {
               onDragOver={() => setOverIndex(i)}
               onDrop={() => handleDrop(i)}
               onDragEnd={endDrag}
+              onMove={(delta) => moveDraft(i, delta)}
+              reorderId={`draft-${draft.slug}`}
               dragLabel={t(
                 `Reorder draft ${draft.title[lang] || draft.title.en || 'untitled'}`,
                 `שינוי סדר הטיוטה ${draft.title[lang] || draft.title.en || 'ללא שם'}`
@@ -325,6 +396,8 @@ export default function AdminPage() {
             onDragOver={() => setPubOverIndex(i)}
             onDrop={() => handlePubDrop(i)}
             onDragEnd={endPubDrag}
+            onMove={(delta) => movePublished(i, delta)}
+            reorderId={`pub-${cocktail.slug}`}
             dragLabel={t(`Reorder ${cocktail.title.en}`, `שינוי סדר ${cocktail.title.he}`)}
           >
             {cocktail.heroImage && (
