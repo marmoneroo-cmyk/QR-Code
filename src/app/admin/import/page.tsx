@@ -214,9 +214,34 @@ export default function ImportRestaurantPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
       });
-      const data = (await res.json()) as ParsedMenu | { error: string };
-      if (!res.ok || 'error' in data) {
-        throw new Error('error' in data ? data.error : t('Unknown scrape error', 'שגיאת סריקה לא ידועה'));
+      /*
+       * The route answers with an envelope — { success, data } on success and
+       * { success, error } on failure. This read the whole envelope as the menu, so
+       * `categories` was undefined on EVERY successful scrape: the flatMap below threw,
+       * and because setMenu had already stored the envelope the next render dereferenced
+       * `menu.categories.length` outside the try and hit the error boundary. Only the
+       * failure path ever worked, because that shape really does carry `error`.
+       */
+      const envelope = (await res.json()) as
+        | { success: true; data: ParsedMenu }
+        | { success: false; error: string };
+      if (!res.ok || envelope.success === false) {
+        throw new Error(
+          envelope.success === false && envelope.error
+            ? envelope.error
+            : t('Unknown scrape error', 'שגיאת סריקה לא ידועה'),
+        );
+      }
+      const data = envelope.data;
+      // A scrape that returns no categories is a miss, not a crash — say so instead of
+      // letting the render dereference an absent array.
+      if (!data || !Array.isArray(data.categories) || data.categories.length === 0) {
+        throw new Error(
+          t(
+            'No menu items found on that page — check the link points at the menu itself.',
+            'לא נמצאו פריטי תפריט בעמוד הזה — ודאו שהקישור מפנה לתפריט עצמו.',
+          ),
+        );
       }
       setMenu(data);
       // Flatten EVERY category into one selectable list — keep each item's own
