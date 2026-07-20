@@ -47,8 +47,17 @@ export async function proxy(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isLogin = path === '/admin/login';
+  /*
+   * Password recovery must stay reachable from BOTH sides of the gate:
+   * - logged OUT, because not being able to sign in is the whole reason to be here
+   *   (gating it bounces the operator to the very screen they cannot get past), and
+   * - WITH a session, because a recovery link signs the user in before they set a
+   *   password — so it must not be lumped in with `isLogin` below, which sends a
+   *   signed-in user to /admin and would skip the password step entirely.
+   */
+  const isPasswordReset = path === '/admin/reset-password';
 
-  if (!user && !isLogin) {
+  if (!user && !isLogin && !isPasswordReset) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = '/admin/login';
     redirect.search = '';
