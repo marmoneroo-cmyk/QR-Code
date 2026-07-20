@@ -17,6 +17,11 @@ export interface Promotion {
   targetSlugs?: string[];
   /** for scope `category` */
   targetCategories?: string[];
+  /**
+   * The owner's pause switch. `false` ⇒ paused regardless of schedule;
+   * absent ⇒ live (rows written before this column existed).
+   */
+  active?: boolean;
   /** WHEN the promotion is live. Absent => always live. */
   schedule?: Schedule;
   /** Badge to auto-activate while live (default `happy_hour`). */

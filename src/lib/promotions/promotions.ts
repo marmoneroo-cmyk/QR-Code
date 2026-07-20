@@ -15,6 +15,10 @@ const round2 = (v: number): number => Math.round(v * 100) / 100;
 
 /** Is the promotion live right now (restaurant timezone)? */
 export function isPromotionActive(p: Promotion, now: Date, tz: string): boolean {
+  // The pause switch wins over any schedule. Checked here — not only at the
+  // DB-query layer — so a caller who forgets activeOnly can't discount a
+  // guest's price with a promotion the owner paused.
+  if (p.active === false) return false;
   return isScheduleActive(p.schedule, now, tz);
 }
 

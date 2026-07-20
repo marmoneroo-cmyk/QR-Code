@@ -28,6 +28,10 @@ function rowToPromotion(r: PromotionRow): Promotion {
     type: r.type,
     value: Number(r.value),
     scope: r.scope,
+    // Without this the pause switch was write-only: PATCH persisted active=false,
+    // every read dropped it, so the admin showed the promo as live forever and
+    // editing a paused promo silently re-activated it.
+    active: r.active,
     targetSlugs: (r.target_slugs as string[] | null) ?? undefined,
     targetCategories: (r.target_categories as string[] | null) ?? undefined,
     schedule: (r.schedule as Schedule | null) ?? undefined,

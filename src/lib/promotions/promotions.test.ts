@@ -40,6 +40,29 @@ describe('isPromotionActive', () => {
   it('is always active with no schedule', () => {
     expect(isPromotionActive(pct(20), MON, UTC)).toBe(true);
   });
+
+  it('a paused promotion is never active, schedule or not', () => {
+    // The owner's pause switch. rowToPromotion used to drop `active` on read, so a
+    // paused promo kept reporting itself live in the admin, and editing it
+    // silently re-activated it for guests.
+    expect(isPromotionActive(pct(20, { active: false }), MON, UTC)).toBe(false);
+    const scheduled = pct(20, {
+      active: false,
+      schedule: { windows: [{ kind: 'recurring', days: [5], start: '18:00', end: '23:00' }] },
+    });
+    expect(isPromotionActive(scheduled, FRI_EVE, UTC)).toBe(false);
+  });
+
+  it('an explicit active: true and an absent active both mean live', () => {
+    expect(isPromotionActive(pct(20, { active: true }), MON, UTC)).toBe(true);
+  });
+
+  it('a paused promotion never discounts a price', () => {
+    const paused = pct(50, { active: false });
+    const result = priceFor(60, [paused], { slug: 'x' }, MON, UTC);
+    expect(result.discounted).toBe(false);
+    expect(result.price).toBe(60);
+  });
 });
 
 describe('promotionAppliesTo', () => {
