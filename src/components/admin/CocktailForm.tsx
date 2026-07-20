@@ -22,6 +22,8 @@ import {
   FLAVOR_LABEL,
   FOOD_FLAVOR_LABEL,
   SHARED_LAYERS,
+  DISH_LAYERS,
+  layersForKind,
   getAccent,
   type Category,
   type CocktailConfig,
@@ -91,9 +93,17 @@ export function CocktailForm({
     he: initial?.course?.he ?? '',
   });
   const [generating, setGenerating] = useState(false);
+  // An untouched item still points at the shared template object; both templates
+  // count as "not customised", so a food item isn't mistaken for hand-edited layers.
   const [breakdownLayers, setBreakdownLayers] = useState<LayerConfig[] | null>(
-    initialLayers ?? (initial && initial.layers !== SHARED_LAYERS ? initial.layers : null)
+    initialLayers ??
+      (initial && initial.layers !== SHARED_LAYERS && initial.layers !== DISH_LAYERS
+        ? initial.layers
+        : null)
   );
+  // Follows the Drink/Dish toggle live, so flipping it reshapes the breakdown
+  // section before the owner spends a 60-90s generation run on the wrong template.
+  const layerTemplates = useMemo(() => layersForKind(kind), [kind]);
   const [generatingBreakdown, setGeneratingBreakdown] = useState(false);
   const [layerProgress, setLayerProgress] = useState<
     Record<string, 'pending' | 'in_progress' | 'done' | 'error'>
@@ -164,13 +174,16 @@ export function CocktailForm({
     setError(null);
     setGeneratingBreakdown(true);
     setLayerProgress(
-      Object.fromEntries(SHARED_LAYERS.map((l) => [l.id, 'pending'] as const))
+      Object.fromEntries(layerTemplates.map((l) => [l.id, 'pending'] as const))
     );
     try {
       const res = await fetch('/api/generate-breakdown', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, name: name.en, tagline: tagline.en, category }),
+        // `kind` picks the layer template server-side, and `tagline` is the
+        // description the layers are actually built from — a dish generated
+        // without it came back as a generic plate.
+        body: JSON.stringify({ slug, name: name.en, tagline: tagline.en, category, kind }),
       });
       if (!res.ok || !res.body) {
         const text = res.body ? await res.text() : t('No response body', 'אין גוף תגובה');
@@ -278,8 +291,8 @@ export function CocktailForm({
       },
       bartenderName: bartenderName.trim() || undefined,
       dietary,
-      layers: breakdownLayers ?? SHARED_LAYERS,
-      labels: initial?.labels ?? SHARED_LAYERS.length
+      layers: breakdownLayers ?? layerTemplates,
+      labels: initial?.labels ?? layerTemplates.length
         ? (initial?.labels ?? [])
         : [],
     };
@@ -627,15 +640,26 @@ export function CocktailForm({
         )}
       </Section>
 
-      <Section title={t('3D Breakdown · 6-layer AI (optional)', 'פירוט תלת-ממד · 6 שכבות AI (אופציונלי)')} icon={Layers}>
+      <Section
+        title={t(
+          `3D Breakdown · ${layerTemplates.length}-layer AI (optional)`,
+          `פירוט תלת-ממד · ${layerTemplates.length} שכבות AI (אופציונלי)`
+        )}
+        icon={Layers}
+      >
         <p
           className="text-white/55 text-sm italic"
           style={{ fontFamily: 'var(--font-garamond, serif)' }}
         >
-          {t(
-            'Generates 6 unique layers (glass, splashes, ice, garnish) custom-tuned to this cocktail. Each layer goes through background removal so they composite cleanly in 3D.',
-            'יוצר 6 שכבות ייחודיות (כוס, התזות, קרח, קישוט) המותאמות אישית לקוקטייל הזה. כל שכבה עוברת הסרת רקע כדי שיתמזגו בצורה נקייה בתלת-ממד.'
-          )}{' '}
+          {kind === 'food'
+            ? t(
+                `Generates ${layerTemplates.length} unique layers (plate, sauce, base, main, garnish) built from this dish's description. Each layer goes through background removal so they composite cleanly in 3D.`,
+                `יוצר ${layerTemplates.length} שכבות ייחודיות (צלחת, רוטב, בסיס, מנה עיקרית, קישוט) הנבנות לפי התיאור של המנה הזו. כל שכבה עוברת הסרת רקע כדי שיתמזגו בצורה נקייה בתלת-ממד.`
+              )
+            : t(
+                `Generates ${layerTemplates.length} unique layers (glass, splashes, ice, garnish) custom-tuned to this cocktail. Each layer goes through background removal so they composite cleanly in 3D.`,
+                `יוצר ${layerTemplates.length} שכבות ייחודיות (כוס, התזות, קרח, קישוט) המותאמות אישית לקוקטייל הזה. כל שכבה עוברת הסרת רקע כדי שיתמזגו בצורה נקייה בתלת-ממד.`
+              )}{' '}
           <span className="text-amber-200/70">{t('~60-90 seconds total.', 'סך הכול ~60-90 שניות.')}</span>
         </p>
         <div className="flex flex-wrap items-center gap-4">
@@ -708,7 +732,7 @@ export function CocktailForm({
               {t('Streaming progress · keep this tab open', 'התקדמות בזמן אמת · יש להשאיר את הכרטיסייה פתוחה')}
             </div>
             <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-              {SHARED_LAYERS.map((l) => {
+              {layerTemplates.map((l) => {
                 const status = layerProgress[l.id] ?? 'pending';
                 const color =
                   status === 'done'

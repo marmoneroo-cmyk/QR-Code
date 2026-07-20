@@ -1,3 +1,4 @@
+import type { ItemKind } from '@/lib/menu/classify';
 import type { MenuCategory } from '@/lib/segments';
 
 export type Lang = 'en' | 'he';
@@ -72,7 +73,7 @@ export interface CocktailConfig {
   tagline?: Localized;
   category: Category;
   /** 'drink' (cocktail) or 'food'. Drives which editor/menu fields apply. Absent ⇒ 'drink'. */
-  kind?: 'drink' | 'food';
+  kind?: ItemKind;
   /** For food: the menu section / course it belongs to (e.g. "Mains", "Desserts"). Localized
    *  like every other display field — a course must read in the guest's chosen language too. */
   course?: Localized;
@@ -176,6 +177,105 @@ export const SHARED_LAYERS: LayerConfig[] = [
     generationPrompt: `A single long spiraling lime peel twist suspended in mid-air, bright green outer skin, curled into an elegant ribbon shape, pure black void, no surface, no shadow, ${STYLE_SUFFIX}`,
   },
 ];
+
+/**
+ * The plated equivalent of SHARED_LAYERS. A dish exploded into components reads
+ * bottom-up the way a plate is actually built: vessel, sauce, base, main, topping,
+ * garnish, herbs — where a cocktail reads glass, splashes, ice, peel.
+ *
+ * The GEOMETRY is deliberately identical to SHARED_LAYERS (same y spacing, z, scale
+ * taper and float ramp). The 3D viewer, the parallax and the label positions are all
+ * tuned against those numbers, so a dish explodes with the same choreography rather
+ * than needing a second set of view code.
+ *
+ * Prompts stay generic on purpose — the dish's own description is appended at
+ * generation time (see `customizePrompt`), which is what makes a specific layer
+ * "seared beef fillet" instead of "the main component".
+ */
+export const DISH_LAYERS: LayerConfig[] = [
+  {
+    id: 'plate',
+    image: '/cocktail/glass.png',
+    y: -1.4,
+    z: 0,
+    scale: 0.5,
+    floatAmp: 0.015,
+    floatSpeed: 0.4,
+    parallaxFactor: 0.2,
+    generationPrompt: `Studio product photograph of a single empty fine-dining plate, clean matte ceramic with a subtle raised rim, photographed straight on and completely empty, no food and no cutlery, floating in pure black void, no surface or shadow, ${STYLE_SUFFIX}`,
+  },
+  {
+    id: 'sauce',
+    image: '/cocktail/splash_clear.png',
+    y: -0.933,
+    z: 0.15,
+    scale: 0.5,
+    floatAmp: 0.04,
+    floatSpeed: 0.65,
+    parallaxFactor: 0.4,
+    generationPrompt: `An isolated elegant swoosh of glossy sauce suspended in mid-air, a single smooth restaurant-style smear with a few scattered droplets and nothing else in the frame, pure black empty void, no plate, no surface, ${STYLE_SUFFIX}`,
+  },
+  {
+    id: 'base',
+    image: '/cocktail/splash_soda.png',
+    y: -0.467,
+    z: 0.1,
+    scale: 0.5,
+    floatAmp: 0.04,
+    floatSpeed: 0.7,
+    parallaxFactor: 0.5,
+    generationPrompt: `The starch or leaf base of a plated dish floating alone in mid-air, a neat portion with nothing beneath it, pure black empty void, no plate, no surface, no shadow, ${STYLE_SUFFIX}`,
+  },
+  {
+    id: 'main',
+    image: '/cocktail/splash_pink.png',
+    y: 0,
+    z: 0.2,
+    scale: 0.5,
+    floatAmp: 0.05,
+    floatSpeed: 0.8,
+    parallaxFactor: 0.6,
+    generationPrompt: `The main component of a plated dish suspended alone in mid-air, the hero portion shown whole and perfectly cooked, nothing else in the frame, pure black empty void, no plate, no surface, ${STYLE_SUFFIX}`,
+  },
+  {
+    id: 'topping',
+    image: '/cocktail/ice.png',
+    y: 0.467,
+    z: 0.3,
+    scale: 0.35,
+    floatAmp: 0.06,
+    floatSpeed: 0.6,
+    parallaxFactor: 0.7,
+    generationPrompt: `A scattered handful of the accent topping of a plated dish floating in mid-air, loose separated pieces spread apart, pure black void, no plate, no surface, no shadow, ${STYLE_SUFFIX}`,
+  },
+  {
+    id: 'garnish',
+    image: '/cocktail/lime.png',
+    y: 0.933,
+    z: 0.4,
+    scale: 0.35,
+    floatAmp: 0.07,
+    floatSpeed: 0.5,
+    parallaxFactor: 0.8,
+    generationPrompt: `A few pieces of fresh garnish floating in mid-air against pure black void, bright and vivid, separated from one another, no surface, no shadow, ${STYLE_SUFFIX}`,
+  },
+  {
+    id: 'herbs',
+    image: '/cocktail/peel.png',
+    y: 1.4,
+    z: 0.5,
+    scale: 0.28,
+    floatAmp: 0.08,
+    floatSpeed: 0.4,
+    parallaxFactor: 1.0,
+    generationPrompt: `A small scattering of delicate fresh herb leaves and microgreens suspended in mid-air, a few individual leaves drifting apart, pure black void, no surface, no shadow, ${STYLE_SUFFIX}`,
+  },
+];
+
+/** Layer template for an item — a plate is not built like a glass. */
+export function layersForKind(kind: ItemKind | undefined): LayerConfig[] {
+  return kind === 'food' ? DISH_LAYERS : SHARED_LAYERS;
+}
 
 export interface LayerOverride {
   prompt?: string;

@@ -1,6 +1,6 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { SHARED_LAYERS, type Category, type CocktailConfig, type DietaryFlags } from '@/data/cocktail';
+import { layersForKind, type Category, type CocktailConfig, type DietaryFlags } from '@/data/cocktail';
 import { inferKind, type ItemKind } from '@/lib/menu/classify';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
 import { log } from '@/lib/log';
@@ -279,7 +279,7 @@ export async function POST(req: Request): Promise<Response> {
               glutenFree: item.dietary?.glutenFree ?? false,
               alcoholFree: item.dietary?.alcoholFree ?? false,
             },
-            layers: SHARED_LAYERS,
+            layers: layersForKind(item.kind ?? inferKind(item.name, item.sourceCategory)),
             labels: [],
           };
 
