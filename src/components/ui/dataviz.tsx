@@ -161,7 +161,14 @@ function useCountUp(target: number, durationMs: number): number {
       return;
     }
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-    if (reduce || durationMs <= 0) {
+    /*
+     * A hidden document never fires requestAnimationFrame, so the count-up would sit at
+     * its starting 0 — and a KPI reading "0 live promotions" while one is running is a
+     * fabricated number, not a pending animation. Nobody can watch an animation on a page
+     * they cannot see, so render the real value straight away, exactly as for
+     * reduced-motion. (Opening the admin in a background tab hit this.)
+     */
+    if (reduce || durationMs <= 0 || document.hidden) {
       setN(target);
       fromRef.current = target;
       return;
