@@ -653,14 +653,54 @@ export function CocktailForm({
                 ? t('Regenerate breakdown', 'יצירה מחדש של הפירוט')
                 : t('Generate full breakdown', 'יצירת פירוט מלא')}
           </motion.button>
-          {breakdownLayers && !generatingBreakdown && (
-            <span className="text-emerald-300/80 text-11 tracking-wider uppercase">
-              {t(
-                `✓ ${breakdownLayers.length} layers ready`,
-                `✓ ${breakdownLayers.length} שכבות מוכנות`
-              )}
-            </span>
-          )}
+          {breakdownLayers && !generatingBreakdown && (() => {
+            /*
+             * A failed layer is still pushed into the result as its DEFAULT template, so
+             * breakdownLayers.length is the full count whether 7 layers generated or 0 did.
+             * Reporting that as "✓ 7 ready" claimed a success that never happened — the run
+             * that produced this had every layer fail and still showed 7 in green. Count
+             * what actually generated instead, and only claim success when nothing failed.
+             */
+            const states = Object.values(layerProgress);
+            const attempted = states.length;
+            const generated = states.filter((s) => s === 'done').length;
+            const failed = states.filter((s) => s === 'error').length;
+
+            // No run in this session — these are previously saved layers, so make no claim
+            // about how they were produced.
+            if (attempted === 0) {
+              return (
+                <span className="text-white/50 text-11 tracking-wider uppercase">
+                  {t(`${breakdownLayers.length} layers`, `${breakdownLayers.length} שכבות`)}
+                </span>
+              );
+            }
+            if (failed === 0) {
+              return (
+                <span className="text-emerald-300/80 text-11 tracking-wider uppercase">
+                  {t(`✓ ${generated} layers ready`, `✓ ${generated} שכבות מוכנות`)}
+                </span>
+              );
+            }
+            if (generated === 0) {
+              return (
+                <span className="text-rose-300/90 text-11 tracking-wider uppercase">
+                  {t(
+                    `No layers generated · showing defaults`,
+                    `אף שכבה לא נוצרה · מוצגות ברירות מחדל`
+                  )}
+                </span>
+              );
+            }
+            return (
+              <span className="text-amber-300/90 text-11 tracking-wider uppercase">
+                {t(
+                  `${generated} of ${attempted} generated · ${failed} on defaults`,
+                  `${generated} מתוך ${attempted} נוצרו · ${failed} בברירת מחדל`
+                )}
+              </span>
+            );
+          })()}
         </div>
         {generatingBreakdown && (
           <div className="space-y-2">
