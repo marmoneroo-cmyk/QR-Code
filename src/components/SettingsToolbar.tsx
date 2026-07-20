@@ -63,15 +63,27 @@ function IconButton({
   onClick,
   ariaLabel,
   active,
+  expanded,
   children,
 }: {
   onClick?: () => void;
   ariaLabel: string;
   active?: boolean;
+  /** Set when this button toggles a disclosure, so its open state is announced. */
+  expanded?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <button type="button" onClick={onClick} aria-label={ariaLabel} className={iconChromeClass(active)}>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      // Sighted users see the panel appear; without these, a screen-reader user gets no
+      // signal that the control opened anything or that it is currently open.
+      aria-expanded={expanded}
+      aria-haspopup={expanded === undefined ? undefined : 'dialog'}
+      className={iconChromeClass(active)}
+    >
       {children}
     </button>
   );
@@ -117,7 +129,7 @@ export function SettingsToolbar({
   return (
     <div ref={rootRef} className="fixed top-6 start-6 z-50 flex items-center gap-2.5">
       <div className="relative">
-        <IconButton onClick={() => setOpen((v) => !v)} ariaLabel={t.settings} active={open}>
+        <IconButton onClick={() => setOpen((v) => !v)} ariaLabel={t.settings} active={open} expanded={open}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
