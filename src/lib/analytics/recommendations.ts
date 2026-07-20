@@ -1,5 +1,6 @@
 import 'server-only';
 import { readClient } from '@/lib/supabase/readClient';
+import { fetchAllEvents } from './fetchEvents';
 import { log } from '@/lib/log';
 import type { CoViewRow, Recommendations, RelatedItem } from './recommendations-types';
 
@@ -38,14 +39,16 @@ export async function getCoViews(
       .maybeSingle();
     if (!restaurant?.id) return emptyRecommendations();
 
-    const { data, error } = await supabase
-      .from('events')
-      .select('event_name, cocktail_slug, session_id')
-      .eq('restaurant_id', restaurant.id)
-      .eq('event_name', 'cocktail_opened')
-      .order('created_at', { ascending: false })
-      .limit(50000);
-    if (error || !data || data.length === 0) return emptyRecommendations();
+    // Paginated: co-view recommendations need the FULL open history, not the 1000
+    // newest opens PostgREST would otherwise cap the read at.
+    const data = await fetchAllEvents<{
+      event_name: string;
+      cocktail_slug: string | null;
+      session_id: string | null;
+    }>(supabase, restaurant.id, 'event_name, cocktail_slug, session_id', {
+      eventNames: ['cocktail_opened'],
+    });
+    if (data.length === 0) return emptyRecommendations();
 
     // session_id -> set of distinct cocktail slugs opened in that session.
     const sessionSlugs = new Map<string, Set<string>>();

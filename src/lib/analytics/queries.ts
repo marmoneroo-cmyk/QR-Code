@@ -1,5 +1,6 @@
 import 'server-only';
 import { median } from '../math';
+import { fetchAllEvents } from './fetchEvents';
 import { readClient } from '@/lib/supabase/readClient';
 import { log } from '@/lib/log';
 import { TRACK_EVENTS } from '@/lib/tracking/taxonomy';
@@ -58,18 +59,17 @@ export async function getCocktailFunnels(restaurantSlug: string = TENANT_SLUG): 
     // Total ordered UNITS per cocktail = sum of order_completed quantities.
     // (The funnel's `ordered` counts distinct sessions; this counts drinks.)
     const unitsBySlug = new Map<string, number>();
-    // Capped + ordered like every other event read (was relying on PostgREST's default
-    // 1000-row limit → silent unit undercount past 1000 orders, a 50× lower cliff than
-    // elsewhere). The real scale fix is a SQL `sum(value_num) filter (...)` in the
-    // cocktail_funnel view (filed migration); this raises the safety margin meanwhile.
-    const { data: orders } = await supabase
-      .from('events')
-      .select('cocktail_slug, value_num')
-      .eq('restaurant_id', restaurant.id)
-      .eq('event_name', 'order_completed')
-      .order('created_at', { ascending: false })
-      .limit(50000);
-    for (const order of orders ?? []) {
+    // Paginated past PostgREST's 1000-row cap. A plain .limit(50000) did NOT raise
+    // the ceiling — the server still returned only the 1000 newest order events —
+    // so unit totals silently undercounted. The real scale fix is a SQL
+    // `sum(value_num) filter (...)` in the cocktail_funnel view; this is complete meanwhile.
+    const orders = await fetchAllEvents<{ cocktail_slug: string | null; value_num: number | null }>(
+      supabase,
+      restaurant.id,
+      'cocktail_slug, value_num',
+      { eventNames: ['order_completed'] },
+    );
+    for (const order of orders) {
       if (!order.cocktail_slug) continue;
       const qty = typeof order.value_num === 'number' ? order.value_num : 1;
       unitsBySlug.set(order.cocktail_slug, (unitsBySlug.get(order.cocktail_slug) ?? 0) + qty);
@@ -158,13 +158,21 @@ export async function getAnalyticsOverview(
       .maybeSingle();
     if (!restaurant?.id) return emptyOverview();
 
-    const { data, error } = await supabase
-      .from('events')
-      .select('event_name, cocktail_slug, value_num, metadata, session_id, occurred_at, created_at')
-      .eq('restaurant_id', restaurant.id)
-      .order('created_at', { ascending: false })
-      .limit(50000);
-    if (error || !data || data.length === 0) return emptyOverview();
+    // Paginated: was capped at 1000 by PostgREST, undercounting every rollup below.
+    const data = await fetchAllEvents<{
+      event_name: string;
+      cocktail_slug: string | null;
+      value_num: number | null;
+      metadata: Record<string, unknown> | null;
+      session_id: string | null;
+      occurred_at: string | null;
+      created_at: string | null;
+    }>(
+      supabase,
+      restaurant.id,
+      'event_name, cocktail_slug, value_num, metadata, session_id, occurred_at, created_at',
+    );
+    if (data.length === 0) return emptyOverview();
 
     // Price/cost per slug (price captured on the order event wins for revenue).
     const econBySlug = new Map(MENU.map((c) => [c.slug, getEconomics(c)]));
@@ -197,7 +205,9 @@ export async function getAnalyticsOverview(
     for (const e of data) {
       const sid = e.session_id;
       if (!sid) continue;
-      const ts = new Date(e.occurred_at ?? e.created_at).getTime();
+      const rawTs = e.occurred_at ?? e.created_at;
+      if (!rawTs) continue;
+      const ts = new Date(rawTs).getTime();
       if (Number.isNaN(ts)) continue;
       const dayIndex = WINDOW_DAYS - 1 - Math.floor((now - ts) / DAY_MS);
 
@@ -436,12 +446,31 @@ export async function getMenuEngineering(
       .maybeSingle();
     if (!restaurant?.id) return empty;
 
-    const { data } = await supabase
-      .from('events')
-      .select('event_name, cocktail_slug, value_num, session_id')
-      .eq('restaurant_id', restaurant.id)
-      .order('created_at', { ascending: false })
-      .limit(50000);
+    // Paginated: a plain .limit(50000) was capped at 1000 by PostgREST, so once a
+    // restaurant passed 1000 events the OLDEST — including whole order_completed
+    // history — vanished and demand read 0. See fetchAllEvents.
+    const data = await fetchAllEvents<{
+      event_name: string;
+      cocktail_slug: string | null;
+      value_num: number | null;
+      session_id: string | null;
+    }>(supabase, restaurant.id, 'event_name, cocktail_slug, value_num, session_id');
+
+    // Real POS sales (uploaded via CSV → the `sales` table) are the AUTHORITATIVE
+    // demand signal. Menu engineering is fundamentally "what SELLS"; the axis was
+    // reading order_completed EVENTS (in-app pick intent), so the numbers the owner
+    // actually uploaded never moved the quadrants — and the screen still claimed
+    // "real demand". Prefer the sales table; fall back to intent only when no sales
+    // exist yet, so an install with no POS import still gets a demand axis.
+    const { data: salesRows } = await supabase
+      .from('sales')
+      .select('slug, units')
+      .eq('restaurant_id', restaurant.id);
+    const realSales = new Map<string, number>();
+    for (const r of (salesRows ?? []) as Array<{ slug: string; units: number }>) {
+      realSales.set(r.slug, (realSales.get(r.slug) ?? 0) + (Number(r.units) || 0));
+    }
+    const hasRealSales = [...realSales.values()].some((u) => u > 0);
 
     const agg = new Map<string, EngagementSets>();
     const ensure = (slug: string): EngagementSets => {
@@ -487,7 +516,10 @@ export async function getMenuEngineering(
     const base = MENU.map((cocktail) => {
       const a = ensure(cocktail.slug);
       const econ = getEconomics(cocktail);
-      return { cocktail, a, econ, demand: a.units };
+      // Demand = real units sold when the owner has uploaded sales; otherwise the
+      // in-app order-intent count (a.units) so the plot isn't empty pre-import.
+      const demand = hasRealSales ? realSales.get(cocktail.slug) ?? 0 : a.units;
+      return { cocktail, a, econ, demand };
     });
 
     const medDemand = median(base.map((b) => b.demand));
@@ -507,7 +539,9 @@ export async function getMenuEngineering(
           marginPct: econ.marginPct,
           views,
           orders,
-          units: a.units,
+          // The plotted demand axis + quadrant share one basis (real sales when
+          // uploaded, else intent), so the dot's X position and its Star/Dog class agree.
+          units: demand,
           conversionPct,
           attentionScore,
           klass: classify(demand, econ.margin, medDemand, medMargin),
@@ -520,7 +554,7 @@ export async function getMenuEngineering(
       items,
       medianDemand: medDemand,
       medianMargin: medMargin,
-      hasData: (data ?? []).length > 0,
+      hasData: (data ?? []).length > 0 || hasRealSales,
     };
   } catch (e) {
     log.error('analytics', 'getMenuEngineering failed', {

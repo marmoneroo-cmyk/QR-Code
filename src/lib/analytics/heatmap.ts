@@ -1,6 +1,7 @@
 import 'server-only';
 import { readClient } from '@/lib/supabase/readClient';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
+import { fetchAllEvents } from './fetchEvents';
 
 export interface HeatmapSection {
   section: string;
@@ -24,17 +25,17 @@ export async function getAttentionHeatmap(restaurantSlug = 'diner'): Promise<Att
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return { sections: [], hasData: false };
 
-  const { data, error } = await sb
-    .from('events')
-    .select('metadata, value_num')
-    .eq('restaurant_id', restId)
-    .eq('event_name', 'section_attention')
-    .order('created_at', { ascending: false })
-    .limit(10000);
-  if (error) throw new Error(error.message);
+  // Paginated: past 1000 section_attention events the read was capped, so a busy
+  // restaurant's heatmap would drift toward only its most-recent attention.
+  const data = await fetchAllEvents<{ metadata: Record<string, unknown> | null; value_num: number | null }>(
+    sb,
+    restId,
+    'metadata, value_num',
+    { eventNames: ['section_attention'] },
+  );
 
   const agg = new Map<string, { count: number; totalDwell: number }>();
-  for (const row of data ?? []) {
+  for (const row of data) {
     const md = (row.metadata ?? {}) as { section?: string; dwellMs?: number };
     if (!md.section) continue;
     const dwell = Number(md.dwellMs ?? row.value_num ?? 0) || 0;

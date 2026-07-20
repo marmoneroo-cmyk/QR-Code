@@ -38,6 +38,8 @@ interface MockHandlers {
   eventsCount?: number;
   /** cocktail_funnel.select('*').eq(…) */
   cocktail_funnel?: TerminalResult;
+  /** sales.select('slug, units').eq(…) — real POS demand for menu engineering */
+  sales?: TerminalResult;
 }
 
 function makeBuilder(resolve: (head: boolean) => TerminalResult) {
@@ -51,6 +53,9 @@ function makeBuilder(resolve: (head: boolean) => TerminalResult) {
     eq() {
       return builder;
     },
+    in() {
+      return builder;
+    },
     gte() {
       return builder;
     },
@@ -62,6 +67,11 @@ function makeBuilder(resolve: (head: boolean) => TerminalResult) {
     },
     limit() {
       return builder;
+    },
+    // Paginated reads (fetchAllEvents) resolve the fixture; small fixtures return
+    // a short first page so the pagination loop stops after one round.
+    range() {
+      return run();
     },
     maybeSingle() {
       return run();
@@ -83,6 +93,7 @@ function resolveTable(handlers: MockHandlers, table: string, head: boolean): Ter
     return handlers.events ?? { data: [], error: null };
   }
   if (table === 'cocktail_funnel') return handlers.cocktail_funnel ?? { data: [], error: null };
+  if (table === 'sales') return handlers.sales ?? { data: [], error: null };
   return { data: [], error: null };
 }
 
@@ -341,6 +352,38 @@ describe('getMenuEngineering — quadrant assignment over real economics', () =>
     expect(star?.units).toBe(3); // 2 + 1
     expect(star?.conversionPct).toBe(100); // 2 orders / 2 views
     expect(star?.attentionScore).toBe(100); // most-engaging item → normalized to 100
+  });
+
+  it('drives demand from REAL uploaded sales, ignoring in-app order intent', async () => {
+    // The bug this locks: uploaded POS sales (the `sales` table) never moved the
+    // quadrants because demand read order_completed EVENTS instead. When sales
+    // exist they are authoritative; the intent event below must be ignored.
+    mockSupabase({
+      restaurant: { id: 'r1' },
+      sales: {
+        data: [
+          { slug: 'smoked-old-fashioned', units: 5 }, // real sales → popular
+          { slug: 'garden-spritz', units: 3 }, // real sales, low margin → plowhorse
+        ],
+        error: null,
+      },
+      events: {
+        // intent for a DIFFERENT drink — must NOT count as demand now that sales exist
+        data: [{ event_name: 'order_completed', cocktail_slug: 'citrus-lime-sour', session_id: 's1', value_num: 9 }],
+        error: null,
+      },
+    });
+
+    const me = await getMenuEngineering();
+    const bySlug = (slug: string) => me.items.find((i) => i.slug === slug);
+
+    expect(me.hasData).toBe(true);
+    expect(bySlug('smoked-old-fashioned')?.units).toBe(5); // from sales, not events
+    expect(bySlug('garden-spritz')?.units).toBe(3);
+    expect(bySlug('citrus-lime-sour')?.units).toBe(0); // intent ignored — no sales row
+    expect(bySlug('smoked-old-fashioned')?.klass).toBe('star'); // 5 sold + margin 48
+    expect(bySlug('garden-spritz')?.klass).toBe('plowhorse'); // 3 sold + margin 32
+    expect(bySlug('citrus-lime-sour')?.klass).toBe('puzzle'); // 0 sold + margin 42
   });
 
   it('returns the empty result when the tenant is unknown', async () => {

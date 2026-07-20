@@ -1,5 +1,6 @@
 import 'server-only';
 import { readClient } from '@/lib/supabase/readClient';
+import { fetchAllEvents } from '@/lib/analytics/fetchEvents';
 import { EXPERIMENTS } from './config';
 import type { ExperimentResult, ExperimentsResponse, VariantResult } from './results-types';
 
@@ -66,13 +67,14 @@ export async function getExperimentResults(
       .maybeSingle();
     if (!restaurant?.id) return fallback;
 
-    const { data } = await supabase
-      .from('events')
-      .select('event_name, session_id, metadata')
-      .eq('restaurant_id', restaurant.id)
-      .order('created_at', { ascending: false })
-      .limit(50000);
-    if (!data) return fallback;
+    // Paginated: unfiltered event read was capped at 1000, so exposures/conversions
+    // older than the 1000 newest events silently dropped out of the A/B math.
+    const data = await fetchAllEvents<{
+      event_name: string;
+      session_id: string | null;
+      metadata: Record<string, unknown> | null;
+    }>(supabase, restaurant.id, 'event_name, session_id, metadata');
+    if (data.length === 0) return fallback;
 
     const experiments: ExperimentResult[] = EXPERIMENTS.map((experiment) => {
       // session_id -> variant it was exposed to (first exposure wins)

@@ -1,5 +1,6 @@
 import 'server-only';
 import { readClient } from '@/lib/supabase/readClient';
+import { fetchAllEvents } from './fetchEvents';
 import { log } from '@/lib/log';
 import type {
   HealthItem, HealthStatus, PercentileStats, QualityCheck, SignalBlock, SignalVerification,
@@ -69,15 +70,15 @@ export async function getSignalVerification(restaurantSlug: string = TENANT_SLUG
       .from('restaurants').select('id').eq('slug', restaurantSlug).maybeSingle();
     if (!restaurant?.id) return empty;
 
+    // Paginated past the 1000-row cap. Two-attempt: the visitor_id column may not
+    // exist on older schemas — the first read throws, and we retry without it.
     let hasVisitorColumn = true;
     let rows: Row[];
-    const withCol = await supabase.from('events').select(`${SELECT}, visitor_id`).eq('restaurant_id', restaurant.id).order('created_at', { ascending: false }).limit(50000);
-    if (withCol.error) {
+    try {
+      rows = await fetchAllEvents<Row>(supabase, restaurant.id, `${SELECT}, visitor_id`);
+    } catch {
       hasVisitorColumn = false;
-      const without = await supabase.from('events').select(SELECT).eq('restaurant_id', restaurant.id).order('created_at', { ascending: false }).limit(50000);
-      rows = (without.data ?? []) as Row[];
-    } else {
-      rows = (withCol.data ?? []) as Row[];
+      rows = await fetchAllEvents<Row>(supabase, restaurant.id, SELECT);
     }
     if (rows.length === 0) return { ...empty, hasVisitorColumn };
 

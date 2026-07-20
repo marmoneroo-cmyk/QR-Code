@@ -1,6 +1,7 @@
 import 'server-only';
 import { readClient } from '@/lib/supabase/readClient';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
+import { fetchAllEvents } from '@/lib/analytics/fetchEvents';
 import { listChanges, type ChangeRecord } from '@/lib/changes/repository';
 import { MENU } from '@/data/cocktail';
 import { measureImpact } from './measure';
@@ -86,16 +87,14 @@ export async function getClosedLoop(restaurantSlug = 'diner'): Promise<ClosedLoo
 
   const slugs = [...new Set(measurable.map((c) => c.entityId as string))];
   const eventNames = [...new Set(measurable.flatMap((c) => METRIC_EVENTS[metricFor(c.changeType)]))];
-  const { data, error } = await sb
-    .from('events')
-    .select('event_name, cocktail_slug, session_id, created_at, metadata')
-    .eq('restaurant_id', restId)
-    .in('cocktail_slug', slugs)
-    .in('event_name', eventNames)
-    .order('created_at', { ascending: false })
-    .limit(20000);
-  if (error) throw new Error(error.message);
-  const events = (data ?? []) as EvRow[];
+  // Paginated past the 1000-row cap; the slug filter is applied client-side since
+  // fetchAllEvents filters by event name (already the volume-bounding dimension).
+  const slugSet = new Set(slugs);
+  const events = (
+    await fetchAllEvents<EvRow>(sb, restId, 'event_name, cocktail_slug, session_id, created_at, metadata', {
+      eventNames,
+    })
+  ).filter((e) => typeof e.cocktail_slug === 'string' && slugSet.has(e.cocktail_slug));
 
   const now = Date.now();
   const winMs = WINDOW_DAYS * DAY_MS;

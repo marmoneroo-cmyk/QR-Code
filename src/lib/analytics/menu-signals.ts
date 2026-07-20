@@ -2,6 +2,7 @@ import 'server-only';
 import { readClient } from '@/lib/supabase/readClient';
 import { getRestaurantId } from '@/lib/supabase/restaurant';
 import { listSalesByItem } from '@/lib/sales/repository';
+import { fetchAllEvents } from './fetchEvents';
 import { MENU } from '@/data/cocktail';
 import type { ItemSignals, LayoutInsight, MenuSignals, CategoryReach } from '@/lib/opportunities/types';
 
@@ -47,18 +48,17 @@ export async function getMenuSignals(restaurantSlug = 'diner'): Promise<MenuSign
   const restId = await getRestaurantId(restaurantSlug);
   if (!restId) return emptySignals();
 
-  const [{ data, error }, salesList] = await Promise.all([
-    sb
-      .from('events')
-      .select('event_name, cocktail_slug, session_id, visitor_id, value_num, metadata')
-      .eq('restaurant_id', restId)
-      .in('event_name', EVENT_NAMES)
-      .order('created_at', { ascending: false })
-      .limit(20000),
+  // Paginated: the .limit(20000) was silently capped at 1000, so signals for a
+  // busy restaurant were computed on only its newest slice of engagement.
+  const [rows, salesList] = await Promise.all([
+    fetchAllEvents<EvRow>(
+      sb,
+      restId,
+      'event_name, cocktail_slug, session_id, visitor_id, value_num, metadata',
+      { eventNames: EVENT_NAMES },
+    ),
     listSalesByItem(restaurantSlug),
   ]);
-  if (error) throw new Error(error.message);
-  const rows = (data ?? []) as EvRow[];
   if (rows.length === 0 && salesList.length === 0) return emptySignals();
 
   const salesBySlug = new Map(salesList.map((s) => [s.slug, s]));
