@@ -1,6 +1,5 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { removeBackground } from '@imgly/background-removal-node';
 import { layersForKind, type LayerConfig } from '@/data/cocktail';
 import type { ItemKind } from '@/lib/menu/classify';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
@@ -10,6 +9,16 @@ import { readJsonCapped } from '@/lib/net/bounded';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
+
+/**
+ * On Vercel the FS is read-only and the background-removal model is too heavy
+ * for a serverless function — this flag switches both behaviours below.
+ * CRITICAL: `@imgly/background-removal-node` must stay a LAZY import. As a
+ * top-level import it loaded (and died) at cold start, so production answered
+ * every generation request with Next's raw HTML error page before any of this
+ * code ran.
+ */
+const IS_SERVERLESS = Boolean(process.env.VERCEL);
 
 const MAX_BODY = 256_000;
 
@@ -156,14 +165,20 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const outputDir = path.join(process.cwd(), 'public', 'cocktail', 'drafts');
-  try {
-    await fs.mkdir(outputDir, { recursive: true });
-  } catch (err: unknown) {
-    log.error('generate-breakdown', err instanceof Error ? err.message : 'mkdir failed', { stage: 'mkdir', dir: outputDir });
-    return new Response(JSON.stringify({ success: false, error: 'internal error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  if (!IS_SERVERLESS) {
+    // On Vercel the filesystem is READ-ONLY (mkdir/writeFile throw EROFS) and
+    // files under public/ wouldn't be web-served anyway — layers are returned as
+    // inline data URLs instead (the drafts store keeps them in localStorage,
+    // the same path menu import already uses for heroes).
+    try {
+      await fs.mkdir(outputDir, { recursive: true });
+    } catch (err: unknown) {
+      log.error('generate-breakdown', err instanceof Error ? err.message : 'mkdir failed', { stage: 'mkdir', dir: outputDir });
+      return new Response(JSON.stringify({ success: false, error: 'internal error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
   }
 
   const encoder = new TextEncoder();
@@ -190,20 +205,27 @@ export async function POST(req: Request): Promise<Response> {
         try {
           const rawBuffer = await fetchImageWithRetry(pollinationsUrl, template.id);
 
-          const rawBlob = new Blob([new Uint8Array(rawBuffer)], { type: 'image/png' });
-          const transparentBlob = await removeBackground(rawBlob);
-          const transparentBuffer = Buffer.from(await transparentBlob.arrayBuffer());
+          let image: string;
+          if (IS_SERVERLESS) {
+            // No writable disk, and the background-removal model is far too heavy
+            // for a serverless function (its memory kill surfaced to the owner as a
+            // raw Next error page). Return the raw image inline; the 3D scene's
+            // mix-blend-screen already sinks dark backgrounds.
+            image = `data:image/png;base64,${rawBuffer.toString('base64')}`;
+          } else {
+            const { removeBackground } = await import('@imgly/background-removal-node');
+            const rawBlob = new Blob([new Uint8Array(rawBuffer)], { type: 'image/png' });
+            const transparentBlob = await removeBackground(rawBlob);
+            const transparentBuffer = Buffer.from(await transparentBlob.arrayBuffer());
 
-          // Path-traversal guard: body.slug is user-controlled and flows into a filename.
-          // slugify() strips everything outside [a-z0-9-], so `../../etc` can't escape outputDir.
-          const filename = `${slugify(body.slug) || 'draft'}-${template.id}.png`;
-          const filepath = path.join(outputDir, filename);
-          await fs.writeFile(filepath, transparentBuffer);
+            // Path-traversal guard: body.slug is user-controlled and flows into a filename.
+            // slugify() strips everything outside [a-z0-9-], so `../../etc` can't escape outputDir.
+            const filename = `${slugify(body.slug) || 'draft'}-${template.id}.png`;
+            await fs.writeFile(path.join(outputDir, filename), transparentBuffer);
+            image = `/cocktail/drafts/${filename}`;
+          }
 
-          const newLayer: LayerConfig = {
-            ...template,
-            image: `/cocktail/drafts/${filename}`,
-          };
+          const newLayer: LayerConfig = { ...template, image };
           generatedLayers.push(newLayer);
           send({ event: 'layer-done', index: i, id: template.id, image: newLayer.image });
         } catch (err: unknown) {

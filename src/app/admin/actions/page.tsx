@@ -87,11 +87,26 @@ export function ActionsPanel() {
   const [celebratingId, setCelebratingId] = useState<string | null>(null);
 
   const handleDone = useCallback(
-    (id: string) => {
-      markDone(id);
-      setCelebratingId(id);
+    (action: CoachAction) => {
+      markDone(action.id);
+      setCelebratingId(action.id);
+      // Record the completion as a CHANGE, not just local state. This is what
+      // connects the Action Center to the closed loop: without it, "בוצע" lived
+      // only in this browser's localStorage, so the measurement pipeline — and
+      // the Hall of Wins that reads it — never learned the action happened.
+      // Best-effort: the celebration must not hang on the network, and a failed
+      // log is visible as the item's absence on the Closed Loop screen.
+      void fetch('/api/changes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          summary: action.title[lang],
+          entityId: action.slug,
+          changeType: `action_${action.type}`,
+        }),
+      }).catch(() => {});
     },
-    [markDone],
+    [markDone, lang],
   );
 
   useEffect(() => {
@@ -158,7 +173,7 @@ export function ActionsPanel() {
                       isHe={isHe}
                       headFont={headFont}
                       celebrating={celebratingId === action.id}
-                      onDone={() => handleDone(action.id)}
+                      onDone={() => handleDone(action)}
                     />
                   );
                 })}

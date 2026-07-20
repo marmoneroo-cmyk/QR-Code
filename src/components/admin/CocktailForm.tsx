@@ -190,8 +190,27 @@ export function CocktailForm({
         body: JSON.stringify({ slug, name: name.en, tagline: tagline.en, category, kind }),
       });
       if (!res.ok || !res.body) {
-        const text = res.body ? await res.text() : t('No response body', 'אין גוף תגובה');
-        throw new Error(t(`Server error: ${text.slice(0, 160)}`, `שגיאת שרת: ${text.slice(0, 160)}`));
+        const text = res.body ? await res.text() : '';
+        // A crashed serverless function answers with Next's HTML error page —
+        // dumping "<!DOCTYPE html>…" at the owner is not an error message.
+        const isHtml = /^\s*</.test(text);
+        let detail = '';
+        if (!isHtml && text) {
+          try {
+            const parsed = JSON.parse(text) as { error?: unknown };
+            detail = typeof parsed.error === 'string' ? parsed.error : text.slice(0, 160);
+          } catch {
+            detail = text.slice(0, 160);
+          }
+        }
+        throw new Error(
+          detail
+            ? t(`Generation failed: ${detail}`, `היצירה נכשלה: ${detail}`)
+            : t(
+                `The server hit an error (${res.status}). Try again in a minute — if it keeps failing, the image service may be down.`,
+                `השרת נתקל בשגיאה (${res.status}). נסו שוב בעוד דקה — אם זה חוזר, ייתכן ששירות התמונות אינו זמין.`,
+              ),
+        );
       }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();

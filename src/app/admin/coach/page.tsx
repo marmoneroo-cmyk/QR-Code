@@ -173,7 +173,9 @@ function HeroAction({
       <div className="relative w-full max-w-[26rem]">
         {cocktail ? (
           <Tilt className="block w-full" max={8}>
-            <FrameBreakImage src={cocktail.heroImage} accent={accent} overflow="170%" className="h-80 w-full md:h-[26rem]" />
+            {/* 170% overflow broke past the panel and covered the nav + notice bar —
+                the frame-break should tease out of the CARD, not out of the LAYOUT. */}
+            <FrameBreakImage src={cocktail.heroImage} accent={accent} overflow="120%" className="h-64 w-full md:h-[20rem]" />
           </Tilt>
         ) : (
           <div className="h-80 w-full rounded-3xl bg-white/[0.03] md:h-[26rem]" />
@@ -199,7 +201,9 @@ function HeroAction({
             fontStyle: isHe ? 'normal' : 'italic',
             fontWeight: 500,
             lineHeight: 1.04,
-            fontSize: 'clamp(2.4rem, 6vw, 4.6rem)',
+            // Was clamp(2.4rem, 6vw, 4.6rem) — a full advisory SENTENCE at 4.6rem
+            // reads as shouting and collides with the hero image on laptops.
+            fontSize: 'clamp(1.5rem, 2.8vw, 2.3rem)',
           }}
         >
           {title}

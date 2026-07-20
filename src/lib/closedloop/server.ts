@@ -63,7 +63,19 @@ interface EvRow {
 export async function getClosedLoop(restaurantSlug = 'diner'): Promise<ClosedLoopReport> {
   const knownSlugs = new Set(MENU.map((c) => c.slug));
   const changes = await listChanges(restaurantSlug);
-  const measurable = changes.filter((c) => c.entityType === 'cocktail' && c.entityId && knownSlugs.has(c.entityId));
+  // ONE measurement card per (item, change type) — the latest logging wins. The
+  // owner re-logging the same change produced three identical Margarita cards;
+  // that's re-stating one change, not three experiments. The full history stays
+  // in `timeline`, which is a log and should repeat.
+  const seen = new Set<string>();
+  const measurable = changes
+    .filter((c) => c.entityType === 'cocktail' && c.entityId && knownSlugs.has(c.entityId))
+    .filter((c) => {
+      const key = `${c.entityId}|${c.changeType}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   if (measurable.length === 0) {
     return { measured: [], timeline: changes, hasData: changes.length > 0 };
   }

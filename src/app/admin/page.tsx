@@ -129,7 +129,6 @@ export default function AdminPage() {
   const isHebrew = lang === 'he';
   const bodyFont = isHebrew ? heBody : body;
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
-  const [copiedAll, setCopiedAll] = useState(false);
   // Drag-to-reorder (drafts only). dragIndex = card being dragged;
   // overIndex = card currently hovered as the drop target (for the indicator).
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -194,17 +193,6 @@ export default function AdminPage() {
     announceMove(moved.title[lang], to + 1, publishedList.length);
   };
 
-  const copyAllDrafts = async () => {
-    const clean = drafts.map(({ draftCreatedAt: _c, draftUpdatedAt: _u, ...rest }) => rest);
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(clean, null, 2));
-      setCopiedAll(true);
-      window.setTimeout(() => setCopiedAll(false), 1500);
-    } catch {
-      alert(t('Clipboard copy failed.', 'העתקה ללוח נכשלה.'));
-    }
-  };
-
   return (
     <AdminShell
       title="Menu Composer"
@@ -215,16 +203,6 @@ export default function AdminPage() {
       subtitleHe="נהל את התפריט. הטיוטות נשמרות בדפדפן שלך בלבד — מושלם לתצוגה מקדימה של פריטים לפני שהם עולים לאוויר."
       actions={
         <>
-          {hydrated && drafts.length > 0 && (
-            <button
-              type="button"
-              onClick={copyAllDrafts}
-              className="font-sans group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-xs tracking-[0.16em] uppercase text-white/80 transition-colors hover:border-amber-200/40 hover:text-amber-100"
-              style={{ fontWeight: 600 }}
-            >
-              {copiedAll ? t('Copied!', 'הועתק!') : t('Export JSON', 'ייצוא JSON')}
-            </button>
-          )}
           <Link
             href="/admin/new"
             className="font-sans group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-13 tracking-[0.16em] uppercase text-black transition-shadow"

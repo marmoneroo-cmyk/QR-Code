@@ -154,6 +154,22 @@ canvas {
   100% { background-position: 0% 50%; }
 }
 
+/* Native form controls on a dark app. Without color-scheme the browser renders
+   its OWN chrome for the light scheme: the date-picker popup came out black-on-black
+   and <option> rows white-on-white. This tells the browser to use its dark variants;
+   the explicit option colors cover engines that ignore color-scheme for popups. */
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'],
+input[type='month'],
+select {
+  color-scheme: dark;
+}
+select option {
+  background-color: #18181b;
+  color: #fafafa;
+}
+
 /* Luxury selection + thin dark scrollbar + visible focus (a11y). */
 ::selection { background: rgba(232, 201, 135, 0.28); color: #fff; }
 * { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.14) transparent; }

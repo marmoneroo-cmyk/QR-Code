@@ -144,6 +144,22 @@ export function WinsPanel() {
 
   const hasAnyWinEver = allWins.length > 0;
 
+  // Completed actions still inside their measurement window. Without this strip
+  // the owner marked an action "בוצע", opened the Hall of Wins, and saw nothing —
+  // the pipeline was measuring, but the room said their work didn't exist.
+  const pending = useMemo<ClosedLoopItem[]>(() => {
+    return (data?.measured ?? [])
+      .filter((m) => !isWin(m))
+      .filter(
+        (m) =>
+          m.stillAccumulating ||
+          m.result.status === 'too_early' ||
+          m.result.status === 'insufficient_data',
+      )
+      .sort((a, b) => new Date(b.change.createdAt).getTime() - new Date(a.change.createdAt).getTime())
+      .slice(0, 6);
+  }, [data]);
+
   return (
     <>
       <div className="flex flex-col gap-10" dir={isHe ? 'rtl' : 'ltr'}>
@@ -234,8 +250,48 @@ export function WinsPanel() {
           </Reveal>
         )}
 
+        {/* ── On the way: completed actions still being measured ──────────── */}
+        {loaded && !error && pending.length > 0 && (
+          <Reveal>
+            <GlassCard static className="rounded-[28px] px-6 py-6">
+              <SectionLabel icon={Rocket}>{t('On the way', 'בדרך לניצחון')}</SectionLabel>
+              <ul className="mt-4 flex flex-col gap-3">
+                {pending.map((m) => {
+                  const cocktail = findCocktailBySlug(m.change.entityId ?? '');
+                  const name = cocktail ? cocktail.title[lang] : m.change.entityId;
+                  return (
+                    <li
+                      key={m.change.id}
+                      className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-2xl border border-white/[0.07] bg-white/[0.02] px-4 py-3"
+                    >
+                      <div className="min-w-0">
+                        <span className="text-white text-15 font-serif" style={{ fontWeight: 600 }}>
+                          {name}
+                        </span>
+                        <span className="ms-3 text-white/55 text-13 font-sans">{m.change.summary}</span>
+                      </div>
+                      <span className="shrink-0 text-13 font-sans" style={{ color: GOLD }}>
+                        {t(
+                          `Done · measuring — day ${m.observationDays + 1}`,
+                          `בוצע · במדידה — יום ${m.observationDays + 1}`,
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="mt-3 text-white/45 text-12 font-sans">
+                {t(
+                  'When the numbers prove a change worked, it graduates to a win here.',
+                  'כשהמספרים יוכיחו שהשינוי עבד, הוא יהפוך כאן לניצחון.',
+                )}
+              </p>
+            </GlassCard>
+          </Reveal>
+        )}
+
         {/* ── Empty state: no wins EVER → premium, motivating ─────────────── */}
-        {loaded && !error && !hasAnyWinEver && <EmptyState lang={lang} isHe={isHe} t={t} />}
+        {loaded && !error && !hasAnyWinEver && pending.length === 0 && <EmptyState lang={lang} isHe={isHe} t={t} />}
 
         {/* ── Empty within the active tab (but wins exist elsewhere) ──────── */}
         {loaded && hasAnyWinEver && wins.length === 0 && (
