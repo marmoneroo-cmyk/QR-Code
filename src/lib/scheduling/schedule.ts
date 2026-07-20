@@ -30,11 +30,17 @@ const WEEKDAY_INDEX: Record<string, Weekday> = {
 };
 
 /**
- * Restaurant-local wall-clock parts of `now` in IANA `tz`, DST-correct via Intl.
- * This is the single place timezone math happens.
+ * Formatters are immutable and expensive to construct, so they are cached per
+ * timezone. This matters: localParts runs once per promotion per menu item, so a
+ * per-call `new Intl.DateTimeFormat` turned a single menu render into thousands of
+ * formatter constructions. There is one entry per restaurant timezone — bounded.
  */
-export function localParts(now: Date, tz: string): LocalParts {
-  const parts = new Intl.DateTimeFormat('en-US', {
+const FORMATTER_CACHE = new Map<string, Intl.DateTimeFormat>();
+
+function formatterFor(tz: string): Intl.DateTimeFormat {
+  const cached = FORMATTER_CACHE.get(tz);
+  if (cached) return cached;
+  const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: tz,
     hourCycle: 'h23',
     year: 'numeric',
@@ -43,7 +49,17 @@ export function localParts(now: Date, tz: string): LocalParts {
     hour: '2-digit',
     minute: '2-digit',
     weekday: 'short',
-  }).formatToParts(now);
+  });
+  FORMATTER_CACHE.set(tz, formatter);
+  return formatter;
+}
+
+/**
+ * Restaurant-local wall-clock parts of `now` in IANA `tz`, DST-correct via Intl.
+ * This is the single place timezone math happens.
+ */
+export function localParts(now: Date, tz: string): LocalParts {
+  const parts = formatterFor(tz).formatToParts(now);
 
   const get = (type: string): string => parts.find((p) => p.type === type)?.value ?? '';
   const hour = parseInt(get('hour'), 10) % 24; // guard h24 edge
@@ -127,12 +143,18 @@ export function isWindowActive(window: ScheduleWindow, now: Date, tz: string): b
 /**
  * Is the schedule active right now (restaurant timezone)?
  * Empty / null / undefined => always active.
+ *
+ * `windows` is checked with Array.isArray rather than trusted from the type: schedules are
+ * persisted JSON re-read from the database, so a malformed row (`{}`, `[]`, `{windows:null}`)
+ * reaches here as a lie about its own type. This is evaluated on EVERY guest menu render, so
+ * a throw here takes the menu down. A structurally invalid schedule is treated exactly like
+ * no schedule — always active — which fails open on visibility rather than failing the page.
  */
 export function isScheduleActive(
   schedule: Schedule | null | undefined,
   now: Date,
   tz: string,
 ): boolean {
-  if (!schedule || schedule.windows.length === 0) return true;
+  if (!schedule || !Array.isArray(schedule.windows) || schedule.windows.length === 0) return true;
   return schedule.windows.some((w) => isWindowActive(w, now, tz));
 }

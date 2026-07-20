@@ -3,7 +3,14 @@ import { badgeLabel, BADGE_TONES } from '../experience/badges';
 import type { ActiveBadge } from '../experience/types';
 import type { Promotion, PromotableItem, PricedResult } from './types';
 
-const clampPct = (v: number): number => Math.min(100, Math.max(0, v));
+/**
+ * Promotion values arrive from the DB and can be malformed (null/NaN via a bad
+ * import or a hand-edited row). A price engine must never emit NaN to a guest, so
+ * a non-finite value degrades to 0 — i.e. "no discount" — rather than poisoning
+ * the arithmetic.
+ */
+const safeValue = (v: number): number => (Number.isFinite(v) ? v : 0);
+const clampPct = (v: number): number => Math.min(100, Math.max(0, safeValue(v)));
 const round2 = (v: number): number => Math.round(v * 100) / 100;
 
 /** Is the promotion live right now (restaurant timezone)? */
@@ -39,19 +46,14 @@ export function activePromotionsFor(
 export function applyDiscount(price: number, p: Promotion): number {
   if (price <= 0) return price;
   const out =
-    p.type === 'percentage' ? price * (1 - clampPct(p.value) / 100) : price - Math.max(0, p.value);
+    p.type === 'percentage'
+      ? price * (1 - clampPct(p.value) / 100)
+      : price - Math.max(0, safeValue(p.value));
   return Math.max(0, round2(out));
 }
 
-/** Best (lowest) price for an item given all promotions. */
-export function priceFor(
-  price: number,
-  promos: Promotion[],
-  item: PromotableItem,
-  now: Date,
-  tz: string,
-): PricedResult {
-  const active = activePromotionsFor(promos, item, now, tz);
+/** Best (lowest) price given an ALREADY-resolved active set (no schedule work). */
+function bestPriceAmong(price: number, active: Promotion[]): PricedResult {
   let best = price;
   let bestPromo: Promotion | undefined;
   for (const p of active) {
@@ -63,6 +65,17 @@ export function priceFor(
   }
   if (!bestPromo) return { price, original: price, discounted: false };
   return { price: best, original: price, discounted: true, promotion: bestPromo };
+}
+
+/** Best (lowest) price for an item given all promotions. */
+export function priceFor(
+  price: number,
+  promos: Promotion[],
+  item: PromotableItem,
+  now: Date,
+  tz: string,
+): PricedResult {
+  return bestPriceAmong(price, activePromotionsFor(promos, item, now, tz));
 }
 
 /** Badges derived from active promotions (the Promotions Engine is the source of truth). */
@@ -87,7 +100,8 @@ export function resolvePromotions(
   now: Date,
   tz: string,
 ): { priced: PricedResult; badges: ActiveBadge[]; active: Promotion[] } {
+  // Resolve the active set ONCE and reuse it — going through priceFor here would
+  // re-evaluate every promotion's schedule a second time for the same item.
   const active = activePromotionsFor(promos, item, now, tz);
-  const priced = priceFor(price, promos, item, now, tz);
-  return { priced, badges: promotionBadges(active), active };
+  return { priced: bestPriceAmong(price, active), badges: promotionBadges(active), active };
 }
