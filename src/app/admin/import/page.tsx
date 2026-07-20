@@ -28,6 +28,7 @@ import { GlassCard } from '@/components/ui/premium';
 import { buildGptImagePrompt } from '@/lib/heroPrompts';
 import type { CocktailConfig, Category } from '@/data/cocktail';
 import type { ParsedItem, ParsedMenu } from '@/lib/restaurant-scraper';
+import { inferKind, type ItemKind } from '@/lib/menu/classify';
 
 const serif = 'var(--font-garamond, serif)';
 const inputClass =
@@ -39,7 +40,14 @@ interface SelectedItem extends ParsedItem {
   uid: string;
   /** The restaurant's OWN category name (preserved from the scrape). */
   sourceCategory: string;
-  /** App theming category (one of the 5) — guessed, editable. */
+  /**
+   * Drink or dish. The server already infers this on import, but the picker used to
+   * ignore it and offer the five DRINK categories for everything — so a sourdough loaf
+   * was labelled "Citrus". Detected here too, and editable, because the owner is the one
+   * who can tell when the guess is wrong.
+   */
+  kind: ItemKind;
+  /** App theming category (one of the 5) — drinks only; guessed, editable. */
   category: Category;
   selected: boolean;
   status?: ItemStatus;
@@ -251,6 +259,9 @@ export default function ImportRestaurantPage() {
           ...it,
           uid: `${cat.id || ci}-${i}`,
           sourceCategory: cat.name,
+          // Same classifier the import route uses, so the picker shows what will
+          // actually be created rather than assuming everything is a cocktail.
+          kind: inferKind(it.name, cat.name),
           category: guessCategory(it.name, it.desc),
           selected: true,
         }))
@@ -268,6 +279,9 @@ export default function ImportRestaurantPage() {
 
   const toggleGroup = (sourceCategory: string, value: boolean) =>
     setItems((prev) => prev.map((it) => (it.sourceCategory === sourceCategory ? { ...it, selected: value } : it)));
+
+  const updateItemKind = (uid: string, kind: ItemKind) =>
+    setItems((prev) => prev.map((it) => (it.uid === uid ? { ...it, kind } : it)));
 
   const updateItemCategory = (uid: string, category: Category) =>
     setItems((prev) => prev.map((it) => (it.uid === uid ? { ...it, category } : it)));
@@ -291,7 +305,9 @@ export default function ImportRestaurantPage() {
           restaurantSlug,
           restaurantName,
           // Keep the description (-> tagline) AND the price (-> priceILS) on the menu.
-          items: chosen.map((c) => ({ name: c.name, desc: c.desc, price: c.price, category: c.category, sourceCategory: c.sourceCategory })),
+          // `kind` travels with each item so the owner's correction wins over the
+          // server's guess — otherwise flipping Drink/Dish in the picker did nothing.
+          items: chosen.map((c) => ({ name: c.name, desc: c.desc, price: c.price, category: c.category, sourceCategory: c.sourceCategory, kind: c.kind })),
         }),
       });
 
@@ -499,11 +515,44 @@ export default function ImportRestaurantPage() {
                             {it.price && (
                               <span className="shrink-0 text-amber-100/90 text-sm tabular-nums font-sans" dir="ltr">₪{it.price}</span>
                             )}
-                            <select value={it.category} disabled={!it.selected || importing} onChange={(e) => updateItemCategory(it.uid, e.target.value as Category)}
-                              aria-label={t(`Category for ${it.name}`, `קטגוריה עבור ${it.name}`)}
-                              className="font-sans shrink-0 rounded-lg border border-white/12 bg-black/40 px-2.5 py-1.5 text-amber-100/90 text-11 outline-none focus:border-amber-200/40 disabled:opacity-40">
-                              {CATEGORY_OPTIONS.map((c) => (<option key={c.id} value={c.id} className="bg-black">{t(c.label, c.labelHe)}</option>))}
-                            </select>
+                            {/* Drink or dish — shown per item so a wrong guess is visible and
+                                fixable BEFORE importing. */}
+                            <div className="flex shrink-0 items-center rounded-lg border border-white/12 bg-black/40 p-0.5">
+                              {(['drink', 'food'] as const).map((k) => (
+                                <button
+                                  key={k}
+                                  type="button"
+                                  disabled={!it.selected || importing}
+                                  onClick={() => updateItemKind(it.uid, k)}
+                                  aria-pressed={it.kind === k}
+                                  aria-label={t(
+                                    `${k === 'drink' ? 'Drink' : 'Dish'} — ${it.name}`,
+                                    `${k === 'drink' ? 'משקה' : 'מנה'} — ${it.name}`,
+                                  )}
+                                  className={`font-sans rounded-md px-2 py-1 text-10 tracking-[0.08em] transition-colors disabled:opacity-40 ${
+                                    it.kind === k ? 'bg-amber-200 text-black' : 'text-white/50 hover:text-white/85'
+                                  }`}
+                                >
+                                  {k === 'drink' ? t('Drink', 'משקה') : t('Dish', 'מנה')}
+                                </button>
+                              ))}
+                            </div>
+                            {/* The five categories are cocktail THEMES, so they only apply to a
+                                drink. A dish keeps the restaurant's own menu section instead. */}
+                            {it.kind === 'drink' ? (
+                              <select value={it.category} disabled={!it.selected || importing} onChange={(e) => updateItemCategory(it.uid, e.target.value as Category)}
+                                aria-label={t(`Category for ${it.name}`, `קטגוריה עבור ${it.name}`)}
+                                className="font-sans w-28 shrink-0 rounded-lg border border-white/12 bg-black/40 px-2.5 py-1.5 text-amber-100/90 text-11 outline-none focus:border-amber-200/40 disabled:opacity-40">
+                                {CATEGORY_OPTIONS.map((c) => (<option key={c.id} value={c.id} className="bg-black">{t(c.label, c.labelHe)}</option>))}
+                              </select>
+                            ) : (
+                              <span
+                                className="font-sans w-28 shrink-0 truncate rounded-lg border border-white/8 px-2.5 py-1.5 text-white/50 text-11"
+                                title={it.sourceCategory}
+                              >
+                                {it.sourceCategory || t('Dish', 'מנה')}
+                              </span>
+                            )}
                             <div className="w-20 shrink-0 text-end text-11 tracking-wider uppercase font-sans">
                               {it.status === 'in_progress' && <span className="inline-flex items-center gap-1 text-amber-200"><Loader2 size={12} strokeWidth={2.2} className="animate-spin" /> {t('working', 'עובד')}</span>}
                               {it.status === 'done' && <span className="inline-flex items-center gap-1 text-emerald-300"><Check size={12} strokeWidth={2.4} /> {t('done', 'הושלם')}</span>}

@@ -1,7 +1,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { SHARED_LAYERS, type Category, type CocktailConfig } from '@/data/cocktail';
-import { inferKind } from '@/lib/menu/classify';
+import { inferKind, type ItemKind } from '@/lib/menu/classify';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
 import { log } from '@/lib/log';
 import { readJsonCapped } from '@/lib/net/bounded';
@@ -28,6 +28,8 @@ interface ItemInput {
   /** The restaurant's own menu section — drives drink/food detection + course. */
   sourceCategory?: string | null;
   category?: Category;
+  /** Explicit drink/dish from the picker. Absent ⇒ fall back to inferKind. */
+  kind?: ItemKind;
 }
 
 interface ImportBody {
@@ -254,7 +256,8 @@ export async function POST(req: Request): Promise<Response> {
               ? { en: item.desc, he: item.desc }
               : undefined,
             category: item.category ?? 'citrus',
-            kind: inferKind(item.name, item.sourceCategory),
+            // The owner can correct the guess in the picker, so an explicit kind wins.
+            kind: item.kind ?? inferKind(item.name, item.sourceCategory),
             course: item.sourceCategory ? { en: item.sourceCategory, he: item.sourceCategory } : undefined,
             priceILS: parseImportedPrice(item.price),
             heroImage,
