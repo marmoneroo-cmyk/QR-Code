@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -161,7 +161,43 @@ function guessCategory(name: string, desc: string | null | undefined): Category 
   return 'citrus';
 }
 
+/**
+ * The API answers failures with a `{ success, error }` envelope whose strings are
+ * developer-facing. Dumping that JSON at the owner is not an error message — unwrap
+ * it and translate the cases an owner can actually act on. The raw detail is kept
+ * only as a trailing hint for the unrecognised ones, so a screenshot is still useful.
+ */
+async function importFailureText(res: Response, isHebrew: boolean): Promise<string> {
+  const t = (en: string, he: string) => (isHebrew ? he : en);
+
+  let detail = '';
+  try {
+    const raw = await res.text();
+    const error = (JSON.parse(raw) as { error?: unknown } | null)?.error;
+    detail = typeof error === 'string' ? error : raw;
+  } catch {
+    // Not our envelope — an empty body, or a proxy's HTML error page.
+  }
+
+  if (res.ok) return t('The server returned no content.', 'השרת לא החזיר תוכן.');
+  if (res.status === 401) return t('Your session expired — sign in again.', 'ההתחברות פגה — התחברו מחדש.');
+  if (res.status === 413 || detail.includes('too large')) {
+    return t(
+      'Too many items at once — import them in smaller batches.',
+      'נבחרו יותר מדי פריטים בבת אחת — ייבאו במנות קטנות יותר.',
+    );
+  }
+  if (detail.includes('are required')) {
+    return t('The restaurant name is missing.', 'שם המסעדה חסר.');
+  }
+
+  const hint = detail.trim().slice(0, 120);
+  const generic = t(`Import failed (error ${res.status}).`, `הייבוא נכשל (שגיאה ${res.status}).`);
+  return hint ? `${generic} ${hint}` : generic;
+}
+
 export default function ImportRestaurantPage() {
+  const nameRef = useRef<HTMLInputElement>(null);
   const { upsert } = useDrafts();
   const { logo, setLogo } = useRestaurant();
   const { lang } = useLang();
@@ -292,6 +328,17 @@ export default function ImportRestaurantPage() {
       setError(t('Select at least one item to import.', 'בחר לפחות פריט אחד לייבוא.'));
       return;
     }
+    // The name field starts empty on purpose (never pre-fill another restaurant's),
+    // so an owner can reach this button without it. Say which field is missing here
+    // instead of letting the server reject the whole batch after the fact.
+    if (!restaurantName.trim()) {
+      setError(t('Enter the restaurant name before importing.', 'הזינו את שם המסעדה לפני הייבוא.'));
+      // The field is above the whole item list, so a message alone leaves the
+      // owner scrolling to find what to fix.
+      nameRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      nameRef.current?.focus();
+      return;
+    }
     setError(null);
     setImporting(true);
     setProgress({ done: 0, total: chosen.length });
@@ -312,8 +359,7 @@ export default function ImportRestaurantPage() {
       });
 
       if (!res.ok || !res.body) {
-        const text = res.body ? await res.text() : t('No response body', 'אין תוכן בתגובה');
-        throw new Error(text.slice(0, 200));
+        throw new Error(await importFailureText(res, isHebrew));
       }
 
       const reader = res.body.getReader();
@@ -405,7 +451,7 @@ export default function ImportRestaurantPage() {
               <label className="block text-white/45 text-11 tracking-wide mb-2 font-sans">
                 {t('Restaurant name', 'שם המסעדה')}
               </label>
-              <input type="text" value={restaurantName} onChange={(e) => setRestaurantName(e.target.value)} placeholder={t('e.g. Diner', 'לדוגמה: Diner')} aria-label={t('Restaurant name', 'שם המסעדה')} className={inputClass} />
+              <input ref={nameRef} type="text" value={restaurantName} onChange={(e) => setRestaurantName(e.target.value)} placeholder={t('e.g. Diner', 'לדוגמה: Diner')} aria-label={t('Restaurant name', 'שם המסעדה')} className={inputClass} />
               <p className="text-white/70 text-10 tracking-wider mt-2 font-sans" dir={isHebrew ? 'rtl' : 'ltr'}>
                 {t('slug', 'מזהה')}: <code className="text-amber-100/80" dir="ltr">{restaurantSlug}</code>
               </p>
