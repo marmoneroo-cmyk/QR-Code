@@ -385,6 +385,10 @@ export function ExperiencePanel() {
                           key={k}
                           type="button"
                           onClick={() => toggleBadge(c.slug, k, auto)}
+                          // On/off was signalled by colour alone, so a screen-reader user
+                          // could not tell which badges were live, and pressing one
+                          // announced nothing.
+                          aria-pressed={on}
                           className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-10 tracking-[0.08em] transition-colors font-sans"
                           style={
                             on
@@ -411,6 +415,9 @@ export function ExperiencePanel() {
                           key={m}
                           type="button"
                           onClick={() => toggleModule(c.slug, m)}
+                          // These decide what a guest actually sees on the item page, and
+                          // on/off was conveyed only by colour and a strikethrough.
+                          aria-pressed={on}
                           className={`font-sans inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-10 tracking-[0.08em] transition-colors ${
                             on
                               ? 'border-emerald-300/40 text-emerald-100 bg-emerald-400/10'
