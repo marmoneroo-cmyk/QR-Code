@@ -25,7 +25,20 @@ export interface ParsedMenu {
 }
 
 function stripTags(s: string): string {
-  return s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  return (
+    s
+      /*
+       * Drop <style>/<script> WITH their contents first. Removing only the tags leaves the
+       * CSS or JS body behind as text — a real menu produced the item name
+       * "לבבות ארטישוק בגריל מנה צמחונית path.veg { fill: #007E17; } …" because the
+       * dietary-badge SVGs carry inline <style>. Menus embed those icons per item, so this
+       * is the common case, not an edge case.
+       */
+      .replace(/<(style|script)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }
 
 function detectPlatform(html: string, url: string): Platform {
