@@ -211,6 +211,9 @@ export function blankCocktailTemplate(slug: string): CocktailConfig {
     bartenderName: '',
     flavor: { sweet: 2, bitter: 2, citrus: 2, smoky: 2, herbal: 2 },
     category: 'citrus',
-    dietary: { vegan: true, glutenFree: true, alcoholFree: false },
+    // A brand-new blank item asserts nothing. This is spread from CITRUS_LIME_SOUR,
+    // so it used to inherit that cocktail's vegan + gluten-free claims and hand them
+    // to whatever the owner was about to create — a steak included.
+    dietary: { vegan: false, glutenFree: false, alcoholFree: false },
   };
 }

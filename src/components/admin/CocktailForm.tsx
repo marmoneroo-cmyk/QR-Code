@@ -78,7 +78,11 @@ export function CocktailForm({
     initial?.flavor ?? { sweet: 2, bitter: 2, citrus: 2, smoky: 2, herbal: 2 }
   );
   const [dietary, setDietary] = useState(
-    initial?.dietary ?? { vegan: true, glutenFree: true, alcoholFree: false }
+    // Unchecked for a new item. These render as "טבעוני" / "ללא גלוטן" badges to
+    // guests, so pre-ticking them meant an owner adding a steak published a
+    // gluten-free claim unless they noticed and unticked it. Editing an existing
+    // item still shows whatever that item actually asserts.
+    initial?.dietary ?? { vegan: false, glutenFree: false, alcoholFree: false }
   );
   const [heroPrompt, setHeroPrompt] = useState(initialHeroPrompt ?? initial?.heroPrompt ?? '');
   const [heroUrl, setHeroUrl] = useState(initial?.heroImage ?? '');
