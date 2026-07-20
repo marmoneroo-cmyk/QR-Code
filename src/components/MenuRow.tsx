@@ -254,7 +254,12 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
               >
                 {cocktail.title[lang]}
               </h3>
-              {featured && cocktail.tagline && (
+              {/* Every item carries a tagline, but it used to render only on `featured`
+                  cards — so an identical-looking grid showed ingredients on some cards and
+                  not others, which reads as missing data rather than as a design choice.
+                  `hidden md:block` still applies to ALL cards, so each breakpoint is
+                  internally consistent: none on mobile, all on desktop. */}
+              {cocktail.tagline && (
                 <p className="mt-1 hidden md:block text-white/50 text-xs leading-snug line-clamp-1 font-sans">
                   {cocktail.tagline[lang]}
                 </p>
@@ -265,7 +270,13 @@ function RowCard({ cocktail, isDraft, lang, currency, promotions, experienceConf
                   <span className={`text-amber-300 font-semibold ${featured ? 'text-15 md:text-lg' : 'text-15'}`}>{formatPrice(priced.price, currency)}</span>
                 </p>
               ) : cocktail.priceILS !== undefined ? (
-                <p className={`mt-1 text-amber-100/90 font-sans ${featured ? 'text-15 md:text-lg' : 'text-15'}`} style={{ fontWeight: 600 }} dir="ltr">
+                /* inline-flex, matching the discounted branch above. Both need dir="ltr" so
+                   the numerals and ₪ read correctly, but a full-width block with dir="ltr"
+                   also LEFT-aligns its text — so on a Hebrew card the plain price drifted to
+                   the left edge while a discounted price hugged the right, under the title.
+                   Hugging the content keeps every price on the card's start edge, in both
+                   languages, discounted or not. */
+                <p className={`mt-1 inline-flex items-baseline text-amber-100/90 font-sans ${featured ? 'text-15 md:text-lg' : 'text-15'}`} style={{ fontWeight: 600 }} dir="ltr">
                   {formatPrice(cocktail.priceILS, currency)}
                 </p>
               ) : null}
