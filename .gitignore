@@ -42,3 +42,9 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# MCP — local server config may reference project-scoped values; keep only .mcp.json.example tracked
+.mcp.json
+
+# opt-in live read-path diagnostic output (see src/lib/analytics/livecheck.test.ts)
+livecheck-report.txt
