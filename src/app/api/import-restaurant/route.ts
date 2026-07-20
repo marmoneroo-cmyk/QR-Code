@@ -1,6 +1,6 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { SHARED_LAYERS, type Category, type CocktailConfig } from '@/data/cocktail';
+import { SHARED_LAYERS, type Category, type CocktailConfig, type DietaryFlags } from '@/data/cocktail';
 import { inferKind, type ItemKind } from '@/lib/menu/classify';
 import { requireSession, unauthorized } from '@/lib/auth/guard';
 import { log } from '@/lib/log';
@@ -30,6 +30,8 @@ interface ItemInput {
   category?: Category;
   /** Explicit drink/dish from the picker. Absent ⇒ fall back to inferKind. */
   kind?: ItemKind;
+  /** Dietary badges parsed off the source menu. Absent ⇒ nothing claimed. */
+  dietary?: Partial<DietaryFlags>;
 }
 
 interface ImportBody {
@@ -268,7 +270,15 @@ export async function POST(req: Request): Promise<Response> {
               he: `יובא מ${body.restaurantName}.`,
             },
             bartenderName: body.restaurantName,
-            dietary: { vegan: true, glutenFree: true, alcoholFree: false },
+            // Default FALSE. This used to hardcode vegan+glutenFree true for every
+            // import, so a scraped ribeye showed guests a "ללא גלוטן" badge the
+            // restaurant never claimed — a dietary badge is acted on, not admired.
+            // Only badges actually parsed off the source menu turn a flag on.
+            dietary: {
+              vegan: item.dietary?.vegan ?? false,
+              glutenFree: item.dietary?.glutenFree ?? false,
+              alcoholFree: item.dietary?.alcoholFree ?? false,
+            },
             layers: SHARED_LAYERS,
             labels: [],
           };

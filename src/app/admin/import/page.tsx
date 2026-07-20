@@ -354,7 +354,9 @@ export default function ImportRestaurantPage() {
           // Keep the description (-> tagline) AND the price (-> priceILS) on the menu.
           // `kind` travels with each item so the owner's correction wins over the
           // server's guess — otherwise flipping Drink/Dish in the picker did nothing.
-          items: chosen.map((c) => ({ name: c.name, desc: c.desc, price: c.price, category: c.category, sourceCategory: c.sourceCategory, kind: c.kind })),
+          // `dietary` carries only what the source menu's badges asserted; without it
+          // the server has nothing to go on and every item imports with no claims.
+          items: chosen.map((c) => ({ name: c.name, desc: c.desc, price: c.price, category: c.category, sourceCategory: c.sourceCategory, kind: c.kind, dietary: c.dietary })),
         }),
       });
 

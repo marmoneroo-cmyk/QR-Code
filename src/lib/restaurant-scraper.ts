@@ -1,3 +1,5 @@
+import type { DietaryFlags } from '@/data/cocktail';
+import { extractDietaryBadges } from '@/lib/menu/dietary';
 import { safeFetch } from '@/lib/net/ssrf';
 import { readCappedText } from '@/lib/net/bounded';
 
@@ -8,6 +10,8 @@ export interface ParsedItem {
   price: string | null;
   desc: string | null;
   image?: string | null;
+  /** Only what the source menu's badges asserted. Absent ⇒ nothing was claimed. */
+  dietary?: Partial<DietaryFlags>;
 }
 
 export interface ParsedCategory {
@@ -322,11 +326,21 @@ export async function scrapeRestaurant(url: string): Promise<ParsedMenu> {
     }
   }
 
-  const totalItems = parsed.categories.reduce((s, c) => s + c.items.length, 0);
+  // Applied here rather than in each platform parser: this is the one point every
+  // parser (and the generic fallback) funnels through.
+  const categories = parsed.categories.map((c) => ({
+    ...c,
+    items: c.items.map((item) => {
+      const { name, flags } = extractDietaryBadges(item.name);
+      return Object.keys(flags).length > 0 ? { ...item, name, dietary: flags } : { ...item, name };
+    }),
+  }));
+
+  const totalItems = categories.reduce((s, c) => s + c.items.length, 0);
   return {
     source: target,
     platform,
-    categories: parsed.categories,
+    categories,
     totalItems,
     hasProductPhotos: parsed.hasPhotos,
   };
