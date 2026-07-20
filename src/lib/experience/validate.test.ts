@@ -18,7 +18,7 @@ describe('isValidExperienceConfig', () => {
       isValidExperienceConfig({
         modules: {
           hero_video: { enabled: true },
-          story: { enabled: false, schedule: {} },
+          story: { enabled: false, schedule: { windows: [] } },
         },
         badges: [
           { kind: 'signature', mode: 'manual', enabled: true },
@@ -65,7 +65,25 @@ describe('isValidExperienceConfig', () => {
   });
 
   it('accepts a module toggle with a valid schedule object', () => {
-    expect(isValidExperienceConfig({ modules: { hero_video: { enabled: true, schedule: {} } } })).toBe(true);
+    expect(
+      isValidExperienceConfig({ modules: { hero_video: { enabled: true, schedule: { windows: [] } } } }),
+    ).toBe(true);
+    expect(
+      isValidExperienceConfig({
+        modules: {
+          hero_video: {
+            enabled: true,
+            schedule: { windows: [{ kind: 'recurring', days: [5], start: '18:00', end: '23:00' }] },
+          },
+        },
+      }),
+    ).toBe(true);
+  });
+
+  // `{}` was previously accepted here as a "valid schedule object". It is not: it reaches
+  // isScheduleActive as `schedule.windows === undefined` and throws on every menu render.
+  it('rejects a schedule object with no windows array', () => {
+    expect(isValidExperienceConfig({ modules: { hero_video: { enabled: true, schedule: {} } } })).toBe(false);
   });
 
   it('rejects badges that is not an array', () => {

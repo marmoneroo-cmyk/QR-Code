@@ -1,3 +1,4 @@
+import { isSchedule } from '../scheduling/validate';
 import type {
   ExperienceConfig,
   ExperienceModule,
@@ -35,6 +36,10 @@ export const BADGE_KINDS: BadgeKind[] = [
 export const MAX_BADGES = 50;
 export const MAX_LABEL_LEN = 80;
 
+// The schedule shape guard is shared with the Promotions Engine — both persist a
+// Schedule and re-serve it to anonymous diners, so both must bound it identically.
+export { isSchedule, MAX_WINDOWS } from '../scheduling/validate';
+
 export function isBadgeLabel(value: unknown): value is BadgeLabel {
   if (typeof value !== 'object' || value === null) return false;
   const label = value as Record<string, unknown>;
@@ -50,7 +55,7 @@ export function isScheduledToggle(value: unknown): value is ScheduledToggle {
   if (typeof value !== 'object' || value === null) return false;
   const toggle = value as Record<string, unknown>;
   if (typeof toggle.enabled !== 'boolean') return false;
-  if (toggle.schedule !== undefined && (typeof toggle.schedule !== 'object' || toggle.schedule === null)) return false;
+  if (toggle.schedule !== undefined && !isSchedule(toggle.schedule)) return false;
   return true;
 }
 
@@ -60,7 +65,7 @@ export function isBadgeConfig(value: unknown): value is BadgeConfig {
   if (!BADGE_KINDS.includes(badge.kind as BadgeKind)) return false;
   if (badge.mode !== 'manual' && badge.mode !== 'auto') return false;
   if (typeof badge.enabled !== 'boolean') return false;
-  if (badge.schedule !== undefined && (typeof badge.schedule !== 'object' || badge.schedule === null)) return false;
+  if (badge.schedule !== undefined && !isSchedule(badge.schedule)) return false;
   if (badge.label !== undefined && !isBadgeLabel(badge.label)) return false;
   return true;
 }

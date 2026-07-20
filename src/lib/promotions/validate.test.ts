@@ -6,11 +6,14 @@ import {
   checkScope,
   checkActive,
   checkTargetSlugs,
+  checkTargetCategories,
   checkBadgeKind,
   validateInput,
   MAX_NAME_LEN,
   MAX_TARGET_SLUGS,
   MAX_SLUG_LEN,
+  MAX_TARGET_CATEGORIES,
+  MAX_CATEGORY_LEN,
 } from './validate';
 
 describe('checkName', () => {
@@ -248,5 +251,113 @@ describe('validateInput', () => {
     });
     expect(typeof result).not.toBe('string');
     expect(result).not.toHaveProperty('unknownField');
+  });
+
+  // targetCategories is persisted and re-served to anonymous diners exactly like
+  // targetSlugs, so it must be bounded and type-checked the same way.
+  it('rejects targetCategories that is not an array of strings', () => {
+    expect(
+      validateInput({ name: 'x', type: 'percentage', value: 20, scope: 'category', targetCategories: 'cocktails' }),
+    ).toBe('targetCategories must be an array of strings');
+    expect(
+      validateInput({ name: 'x', type: 'percentage', value: 20, scope: 'category', targetCategories: ['ok', 5] }),
+    ).toBe('targetCategories must be an array of strings');
+    expect(
+      validateInput({ name: 'x', type: 'percentage', value: 20, scope: 'category', targetCategories: [{}, null] }),
+    ).toBe('targetCategories must be an array of strings');
+  });
+
+  it('rejects an oversized targetCategories payload', () => {
+    expect(
+      validateInput({
+        name: 'x',
+        type: 'percentage',
+        value: 20,
+        scope: 'category',
+        targetCategories: Array.from({ length: MAX_TARGET_CATEGORIES + 1 }, () => 'c'),
+      }),
+    ).toBe(`targetCategories must have at most ${MAX_TARGET_CATEGORIES} entries`);
+  });
+
+  it('rejects an over-long single category', () => {
+    expect(
+      validateInput({
+        name: 'x',
+        type: 'percentage',
+        value: 20,
+        scope: 'category',
+        targetCategories: ['x'.repeat(MAX_CATEGORY_LEN + 1)],
+      }),
+    ).toBe(`each targetCategory must be at most ${MAX_CATEGORY_LEN} characters`);
+  });
+
+  it('accepts a well-formed targetCategories', () => {
+    const result = validateInput({
+      name: 'x',
+      type: 'percentage',
+      value: 20,
+      scope: 'category',
+      targetCategories: ['cocktails', 'mains'],
+    });
+    expect(typeof result).not.toBe('string');
+  });
+});
+
+describe('checkSchedule', () => {
+  const base = { name: 'x', type: 'percentage', value: 20, scope: 'all' };
+
+  it('rejects a schedule that cannot be evaluated', () => {
+    // `{}` reaches isScheduleActive as windows === undefined — historically a TypeError
+    // on every menu render.
+    expect(validateInput({ ...base, schedule: {} })).toBe('schedule must have a bounded windows array');
+    expect(validateInput({ ...base, schedule: { windows: null } })).toBe('schedule must have a bounded windows array');
+    expect(validateInput({ ...base, schedule: { windows: 'nope' } })).toBe('schedule must have a bounded windows array');
+    expect(validateInput({ ...base, schedule: [] })).toBe('schedule must have a bounded windows array');
+  });
+
+  it('rejects an unbounded windows array', () => {
+    expect(
+      validateInput({
+        ...base,
+        schedule: { windows: Array.from({ length: 500 }, () => ({ kind: 'recurring', days: [], start: '00:00', end: '24:00' })) },
+      }),
+    ).toBe('schedule must have a bounded windows array');
+  });
+
+  it('accepts an absent schedule and a well-formed one', () => {
+    expect(typeof validateInput({ ...base })).not.toBe('string');
+    expect(typeof validateInput({ ...base, schedule: { windows: [] } })).not.toBe('string');
+    expect(
+      typeof validateInput({
+        ...base,
+        schedule: { windows: [{ kind: 'recurring', days: [5], start: '22:00', end: '02:00' }] },
+      }),
+    ).not.toBe('string');
+  });
+});
+
+describe('checkTargetCategories', () => {
+  it('accepts arrays of strings, including empty', () => {
+    expect(checkTargetCategories([])).toBeUndefined();
+    expect(checkTargetCategories(['cocktails'])).toBeUndefined();
+  });
+
+  it('rejects non-arrays and non-string entries', () => {
+    expect(checkTargetCategories('cocktails')).toBe('targetCategories must be an array of strings');
+    expect(checkTargetCategories(['cocktails', 5])).toBe('targetCategories must be an array of strings');
+  });
+
+  it('enforces the entry-count cap', () => {
+    expect(checkTargetCategories(Array.from({ length: MAX_TARGET_CATEGORIES }, () => 'c'))).toBeUndefined();
+    expect(checkTargetCategories(Array.from({ length: MAX_TARGET_CATEGORIES + 1 }, () => 'c'))).toBe(
+      `targetCategories must have at most ${MAX_TARGET_CATEGORIES} entries`,
+    );
+  });
+
+  it('enforces the per-entry length cap', () => {
+    expect(checkTargetCategories(['x'.repeat(MAX_CATEGORY_LEN)])).toBeUndefined();
+    expect(checkTargetCategories(['x'.repeat(MAX_CATEGORY_LEN + 1)])).toBe(
+      `each targetCategory must be at most ${MAX_CATEGORY_LEN} characters`,
+    );
   });
 });

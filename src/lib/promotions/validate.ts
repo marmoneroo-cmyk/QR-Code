@@ -1,3 +1,4 @@
+import { isSchedule } from '../scheduling/validate';
 import type { PromotionInput } from './repository';
 
 export const DISCOUNT_TYPES = ['percentage', 'fixed'];
@@ -20,6 +21,8 @@ export const BADGE_KINDS = [
 export const MAX_NAME_LEN = 120;
 export const MAX_TARGET_SLUGS = 200;
 export const MAX_SLUG_LEN = 120;
+export const MAX_TARGET_CATEGORIES = 100;
+export const MAX_CATEGORY_LEN = 120;
 
 // Per-field checks shared by POST's validateInput (all required) and PATCH
 // (only the fields actually present in the body are checked).
@@ -48,16 +51,44 @@ export function checkActive(value: unknown): string | undefined {
   if (typeof value !== 'boolean') return 'active must be a boolean';
   return undefined;
 }
-export function checkTargetSlugs(value: unknown): string | undefined {
+/**
+ * Shape + size guard shared by BOTH target arrays. They carry the same risk: each is
+ * persisted on the promotion and re-served to anonymous diners, so an unbounded or
+ * non-string array is stored payload we then hand out on every menu render.
+ */
+function checkStringArray(
+  value: unknown,
+  field: string,
+  entry: string,
+  maxEntries: number,
+  maxLen: number,
+): string | undefined {
   if (!Array.isArray(value) || !value.every((s) => typeof s === 'string')) {
-    return 'targetSlugs must be an array of strings';
+    return `${field} must be an array of strings`;
   }
-  if (value.length > MAX_TARGET_SLUGS) return `targetSlugs must have at most ${MAX_TARGET_SLUGS} entries`;
-  if ((value as string[]).some((s) => s.length > MAX_SLUG_LEN)) {
-    return `each targetSlug must be at most ${MAX_SLUG_LEN} characters`;
+  if (value.length > maxEntries) return `${field} must have at most ${maxEntries} entries`;
+  if ((value as string[]).some((s) => s.length > maxLen)) {
+    return `each ${entry} must be at most ${maxLen} characters`;
   }
   return undefined;
 }
+
+export function checkTargetSlugs(value: unknown): string | undefined {
+  return checkStringArray(value, 'targetSlugs', 'targetSlug', MAX_TARGET_SLUGS, MAX_SLUG_LEN);
+}
+
+export function checkTargetCategories(value: unknown): string | undefined {
+  return checkStringArray(value, 'targetCategories', 'targetCategory', MAX_TARGET_CATEGORIES, MAX_CATEGORY_LEN);
+}
+/**
+ * A promotion's schedule decides WHEN a discount is live, and is evaluated on every
+ * menu render. An unevaluatable shape (`{}`, `{windows: null}`) must never reach the DB.
+ */
+export function checkSchedule(value: unknown): string | undefined {
+  if (!isSchedule(value)) return 'schedule must have a bounded windows array';
+  return undefined;
+}
+
 export function checkBadgeKind(value: unknown): string | undefined {
   if (!BADGE_KINDS.includes(value as string)) return 'badgeKind is invalid';
   return undefined;
@@ -80,9 +111,17 @@ export function validateInput(body: Record<string, unknown>): PromotionInput | s
     const targetSlugsErr = checkTargetSlugs(body.targetSlugs);
     if (targetSlugsErr) return targetSlugsErr;
   }
+  if (body.targetCategories !== undefined) {
+    const targetCategoriesErr = checkTargetCategories(body.targetCategories);
+    if (targetCategoriesErr) return targetCategoriesErr;
+  }
   if (body.badgeKind !== undefined) {
     const badgeKindErr = checkBadgeKind(body.badgeKind);
     if (badgeKindErr) return badgeKindErr;
+  }
+  if (body.schedule !== undefined && body.schedule !== null) {
+    const scheduleErr = checkSchedule(body.schedule);
+    if (scheduleErr) return scheduleErr;
   }
   return {
     name: (body.name as string).trim(),

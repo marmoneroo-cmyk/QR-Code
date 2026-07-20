@@ -14,6 +14,8 @@ import {
   checkScope,
   checkActive,
   checkTargetSlugs,
+  checkTargetCategories,
+  checkSchedule,
   checkBadgeKind,
 } from '@/lib/promotions/validate';
 import { requireSession, unauthorized, apiError } from '@/lib/auth/guard';
@@ -110,9 +112,17 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       const targetSlugsErr = checkTargetSlugs(patch.targetSlugs);
       if (targetSlugsErr) return err(targetSlugsErr);
     }
+    if (patch.targetCategories !== undefined) {
+      const targetCategoriesErr = checkTargetCategories(patch.targetCategories);
+      if (targetCategoriesErr) return err(targetCategoriesErr);
+    }
     if (patch.badgeKind !== undefined) {
       const badgeKindErr = checkBadgeKind(patch.badgeKind);
       if (badgeKindErr) return err(badgeKindErr);
+    }
+    if (patch.schedule !== undefined && patch.schedule !== null) {
+      const scheduleErr = checkSchedule(patch.schedule);
+      if (scheduleErr) return err(scheduleErr);
     }
     const data = await updatePromotion(session.restaurantSlug, id, patch as Partial<PromotionInput>, db);
     const single = data.scope === 'item' && data.targetSlugs?.length === 1 ? data.targetSlugs[0] : null;
