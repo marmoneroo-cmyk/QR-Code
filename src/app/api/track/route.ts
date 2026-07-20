@@ -15,6 +15,21 @@ const MAX_BODY_BYTES = 64_000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
+ * Per-field caps for the free text this PUBLIC ingest persists. The body cap alone bounds
+ * only the REQUEST — one 64KB body can still store a single 60KB `language`, and every
+ * other write path in the app caps its stored strings (names 120, slugs 120, labels 80).
+ * An over-long value is dropped to null rather than truncated: a truncated id would still
+ * join against other rows and quietly corrupt sessionisation, whereas null cannot.
+ */
+const MAX_ID_LEN = 128;
+const MAX_TRACK_SLUG_LEN = 120;
+const MAX_SHORT_LEN = 32;
+const MAX_REFERRER_LEN = 512;
+
+const capped = (value: unknown, max: number): string | null =>
+  typeof value === 'string' && value.length <= max ? value : null;
+
+/**
  * Tenant slugs are lowercase alphanumeric + hyphen, 1–64 chars. This PUBLIC, anonymous
  * endpoint takes its target tenant from the request body, so an attacker-shaped slug must be
  * rejected BEFORE it reaches the DB. Two-layer defense: (1) this static format allowlist, then
@@ -61,7 +76,10 @@ interface EventRow {
 }
 
 function toRow(restaurantId: string, restaurantType: RestaurantType, e: TrackRecord, now: number): EventRow | null {
-  if (!isTrackEvent(e.event) || typeof e.sessionId !== 'string' || !e.sessionId) {
+  // An over-long session id makes the event unusable for sessionisation, so the whole
+  // event is dropped rather than stored under a truncated or null session.
+  const sessionId = capped(e.sessionId, MAX_ID_LEN);
+  if (!isTrackEvent(e.event) || !sessionId) {
     return null;
   }
   // Trust the client clock but clamp obvious skew to the server's now.
@@ -82,15 +100,15 @@ function toRow(restaurantId: string, restaurantType: RestaurantType, e: TrackRec
   } as unknown as Json;
   return {
     restaurant_id: restaurantId,
-    event_id: typeof e.eventId === 'string' ? e.eventId : null,
-    cocktail_slug: typeof e.cocktailSlug === 'string' ? e.cocktailSlug : null,
+    event_id: capped(e.eventId, MAX_ID_LEN),
+    cocktail_slug: capped(e.cocktailSlug, MAX_TRACK_SLUG_LEN),
     event_name: e.event,
-    session_id: e.sessionId,
-    visitor_id: typeof e.visitorId === 'string' ? e.visitorId : null,
-    table_id: typeof e.tableId === 'string' ? e.tableId : null,
-    device_type: typeof e.deviceType === 'string' ? e.deviceType : null,
-    language: typeof e.language === 'string' ? e.language : null,
-    referrer: typeof e.referrer === 'string' ? e.referrer : null,
+    session_id: sessionId,
+    visitor_id: capped(e.visitorId, MAX_ID_LEN),
+    table_id: capped(e.tableId, MAX_ID_LEN),
+    device_type: capped(e.deviceType, MAX_SHORT_LEN),
+    language: capped(e.language, MAX_SHORT_LEN),
+    referrer: capped(e.referrer, MAX_REFERRER_LEN),
     value_num: typeof e.value === 'number' && Number.isFinite(e.value) ? e.value : null,
     metadata,
     occurred_at: new Date(occurred).toISOString(),
