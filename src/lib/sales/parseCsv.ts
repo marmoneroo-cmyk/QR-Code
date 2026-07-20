@@ -28,7 +28,18 @@ export function parseCsv(text: string): ParsedSalesCsv {
   const lines = text
     .split(/\r?\n/)
     .map((l) => l.trim())
-    .filter((l) => l && !/^slug/i.test(l));
+    .filter((l) => l.length > 0);
+
+  /*
+   * A header is only ever the FIRST line, and only when "slug" is the whole first
+   * cell. Matching a bare /^slug/i dropped legitimate items whose slug merely starts
+   * with those letters (`slug-sipper,3,100`) — and because it was filtered out before
+   * the loop, the row vanished WITHOUT incrementing `skipped`, so the operator was
+   * never told their file had been trimmed.
+   */
+  if (lines.length > 0 && /^slug\s*([,\t]|$)/i.test(lines[0]!)) {
+    lines.shift();
+  }
 
   const rows: SaleInput[] = [];
   let skipped = 0;
