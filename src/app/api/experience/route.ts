@@ -16,8 +16,9 @@ function err(message: string, status = 400): NextResponse {
   return NextResponse.json({ success: false, error: message }, { status });
 }
 
-// Public reads are cached at the CDN edge; writes stay uncached (session-scoped).
-const PUBLIC_GET_HEADERS = { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } as const;
+// Owner-editable config: NOT edge-cached, same reasoning as the promotions GET —
+// a 60s edge cache made experience/module changes lag behind the owner's toggles.
+const PUBLIC_GET_HEADERS = { 'Cache-Control': 'no-store' } as const;
 
 // PUBLIC read: the diner menu (useMenuConfig) fetches its restaurant's experience config.
 // `menu_experience` is public-read by RLS (it drives anonymous rendering), so the

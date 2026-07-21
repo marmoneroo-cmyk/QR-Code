@@ -31,8 +31,12 @@ function err(message: string, status = 400): NextResponse {
   return NextResponse.json({ success: false, error: message }, { status });
 }
 
-// Public reads are cached at the CDN edge; writes stay uncached (session-scoped).
-const PUBLIC_GET_HEADERS = { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } as const;
+// Owner-editable config: NOT edge-cached. The old s-maxage=60 meant that after an
+// owner toggled a promotion, guests (and the owner checking the menu) kept seeing the
+// PRE-change response for up to 60s + 300s stale — so activating Happy Hour looked
+// like it did nothing until the cache expired. The query is tiny and indexed, so a
+// live read per menu load is the right trade for changes that must feel immediate.
+const PUBLIC_GET_HEADERS = { 'Cache-Control': 'no-store' } as const;
 
 // PUBLIC read: the diner menu (useMenuConfig) fetches its restaurant's active promotions.
 // `promotions` is public-read by RLS (badges are shown to anonymous guests), so the
