@@ -17,8 +17,20 @@ import { useEngagement } from '@/lib/tracking/useEngagement';
 import { useLang } from '@/lib/useLang';
 import { useCurrency } from '@/lib/useCurrency';
 import { useMenuConfig } from '@/lib/useMenuConfig';
-import { resolveDinerPrice } from '@/data/experience';
+import { resolveDinerPrice, RESTAURANT_TZ } from '@/data/experience';
+import { resolveModules, type ActiveModules } from '@/lib/experience/resolve';
 import { useExperiment } from '@/lib/experiments/useExperiment';
+
+/** Before the post-mount resolve, show everything — never hide content on first paint. */
+const ALL_MODULES_ON: ActiveModules = {
+  taste_profile: true,
+  story: true,
+  perfect_pairings: true,
+  related_items: true,
+  ingredient_breakdown: true,
+  hero_video: true,
+  mood_tags: true,
+};
 
 /**
  * CocktailExperience — a full-screen, cinematic "dedicated landing page" for ONE drink.
@@ -109,6 +121,24 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
   const accent = getAccent(config.slug);
   const featureVideo = getFeatureVideo(config.slug);
 
+  // Owner-configured content modules. Resolved post-mount (default all-on) so a
+  // scheduled toggle can't cause a hydration mismatch, and so the page never hides
+  // a section on the server render then flashes it. This is what makes the
+  // experience builder's toggles actually affect the guest page — it used to
+  // ignore them entirely. Recomputes when the SWR experience payload updates, so
+  // an owner change propagates on the next menu load / tab focus.
+  const { experience } = useMenuConfig('diner');
+  const [modulesNow, setModulesNow] = useState<Date | null>(null);
+  useEffect(() => setModulesNow(new Date()), []);
+  const modules = useMemo<ActiveModules>(
+    () => (modulesNow ? resolveModules(experience[config.slug], modulesNow, RESTAURANT_TZ) : ALL_MODULES_ON),
+    [experience, config.slug, modulesNow],
+  );
+
+  const hasComponents = config.labels.length > 0;
+  const showIngredients = hasComponents && modules.ingredient_breakdown;
+  const showVideo = Boolean(featureVideo) && modules.hero_video;
+
   // The floating ingredients = every label except the final "glass" one (that IS the drink).
   const { ingredients, glassLabel } = useMemo(() => {
     const float = config.labels.filter((l) => l.layerId !== 'glass');
@@ -193,13 +223,14 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
             lang={lang}
             accent={accent}
             reduce={!!reduce}
-            hasVideo={Boolean(featureVideo)}
+            showVideo={showVideo}
+            showIngredients={showIngredients}
             onIngredients={openIngredients}
             onVideo={openVideo}
           />
         )}
 
-        {mode === 'ingredients' && (
+        {mode === 'ingredients' && showIngredients && (
           <ExplodedView
             key="ingredients"
             ingredients={ingredients}
@@ -207,6 +238,8 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
             glassImage={imageForLayer.get('glass') ?? config.heroImage}
             imageForLayer={imageForLayer}
             flavor={config.flavor}
+            showFlavor={modules.taste_profile}
+            showRelated={modules.related_items}
             note={config.bartenderNote?.[lang]}
             noteName={config.bartenderName}
             currentSlug={config.slug}
@@ -216,7 +249,7 @@ function DrinkExperience({ config }: CocktailExperienceProps) {
           />
         )}
 
-        {mode === 'video' && featureVideo && (
+        {mode === 'video' && showVideo && featureVideo && (
           <VideoStage
             key="video"
             src={featureVideo}
@@ -566,13 +599,15 @@ interface HeroStageProps {
   lang: Lang;
   accent: string;
   reduce: boolean;
-  hasVideo: boolean;
+  /** Both already fold in the owner's module toggles (see DrinkExperience). */
+  showVideo: boolean;
+  showIngredients: boolean;
   onIngredients: () => void;
   onVideo: () => void;
 }
 
 function HeroStage({
-  config, lang, accent, reduce, hasVideo,
+  config, lang, accent, reduce, showVideo, showIngredients,
   onIngredients, onVideo,
 }: HeroStageProps) {
   const isHe = lang === 'he';
@@ -623,11 +658,12 @@ function HeroStage({
         <DinerPrice cocktail={config} className="mt-2 text-xl text-amber-100/90" />
       </motion.div>
 
-      {/* THE DRINK — ~55vh, glow, reflection, slow float. Tap = explore. */}
+      {/* THE DRINK — ~55vh, glow, reflection, slow float. Tap = explore (only when
+          the breakdown module is on; otherwise the drink is a non-interactive hero). */}
       <motion.button
         type="button"
-        onClick={onIngredients}
-        aria-label={isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside'}
+        onClick={showIngredients ? onIngredients : undefined}
+        aria-label={showIngredients ? (isHe ? 'גלה מה יש בפנים' : 'Discover what’s inside') : config.title[lang]}
         className="group relative mt-4 flex-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
         style={{ x: px, minHeight: '56vh', maxHeight: '62vh' }}
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
@@ -683,11 +719,13 @@ function HeroStage({
             );
           })()}
         </motion.span>
-        <span
-          className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-10 tracking-[0.45em] uppercase text-white/70 transition-colors group-hover:text-white font-sans"
-        >
-          {isHe ? 'גע בכוס לגילוי' : 'Tap to explore'}
-        </span>
+        {showIngredients && (
+          <span
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-10 tracking-[0.45em] uppercase text-white/70 transition-colors group-hover:text-white font-sans"
+          >
+            {isHe ? 'גע בכוס לגילוי' : 'Tap to explore'}
+          </span>
+        )}
       </motion.button>
 
       {/* Ingredients / Video / AR — the control surface. Still no order button: interest
@@ -698,13 +736,15 @@ function HeroStage({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.5, ease: EASE }}
       >
-        <ActionTile
-          label={ingredientsLabel}
-          icon={<Layers size={20} strokeWidth={1.6} aria-hidden />}
-          onClick={onIngredients}
-          className="flex-1 min-w-[92px] max-w-[160px]"
-        />
-        {hasVideo && (
+        {showIngredients && (
+          <ActionTile
+            label={ingredientsLabel}
+            icon={<Layers size={20} strokeWidth={1.6} aria-hidden />}
+            onClick={onIngredients}
+            className="flex-1 min-w-[92px] max-w-[160px]"
+          />
+        )}
+        {showVideo && (
           <ActionTile
             label={isHe ? 'וידאו' : 'Video'}
             icon={<Play size={20} strokeWidth={1.6} aria-hidden />}
@@ -765,6 +805,9 @@ interface ExplodedViewProps {
   glassImage: string;
   imageForLayer: Map<string, string>;
   flavor: CocktailConfig['flavor'];
+  /** Owner module toggles for the two sub-sections of the breakdown. */
+  showFlavor: boolean;
+  showRelated: boolean;
   note?: string;
   noteName?: string;
   currentSlug: string;
@@ -774,7 +817,7 @@ interface ExplodedViewProps {
 }
 
 function ExplodedView({
-  ingredients, glassLabel, glassImage, imageForLayer, flavor, note, noteName, currentSlug, lang, accent, reduce,
+  ingredients, glassLabel, glassImage, imageForLayer, flavor, showFlavor, showRelated, note, noteName, currentSlug, lang, accent, reduce,
 }: ExplodedViewProps) {
   const isHe = lang === 'he';
   // Natural label order = physical explosion order: 01 garnish floats highest,
@@ -872,6 +915,7 @@ function ExplodedView({
       </motion.figure>
 
       {/* Flavor profile — the one "data" block a guest actually understands. */}
+      {showFlavor && (
       <motion.div
         className="mt-14 flex flex-col items-center"
         initial={{ opacity: 0, y: 24 }}
@@ -888,9 +932,10 @@ function ExplodedView({
           </p>
         )}
       </motion.div>
+      )}
 
       {/* What other guests explored — the recommendation, right below the profile. */}
-      <AlsoExplored currentSlug={currentSlug} lang={lang} />
+      {showRelated && <AlsoExplored currentSlug={currentSlug} lang={lang} />}
     </motion.section>
   );
 }

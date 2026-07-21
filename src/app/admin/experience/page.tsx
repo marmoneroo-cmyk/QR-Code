@@ -21,6 +21,7 @@ import { GlassImage, SectionLabel, Skeleton } from '@/components/ui/dataviz';
 import { useLang } from '@/lib/useLang';
 import { MENU, findCocktailBySlug, getAccent } from '@/data/cocktail';
 import type { ExperienceConfig, ExperienceModule, BadgeKind, BadgeConfig } from '@/lib/experience/types';
+import { availableModulesFor } from '@/lib/experience/availability';
 
 const MANUAL_BADGES: BadgeKind[] = ['signature', 'new_item', 'limited_time', 'seasonal'];
 const AUTO_BADGES: BadgeKind[] = ['guest_favorite', 'trending'];
@@ -210,7 +211,11 @@ export function ExperiencePanel() {
             const cocktail = findCocktailBySlug(c.slug);
             const accent = getAccent(c.slug);
             const activeBadges = s.manual.size + s.auto.size;
-            const liveModules = MODULES.length - s.disabledModules.size;
+            // Only the modules this drink actually has (video only if it has one,
+            // breakdown only if it has components) — so we never offer a toggle for
+            // a section the guest page won't render for this item.
+            const avail = availableModulesFor(c);
+            const liveModules = avail.filter((m) => !s.disabledModules.has(m)).length;
             const isSaving = saving === c.slug;
             const isSaved = saved === c.slug;
             const isSaveError = saveError === c.slug;
@@ -220,7 +225,7 @@ export function ExperiencePanel() {
               ...MANUAL_BADGES.filter((k) => s.manual.has(k)).map((kind) => ({ kind, auto: false })),
               ...AUTO_BADGES.filter((k) => s.auto.has(k)).map((kind) => ({ kind, auto: true })),
             ];
-            const previewModules = MODULES.filter((m) => !s.disabledModules.has(m));
+            const previewModules = avail.filter((m) => !s.disabledModules.has(m));
             return (
               <article
                 key={c.slug}
@@ -337,7 +342,7 @@ export function ExperiencePanel() {
                       {c.title[lang]}
                     </h3>
                     <p className="mt-0.5 text-white/70 text-10 tracking-wide font-sans">
-                      {activeBadges} {isHe ? 'תגיות' : 'badges'} · {liveModules}/{MODULES.length} {isHe ? 'מודולים' : 'modules'}
+                      {activeBadges} {isHe ? 'תגיות' : 'badges'} · {liveModules}/{avail.length} {isHe ? 'מודולים' : 'modules'}
                     </p>
                   </div>
                   <button
@@ -408,7 +413,7 @@ export function ExperiencePanel() {
                 <div className="px-6 pb-6 pt-5">
                   <SectionLabel icon={LayoutGrid}>{isHe ? 'מודולים (כבוי = מוסתר)' : 'Modules (off = hidden)'}</SectionLabel>
                   <div className="flex flex-wrap gap-2">
-                    {MODULES.map((m) => {
+                    {avail.map((m) => {
                       const on = !s.disabledModules.has(m);
                       return (
                         <button
