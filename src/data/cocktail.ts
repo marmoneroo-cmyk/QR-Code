@@ -1335,6 +1335,10 @@ export const COCKTAIL_COST: Record<string, number> = {
   'diner-margarita': 16,
   'diner-green-garden': 13,
   'diner-whiskey-sour': 15,
+  // Food items need a seeded cost too. Without one the burger fell back to cost 0,
+  // so menu engineering showed a 100% margin on a ₪96 dish — a number any
+  // restaurateur reads as broken. ~33% food cost is the normal kitchen benchmark.
+  'truffle-burger': 32,
 };
 
 export interface CocktailEconomics {
