@@ -58,12 +58,18 @@ export function buildOpportunities(signals: MenuSignals, opts: OpportunityOption
 
   for (const it of items) {
     const openRate = it.impressions > 0 ? clamp01(it.opens / it.impressions) : it.opens > 0 ? 1 : 0;
-    const intentRate = it.opens > 0 ? clamp01((it.favorites + it.salesUnits) / it.opens) : 0;
+    // Behavioural intent ONLY. `salesUnits` is a 30-day POS total while `opens` is
+    // distinct sessions — mixing them divided by the wrong denominator (186 units /
+    // 32 sessions = 5.8 → clamped to 1.0), so every selling item looked like perfect
+    // intent and silently disabled this rule. Real sales are applied below as a veto
+    // instead, which is what they actually are: proof of commitment, not a rate.
+    const intentRate = it.opens > 0 ? clamp01(it.favorites / it.opens) : 0;
+    const sellsThroughPos = it.salesUnits > 0;
     const shareRate = it.opens > 0 ? clamp01(it.shares / it.opens) : 0;
     const pct = (n: number): string => `${Math.round(n * 100)}%`;
 
     // 1) High engagement + low intent  → review the offer.  (mutually exclusive with #2)
-    if (it.opens >= T.minOpens && openRate >= T.strongOpenRate && intentRate < T.weakIntentRate) {
+    if (it.opens >= T.minOpens && openRate >= T.strongOpenRate && intentRate < T.weakIntentRate && !sellsThroughPos) {
       add(
         it,
         'fix_offer',

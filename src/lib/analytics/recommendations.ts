@@ -2,6 +2,7 @@ import 'server-only';
 import { readClient } from '@/lib/supabase/readClient';
 import { fetchAllEvents } from './fetchEvents';
 import { log } from '@/lib/log';
+import { MENU } from '@/data/cocktail';
 import type { CoViewRow, Recommendations, RelatedItem } from './recommendations-types';
 
 const TENANT_SLUG = 'diner';
@@ -50,10 +51,17 @@ export async function getCoViews(
     });
     if (data.length === 0) return emptyRecommendations();
 
+    // Only real menu items. Old imports/tests left orphan slugs in `events`, and
+    // without this guard they became recommendation cards titled with the raw slug —
+    // the board rendered one literally called "asd". Every sibling aggregation
+    // (queries.ts, menu-signals.ts, closedloop/server.ts) already filters this way.
+    const knownSlugs = new Set(MENU.map((c) => c.slug));
+
     // session_id -> set of distinct cocktail slugs opened in that session.
     const sessionSlugs = new Map<string, Set<string>>();
     for (const e of data) {
       if (!e.session_id || !e.cocktail_slug) continue;
+      if (!knownSlugs.has(e.cocktail_slug)) continue;
       let set = sessionSlugs.get(e.session_id);
       if (!set) {
         set = new Set<string>();

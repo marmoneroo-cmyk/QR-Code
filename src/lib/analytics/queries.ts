@@ -243,6 +243,39 @@ export async function getAnalyticsOverview(
       }
     }
 
+    // Real POS sales are AUTHORITATIVE for money and units — the same precedence
+    // getMenuEngineering already applies to its demand axis. Without this, an owner
+    // who imported sales saw ₪55,895 on the Sales screen and a completely different
+    // event-derived number labelled "revenue" on Home / Revenue / Executive.
+    // Views/orders stay behavioural: they are in-app sessions, which POS rows can't supply.
+    const { data: salesRows } = await supabase
+      .from('sales')
+      .select('slug, units, revenue')
+      .eq('restaurant_id', restaurant.id);
+    const soldUnits = new Map<string, number>();
+    const soldRevenue = new Map<string, number>();
+    for (const r of (salesRows ?? []) as Array<{ slug: string; units: number; revenue: number }>) {
+      soldUnits.set(r.slug, (soldUnits.get(r.slug) ?? 0) + (Number(r.units) || 0));
+      soldRevenue.set(r.slug, (soldRevenue.get(r.slug) ?? 0) + (Number(r.revenue) || 0));
+    }
+    const hasRealSales = [...soldUnits.values()].some((u) => u > 0);
+    if (hasRealSales) {
+      totalUnits = 0;
+      totalRevenue = 0;
+      totalProfit = 0;
+      itemUnits.clear();
+      itemRevenue.clear();
+      for (const [slug, units] of soldUnits) {
+        const revenue = soldRevenue.get(slug) ?? 0;
+        const cost = econBySlug.get(slug)?.cost ?? 0;
+        itemUnits.set(slug, units);
+        itemRevenue.set(slug, revenue);
+        totalUnits += units;
+        totalRevenue += revenue;
+        totalProfit += revenue - cost * units;
+      }
+    }
+
     const totalViews = viewSessions.size;
     const totalOrders = orderSessions.size;
     const viewsByDay = viewsByDaySets.map((s) => s.size);
@@ -251,7 +284,12 @@ export async function getAnalyticsOverview(
     const maxHour = Math.max(1, ...hourCounts);
     const hourHeatmap = hourCounts.map((v) => v / maxHour);
 
-    const slugs = new Set<string>([...itemViewSessions.keys(), ...itemOrderSessions.keys()]);
+    // Include sold-but-never-viewed items so the top-items table can't hide a real seller.
+    const slugs = new Set<string>([
+      ...itemViewSessions.keys(),
+      ...itemOrderSessions.keys(),
+      ...itemUnits.keys(),
+    ]);
     const topItems: TopItem[] = [...slugs]
       .map((slug) => {
         const views = itemViewSessions.get(slug)?.size ?? 0;
@@ -279,7 +317,7 @@ export async function getAnalyticsOverview(
       ordersByDay,
       hourHeatmap,
       topItems,
-      hasData: totalViews > 0 || totalOrders > 0,
+      hasData: totalViews > 0 || totalOrders > 0 || hasRealSales,
     };
   } catch (e) {
     log.error('analytics', 'getAnalyticsOverview failed', {
@@ -545,7 +583,12 @@ export async function getMenuEngineering(
           conversionPct,
           attentionScore,
           klass: classify(demand, econ.margin, medDemand, medMargin),
-          highInterestLowConversion: attentionScore >= 55 && conversionPct < 10 && views >= 2,
+          // "Interest but no orders" is measured from IN-APP order events, so an item
+          // that sells well through the POS would otherwise be accused of not selling —
+          // the Optimize card read "guests aren't ordering" directly above its own
+          // "186 units · ₪10,044" pill. Real sales veto the accusation.
+          highInterestLowConversion:
+            attentionScore >= 55 && conversionPct < 10 && views >= 2 && demand === 0,
         };
       })
       .sort((x, y) => y.attentionScore - x.attentionScore || y.margin - x.margin);

@@ -18,6 +18,7 @@ import type { AnalyticsOverview, MenuEngineering } from '@/lib/analytics/types';
 import type { Promotion } from '@/lib/promotions/types';
 import type { ClosedLoopReport } from '@/lib/closedloop/server';
 import { useApiData } from '@/lib/data/useApiData';
+import { describeChange } from '@/lib/changes/describe';
 
 const OPP_LABEL: Record<OpportunityType, { en: string; he: string }> = {
   fix_offer: { en: 'Review offer', he: 'בדקו הצעה' },
@@ -263,12 +264,21 @@ export default function HomeDashboardPage() {
               <EmptyState title={isHe ? 'אין שינויים שתועדו.' : 'No changes logged.'} />
             ) : (
               <ul className="font-sans flex flex-col gap-1.5 text-xs">
-                {loop.timeline.slice(0, 4).map((c) => (
-                  <li key={c.id} className="text-white/75 flex justify-between gap-2">
-                    <span className="truncate">{c.summary ?? c.changeType}</span>
-                    <span className="text-white/70 shrink-0">{c.createdAt.slice(5, 10)}</span>
-                  </li>
-                ))}
+                {loop.timeline.slice(0, 4).map((c) => {
+                  // Was printing the raw DB summary, so the flagship Hebrew screen
+                  // showed English rows like "Experience updated: diner-negroni".
+                  const { label, detail } = describeChange(c, isHe);
+                  return (
+                    <li key={c.id} className="text-white/75 flex justify-between gap-2">
+                      <span className="truncate">
+                        {label && <span className="text-white/90">{label}</span>}
+                        {label && detail ? ' · ' : ''}
+                        {detail}
+                      </span>
+                      <span className="text-white/70 shrink-0">{c.createdAt.slice(5, 10)}</span>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </Widget>

@@ -146,6 +146,12 @@ export async function getMenuSignals(restaurantSlug = 'diner'): Promise<MenuSign
     }
     const d = dwell.get(slug);
     const sale = salesBySlug.get(slug);
+    // `committed` can only be built from in-app signals (favourite / in-app order) —
+    // a POS sale carries no visitor id. So for an item that genuinely SELLS, an
+    // unmatched returning visitor is unattributed, not proof they didn't buy.
+    // Asserting "guests keep coming back without ordering" about a best seller is
+    // the kind of claim that destroys the owner's trust in every other insight.
+    if ((sale?.units ?? 0) > 0) repeatNoCommit = 0;
     return {
       slug,
       position: positionBySlug.get(slug) ?? 0,

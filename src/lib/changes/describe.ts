@@ -1,3 +1,4 @@
+import { findCocktailBySlug } from '@/data/cocktail';
 import type { ChangeRecord } from './repository';
 
 /**
@@ -22,6 +23,10 @@ const ACTION_LABELS: Record<string, { en: string; he: string }> = {
   promotion_edited: { en: 'Promotion updated', he: 'מבצע עודכן' },
   promotion_activated: { en: 'Promotion updated', he: 'מבצע עודכן' },
   promotion_deleted: { en: 'Promotion removed', he: 'מבצע הוסר' },
+  // Experience edits logged English summaries ("Experience updated: diner-negroni"),
+  // which rendered verbatim on the Hebrew Home + Results timelines.
+  experience_updated: { en: 'Experience updated', he: 'החוויה עודכנה' },
+  experience_edited: { en: 'Experience updated', he: 'החוויה עודכנה' },
 };
 
 /** Remove English wrappers baked into summaries logged before the log went neutral. */
@@ -30,6 +35,7 @@ function stripLegacyWrapper(summary: string): string {
     .replace(/^Promotion updated:\s*/i, '')
     .replace(/^Promotion:\s*/i, '')
     .replace(/^Promotion deleted$/i, '')
+    .replace(/^Experience updated:\s*/i, '')
     // legacy "(−5%)" → "· −5%" so it reads like the current neutral format
     .replace(/\s*\(−?(\d+[%₪])\)\s*$/, ' · −$1')
     .trim();
@@ -42,7 +48,14 @@ export function describeChange(
   const known = ACTION_LABELS[c.changeType];
   const raw = c.summary ?? '';
   if (known) {
-    return { label: isHe ? known.he : known.en, detail: stripLegacyWrapper(raw) };
+    const stripped = stripLegacyWrapper(raw);
+    // A bare slug is a developer identifier, not a menu item name — show the
+    // drink's own bilingual title when the detail is just its slug.
+    const item = findCocktailBySlug(stripped);
+    return {
+      label: isHe ? known.he : known.en,
+      detail: item ? item.title[isHe ? 'he' : 'en'] : stripped,
+    };
   }
   // action_* (already a localized title), manual (owner free text), external, …
   return { label: '', detail: raw || c.changeType };
