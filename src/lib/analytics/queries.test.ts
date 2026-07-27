@@ -240,6 +240,90 @@ describe('getAnalyticsOverview — revenue / orders aggregation', () => {
     expect(o.totalProfit).toBe(42);
   });
 
+  it('prefers REAL POS sales over in-app order events for money and units', async () => {
+    // The bug this locks: Home/Revenue/Executive read only `events`, so an owner who
+    // imported sales saw ₪1,350 there and ₪55,895 on the Sales screen — same label,
+    // 41× apart. Sales win; the in-app order event below must not be added on top.
+    mockSupabase({
+      restaurant: { id: 'r1' },
+      sales: {
+        data: [
+          { slug: 'diner-negroni', units: 100, revenue: 6200 }, // price 62, cost 20
+          { slug: 'garden-spritz', units: 50, revenue: 2100 }, // price 42, cost 10
+        ],
+        error: null,
+      },
+      events: {
+        data: [
+          { event_name: 'cocktail_opened', cocktail_slug: 'diner-negroni', session_id: 's1', value_num: null, metadata: {}, occurred_at: isoNow(), created_at: isoNow() },
+          { event_name: 'order_completed', cocktail_slug: 'diner-negroni', session_id: 's1', value_num: 3, metadata: {}, occurred_at: isoNow(), created_at: isoNow() },
+        ],
+        error: null,
+      },
+    });
+
+    const o = await getAnalyticsOverview();
+
+    expect(o.totalUnits).toBe(150); // 100 + 50 from SALES, not the 3 in-app units
+    expect(o.totalRevenue).toBe(8300); // 6200 + 2100
+    expect(o.totalProfit).toBe(8300 - (20 * 100 + 10 * 50)); // revenue − cost×units
+    // Views/orders stay behavioural — a POS row carries no session.
+    expect(o.totalViews).toBe(1);
+    expect(o.hasData).toBe(true);
+  });
+
+  it('lists a sold-but-never-viewed item so a real seller cannot go missing', async () => {
+    mockSupabase({
+      restaurant: { id: 'r1' },
+      sales: { data: [{ slug: 'diner-margarita', units: 9, revenue: 522 }], error: null },
+      events: { data: [], error: null },
+    });
+
+    const o = await getAnalyticsOverview();
+    const margarita = o.topItems.find((i) => i.slug === 'diner-margarita');
+
+    expect(margarita).toBeDefined();
+    expect(margarita?.units).toBe(9);
+    expect(margarita?.views).toBe(0);
+    expect(o.hasData).toBe(true); // sales alone are enough to have data
+  });
+
+  it('falls back to in-app order events when the tenant has no sales at all', async () => {
+    // A tenant that never imported a POS file must keep its old behaviour.
+    mockSupabase({
+      restaurant: { id: 'r1' },
+      sales: { data: [], error: null },
+      events: {
+        data: [
+          { event_name: 'order_completed', cocktail_slug: 'diner-pinky', session_id: 's1', value_num: 2, metadata: {}, occurred_at: isoNow(), created_at: isoNow() },
+        ],
+        error: null,
+      },
+    });
+
+    const o = await getAnalyticsOverview();
+
+    expect(o.totalUnits).toBe(2); // diner-pinky price 56 / cost 14
+    expect(o.totalRevenue).toBe(112);
+    expect(o.totalProfit).toBe(84);
+  });
+
+  it('ignores a sales row whose units are zero (revenue-only noise)', async () => {
+    mockSupabase({
+      restaurant: { id: 'r1' },
+      sales: { data: [{ slug: 'diner-pinky', units: 0, revenue: 0 }], error: null },
+      events: {
+        data: [
+          { event_name: 'order_completed', cocktail_slug: 'diner-pinky', session_id: 's1', value_num: 1, metadata: {}, occurred_at: isoNow(), created_at: isoNow() },
+        ],
+        error: null,
+      },
+    });
+
+    const o = await getAnalyticsOverview();
+    expect(o.totalUnits).toBe(1); // no real sales → event fallback still applies
+  });
+
   it('ranks top items by revenue and normalizes the hour heatmap', async () => {
     mockSupabase({
       restaurant: { id: 'r1' },

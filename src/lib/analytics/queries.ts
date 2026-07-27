@@ -172,7 +172,22 @@ export async function getAnalyticsOverview(
       restaurant.id,
       'event_name, cocktail_slug, value_num, metadata, session_id, occurred_at, created_at',
     );
-    if (data.length === 0) return emptyOverview();
+    // Read POS sales BEFORE the empty-events guard: a venue that imported sales but
+    // has not launched its QR yet has zero events, and must still see its revenue
+    // rather than an empty dashboard.
+    const { data: salesRows } = await supabase
+      .from('sales')
+      .select('slug, units, revenue')
+      .eq('restaurant_id', restaurant.id);
+    const soldUnits = new Map<string, number>();
+    const soldRevenue = new Map<string, number>();
+    for (const r of (salesRows ?? []) as Array<{ slug: string; units: number; revenue: number }>) {
+      soldUnits.set(r.slug, (soldUnits.get(r.slug) ?? 0) + (Number(r.units) || 0));
+      soldRevenue.set(r.slug, (soldRevenue.get(r.slug) ?? 0) + (Number(r.revenue) || 0));
+    }
+    const hasRealSales = [...soldUnits.values()].some((u) => u > 0);
+
+    if (data.length === 0 && !hasRealSales) return emptyOverview();
 
     // Price/cost per slug (price captured on the order event wins for revenue).
     const econBySlug = new Map(MENU.map((c) => [c.slug, getEconomics(c)]));
@@ -248,17 +263,6 @@ export async function getAnalyticsOverview(
     // who imported sales saw ₪55,895 on the Sales screen and a completely different
     // event-derived number labelled "revenue" on Home / Revenue / Executive.
     // Views/orders stay behavioural: they are in-app sessions, which POS rows can't supply.
-    const { data: salesRows } = await supabase
-      .from('sales')
-      .select('slug, units, revenue')
-      .eq('restaurant_id', restaurant.id);
-    const soldUnits = new Map<string, number>();
-    const soldRevenue = new Map<string, number>();
-    for (const r of (salesRows ?? []) as Array<{ slug: string; units: number; revenue: number }>) {
-      soldUnits.set(r.slug, (soldUnits.get(r.slug) ?? 0) + (Number(r.units) || 0));
-      soldRevenue.set(r.slug, (soldRevenue.get(r.slug) ?? 0) + (Number(r.revenue) || 0));
-    }
-    const hasRealSales = [...soldUnits.values()].some((u) => u > 0);
     if (hasRealSales) {
       totalUnits = 0;
       totalRevenue = 0;
