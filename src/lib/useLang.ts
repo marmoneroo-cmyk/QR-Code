@@ -5,7 +5,20 @@ import { useLocalStorageState } from './useLocalStorageState';
 
 const KEY = 'cocktail-demo:lang';
 
-const parseLang = (raw: string | null): Lang => (raw === 'he' || raw === 'en' ? raw : 'en');
+/**
+ * A stored choice always wins. With NO stored choice we follow the guest's own
+ * device language: a guest scanning the QR at an Israeli bar was shown an English
+ * menu until they found the toggle, which is the wrong first impression for a
+ * Hebrew-first venue. Only the first visit is affected — picking a language
+ * persists it and this branch never runs again.
+ */
+const parseLang = (raw: string | null): Lang => {
+  if (raw === 'he' || raw === 'en') return raw;
+  if (typeof navigator === 'undefined') return 'en'; // SSR / first render
+  const prefs = navigator.languages?.length ? navigator.languages : [navigator.language];
+  return prefs.some((l) => typeof l === 'string' && l.toLowerCase().startsWith('he')) ? 'he' : 'en';
+};
+
 const serializeLang = (l: Lang): string => l;
 
 /**

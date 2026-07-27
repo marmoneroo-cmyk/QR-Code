@@ -2,8 +2,29 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, cleanup } from '@testing-library/react';
 import { useLang } from './useLang';
+import { __resetLocalStorageCache } from './useLocalStorageState';
 
 const KEY = 'cocktail-demo:lang';
+
+/** Pretend the guest's device prefers these languages (restored by the caller). */
+function withNavigatorLanguages(langs: string[], run: () => void): void {
+  const proto = Object.getPrototypeOf(navigator) as object;
+  const origLanguages = Object.getOwnPropertyDescriptor(proto, 'languages');
+  const origLanguage = Object.getOwnPropertyDescriptor(proto, 'language');
+  Object.defineProperty(navigator, 'languages', { value: langs, configurable: true });
+  Object.defineProperty(navigator, 'language', { value: langs[0], configurable: true });
+  // The store caches parsed values per raw string — clear it so the new navigator is read.
+  __resetLocalStorageCache();
+  try {
+    run();
+  } finally {
+    delete (navigator as unknown as Record<string, unknown>).languages;
+    delete (navigator as unknown as Record<string, unknown>).language;
+    if (origLanguages) Object.defineProperty(proto, 'languages', origLanguages);
+    if (origLanguage) Object.defineProperty(proto, 'language', origLanguage);
+    __resetLocalStorageCache();
+  }
+}
 
 // Clear storage AND unmount (cleanup) between tests: unmounting removes the 'storage' and
 // 'cocktail-lang' window listeners the hook registers, so a stale instance can't react to
@@ -17,9 +38,34 @@ afterEach(() => {
 });
 
 describe('useLang', () => {
-  it('defaults to "en" when nothing is stored', () => {
+  it('defaults to "en" when nothing is stored and the device is English', () => {
+    // jsdom's navigator is en-US, so this is the English-guest path.
     const { result } = renderHook(() => useLang());
     expect(result.current.lang).toBe('en');
+  });
+
+  it('follows a Hebrew device on the first visit (nothing stored)', () => {
+    // A guest scanning the QR at an Israeli bar must not land on an English menu.
+    withNavigatorLanguages(['he-IL', 'en-US'], () => {
+      const { result } = renderHook(() => useLang());
+      expect(result.current.lang).toBe('he');
+    });
+  });
+
+  it('lets a stored choice win over the device language', () => {
+    // The owner/guest explicitly picked English on a Hebrew phone — respect it.
+    localStorage.setItem(KEY, 'en');
+    withNavigatorLanguages(['he-IL'], () => {
+      const { result } = renderHook(() => useLang());
+      expect(result.current.lang).toBe('en');
+    });
+  });
+
+  it('falls back to "en" for any other device language', () => {
+    withNavigatorLanguages(['fr-FR', 'de-DE'], () => {
+      const { result } = renderHook(() => useLang());
+      expect(result.current.lang).toBe('en');
+    });
   });
 
   it('hydrates "he" from localStorage on mount', () => {
