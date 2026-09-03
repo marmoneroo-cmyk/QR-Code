@@ -1,0 +1,13 @@
+- [Project vision](project_vision.md) — interactive luxury 3D menu platform for restaurants; shareability is the moat
+- [Project roadmap](project_roadmap.md) — full feature roadmap (diner / restaurant CMS / kiosk / platform) approved 2026-05-27, execute in sprints
+- [Project current status](project_current_status.md) — what's shipped through v0.7.0 and what's next (snapshot, updated as work progresses)
+- [Project brand](project_brand.md) — first restaurant tenant is "Diner" (slug: diner); Supabase/git keys pending
+- [Design restraint feedback](feedback_design_restraint.md) — luxury = minimal; reject Vegas-casino / fashion-template energy
+- [Changelog reference](reference_changelog.md) — CHANGELOG.md at project root is authoritative for what shipped when
+- [Preview limitations](reference_preview_limitations.md) — headless preview can't drive framer AnimatePresence clicks / screenshots time out; verify by code-parity
+- [Menu Optimization vision](feedback_menu_optimization_vision.md) — product = AI Menu Optimization (not analytics); reframe is rename-not-delete; security before branding; KPI = ordering intent, not sales
+- [Data-moat metadata](feedback_data_moat_metadata.md) — the moat is the DATA; capture lineage/outcome/lifecycle/menu-version metadata BEFORE AI-on-real-data (can't backfill); metadata > algorithm
+- [RLS read-path verified](security_rls_readpath_verified.md) — flag-flip won't silently break reads or leak; every read-path table is policy-covered, funnel view is security_invoker
+- [No fabricated numbers](project_no_fabricated_numbers.md) — never render 0/₪0 or a colored verdict on a failed load; use the NO_MEASUREMENT primitive
+- [Livecheck harness](reference_livecheck_harness.md) — how to run the opt-in live read-path diagnostic against the real DB
+- [SSRF IPv6 bypass](security_ssrf_ipv6_bypass.md) — IP guard must judge IPv4-mapped IPv6 in hex form; was a live cloud-metadata hole
