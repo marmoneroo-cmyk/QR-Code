@@ -3,7 +3,7 @@
 > **מטרה:** להמשיך בדיוק מאותה נקודה אחרי מעבר למשתמש אחר / התקנה מחדש של Claude Code.
 > Claude **לא זוכר** בין משתמשים — הזיכרון שמור בתיקיית המשתמש, לא בפרויקט. הקובץ הזה הוא הזיכרון.
 
-עודכן לאחרונה: 2026-07-21 · קומיט `7b7bf9c`
+עודכן לאחרונה: 2026-09-05 · קומיט `05e8864`
 
 ---
 
@@ -14,8 +14,14 @@
 | **תיקיית הפרויקט הראשית** | `C:\Users\shlom\Desktop\AI_Startup\Qr_Code\cocktail-demo` |
 | גיבוי בענן (החזק ביותר) | `https://github.com/marmoneroo-cmyk/QR-Code.git` (branch `master`) |
 | אתר בפרודקשן | `https://cocktail-demo-delta.vercel.app` |
-| זיכרון Claude הישן (ייעלם עם המשתמש) | `C:\Users\shlom\.claude\projects\C--Users-shlom-Desktop-Qr-Code-cocktail-demo\memory\` |
+| זיכרון Claude (ייעלם עם המשתמש) | `C:\Users\shlom\.claude\projects\C--Users-shlom-Desktop-AI-Startup-Qr-Code\memory\` |
 | **עותק של הזיכרון ששרד** | `docs/handoff/memory/` (בתוך הפרויקט + ב-git) |
+| ~~נתיב ישן — **כבר לא קיים**~~ | ~~`C:\Users\shlom\Desktop\Qr_Code\`~~ |
+
+> ⚠️ **הפרויקט זז.** עד 2026-09 הוא ישב ב-`C:\Users\shlom\Desktop\Qr_Code\cocktail-demo`.
+> הנתיב הזה **נמחק ואינו קיים יותר** — הכל תחת `Desktop\AI_Startup\`.
+> אם אתה רואה את הנתיב הישן בקובץ כלשהו (או בזיכרון של Claude) — הוא מיושן, התעלם.
+> שים לב שגם תיקיית הזיכרון של Claude קיבלה slug חדש בעקבות המעבר.
 
 > אם תיקיית ה-Desktop נמחקת יחד עם משתמש Windows — **הכל עדיין ב-GitHub**.
 > שחזור: `git clone https://github.com/marmoneroo-cmyk/QR-Code.git`
