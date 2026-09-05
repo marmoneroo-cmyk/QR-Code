@@ -1,8 +1,9 @@
 - [Project vision](project_vision.md) — interactive luxury 3D menu platform for restaurants; shareability is the moat
 - [Project roadmap](project_roadmap.md) — full feature roadmap (diner / restaurant CMS / kiosk / platform) approved 2026-05-27, execute in sprints
-- [Project current status](project_current_status.md) — what's shipped through v0.7.0 and what's next (snapshot, updated as work progresses)
-- [Project brand](project_brand.md) — first restaurant tenant is "Diner" (slug: diner); Supabase/git keys pending
-- [Design restraint feedback](feedback_design_restraint.md) — luxury = minimal; reject Vegas-casino / fashion-template energy
+- [Project current status](project_current_status.md) — current arc is the SaaS Foundation Freeze; read the top section first, the version log below it goes to v1.9.0
+- [Project brand](project_brand.md) — first restaurant tenant is "Diner" (slug: diner); Supabase + repo are live now, brand assets still TBD
+- [Design restraint feedback](feedback_design_restraint.md) — v1 glass is the base language; fix "feels AI" by ADDING distinctiveness, never by returning to bare minimalism (v2 "The Ledger" was rejected)
+- [Behavior design feedback](feedback_behavior_design.md) — design behavior, not interfaces: the drink must dominate the screen, cut the text, flavor tags instead of the radar
 - [Changelog reference](reference_changelog.md) — CHANGELOG.md at project root is authoritative for what shipped when
 - [Preview limitations](reference_preview_limitations.md) — headless preview can't drive framer AnimatePresence clicks / screenshots time out; verify by code-parity
 - [Menu Optimization vision](feedback_menu_optimization_vision.md) — product = AI Menu Optimization (not analytics); reframe is rename-not-delete; security before branding; KPI = ordering intent, not sales

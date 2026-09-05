@@ -1,3 +1,11 @@
+---
+name: feedback-behavior-design
+description: "Design behavior, not interfaces — restaurant-first over design-first: the drink must dominate the screen, cut text, drop the radar for flavor tags"
+metadata:
+  node_type: memory
+  type: feedback
+---
+
 # Feedback — Restaurant-first / Behavior Design (2026-05-30)
 
 The product is now better than 95% of digital restaurant menus — reads as a "luxury interactive beverage experience," not a "QR menu." Next phase = **psychology + hospitality UX**, not more design polish.
