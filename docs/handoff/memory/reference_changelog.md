@@ -7,7 +7,7 @@ metadata:
   originSessionId: f00f8822-a2c6-4061-8d50-863cebe3ce6c
 ---
 
-The project's source-of-truth feature log lives at `CHANGELOG.md` in the project root (C:\Users\shlom\Desktop\Qr_Code\cocktail-demo\CHANGELOG.md).
+The project's source-of-truth feature log lives at `CHANGELOG.md` in the project root (C:\Users\shlom\Desktop\AI_Startup\Qr_Code\cocktail-demo\CHANGELOG.md).
 
 **How to apply:** Every time a feature ships or a substantive change is made, append a dated entry under the current unreleased section. Use semantic categories: Added, Changed, Removed, Fixed, Tech.
 

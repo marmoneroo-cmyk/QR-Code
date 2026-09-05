@@ -11,7 +11,7 @@
 
 | מה | נתיב |
 |---|---|
-| **תיקיית הפרויקט הראשית** | `C:\Users\shlom\Desktop\Qr_Code\cocktail-demo` |
+| **תיקיית הפרויקט הראשית** | `C:\Users\shlom\Desktop\AI_Startup\Qr_Code\cocktail-demo` |
 | גיבוי בענן (החזק ביותר) | `https://github.com/marmoneroo-cmyk/QR-Code.git` (branch `master`) |
 | אתר בפרודקשן | `https://cocktail-demo-delta.vercel.app` |
 | זיכרון Claude הישן (ייעלם עם המשתמש) | `C:\Users\shlom\.claude\projects\C--Users-shlom-Desktop-Qr-Code-cocktail-demo\memory\` |
@@ -137,7 +137,7 @@ cat livecheck-report.txt
 ## 9. איך להמשיך מכאן — צעד אחר צעד
 
 1. פתח טרמינל בתיקייה:
-   `cd C:\Users\shlom\Desktop\Qr_Code\cocktail-demo`
+   `cd C:\Users\shlom\Desktop\AI_Startup\Qr_Code\cocktail-demo`
    *(אם היא נמחקה: `git clone https://github.com/marmoneroo-cmyk/QR-Code.git`)*
 2. ודא שיש `.env.local` עם מפתחות Supabase (**לא בגיט** — אם אבד, לשחזר מ-Vercel → Settings → Environment Variables).
 3. `npm install`
